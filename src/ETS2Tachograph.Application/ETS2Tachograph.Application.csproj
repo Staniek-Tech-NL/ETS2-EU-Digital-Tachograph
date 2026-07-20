@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ETS2Tachograph.Core\ETS2Tachograph.Core.csproj" />
+    <ProjectReference Include="..\ETS2Tachograph.Engine\ETS2Tachograph.Engine.csproj" />
+    <ProjectReference Include="..\ETS2Tachograph.RuleEngine\ETS2Tachograph.RuleEngine.csproj" />
+  </ItemGroup>
+
+</Project>

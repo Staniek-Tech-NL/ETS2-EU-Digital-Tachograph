@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ETS2Tachograph.Application\ETS2Tachograph.Application.csproj" />
+    <ProjectReference Include="..\ETS2Tachograph.Engine\ETS2Tachograph.Engine.csproj" />
+    <ProjectReference Include="..\ETS2Tachograph.Infrastructure\ETS2Tachograph.Infrastructure.csproj" />
+    <ProjectReference Include="..\ETS2Tachograph.Reports\ETS2Tachograph.Reports.csproj" />
+    <ProjectReference Include="..\ETS2Tachograph.Telemetry.Scs\ETS2Tachograph.Telemetry.Scs.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\**\*" />
+  </ItemGroup>
+
+</Project>

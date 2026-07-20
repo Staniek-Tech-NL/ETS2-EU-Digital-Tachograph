@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AssemblyName>ETS2Tachograph.Telemetry.Monitor</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ETS2Tachograph.Telemetry.Scs\ETS2Tachograph.Telemetry.Scs.csproj" />
+    <ProjectReference Include="..\..\src\ETS2Tachograph.Engine\ETS2Tachograph.Engine.csproj" />
+  </ItemGroup>
+
+</Project>
