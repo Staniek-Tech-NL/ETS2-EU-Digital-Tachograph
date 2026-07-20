@@ -2,6 +2,7 @@
 
 **Wersja projektu:** 0.1.0-beta.10
 **Data przygotowania dokumentu:** 20 lipca 2026
+**Ostatnia aktualizacja:** 20 lipca 2026 — po wykonaniu weryfikacji UI i odtworzeniu repozytorium git
 **Przeznaczenie:** pakiet startowy dla nowej sesji AI / nowego okna kontekstowego
 
 ---
@@ -53,7 +54,7 @@ Użytkownikiem docelowym jest gracz ETS2 ceniący realizm (w tym społeczność 
 - Ekran Historia z filtrowaniem i listą luk — **[GOTOWE]**
 - Ekran Raporty z wyborem karty/zakresu i ostrzeżeniem o kompletności — **[GOTOWE]**
 - Kreator wpisu manualnego (blokujący dla `CardRemoved`, opcjonalny dla `ForwardTimeJump`) — **[GOTOWE]**
-- Kontrola wizualna działającego UI po zmianach w XAML — **[W TRAKCIE]** / regularnie pomijana (ryzyko, patrz sekcja 9)
+- Kontrola wizualna działającego UI po zmianach w XAML — **[GOTOWE]** dla zmiany z 20.07 (test ręczny zaliczony); jako **stały punkt procesu** nadal **[DO ZROBIENIA]** (ryzyko, patrz sekcja 9)
 
 ### Wymagania dotyczące danych
 - Wszystkie obliczenia oparte na `game_time`, nigdy na zegarze systemowym — **[GOTOWE]**
@@ -85,7 +86,7 @@ Użytkownikiem docelowym jest gracz ETS2 ceniący realizm (w tym społeczność 
 | Wykrywanie operacji ładunkowych | Protokół v3, znacznik generacji operacji z oficjalnych zdarzeń SCS | Bez sygnału z gry nie dało się odróżnić skoku czasu od przesunięcia przy załadunku | Wymagało 4 iteracji (beta.6–beta.9); rzeczywista przyczyna: stan aktywności gubiony w gałęzi `GamePaused` |
 | Reguła pierwszej godziny (multi-manning) | **Odrzucona z zakresu** | Zbyt złożona (retroaktywna maszyna stanów), niska widoczność względem nakładu | Zaprojektowana koncepcyjnie, niezakodowana |
 | Testy regresyjne | Każdy znaleziony bug dostaje dedykowany test odtwarzający dokładny scenariusz | Zapobieganie powrotowi tej samej klasy błędu | Test `03:53 + 01:34 = 05:27` jako stały punkt odniesienia |
-| Repozytorium git | Lokalne repo ma powstać **przed** publikacją, niezależnie od niej | Bezpieczne cofanie zmian wprowadzanych przez agentów AI | Repo naprawione (`git init` wykonany) |
+| Repozytorium git | Lokalne repo ma powstać **przed** publikacją, niezależnie od niej | Bezpieczne cofanie zmian wprowadzanych przez agentów AI | Repo odtworzone i zwersjonowane — commit bazowy `e510ed9` na `main`; `output/` (1,26 GB paczek) wyłączone przez `.gitignore` |
 
 ---
 
@@ -178,13 +179,20 @@ ETS2 EU Digital Tachograph/
 │   │   └── ManualEntryWizardDraftTests.cs
 │   ├── ETS2Tachograph.Reports.Tests/         (9 testów)
 │   └── ETS2Tachograph.Infrastructure.Tests/  (31 testów)
-├── output/releases/
+├── docs/
+│   ├── PROJECT_HANDOFF.md              ← ten dokument
+│   ├── Agent raporty/
+│   │   └── RAPORT_AGENTA_2026-07-20.md
+│   ├── stage-3-rule-engine.md
+│   ├── stage-3.5-integration.md
+│   ├── PRODUCTION_STATUS_REPORT_BETA4.md
+│   └── UI_VISIBLE_DATA_REPORT_BETA4.md
+├── output/releases/                    [ignorowane przez git — 1,26 GB paczek]
 │   └── ETS2Tachograph-0.1.0-beta.10-win-x64.zip
 ├── BETA_TEST_PLAN.md
 ├── KNOWN_ISSUES.md
 ├── RELEASE_NOTES.md
-├── PROJECT_HANDOFF.md   ← ten dokument
-└── README.md            [PROPOZYCJA — do napisania przed publikacją]
+└── README.md
 ```
 
 **Uwaga:** dokładna zawartość poszczególnych plików (poza fragmentami omówionymi w historii projektu) nie jest w pełni udokumentowana w tym pakiecie. Odniesienia do numerów linii pochodzą z raportów wdrożeniowych i mogły się zdezaktualizować.
@@ -238,23 +246,33 @@ ETS2 EU Digital Tachograph/
 - Kompilacja Release: 0 błędów, 0 ostrzeżeń
 - Dwa długie scenariusze terenowe potwierdzone w rzeczywistej grze (2h+7h=9h odpoczynku; wariant tygodniowy 45h)
 - Dziesięć wydań beta (beta.4 → beta.10) z artefaktami i sumami SHA-256
-- Usunięcie martwego, nigdy niewidocznego bloku XAML (alternatywna wersja Dashboardu) wraz z powiązanymi zasobami
+- Usunięcie martwego, nigdy niewidocznego bloku XAML (alternatywna wersja Dashboardu) wraz z powiązanymi zasobami — `MainWindow.xaml` skrócony z 356 do 285 linii, usunięto 8 osieroconych plików z `Assets/` (zachowano `lcd-background.png` i `tachograph-panel.png`)
+- **Wizualna weryfikacja UI po tej zmianie — wykonana, test ręczny zaliczony** (Dashboard, przyciski urządzenia, sloty kart, aktywności, tryby, pauza, wydruk, `OperationStatus`, obie nakładki, zakładki, restart)
+- Odtworzenie repozytorium git po wykryciu pustego katalogu `.git` (brak historii lokalnie, brak remote) — commit bazowy `e510ed9` na `main`, 198 plików, `output/` wyłączone przez `.gitignore`
 
 ---
 
 ## 8. Aktualny stan prac
 
-**Ostatnia praca nad kodem:** usunięcie martwego bloku XAML (nieużywana, `Collapsed` wersja Dashboardu, ok. linie 132–191 w `MainWindow.xaml`) wraz z powiązanymi zasobami graficznymi. Usunięcie wykonane bezpośrednio z dysku, ponieważ repozytorium git było wtedy uszkodzone.
+**Ostatnia praca nad kodem:** usunięcie martwego bloku XAML (nieużywana, `Collapsed` wersja Dashboardu, dawne linie 132–191 w `MainWindow.xaml`) wraz z powiązanymi zasobami graficznymi. Zmiana zweryfikowana: build Release 0/0, 225/225 testów, **ręczny test UI zaliczony**.
 
-**Repozytorium git:** naprawione — `git init` wykonany.
+**Repozytorium git:** odtworzone i działające. Historia (od odtworzenia):
 
-**Co działa:** cała logika opisana w sekcjach 6–7, potwierdzona testami automatycznymi i dwoma scenariuszami terenowymi.
+| Commit | Opis |
+|---|---|
+| `e510ed9` | chore: restore repository from current beta.10 working tree (198 plików) |
+| `9178089` | docs: raport agenta z prac 2026-07-20 |
+| `7836d75` | docs: dodaj pakiet handoff projektu |
+
+Uwaga: porządki UI trafiły do commita bazowego razem z resztą drzewa — nie było możliwe rozdzielenie ich na osobny commit, ponieważ usunięte pliki PNG nie istniały już nigdzie (brak historii, brak kopii). Od kolejnych zmian obowiązuje normalny, atomowy podział na commity.
+
+**Co działa:** cała logika opisana w sekcjach 6–7, potwierdzona testami automatycznymi, dwoma scenariuszami terenowymi i ręcznym testem UI.
 
 **Czego nie zweryfikowano:**
-- Wizualna kontrola interfejsu po usunięciu martwego bloku XAML — kompilacja przechodzi, ale runtime nie został sprawdzony (WPF nie zgłasza brakujących zasobów na etapie kompilacji)
-- Rozszerzone scenariusze terenowe dla reguły ciągłości odpoczynku przez lukę (beta.10)
+- Rozszerzone scenariusze terenowe dla reguły ciągłości odpoczynku przez lukę (beta.10) — wielokrotne luki, granica tygodnia, interakcja z rekompensatą
+- Automatyczne przełączanie na „Jazda" i blokady „podczas jazdy" — test ręczny UI prowadzono bez uruchomionego ETS2
 
-**Od którego miejsca kontynuować:** wizualna weryfikacja Dashboardu (patrz sekcja 12).
+**Od którego miejsca kontynuować:** rozszerzone testy terenowe reguły z beta.10 (patrz sekcja 12).
 
 ---
 
@@ -262,8 +280,8 @@ ETS2 EU Digital Tachograph/
 
 | Problem / ryzyko | Wpływ | Prawdopodobna przyczyna | Proponowane rozwiązanie | Priorytet |
 |---|---|---|---|---|
-| Brak wizualnej kontroli UI po usunięciu martwego kodu | Ryzyko niezauważonej regresji wizualnej mimo zielonej kompilacji | WPF nie wykrywa brakujących zasobów runtime na etapie kompilacji | Ręczne przeklikanie Dashboardu (nawigacja, sloty kart, tryby, drukowanie, nakładki) | Wysoki |
-| Reguła ciągłości odpoczynku przez lukę (beta.10) przetestowana w dwóch scenariuszach | Zmiana reguły rdzeniowej może mieć niewykryte przypadki brzegowe | Ostatnia zmiana w dniu z sześcioma wydaniami | Testy terenowe: wielokrotne luki, luka na granicy tygodnia, interakcja z rekompensatą | Średni |
+| ~~Brak wizualnej kontroli UI po usunięciu martwego kodu~~ | — | — | **ZAMKNIĘTE 20.07** — ręczny test UI wykonany i zaliczony | — |
+| Reguła ciągłości odpoczynku przez lukę (beta.10) przetestowana w dwóch scenariuszach | Zmiana reguły rdzeniowej może mieć niewykryte przypadki brzegowe | Ostatnia zmiana w dniu z sześcioma wydaniami | Testy terenowe: wielokrotne luki, luka na granicy tygodnia, interakcja z rekompensatą | **Wysoki** (najwyższy otwarty) |
 | Uproszczony model rekompensat tygodniowych | Brak pełnego śladu spłat; termin liczony po numerach tygodni | Świadomie odłożone jako osobny etap | Osobny projekt z pełną specyfikacją i testami | Niski (świadome) |
 | Powtarzające się pomijanie kontroli wizualnej po zmianach w XAML | Systematyczne ryzyko regresji UI | Brak stałego punktu w procesie | Dopisać kontrolę wizualną jako stały punkt w `BETA_TEST_PLAN.md` | Średni |
 | Skróty klawiszowe nakładek mogą kolidować z innymi aplikacjami | Możliwe zgłoszenia testerów | Standardowe ograniczenie skrótów globalnych | Udokumentować, rozważyć rekonfigurację | Niski |
@@ -296,23 +314,17 @@ ETS2 EU Digital Tachograph/
 
 ## 11. Lista zadań
 
-### Priorytet 1 — najbliższy krok
+### Priorytet 1 — ✅ ZAKOŃCZONE 20.07.2026
 
-**1.1 Wizualna weryfikacja Dashboardu po usunięciu martwego XAML**
-- Opis: uruchomić aplikację, przeklikać nawigację (góra/dół/OK/C), sloty kart (wkładanie/wyjmowanie), tryby (OUT/prom/załoga), drukowanie, obie nakładki S1/S2
-- Oczekiwany rezultat: potwierdzenie braku regresji wizualnej i funkcjonalnej
-- Zależności: brak
-- Pliki: `MainWindow.xaml`, `MainViewModel.cs`, `OverlayViewModel.cs`
-- Kryterium ukończenia: wszystkie elementy UI renderują się i reagują poprawnie; brak brakujących zasobów w runtime
+**1.1 Wizualna weryfikacja Dashboardu po usunięciu martwego XAML** — ✅ **WYKONANE**
+- Ręczny test UI zaliczony: render Dashboardu, przyciski urządzenia (▲/▼/OK/C), sloty kart, zmiana aktywności, tryby OUT/PROM/podwójna obsada, pauza i liczniki, wydruk 24h, `OperationStatus`, obie nakładki (Alt+1/Alt+2/Alt+Q), zakładki, restart aplikacji
+- Zastrzeżenie: test prowadzono bez uruchomionego ETS2, więc nie objął automatycznego przełączania na „Jazda" ani blokad „podczas jazdy"
 
-**1.2 Pierwszy commit w naprawionym repozytorium**
-- Opis: zweryfikować `.gitignore` (`bin/`, `obj/`, `*.db`, `*.db.bak.*`, `output/releases/*.zip`, `logs/`), wykonać commit bazowy
-- Oczekiwany rezultat: stan projektu pod kontrolą wersji
-- Zależności: 1.1 (żeby nie commitować stanu z potencjalną regresją)
-- Pliki: `.gitignore`
-- Kryterium ukończenia: `git status` czysty, `git log` pokazuje commit bazowy, brak dużych artefaktów w historii
+**1.2 Pierwszy commit w naprawionym repozytorium** — ✅ **WYKONANE**
+- `.gitignore` uzupełniony o `output/`; commit bazowy `e510ed9` (198 plików), następnie `9178089` i `7836d75`
+- `git status` czysty, brak dużych artefaktów w historii (paczki release poza repo)
 
-### Priorytet 2 — po ukończeniu podstaw
+### Priorytet 2 — najbliższy krok
 
 **2.1 Rozszerzone testy terenowe reguły z beta.10**
 - Scenariusze: wielokrotne luki w jednym okresie odpoczynku; luka przecinająca granicę tygodnia regulacyjnego; interakcja rozliczonej luki z rekompensatą tygodniową
@@ -340,15 +352,21 @@ ETS2 EU Digital Tachograph/
 
 ## 12. Rekomendowany następny krok
 
-**Wykonać wizualną weryfikację Dashboardu po usunięciu martwego bloku XAML.**
+**Wykonać rozszerzone testy terenowe reguły ciągłości odpoczynku z beta.10.**
 
-**Co dokładnie zrobić:** uruchomić aplikację WPF i przejść pełną ścieżkę interfejsu — nawigacja przyciskami (góra/dół/OK/C), wkładanie i wyjmowanie kart w obu slotach, przełączanie trybów (OUT, prom, załoga), ekran drukowania, obie nakładki (S1/S2), ekran Historia z sekcją luk, ekran Raporty z generowaniem PDF.
+*(Poprzedni rekomendowany krok — wizualna weryfikacja Dashboardu — został wykonany 20.07 i zaliczony; pierwszy commit również.)*
 
-**Dlaczego teraz:** to jedyna zmiana w projekcie wykonana bez kontroli wersji i bez weryfikacji runtime. Kompilacja przechodzi, ale WPF nie wykrywa brakujących zasobów na etapie budowania — ewentualna regresja ujawni się dopiero przy uruchomieniu. Wykonanie tego przed pierwszym commitem gwarantuje, że stan bazowy repozytorium jest sprawdzony, a nie tylko kompilowalny.
+**Co dokładnie zrobić:** przeprowadzić w rzeczywistej grze scenariusze wykraczające poza dwa dotychczas potwierdzone (2h+7h=9h oraz wariant tygodniowy 45h):
+- wielokrotne luki `CardRemoved` w obrębie jednego okresu odpoczynku;
+- luka przecinająca granicę tygodnia regulacyjnego;
+- interakcja rozliczonej luki z zobowiązaniem rekompensaty tygodniowej;
+- kontrolnie: segment `Inna praca` / `Dyspozycyjność` wewnątrz luki — musi przerwać ciągłość.
 
-**Pliki, których dotyczy:** `MainWindow.xaml`, `MainViewModel.cs`, `OverlayViewModel.cs` oraz katalog zasobów (`Assets`).
+**Dlaczego teraz:** reguła z beta.10 odwraca wcześniejszą, bardziej restrykcyjną zasadę i dotyka rdzenia klasyfikacji odpoczynku (reset dobowy i tygodniowy). Powstała ostatniego dnia intensywnych wydań i ma pokrycie tylko w dwóch scenariuszach terenowych. To obecnie najwyższe otwarte ryzyko projektu.
 
-**Jak sprawdzić poprawność:** wszystkie elementy interfejsu renderują się bez pustych miejsc i wyjątków; przyciski wywołują właściwe komendy; nakładki otwierają się skrótami i pamiętają pozycje; wygenerowany PDF ma poprawny układ (nagłówek, bilans, tabele bez nachodzenia).
+**Pliki, których dotyczy:** `RegulationEngine.cs`, `Internal/HistoryAnalysis.cs`, `ManualEntryService.cs`, `ActivityHistoryProcessor.cs`.
+
+**Jak sprawdzić poprawność:** brak rozbieżności między licznikami w UI a raportem PDF po restarcie aplikacji; klasyfikacja odpoczynku zgodna z faktyczną długością nieprzerwanego bloku; rekompensaty naliczone od bazy 9h; każdy wykryty błąd otrzymuje test regresyjny odtwarzający dokładny scenariusz.
 
 ---
 
@@ -397,12 +415,14 @@ ETS2 EU Digital Tachograph/
 **Naprawione błędy (z testami regresyjnymi):** przypisanie sesji przy cofnięciu czasu (`UNIQUE constraint`), idempotentność zapisu po znaczącym kluczu, fałszywa rekonstrukcja wielogodzinnej Jazdy przy skoku czasu, zła baza rekompensaty (11h→9h), utrata aktywności w gałęzi `GamePaused`, luka przycięta przez późniejszą gałąź czasu. Kluczowa regresja odniesienia: `03:53 + 01:34 = 05:27`.
 
 **Aktualne problemy:**
-1. Brak wizualnej kontroli Dashboardu po usunięciu martwego, nieużywanego bloku XAML — kompilacja przechodzi, runtime niezweryfikowany.
-2. Reguła ciągłości odpoczynku przez lukę (beta.10) przetestowana tylko w dwóch scenariuszach terenowych — warto rozszerzyć o wielokrotne luki i granicę tygodnia.
-3. Model rekompensat tygodniowych jest uproszczony (brak pełnego śladu spłat, termin po numerach tygodni) — świadomie odłożony jako osobny etap.
+1. Reguła ciągłości odpoczynku przez lukę (beta.10) przetestowana tylko w dwóch scenariuszach terenowych — warto rozszerzyć o wielokrotne luki, granicę tygodnia i interakcję z rekompensatą. **Najwyższe otwarte ryzyko.**
+2. Model rekompensat tygodniowych jest uproszczony (brak pełnego śladu spłat, termin po numerach tygodni) — świadomie odłożony jako osobny etap.
+3. Kontrola wizualna UI nie jest jeszcze stałym punktem procesu — dla zmiany z 20.07 została wykonana, ale nie ma jej w `BETA_TEST_PLAN.md` jako checklisty po każdej zmianie w XAML.
 
 **Podjęte decyzje warte zapamiętania:** OUT świadomie wyjęty z piktogramów wpisu manualnego; reguła pierwszej godziny przy podwójnej obsadzie odrzucona z zakresu projektu; pełne rekompensaty tygodniowe i zimna retencja (365 dni) odłożone jako przyszłe etapy; dzielony odpoczynek dobowy 3h+9h nierozpoznawany (known issue); klucz idempotentności to `ActivitySessionId + StartGameMinute`, nie losowy `Id`.
 
 **Ograniczenia:** Windows x64 wyłącznie; telemetria SCS tylko do odczytu, więc aplikacja nie blokuje fizycznie jazdy w grze, jedynie własny interfejs (zgodnie z zachowaniem prawdziwego DTCO); aplikacja nie jest certyfikowanym tachografem ani implementacją Annex 1C.
 
-**Najbliższe zadanie:** wizualna weryfikacja Dashboardu (nawigacja, sloty kart, tryby, drukowanie, nakładki, ekrany Historia i Raporty) po usunięciu martwego bloku XAML, a następnie pierwszy commit w naprawionym repozytorium git po sprawdzeniu `.gitignore`.
+**Stan repozytorium:** odtworzone i działające — `main`, commity `e510ed9` (bazowy, 198 plików), `9178089`, `7836d75`; `output/` wyłączone przez `.gitignore`.
+
+**Najbliższe zadanie:** rozszerzone testy terenowe reguły ciągłości odpoczynku z beta.10 — wielokrotne luki w jednym okresie odpoczynku, luka przecinająca granicę tygodnia regulacyjnego, interakcja z rekompensatą tygodniową. Wizualna weryfikacja Dashboardu i pierwszy commit zostały wykonane 20.07.2026.
