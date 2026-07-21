@@ -15,7 +15,7 @@ Projekt powstał jako reakcja na niedociągnięcia istniejących na rynku narzę
 
 Użytkownikiem docelowym jest gracz ETS2 ceniący realizm (w tym społeczność VTC), a autor projektu jest jednocześnie jego głównym testerem i deweloperem (samouk, korzysta z Claude Code / Codex jako wsparcia).
 
-**Aktualny etap:** wersja **0.1.0-beta.10.1**, 239/239 testów automatycznych zielonych, kompilacja Release bez błędów i ostrzeżeń. Hotfix kanonicznej historii został przyjęty jako obowiązująca wersja testowa; beta.10 nie może już pracować na aktywnej bazie. Smoke test świeżej telemetrii zaliczony, Dzień 3 (luka na granicy tygodnia regulacyjnego) zaliczony. Jedyny nierozliczony punkt gate’u to interakcja z rekompensatą tygodniową, która okazała się świadomym uproszczeniem modelu (patrz sekcja 9), a nie testem do wykonania — gate jest funkcjonalnie otwarty do decyzji GO/FIX/HOLD.
+**Aktualny etap:** wersja **0.1.0-beta.10.1**, 239/239 testów automatycznych zielonych, kompilacja Release bez błędów i ostrzeżeń. Hotfix kanonicznej historii został przyjęty jako obowiązująca wersja testowa; beta.10 nie może już pracować na aktywnej bazie. Smoke test świeżej telemetrii zaliczony, Dzień 3 (luka na granicy tygodnia regulacyjnego) zaliczony. Jedyny nierozliczony punkt gate’u to interakcja z rekompensatą tygodniową, która okazała się świadomym uproszczeniem modelu (patrz sekcja 9), a nie testem do wykonania. Zakres testowy gate’u został wykonany; gate oczekuje na formalną decyzję GO/FIX/HOLD.
 
 ---
 
@@ -29,7 +29,7 @@ Użytkownikiem docelowym jest gracz ETS2 ceniący realizm (w tym społeczność 
 - Obsługa cofnięć i skoków czasu gry (`truncate-and-append`) — **[GOTOWE]**
 - Kanoniczna projekcja bez nakładających się minut (`SubtractCoveredRanges` + `EnsureNoOverlap`) — **[GOTOWE]** w beta.10.1
 - Jawne luki aktywności (`ActivityGap`) i wpisy manualne (`ManualEntryService.ResolveGap`) — **[GOTOWE]**
-- Ciągłość odpoczynku przez rozliczoną lukę `CardRemoved` (beta.10) — **[GOTOWE]**, wymaga dodatkowych testów terenowych
+- Ciągłość odpoczynku przez rozliczoną lukę `CardRemoved` (beta.10) — **[GOTOWE]**; bieżący zakres testów terenowych zaliczony, wiele luk pozostaje osobnym zadaniem domenowym
 - Rozpoznawanie operacji załadunku/rozładunku (protokół v3) — **[GOTOWE]**
 - Raporty PDF/CSV/JSON VTC/`.tacho` z informacją o kompletności dowodu — **[GOTOWE]**
 - Retencja danych (hot/warm) — **[GOTOWE]**; cold — **[DO ZROBIENIA]** (hak przygotowany)
@@ -219,7 +219,7 @@ ETS2 EU Digital Tachograph/
 | Priorytet przyczyn luki | `CardRemoved > ForwardTimeJump` per karta | Skok czasu przy wyjętej karcie | Brak dodatkowej luki dla tej karty | GOTOWE |
 | Brak nakładek w historii kanonicznej | Rekord przychodzący oddaje fragmenty już pokryte przez historię kanoniczną; przedziały są półotwarte `[Start, End)` | Kolejne sesje lub backfill manualny obejmują wcześniejsze minuty | Każda minuta występuje najwyżej raz; niepokryty backfill zostaje zachowany | GOTOWE (beta.10.1) |
 | Blok odpoczynku ciągły | Najdłuższy nieprzerwany odcinek; `Inna praca` i `Dyspozycyjność` przerywają | Rozliczanie luki / historia | Brak sumowania rozdzielonych bloków | GOTOWE |
-| Ciągłość przez rozliczoną lukę (beta.10) | Odpoczynek zmierzony + rozliczona luka jako `Przerwa/Odpoczynek` = jeden ciągły blok (przed, po lub po obu stronach) | Rozliczenie `CardRemoved` jako odpoczynek | Reset dobowy/tygodniowy na końcu połączonego bloku; blok niesie `SourceGapId` | GOTOWE, wymaga dalszych testów terenowych |
+| Ciągłość przez rozliczoną lukę (beta.10) | Odpoczynek zmierzony + rozliczona luka jako `Przerwa/Odpoczynek` = jeden ciągły blok (przed, po lub po obu stronach) | Rozliczenie `CardRemoved` jako odpoczynek | Reset dobowy/tygodniowy na końcu połączonego bloku; blok niesie `SourceGapId` | GOTOWE — bieżący zakres testów terenowych zaliczony; wiele luk pozostaje osobnym zadaniem domenowym |
 | Rekompensata tygodniowa | Dług = 45h − rzeczywisty odpoczynek | Odpoczynek 24–<45h | Zobowiązanie przypisane do tygodnia, termin do końca 3. kolejnego tygodnia, FIFO rozliczania | W TRAKCIE (uproszczone: brak pełnego śladu spłat, termin po numerach tygodni) |
 | Rekompensata — baza dołączenia | 9h jako próg nadwyżki dołączalnej | Odpoczynek dłuższy niż wymagany | Poprawka bugu B/5 | GOTOWE |
 | Blokada jazdy przy `CardRemoved` | Włożenie karty z nierozliczoną luką wymusza kreator | Luka `CardRemoved` nierozliczona | Blokada logiczna UI (nie fizyczna — telemetria SCS tylko do odczytu) | GOTOWE |
