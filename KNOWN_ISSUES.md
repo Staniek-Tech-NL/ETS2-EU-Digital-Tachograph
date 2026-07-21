@@ -1,6 +1,6 @@
 # Znane ograniczenia i problemy
 
-> Protokół v2 wymaga jednoczesnej aktualizacji aplikacji i DLL. Po podmianie
+> Protokół v3 wymaga jednoczesnej aktualizacji aplikacji i DLL. Po podmianie
 > pluginu trzeba całkowicie uruchomić ETS2 ponownie; ponowne wczytanie zapisu nie
 > przeładuje biblioteki natywnej.
 
@@ -28,6 +28,12 @@ diagnostycznym.
 - Rekompensaty skróconych odpoczynków tygodniowych mają nadal uproszczony model:
   termin jest liczony numerami tygodni, nie ma jeszcze trwałego śladu przypisania
   spłaty do konkretnego odpoczynku ani pełnej obsługi przypadków granicznych.
+  Model **zaniża dług**: skrócenie tygodniowe (`2700 − długość`) jest spłacane
+  nadwyżką ponad 9 h z każdego kolejnego odpoczynku dobowego, sumowaną po okruchach,
+  podczas gdy art. 8(6)/(7) wymaga rekompensaty w jednym bloku (en bloc) dołączonej
+  do dedykowanego odpoczynku co najmniej 9 h. W efekcie licznik `REKOMPENSATA` może
+  pokazywać dług bliski zeru, mimo że realnie pozostaje do odebrania. Przykład:
+  skrócenie o 1253 min bywa raportowane jako 18 min zaległości.
 - Tryb promu jest włączany ręcznie. Telemetria ETS2 nie daje wiarygodnego zdarzenia,
   które pozwalałoby automatycznie rozpoznać cały przebieg odpoczynku promowego.
 - Pociągi nie są modelowane, ponieważ ETS2 praktycznie nie udostępnia użytecznego
