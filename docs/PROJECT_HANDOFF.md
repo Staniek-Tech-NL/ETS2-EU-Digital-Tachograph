@@ -2,7 +2,7 @@
 
 **Wersja projektu:** 0.1.0-beta.10.1
 **Data przygotowania dokumentu:** 20 lipca 2026
-**Ostatnia aktualizacja:** 21 lipca 2026 — po naprawie nakładek w kanonicznej historii i wydaniu beta.10.1
+**Ostatnia aktualizacja:** 21 lipca 2026 — po smoke teście i Dniu 3 testów terenowych; gate beta.10.1 funkcjonalnie zamknięty
 **Przeznaczenie:** pakiet startowy dla nowej sesji AI / nowego okna kontekstowego
 
 ---
@@ -15,7 +15,7 @@ Projekt powstał jako reakcja na niedociągnięcia istniejących na rynku narzę
 
 Użytkownikiem docelowym jest gracz ETS2 ceniący realizm (w tym społeczność VTC), a autor projektu jest jednocześnie jego głównym testerem i deweloperem (samouk, korzysta z Claude Code / Codex jako wsparcia).
 
-**Aktualny etap:** wersja **0.1.0-beta.10.1**, 239/239 testów automatycznych zielonych, kompilacja Release bez błędów i ostrzeżeń. Hotfix kanonicznej historii został przyjęty jako obowiązująca wersja testowa; beta.10 nie może już pracować na aktywnej bazie. Pozostaje końcowy smoke test na świeżej telemetrii oraz dwa scenariusze terenowe reguły odpoczynku przed otwarciem gate’u Planera podróży.
+**Aktualny etap:** wersja **0.1.0-beta.10.1**, 239/239 testów automatycznych zielonych, kompilacja Release bez błędów i ostrzeżeń. Hotfix kanonicznej historii został przyjęty jako obowiązująca wersja testowa; beta.10 nie może już pracować na aktywnej bazie. Smoke test świeżej telemetrii zaliczony, Dzień 3 (luka na granicy tygodnia regulacyjnego) zaliczony. Jedyny nierozliczony punkt gate’u to interakcja z rekompensatą tygodniową, która okazała się świadomym uproszczeniem modelu (patrz sekcja 9), a nie testem do wykonania — gate jest funkcjonalnie otwarty do decyzji GO/FIX/HOLD.
 
 ---
 
@@ -287,13 +287,15 @@ ETS2 EU Digital Tachograph/
 - commity: `49e200d` (poprawka), `906b7d5` (wydanie).
 
 **Testy terenowe reguły beta.10/10.1:**
-- pojedyncza rozliczona luka `CardRemoved` — zaliczona na obu kartach;
+- pojedyncza rozliczona luka `CardRemoved` — zaliczona na obu kartach (Dzień 2);
 - wynik zgodny między RuleEngine, UI i stanem po restarcie;
 - slot 2 podczas jazdy — domknięty i wycofany z dalszego planu;
-- pozostały: test luki na granicy tygodnia oraz interakcja z rekompensatą tygodniową;
+- **smoke test świeżej telemetrii — zaliczony**: normalna sesja, nowe rekordy, czyste zamknięcie i restart bez `SQLite Error 19` ani `InvalidCanonicalHistoryException`;
+- **Dzień 3, luka na granicy tygodnia regulacyjnego — zaliczony**;
+- interakcja z rekompensatą tygodniową nie jest już otwartym testem: model rekompensat jest świadomym uproszczeniem (zaniża dług, patrz sekcja 9);
 - wiele rozliczonych luk w jednym bloku pozostaje osobnym zadaniem domenowym i nie jest częścią hotfiksa kanonizacji.
 
-**Najbliższy punkt kontynuacji:** końcowy smoke test pełnego przepływu beta.10.1 na świeżej telemetrii, następnie dwa pozostałe scenariusze terenowe.
+**Najbliższy punkt kontynuacji:** gate terenowy funkcjonalnie zamknięty — pozostaje decyzja GO/FIX/HOLD dla beta.10.1 i otwarcie Planera podróży.
 
 ---
 
@@ -301,11 +303,11 @@ ETS2 EU Digital Tachograph/
 
 | Problem / ryzyko | Wpływ | Stan / przyczyna | Działanie | Priorytet |
 |---|---|---|---|---|
-| Końcowy smoke test beta.10.1 na świeżej telemetrii | Hotfix potwierdzono na kopii danych, ale nie zamknięto jeszcze całego przepływu plugin → zapis → projekcja → restart | Jedno niezakończone kryterium operacyjne | Normalna sesja ETS2, zapis nowych danych, czyste zamknięcie, restart i kontrola logów/archiwizacji | **Wysoki — najbliższy krok** |
-| Granica tygodnia i rekompensata przy odpoczynku przez lukę | Możliwy przypadek brzegowy świeżej reguły beta.10 | Dzień 2 potwierdził pojedynczą lukę; dwa scenariusze pozostały | Test terenowy na beta.10.1, porównanie RuleEngine/UI/PDF/restart | **Wysoki** |
+| ~~Końcowy smoke test beta.10.1 na świeżej telemetrii~~ | — | — | **ZAMKNIĘTE** — smoke test zaliczony: nowa sesja, czyste zamknięcie, restart bez `SQLite Error 19` i `InvalidCanonicalHistoryException` | — |
+| ~~Luka na granicy tygodnia regulacyjnego~~ | — | — | **ZAMKNIĘTE (Dzień 3)** — scenariusz zaliczony terenowo | — |
 | Ciągłość przez wiele rozliczonych luk | Historia terenowa pokazała inną ścieżkę scalania i niepełne łączenie bloków | Zakres beta.10 obejmował pojedynczą lukę; intencja blokady przed łączeniem wpisów manualnych nie jest rozstrzygnięta | Osobna decyzja domenowa i specyfikacja; nie poprawiać przy okazji | Średni, poza bieżącym gate’em |
 | Log `APP_START_FAILED` pomija `InnerException` | Wydłuża diagnozę awarii bazy lub EF | Logowany jest tylko wyjątek zewnętrzny | Dodać bezpieczne logowanie łańcucha wyjątków w osobnym zadaniu diagnostycznym | Średni |
-| Uproszczony model rekompensat tygodniowych | Brak pełnego śladu spłat; termin liczony po numerach tygodni | Świadomie odłożony model | Osobny etap; Planer stosuje fallback i jawny poziom wiarygodności | Średni dla Planera, niski dla bieżącej bety |
+| Uproszczony model rekompensat tygodniowych — **zaniża dług** | Rekompensata pokazywana jako niemal spłacona, gdy realnie pozostaje duży dług; ryzyko fałszywego „w normie” | Świadome uproszczenie autora: dług skróconego odpoczynku tygodniowego (`2700 − długość`) jest spłacany nadwyżką ponad 9 h z **każdego** kolejnego odpoczynku dobowego, sumowaną po okruchach. Art. 8(6)/(7) wymaga rekompensaty **en bloc**, dołączonej do dedykowanego odpoczynku ≥9 h — nie zbioru nadwyżek. Przykład terenowy: Staniek, skrócenie 1253 min, silnik pokazuje dług 18 min; obroniony jest tylko kredyt z nadwyżki regularnego tygodniowego (>45 h), nie z odpoczynków dobowych | Osobny etap: spłata wyłącznie dedykowanymi blokami en bloc, pełny ślad spłat. `ProjectCompensations` w `RegulationEngine.cs` | Średni dla Planera, niski dla bieżącej bety |
 | Numeracja dni w analizach surowych | Ryzyko fałszywego zgłoszenia błędu o jeden dzień | UI stosuje `floor(GameMinute / 1440) + 1` | Traktować `+1` jako niezmiennik przy porównaniu minut z UI/CSV/PDF | Średni procesowy |
 | Ryzyko rozrostu zakresu | Opóźnienie zamknięcia testów i Planera | Sąsiednie obserwacje kuszą do zmian „przy okazji” | Zachować gate’y: hotfix → smoke → dwa testy → decyzja GO/FIX/HOLD | Średni |
 
@@ -340,25 +342,19 @@ ETS2 EU Digital Tachograph/
 - ✅ Doprecyzowanie trwałości nakładek: pozycja trwała, widoczność nietrwała (`0d9e226`).
 - ✅ Dzień 2 testów terenowych: pojedyncza luka `CardRemoved` zielona na obu kartach; slot 2 domknięty.
 - ✅ Naprawa nakładek kanonicznej historii i wydanie beta.10.1 (`49e200d`, `906b7d5`).
+- ✅ Smoke test beta.10.1 na świeżej telemetrii: nowa sesja, czyste zamknięcie, restart bez `SQLite Error 19` ani `InvalidCanonicalHistoryException`.
+- ✅ Dzień 3: luka przecinająca granicę tygodnia regulacyjnego — zaliczona terenowo.
 
 ### Priorytet 2 — najbliższe kroki
 
-**2.1 Smoke test beta.10.1 na świeżej telemetrii**
-- uruchomić ETS2 i aplikację beta.10.1;
-- wykonać normalną sesję z nowymi rekordami;
-- poprawnie zamknąć sesję, grę i aplikację;
-- ponownie uruchomić aplikację;
-- potwierdzić `APP_READY`, `APP_STOP` z kodem 0, brak `SQLite Error 19` i brak `InvalidCanonicalHistoryException`;
-- sprawdzić zachowanie nowych danych i idempotentność archiwizacji.
+**2.1 Decyzja GO / FIX / HOLD dla gate’u beta.10.1**
+- gate terenowy funkcjonalnie zamknięty (smoke + Dzień 2 + Dzień 3);
+- interakcja z rekompensatą nie jest testem — to świadome uproszczenie modelu (sekcja 9);
+- podjąć decyzję i zapisać ją w dokumentacji.
 
-**2.2 Dokończenie gate’u terenowego**
-- luka przecinająca granicę tygodnia regulacyjnego;
-- interakcja rozliczonej luki z rekompensatą tygodniową;
-- zgodność RuleEngine, Dashboardu, PDF i stanu po restarcie.
-
-**2.3 Dokumentacja po smoke teście**
+**2.2 Dokumentacja po gate’cie**
 - zaktualizować `RELEASE_NOTES.md`, `KNOWN_ISSUES.md`, `BETA_TEST_PLAN.md` i raport terenowy;
-- zapisać decyzję GO / FIX / HOLD;
+- w `KNOWN_ISSUES.md` odnotować, że rekompensata bywa zaniżana (spłata okruchami z odpoczynków dobowych);
 - potwierdzić czyste repozytorium.
 
 ### Priorytet 3 — po decyzji GO
@@ -373,19 +369,17 @@ ETS2 EU Digital Tachograph/
 
 ## 12. Rekomendowany następny krok
 
-**Wykonać końcowy smoke test beta.10.1 na świeżej telemetrii ETS2.**
+**Podjąć decyzję GO / FIX / HOLD dla gate’u beta.10.1.**
 
-**Sekwencja:**
-1. uruchom beta.10.1 i ETS2;
-2. wykonaj normalną jazdę, pauzę/inną aktywność i zapis nowych minut;
-3. zakończ sesję oraz zamknij aplikację;
-4. uruchom aplikację ponownie;
-5. sprawdź log, historię, liczniki i archiwizację warm;
-6. uruchom aplikację drugi raz bez zmian, aby potwierdzić idempotentność.
+Gate terenowy jest funkcjonalnie zamknięty:
+- ✅ smoke test świeżej telemetrii — aplikacja dwukrotnie doszła do `APP_READY`, zamknięcie kodem 0, brak `SQLite Error 19` i `InvalidCanonicalHistoryException`;
+- ✅ Dzień 2 — pojedyncza rozliczona luka `CardRemoved` na obu kartach;
+- ✅ Dzień 3 — luka na granicy tygodnia regulacyjnego;
+- ⚠️ interakcja z rekompensatą tygodniową **nie jest testem do wykonania** — to świadome uproszczenie modelu, które zaniża dług (sekcja 9). Do świadomego zaakceptowania jako znane ograniczenie, nie do naprawy w tym gate’cie.
 
-**Kryterium zaliczenia:** aplikacja dwukrotnie dochodzi do `APP_READY`, zamyka się kodem 0, nowe rekordy pozostają widoczne i jednoznaczne, archiwizacja daje ten sam wynik, a log nie zawiera `SQLite Error 19`, `InvalidCanonicalHistoryException` ani nowych błędów zapisu.
+**Po decyzji GO:** otworzyć implementację Planera podróży — najpierw końcowa akceptacja specyfikacji, potem gałąź funkcjonalna, kontrakty i czerwone testy P0.
 
-**Po zaliczeniu:** przejść do testu granicy tygodnia i rekompensaty. Po obu scenariuszach podjąć decyzję **GO / FIX / HOLD** dla gate’u beta.10.1 i dopiero wtedy otworzyć implementację Planera podróży.
+**Uwaga o danych:** po incydencie z 21.07 aktywna baza mogła zostać podmieniona; stan katalogu danych w `%LocalAppData%` potwierdzić przed dalszą pracą. Kopia z incydentu leży w `output\ODZYSK-BAZY`.
 
 ---
 
@@ -403,12 +397,12 @@ ETS2 EU Digital Tachograph/
 
 **Hotfix beta.10.1:** beta.10 nie startowała po przebudowie warm, ponieważ jedna minuta na każdej karcie występowała w dwóch sesjach i tworzyła nakładające się bloki. Poprawka usunęła tylko dwie zdublowane minuty z projekcji, zachowując około 1007 minut prawidłowego backfillu manualnego i wszystkie rekordy źródłowe. Commity: `49e200d`, `906b7d5`; 14 nowych testów `CanonicalProjectionTests.cs`.
 
-**Reguła odpoczynku beta.10:** odpoczynek zmierzony i rozliczona luka `CardRemoved` jako `Przerwa/Odpoczynek` mogą tworzyć jeden ciągły blok z `SourceGapId`. Dzień 2 testów terenowych potwierdził pojedynczą lukę na obu kartach oraz stabilność po restarcie. Slot 2 podczas jazdy jest domknięty. Pozostały granica tygodnia i rekompensata. Wiele rozliczonych luk jest osobnym, nierozstrzygniętym tematem domenowym.
+**Reguła odpoczynku beta.10:** odpoczynek zmierzony i rozliczona luka `CardRemoved` jako `Przerwa/Odpoczynek` mogą tworzyć jeden ciągły blok z `SourceGapId`. Testy terenowe zaliczone: Dzień 2 (pojedyncza luka, obie karty, stabilność po restarcie), smoke test świeżej telemetrii oraz Dzień 3 (luka na granicy tygodnia regulacyjnego). Slot 2 podczas jazdy domknięty. Interakcja z rekompensatą to znane uproszczenie modelu, nie otwarty test. Wiele rozliczonych luk jest osobnym, nierozstrzygniętym tematem domenowym.
 
-**Ważne decyzje:** brak OUT we wpisie manualnym; `CardRemoved > ForwardTimeJump`; najwyżej jedna otwarta luka na kartę; najdłuższy nieprzerwany odpoczynek zamiast sumy; klucz idempotentności `ActivitySessionId + StartGameMinute`; reguła pierwszej godziny podwójnej obsady odrzucona; dzielony odpoczynek 3+9 nierozpoznawany; pełne rekompensaty odłożone.
+**Ważne decyzje:** brak OUT we wpisie manualnym; `CardRemoved > ForwardTimeJump`; najwyżej jedna otwarta luka na kartę; najdłuższy nieprzerwany odpoczynek zamiast sumy; klucz idempotentności `ActivitySessionId + StartGameMinute`; reguła pierwszej godziny podwójnej obsady odrzucona; dzielony odpoczynek 3+9 nierozpoznawany; pełne rekompensaty odłożone (obecny model zaniża dług — spłaca nadwyżką z odpoczynków dobowych zamiast dedykowanym blokiem en bloc).
 
 **Numeracja dni:** `displayedDay = floor(GameMinute / 1440) + 1`. Przy porównaniu surowych minut z UI, CSV i PDF zawsze stosuj `+1`.
 
 **Planer podróży MVP:** strategia „Najwcześniejsza legalna”, specyfikacja po przeglądzie P0/P1/P2. Implementacja pozostaje za gate’em beta.10.1. Po GO: końcowa akceptacja specyfikacji, osobna gałąź, kontrakty i czerwone testy P0, potem silnik zdarzeniowy, Application Service i UI.
 
-**Najbliższe zadanie:** smoke test świeżej telemetrii beta.10.1: normalna sesja ETS2 → nowe dane → poprawne zamknięcie → restart → kontrola logów i archiwizacji. Następnie test granicy tygodnia oraz interakcji z rekompensatą, po czym decyzja GO / FIX / HOLD.
+**Najbliższe zadanie:** decyzja GO / FIX / HOLD dla gate’u beta.10.1. Gate terenowy zamknięty (smoke test, Dzień 2, Dzień 3); rekompensata to znane uproszczenie do zaakceptowania, nie test. Po GO — otwarcie Planera podróży. Przed dalszą pracą potwierdzić stan katalogu danych po incydencie z 21.07.
