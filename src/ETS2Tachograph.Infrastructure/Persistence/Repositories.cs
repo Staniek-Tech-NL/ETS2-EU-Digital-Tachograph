@@ -870,9 +870,62 @@ public sealed class ActivityRepository :
             var branchStart = session.StartedAt;
             if (index > 0)
                 TruncateAfter(canonical, branchStart);
-            canonical.AddRange(session.Records.OrderBy(x => x.Start));
+            // From the anchor upwards the new session already owns the timeline, because
+            // TruncateAfter cleared it. Below the anchor it may only fill minutes nobody
+            // covers: a manual entry resolves gaps, it does not amend recorded telemetry.
+            foreach (var record in session.Records.OrderBy(x => x.Start))
+                canonical.AddRange(SubtractCoveredRanges(record, canonical).ToList());
         }
-        return canonical.OrderBy(x => x.Start).ToList();
+
+        var ordered = canonical.OrderBy(x => x.Start).ToList();
+        EnsureNoOverlap(ordered);
+        return ordered;
+    }
+
+    /// <summary>
+    /// Splits <paramref name="incoming"/> into the parts no canonical record covers yet.
+    /// Intervals are half-open, so a fragment ending where the next one starts is adjacent,
+    /// not overlapping. Returns nothing when the record is already fully covered, and more
+    /// than one fragment when coverage falls inside it.
+    /// </summary>
+    private static IEnumerable<ActivityRecord> SubtractCoveredRanges(
+        ActivityRecord incoming,
+        IReadOnlyList<ActivityRecord> canonicalRecords)
+    {
+        var end = incoming.EndExclusive.TotalMinutes;
+        var cursor = incoming.Start.TotalMinutes;
+        foreach (var cover in canonicalRecords
+                     .Where(x => x.EndExclusive.TotalMinutes > cursor &&
+                                 x.Start.TotalMinutes < end)
+                     .OrderBy(x => x.Start.TotalMinutes))
+        {
+            if (cover.Start.TotalMinutes > cursor)
+                yield return incoming with
+                {
+                    Start = new GameTime(cursor),
+                    EndExclusive = new GameTime(Math.Min(cover.Start.TotalMinutes, end))
+                };
+            cursor = Math.Max(cursor, cover.EndExclusive.TotalMinutes);
+            if (cursor >= end)
+                yield break;
+        }
+
+        if (cursor < end)
+            yield return incoming with
+            {
+                Start = new GameTime(cursor),
+                EndExclusive = new GameTime(end)
+            };
+    }
+
+    private static void EnsureNoOverlap(IReadOnlyList<ActivityRecord> ordered)
+    {
+        for (var index = 1; index < ordered.Count; index++)
+            if (ordered[index].Start < ordered[index - 1].EndExclusive)
+                throw new InvalidCanonicalHistoryException(
+                    ordered[index].DriverCardId,
+                    ordered[index - 1],
+                    ordered[index]);
     }
 
     private static List<ActivityGap> CanonicalizeGaps(
@@ -939,8 +992,11 @@ public sealed class ActivityRepository :
         IReadOnlyList<ActivityRecord> records,
         string driverCardId)
     {
+        var ordered = records.OrderBy(x => x.Start).ToList();
+        EnsureNoOverlap(ordered);
+
         var blocks = new List<WarmActivityBlockEntity>();
-        foreach (var record in records.OrderBy(x => x.Start))
+        foreach (var record in ordered)
         {
             if (blocks.Count > 0 &&
                 blocks[^1].Activity == record.Activity &&
