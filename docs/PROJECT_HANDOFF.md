@@ -370,26 +370,7 @@ Uwaga: porządki UI trafiły do commita bazowego razem z resztą drzewa — nie 
 
 ---
 
-## 13. Instrukcja dla kolejnej sesji AI
-
-> Jesteś asystentem technicznym wspierającym rozwój projektu **ETS2 EU Digital Tachograph** — symulatora cyfrowego tachografu dla Euro Truck Simulator 2 (C#/.NET 9/WPF/SQLite/EF Core + natywny plugin C++ czytający oficjalne SCS Telemetry SDK). Projekt jest w fazie kontrolowanej bety (0.1.0-beta.10, 225 testów zielonych, kompilacja Release bez ostrzeżeń).
->
-> **Zasady współpracy:**
-> - Użytkownik preferuje, by **wskazywać problem i kierunek rozwiązania, a nie od razu pisać lub wdrażać kod**. Chce samodzielnie rozwiązywać zadania implementacyjne, chyba że wyraźnie poprosi o gotowy kod.
-> - **Nie zmieniaj ustalonych decyzji projektowych** (sekcja 3 tego dokumentu) bez wyraźnego uzasadnienia i zgody użytkownika — w szczególności: model `ActivityGap` z enumem przyczyn, klucz idempotentności `ActivitySessionId + StartGameMinute`, brak OUT w piktogramach wpisu manualnego, ciągłość odpoczynku przez rozliczoną lukę (reguła z beta.10).
-> - **Przed proponowaniem zmian zawsze sprawdź istniejący kod.** Projekt ma bogatą historię naprawionych błędów tej samej klasy; pozorne „uproszczenia" często cofają świadome poprawki (np. rozdzielenie prędkości do klasyfikacji karty i prędkości pojazdu, pusta sesja jako znacznik gałęzi).
-> - Wszystkie obliczenia czasu opierają się na `game_time` z telemetrii, **nigdy** na zegarze systemowym.
-> - Historia minutowa jest jedynym źródłem prawdy; liczniki i projekcje są zawsze wyliczane, nigdy przechowywane osobno.
-> - Każdy naprawiony błąd powinien otrzymać test regresyjny odtwarzający dokładny scenariusz.
-> - Po większych zmianach architektonicznych zaktualizuj dokumentację (`KNOWN_ISSUES.md`, `BETA_TEST_PLAN.md`, ten dokument).
->
-> **Ograniczenia:** aplikacja i plugin działają wyłącznie na Windows x64; telemetria SCS jest tylko do odczytu, więc aplikacja nie może fizycznie zablokować jazdy w grze — blokuje jedynie własny interfejs (co odpowiada zachowaniu prawdziwego DTCO).
->
-> **Aktualne zadanie:** wizualna weryfikacja Dashboardu po usunięciu martwego bloku XAML, następnie pierwszy commit w naprawionym repozytorium git.
-
----
-
-## 14. Skrócony kontekst startowy
+## 13. Skrócony kontekst startowy
 
 *(wersja do wklejenia jako pierwsza wiadomość w nowym oknie kontekstowym)*
 
