@@ -11,6 +11,103 @@
 5. Zachowaj `%LocalAppData%\ETS2Tachograph\tachograph.db`. Beta ma pracować na
    dotychczasowej historii; aplikacja nadal wykonuje kopię bazy przed migracją.
 
+## Checklista regresji UI — po każdej zmianie w XAML
+
+Wykonuj w całości i w tej kolejności po każdej modyfikacji `MainWindow.xaml`,
+`OverlayWindow.xaml` lub `App.xaml`, także gdy zmiana wygląda na kosmetyczną.
+Zmiana w XAML nie jest gotowa, dopóki wszystkie punkty nie są odhaczone.
+
+### 1. Kompilacja i start
+
+- [ ] `dotnet build ETS2Tachograph.sln` kończy się bez błędów i bez nowych ostrzeżeń XAML.
+- [ ] `app\ETS2Tachograph.Desktop.exe` uruchamia się i pokazuje okno główne
+      (brak `XamlParseException` na starcie).
+- [ ] Okno da się zmaksymalizować i przywrócić; nagłówek `SYSTEM ZARZĄDZANIA TACHOGRAFEM`
+      i pasek stanu połączenia są widoczne, żadna sekcja nie jest ucięta.
+
+### 2. Dashboard
+
+- [ ] Kafle `JAZDA`, `PRACA`, `GOTOWOŚĆ`, `ODPOCZYNEK` renderują się z wartościami,
+      a nie z pustymi polami lub literalnym tekstem `{Binding …}`.
+- [ ] Liczniki `Jazda dzienna:`, `Praca dobowa:`, `Do przerwy jazdy:` aktualizują się
+      przy podłączonym ETS2 (telemetria v3).
+- [ ] Sekcje `ALERTY` i `NARUSZENIA` pokazują pozycje lub pustą listę bez wyjątku.
+- [ ] `BIEŻĄCY PODGLĄD TACHOGRAFU` wyświetla trzy linie ekranu urządzenia,
+      a przyciski góra / dół / OK / anuluj przewijają menu.
+- [ ] `SZYBKIE AKCJE` działają: `ROZPOCZNIJ PAUZĘ`, `PAUZA KIEROWCY 2`.
+
+### 3. Nawigacja
+
+- [ ] Wszystkie zakładki lewego paska otwierają się i wracają:
+      **Dashboard**, **Historia**, **Raporty**, **Kierowcy**, **Ustawienia**.
+- [ ] Przełączanie zakładek tam i z powrotem nie gubi stanu (filtry, wybór karty, zakres).
+- [ ] Skrót z raportu (`POKAŻ LUKI`) przenosi na Historię i podświetla sekcję luk.
+
+### 4. Slot 1
+
+- [ ] Włożenie karty do slotu 1 otwiera dialog karty z poprawnym tytułem i slotem.
+- [ ] `SLOT 1 - KIEROWCA AKTYWNY` pokazuje właściciela karty i bieżącą aktywność.
+- [ ] Zmiana aktywności (Jazda / Inna praca / Dyspozycyjność / Przerwa) przechodzi
+      na kafle i na liczniki.
+- [ ] Wyjęcie karty przełącza panel w stan bez karty i nie zeruje historii.
+
+### 5. Slot 2
+
+- [ ] Włożenie karty do slotu 2 wypełnia `SLOT 2 - KIEROWCA ZMIENNIK`.
+- [ ] Liczniki kierowcy 2 (jazda dzienna, praca dobowa, do przerwy) liczą niezależnie
+      od kierowcy 1.
+- [ ] `PAUZA KIEROWCY 2` startuje odpoczynek tylko dla slotu 2.
+- [ ] Wyjęcie karty ze slotu 2 nie wpływa na panel slotu 1.
+
+### 6. Tryby
+
+- [ ] W menu urządzenia strona trybów przełącza **OUT** — linia trybów pokazuje `OUT`.
+- [ ] Ta sama strona przełącza **Prom** — linia trybów pokazuje `Prom`.
+- [ ] Wyłączenie obu trybów wraca do `Tryb zwykły`.
+- [ ] Druga karta zmienia opis obsady na `podwójna obsada (30 h)`, a jej wyjęcie
+      wraca do `pojedyncza obsada (24 h)`.
+- [ ] Bez karty w slocie 1 próba zmiany trybu daje komunikat `Włóż kartę do slotu 1.`
+      zamiast wyjątku.
+
+### 7. Historia
+
+- [ ] `HISTORIA AKTYWNOŚCI · WSZYSTKIE KARTY` listuje rekordy obu kart.
+- [ ] Sekcja `LUKI AKTYWNOŚCI` pokazuje kartę, slot, zakres, długość, przyczynę i stan.
+- [ ] Licznik luk w nagłówku zgadza się z liczbą pozycji nierozliczonych.
+- [ ] Przełącznik `Pokaż rozliczone` filtruje listę w obie strony.
+- [ ] `Rozlicz` otwiera kreatora; `ANULUJ` zamyka bez zapisu, `OK · ZAPISZ WPIS` zapisuje.
+- [ ] `DODAJ PRACĘ` / `USUŃ ZAZNACZONY BLOK` w kreatorze działają, a walidacja
+      pokazuje komunikat zamiast blokować okno.
+
+### 8. Raporty
+
+- [ ] `RAPORTY I STATYSTYKI` renderuje wybór karty i zakresu; `Odśwież raport` przelicza.
+- [ ] Podsumowania (jazda, praca, odpoczynek, rekompensata, liczba naruszeń) mają wartości.
+- [ ] Ostrzeżenie o nierozliczonych lukach pojawia się i nie blokuje eksportu.
+- [ ] Eksporty działają i tworzą plik: `PDF`, `VTC JSON`, `CSV SUROWY`,
+      `Eksportuj .tacho kierowcy 1`, `Importuj .tacho`.
+- [ ] `Raport diagnostyczny` tworzy ZIP.
+
+### 9. Nakładki S1 / S2
+
+- [ ] `ALT+1` pokazuje i ukrywa nakładkę slotu 1, `ALT+2` — slotu 2.
+- [ ] Etykieta slotu w nakładce to odpowiednio `S1` i `S2`.
+- [ ] Pola `JAZDA CIĄGŁA`, `DO PRZERWY`, `DZIENNA / LIMIT`, `PRACA DOBOWA`,
+      `CEL PAUZY`, `POZOSTAŁO`, `REKOMPENSATA` mają wartości zgodne z Dashboardem.
+- [ ] Linia trybów w nakładce zgadza się z trybem ustawionym w punkcie 6.
+- [ ] Nakładkę da się przeciągnąć; pozostaje nad oknem gry i nie kradnie fokusu.
+- [ ] Nakładka odświeża się na żywo razem z telemetrią.
+
+### 10. Restart i ponowna kontrola
+
+- [ ] Zamknij aplikację — zamyka się czysto, bez procesu zostającego w tle
+      i bez osieroconych okien nakładek.
+- [ ] Uruchom ponownie i sprawdź, że utrzymały się: profil kierowcy, stan kart,
+      tryby (OUT / prom), pozycja i widoczność nakładek, ustawienia z zakładki Ustawienia.
+- [ ] Historia i stan rozliczenia luk są takie same jak przed restartem.
+- [ ] Powtórz punkty 2, 3 i 9 na świeżo uruchomionej aplikacji.
+- [ ] Sprawdź log diagnostyczny — brak nowych błędów bindowania i wyjątków UI.
+
 ## Test 0 — załadunek i rozładunek
 
 1. Na postoju wybierz na karcie aktywność, np. **Inna praca**.
