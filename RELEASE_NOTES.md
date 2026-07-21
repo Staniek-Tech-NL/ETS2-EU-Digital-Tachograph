@@ -1,3 +1,33 @@
+# ETS2 EU Digital Tachograph 0.1.0-beta.10.1
+
+Hotfix wydania beta.10.
+
+- naprawiono błąd startu aplikacji powodowany przez nakładające się rekordy
+  kanonicznej historii aktywności;
+- nowa sesja dodaje do wcześniejszej historii wyłącznie niepokryte fragmenty;
+- wpisy manualne uzupełniające wcześniejsze luki zostają zachowane w całości;
+- nakładające się rekordy są wykrywane wcześnie, z czytelną diagnostyką zamiast
+  błędu bazy danych;
+- poprawiono archiwizację bloków ciepłych dla kart ze zdublowanymi minutami.
+
+## Zgodność
+
+- protokół pluginu SCS bez zmian, nadal wersja 3;
+- brak zmian wymagających czyszczenia albo migracji danych użytkownika;
+- zachowaj dotychczasową bazę — aplikacja nadal wykonuje jej kopię przed migracją.
+
+## Weryfikacja
+
+- 239 testów automatycznych;
+- 14 testów regresyjnych projekcji kanonicznej, w tym przypadki odtworzone
+  z danych terenowych obu kart;
+- kontrola na kopii bazy z testów: zero nakładek i zdublowanych początków,
+  `ArchiveWarmAsync` przechodzi i jest idempotentne, backfill wpisów manualnych
+  pozostaje nienaruszony;
+- kompilacja Release bez ostrzeżeń.
+
+---
+
 # ETS2 EU Digital Tachograph 0.1.0-beta.10
 
 Poprawka ciągłości odpoczynku po wyjęciu i ponownym włożeniu karty.
