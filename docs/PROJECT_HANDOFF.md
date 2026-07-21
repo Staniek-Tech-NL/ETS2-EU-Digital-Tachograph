@@ -1,8 +1,8 @@
 # PROJECT HANDOFF — ETS2 EU Digital Tachograph
 
-**Wersja projektu:** 0.1.0-beta.10
+**Wersja projektu:** 0.1.0-beta.10.1
 **Data przygotowania dokumentu:** 20 lipca 2026
-**Ostatnia aktualizacja:** 20 lipca 2026 — po wykonaniu weryfikacji UI i odtworzeniu repozytorium git
+**Ostatnia aktualizacja:** 21 lipca 2026 — po naprawie nakładek w kanonicznej historii i wydaniu beta.10.1
 **Przeznaczenie:** pakiet startowy dla nowej sesji AI / nowego okna kontekstowego
 
 ---
@@ -15,7 +15,7 @@ Projekt powstał jako reakcja na niedociągnięcia istniejących na rynku narzę
 
 Użytkownikiem docelowym jest gracz ETS2 ceniący realizm (w tym społeczność VTC), a autor projektu jest jednocześnie jego głównym testerem i deweloperem (samouk, korzysta z Claude Code / Codex jako wsparcia).
 
-**Aktualny etap:** wersja **0.1.0-beta.10**, 225/225 testów automatycznych zielonych, kompilacja Release bez błędów i ostrzeżeń. Projekt jest w fazie kontrolowanej bety — technicznie domknięty, ale świadomie jeszcze nieopublikowany (publiczne wydanie odłożone do czasu zakończenia testów).
+**Aktualny etap:** wersja **0.1.0-beta.10.1**, 239/239 testów automatycznych zielonych, kompilacja Release bez błędów i ostrzeżeń. Hotfix kanonicznej historii został przyjęty jako obowiązująca wersja testowa; beta.10 nie może już pracować na aktywnej bazie. Pozostaje końcowy smoke test na świeżej telemetrii oraz dwa scenariusze terenowe reguły odpoczynku przed otwarciem gate’u Planera podróży.
 
 ---
 
@@ -27,6 +27,7 @@ Użytkownikiem docelowym jest gracz ETS2 ceniący realizm (w tym społeczność 
 - Silnik reguł: jazda ciągła (4h30), przerwa (45 min, w tym podział 15+30), odpoczynek dobowy (9h/11h), tygodniowy (24h/45h), limity 56h/90h — **[GOTOWE]**
 - Podwójna obsada: dwa niezależne sloty kart, okno 30h zamiast 24h, specjalna przerwa 45 min dla slotu 2 w ruchu — **[GOTOWE]**
 - Obsługa cofnięć i skoków czasu gry (`truncate-and-append`) — **[GOTOWE]**
+- Kanoniczna projekcja bez nakładających się minut (`SubtractCoveredRanges` + `EnsureNoOverlap`) — **[GOTOWE]** w beta.10.1
 - Jawne luki aktywności (`ActivityGap`) i wpisy manualne (`ManualEntryService.ResolveGap`) — **[GOTOWE]**
 - Ciągłość odpoczynku przez rozliczoną lukę `CardRemoved` (beta.10) — **[GOTOWE]**, wymaga dodatkowych testów terenowych
 - Rozpoznawanie operacji załadunku/rozładunku (protokół v3) — **[GOTOWE]**
@@ -54,7 +55,7 @@ Użytkownikiem docelowym jest gracz ETS2 ceniący realizm (w tym społeczność 
 - Ekran Historia z filtrowaniem i listą luk — **[GOTOWE]**
 - Ekran Raporty z wyborem karty/zakresu i ostrzeżeniem o kompletności — **[GOTOWE]**
 - Kreator wpisu manualnego (blokujący dla `CardRemoved`, opcjonalny dla `ForwardTimeJump`) — **[GOTOWE]**
-- Kontrola wizualna działającego UI po zmianach w XAML — **[GOTOWE]** dla zmiany z 20.07 (test ręczny zaliczony); jako **stały punkt procesu** nadal **[DO ZROBIENIA]** (ryzyko, patrz sekcja 9)
+- Kontrola wizualna działającego UI po zmianach w XAML — **[GOTOWE]**; stała checklista regresji została dodana do `BETA_TEST_PLAN.md` 21.07
 
 ### Wymagania dotyczące danych
 - Wszystkie obliczenia oparte na `game_time`, nigdy na zegarze systemowym — **[GOTOWE]**
@@ -74,6 +75,7 @@ Użytkownikiem docelowym jest gracz ETS2 ceniący realizm (w tym społeczność 
 |---|---|---|---|
 | Klucz idempotentności zapisu | `ActivitySessionId + StartGameMinute`, nie losowe `ActivityRecord.Id` | Losowy Id nigdy nie wykrywał duplikatów treści | Idempotentność realnie działa; konflikt treści logowany jako `ACTIVITY_RECORD_CONFLICT` |
 | Przypisanie sesji przy cofnięciu czasu | Zamknięte rekordy zachowują GUID **starej** sesji, `StartNewSession()` jako jedyny punkt inkrementacji indeksu | Źródło crashu `UNIQUE constraint` — rekordy starej gałęzi dostawały GUID nowej sesji | Bug zniknął u źródła; centralizacja zapobiega przyszłym rozjazdom |
+| Kanonizacja rekordów między sesjami (beta.10.1) | Nowa sesja od swojej kotwicy w górę przejmuje oś przez `TruncateAfter`; poniżej kotwicy może tylko uzupełniać **niepokryte** minuty. Istniejąca historia kanoniczna ma pierwszeństwo | Kotwica mówi, kiedy rekord zapisano, a nie czyje są minuty; odrzucanie rekordów przed kotwicą usunęłoby poprawny backfill manualny | `SubtractCoveredRanges` usuwa wyłącznie pokryte fragmenty, `EnsureNoOverlap` twardo pilnuje braku nakładek, a konflikt jest wykrywany jako `InvalidCanonicalHistoryException` przed SQLite |
 | Model retencji | Warstwowa: gorąca (14 dni gry, minutowo) / ciepła (bloki) / zimna (hak, niewdrożona) | Wydajność bez utraty danych | Próg kotwiczony na monotonicznym `highWaterMark` |
 | Model luki aktywności | Jeden typ `ActivityGap` z enumem `GapReason` (`ForwardTimeJump`, `CardRemoved`, rezerwa `TelemetryUnavailable`) | Flaga `IsCardRemoved` nie skalowałaby się na kolejne przyczyny | Jeden mechanizm `ResolveGap` dla obu przyczyn, różna tylko polityka wymuszenia |
 | Priorytet przyczyn luki | `CardRemoved > ForwardTimeJump`, liczony per karta | Karta wyjęta = silniejszy stan niewiedzy, pochłania skok czasu | Brak nakładających się luk dla tej samej karty |
@@ -98,7 +100,7 @@ Użytkownikiem docelowym jest gracz ETS2 ceniący realizm (w tym społeczność 
 - `ETS2Tachograph.Telemetry.Scs` — odczyt wersjonowanej pamięci współdzielonej (protokół v3)
 - `ETS2Tachograph.Engine` — klasyfikacja ramek telemetrii, sesje, luki (`ActivityHistoryProcessor`, `CrewTachographEngine`), snapshoty
 - `ETS2Tachograph.RuleEngine` — liczniki regulacyjne, naruszenia, rekompensaty (`RegulationEngine`, `RegulationEvaluation`, `RegulationState`, `WeeklyRestCompensation`, `CompensationSummary`)
-- `ETS2Tachograph.Infrastructure` — SQLite, EF Core, repozytoria, migracje, retencja
+- `ETS2Tachograph.Infrastructure` — SQLite, EF Core, repozytoria, migracje, retencja i kanoniczna projekcja historii (`Canonicalize`, `SubtractCoveredRanges`, `EnsureNoOverlap`)
 - `ETS2Tachograph.Application` — przypadki użycia, DTO, import/eksport, wpisy manualne (`ManualEntryService`, `ActivityGapService`, `ManualEntryWizardDraft`)
 - `ETS2Tachograph.Reports` — generowanie PDF, prezentacja bloków (`PdfReportExporter`, `ReportPresentationBuilder`)
 - `ETS2Tachograph.Desktop` — WPF (`MainWindow.xaml`, `MainViewModel.cs`, `OverlayViewModel.cs`)
@@ -178,7 +180,8 @@ ETS2 EU Digital Tachograph/
 │   ├── ETS2Tachograph.Application.Tests/     (38 testów)
 │   │   └── ManualEntryWizardDraftTests.cs
 │   ├── ETS2Tachograph.Reports.Tests/         (9 testów)
-│   └── ETS2Tachograph.Infrastructure.Tests/  (31 testów)
+│   └── ETS2Tachograph.Infrastructure.Tests/  (45 testów)
+│       └── CanonicalProjectionTests.cs         (14 testów regresyjnych beta.10.1)
 ├── docs/
 │   ├── PROJECT_HANDOFF.md              ← ten dokument
 │   ├── Agent raporty/
@@ -186,9 +189,12 @@ ETS2 EU Digital Tachograph/
 │   ├── stage-3-rule-engine.md
 │   ├── stage-3.5-integration.md
 │   ├── PRODUCTION_STATUS_REPORT_BETA4.md
-│   └── UI_VISIBLE_DATA_REPORT_BETA4.md
+│   ├── UI_VISIBLE_DATA_REPORT_BETA4.md
+│   ├── FIELD_TEST_REPORT_2026-07-21.md
+│   ├── BUGFIX_REPORT_CANONICAL_HISTORY_2026-07-21.md
+│   └── JOURNEY_PLANNER_MVP_PLAN.md
 ├── output/releases/                    [ignorowane przez git — 1,26 GB paczek]
-│   └── ETS2Tachograph-0.1.0-beta.10-win-x64.zip
+│   └── ETS2Tachograph-0.1.0-beta.10.1-win-x64.zip
 ├── BETA_TEST_PLAN.md
 ├── KNOWN_ISSUES.md
 ├── RELEASE_NOTES.md
@@ -211,6 +217,7 @@ ETS2 EU Digital Tachograph/
 | Podwójna obsada | Okno 30h zamiast 24h na odbiór odpoczynku | Dwie karty, tryb załogi | Dłuższe okno regulacyjne (`ODP. DZIENNY` przełącza bazę) | GOTOWE |
 | Przerwa slotu 2 w ruchu | Drugi kierowca może odebrać 45 min przerwy podczas jazdy pierwszego | Pojazd w ruchu, slot 2 aktywny | Zeruje jazdę ciągłą drugiej karty, nigdy nie tworzy odpoczynku dobowego | GOTOWE |
 | Priorytet przyczyn luki | `CardRemoved > ForwardTimeJump` per karta | Skok czasu przy wyjętej karcie | Brak dodatkowej luki dla tej karty | GOTOWE |
+| Brak nakładek w historii kanonicznej | Rekord przychodzący oddaje fragmenty już pokryte przez historię kanoniczną; przedziały są półotwarte `[Start, End)` | Kolejne sesje lub backfill manualny obejmują wcześniejsze minuty | Każda minuta występuje najwyżej raz; niepokryty backfill zostaje zachowany | GOTOWE (beta.10.1) |
 | Blok odpoczynku ciągły | Najdłuższy nieprzerwany odcinek; `Inna praca` i `Dyspozycyjność` przerywają | Rozliczanie luki / historia | Brak sumowania rozdzielonych bloków | GOTOWE |
 | Ciągłość przez rozliczoną lukę (beta.10) | Odpoczynek zmierzony + rozliczona luka jako `Przerwa/Odpoczynek` = jeden ciągły blok (przed, po lub po obu stronach) | Rozliczenie `CardRemoved` jako odpoczynek | Reset dobowy/tygodniowy na końcu połączonego bloku; blok niesie `SourceGapId` | GOTOWE, wymaga dalszych testów terenowych |
 | Rekompensata tygodniowa | Dług = 45h − rzeczywisty odpoczynek | Odpoczynek 24–<45h | Zobowiązanie przypisane do tygodnia, termin do końca 3. kolejnego tygodnia, FIFO rozliczania | W TRAKCIE (uproszczone: brak pełnego śladu spłat, termin po numerach tygodni) |
@@ -242,131 +249,143 @@ ETS2 EU Digital Tachograph/
   - baza rekompensaty 11h→9h (B/5)
   - utrata aktywności w gałęzi `GamePaused` (beta.9)
   - luka przycięta przez późniejszą gałąź czasu (beta.3→beta.4)
-- **225/225 testów automatycznych** (Core 33, Telemetry.Scs 8, Engine 64, RuleEngine 42, Application 38, Reports 9, Infrastructure 31)
+  - nakładające się minuty między sesjami blokujące start aplikacji (`SQLite Error 19`) — beta.10.1
+- **239/239 testów automatycznych** (Core 33, Telemetry.Scs 8, Engine 64, RuleEngine 42, Application 38, Reports 9, Infrastructure 45); 14 nowych testów w `CanonicalProjectionTests.cs`
 - Kompilacja Release: 0 błędów, 0 ostrzeżeń
 - Dwa długie scenariusze terenowe potwierdzone w rzeczywistej grze (2h+7h=9h odpoczynku; wariant tygodniowy 45h)
-- Dziesięć wydań beta (beta.4 → beta.10) z artefaktami i sumami SHA-256
+- Wydania beta.4 → beta.10.1 z artefaktami i sumami SHA-256; beta.10.1 ma poprawny `ProductVersion` z hashem commita
 - Usunięcie martwego, nigdy niewidocznego bloku XAML (alternatywna wersja Dashboardu) wraz z powiązanymi zasobami — `MainWindow.xaml` skrócony z 356 do 285 linii, usunięto 8 osieroconych plików z `Assets/` (zachowano `lcd-background.png` i `tachograph-panel.png`)
 - **Wizualna weryfikacja UI po tej zmianie — wykonana, test ręczny zaliczony** (Dashboard, przyciski urządzenia, sloty kart, aktywności, tryby, pauza, wydruk, `OperationStatus`, obie nakładki, zakładki, restart)
 - Odtworzenie repozytorium git po wykryciu pustego katalogu `.git` (brak historii lokalnie, brak remote) — commit bazowy `e510ed9` na `main`, 198 plików, `output/` wyłączone przez `.gitignore`
+- Stała checklista regresji UI po każdej zmianie XAML dodana do `BETA_TEST_PLAN.md` (`51cad1f`); kryteria restartu nakładek doprecyzowane (`0d9e226`)
+- Dzień 2 rozszerzonych testów terenowych: pojedyncza luka `CardRemoved` zielona na obu kartach, stabilna po restarcie; slot 2 podczas jazdy domknięty
+- Hotfix beta.10.1: `SubtractCoveredRanges`, `EnsureNoOverlap`, `InvalidCanonicalHistoryException`; commity `49e200d` i `906b7d5`
+- Pomiar na kopii rzeczywistej bazy potwierdził usunięcie dokładnie jednej zdublowanej minuty na kartę przy zachowaniu 1007 minut backfillu manualnego; brak migracji i zmian danych źródłowych
 
 ---
 
 ## 8. Aktualny stan prac
 
-**Ostatnia praca nad kodem:** usunięcie martwego bloku XAML (nieużywana, `Collapsed` wersja Dashboardu, dawne linie 132–191 w `MainWindow.xaml`) wraz z powiązanymi zasobami graficznymi. Zmiana zweryfikowana: build Release 0/0, 225/225 testów, **ręczny test UI zaliczony**.
+**Obowiązująca wersja testowa:** `0.1.0-beta.10.1`. Wersja beta.10 została wycofana z pracy na aktywnej bazie.
 
-**Repozytorium git:** odtworzone i działające. Historia (od odtworzenia):
+**Ostatnia praca nad kodem:** naprawa kanonicznej projekcji historii po błędzie blokującym start aplikacji. `Canonicalize` dopisywał rekordy nowej sesji bez odejmowania minut już obecnych w projekcji. Duplikaty ujawniły się podczas przebudowy `WarmActivityBlocks` po rozliczeniu luk i kończyły się `SQLite Error 19`.
 
-| Commit | Opis |
-|---|---|
-| `e510ed9` | chore: restore repository from current beta.10 working tree (198 plików) |
-| `9178089` | docs: raport agenta z prac 2026-07-20 |
-| `7836d75` | docs: dodaj pakiet handoff projektu |
+**Wdrożona poprawka:**
+- `SubtractCoveredRanges` pozostawia wyłącznie niepokryte fragmenty rekordów;
+- `EnsureNoOverlap` weryfikuje pełny niezmiennik `End <= next.Start` po kanonizacji i przed budową bloków warm;
+- `InvalidCanonicalHistoryException` zgłasza konflikt w warstwie domenowej przed zapisem do SQLite;
+- istniejąca historia kanoniczna ma pierwszeństwo, a backfill manualny zachowuje niepokryte minuty.
 
-Uwaga: porządki UI trafiły do commita bazowego razem z resztą drzewa — nie było możliwe rozdzielenie ich na osobny commit, ponieważ usunięte pliki PNG nie istniały już nigdzie (brak historii, brak kopii). Od kolejnych zmian obowiązuje normalny, atomowy podział na commity.
+**Weryfikacja beta.10.1:**
+- 239/239 testów zielonych;
+- build Release: 0 błędów i 0 ostrzeżeń;
+- pierwszy i drugi start aplikacji na kopii rzeczywistych danych: OK;
+- archiwizacja warm idempotentna;
+- zero nakładek i zdublowanych początków;
+- dane źródłowe oraz sześć rekordów diagnostycznych pozostały nietknięte;
+- paczka: `ETS2Tachograph-0.1.0-beta.10.1-win-x64`;
+- commity: `49e200d` (poprawka), `906b7d5` (wydanie).
 
-**Co działa:** cała logika opisana w sekcjach 6–7, potwierdzona testami automatycznymi, dwoma scenariuszami terenowymi i ręcznym testem UI.
+**Testy terenowe reguły beta.10/10.1:**
+- pojedyncza rozliczona luka `CardRemoved` — zaliczona na obu kartach;
+- wynik zgodny między RuleEngine, UI i stanem po restarcie;
+- slot 2 podczas jazdy — domknięty i wycofany z dalszego planu;
+- pozostały: test luki na granicy tygodnia oraz interakcja z rekompensatą tygodniową;
+- wiele rozliczonych luk w jednym bloku pozostaje osobnym zadaniem domenowym i nie jest częścią hotfiksa kanonizacji.
 
-**Czego nie zweryfikowano:**
-- Rozszerzone scenariusze terenowe dla reguły ciągłości odpoczynku przez lukę (beta.10) — wielokrotne luki, granica tygodnia, interakcja z rekompensatą
-- Automatyczne przełączanie na „Jazda" i blokady „podczas jazdy" — test ręczny UI prowadzono bez uruchomionego ETS2
-
-**Od którego miejsca kontynuować:** rozszerzone testy terenowe reguły z beta.10 (patrz sekcja 12).
+**Najbliższy punkt kontynuacji:** końcowy smoke test pełnego przepływu beta.10.1 na świeżej telemetrii, następnie dwa pozostałe scenariusze terenowe.
 
 ---
 
 ## 9. Otwarte problemy i ryzyka
 
-| Problem / ryzyko | Wpływ | Prawdopodobna przyczyna | Proponowane rozwiązanie | Priorytet |
+| Problem / ryzyko | Wpływ | Stan / przyczyna | Działanie | Priorytet |
 |---|---|---|---|---|
-| ~~Brak wizualnej kontroli UI po usunięciu martwego kodu~~ | — | — | **ZAMKNIĘTE 20.07** — ręczny test UI wykonany i zaliczony | — |
-| Reguła ciągłości odpoczynku przez lukę (beta.10) przetestowana w dwóch scenariuszach | Zmiana reguły rdzeniowej może mieć niewykryte przypadki brzegowe | Ostatnia zmiana w dniu z sześcioma wydaniami | Testy terenowe: wielokrotne luki, luka na granicy tygodnia, interakcja z rekompensatą | **Wysoki** (najwyższy otwarty) |
-| Uproszczony model rekompensat tygodniowych | Brak pełnego śladu spłat; termin liczony po numerach tygodni | Świadomie odłożone jako osobny etap | Osobny projekt z pełną specyfikacją i testami | Niski (świadome) |
-| Powtarzające się pomijanie kontroli wizualnej po zmianach w XAML | Systematyczne ryzyko regresji UI | Brak stałego punktu w procesie | Dopisać kontrolę wizualną jako stały punkt w `BETA_TEST_PLAN.md` | Średni |
-| Skróty klawiszowe nakładek mogą kolidować z innymi aplikacjami | Możliwe zgłoszenia testerów | Standardowe ograniczenie skrótów globalnych | Udokumentować, rozważyć rekonfigurację | Niski |
-| Dzielony odpoczynek 3h+9h nierozpoznawany | Aplikacja odrzuca legalny wariant jako dwa osobne bloki | Świadomie nieobsłużone | Zaprojektować jako osobną, jawną regułę | Niski |
-| Brak instalatora / podpisu kodu / auto-update | Utrudniona dystrybucja i aktualizacja dla testerów | Poza zakresem obecnej fazy | Rozważyć po zamknięciu bety | Niski |
-| Ryzyko rozrostu zakresu | Historia projektu pokazuje tendencję do dokładania funkcji (np. wpis manualny urósł z „luki" do pełnej warstwy z resetem dobowym) | Naturalne przy pracy jednoosobowej bez formalnego backlogu | Trzymać się etapowego podziału z jawnym kryterium „gotowe" | Średni |
+| Końcowy smoke test beta.10.1 na świeżej telemetrii | Hotfix potwierdzono na kopii danych, ale nie zamknięto jeszcze całego przepływu plugin → zapis → projekcja → restart | Jedno niezakończone kryterium operacyjne | Normalna sesja ETS2, zapis nowych danych, czyste zamknięcie, restart i kontrola logów/archiwizacji | **Wysoki — najbliższy krok** |
+| Granica tygodnia i rekompensata przy odpoczynku przez lukę | Możliwy przypadek brzegowy świeżej reguły beta.10 | Dzień 2 potwierdził pojedynczą lukę; dwa scenariusze pozostały | Test terenowy na beta.10.1, porównanie RuleEngine/UI/PDF/restart | **Wysoki** |
+| Ciągłość przez wiele rozliczonych luk | Historia terenowa pokazała inną ścieżkę scalania i niepełne łączenie bloków | Zakres beta.10 obejmował pojedynczą lukę; intencja blokady przed łączeniem wpisów manualnych nie jest rozstrzygnięta | Osobna decyzja domenowa i specyfikacja; nie poprawiać przy okazji | Średni, poza bieżącym gate’em |
+| Log `APP_START_FAILED` pomija `InnerException` | Wydłuża diagnozę awarii bazy lub EF | Logowany jest tylko wyjątek zewnętrzny | Dodać bezpieczne logowanie łańcucha wyjątków w osobnym zadaniu diagnostycznym | Średni |
+| Uproszczony model rekompensat tygodniowych | Brak pełnego śladu spłat; termin liczony po numerach tygodni | Świadomie odłożony model | Osobny etap; Planer stosuje fallback i jawny poziom wiarygodności | Średni dla Planera, niski dla bieżącej bety |
+| Numeracja dni w analizach surowych | Ryzyko fałszywego zgłoszenia błędu o jeden dzień | UI stosuje `floor(GameMinute / 1440) + 1` | Traktować `+1` jako niezmiennik przy porównaniu minut z UI/CSV/PDF | Średni procesowy |
+| Ryzyko rozrostu zakresu | Opóźnienie zamknięcia testów i Planera | Sąsiednie obserwacje kuszą do zmian „przy okazji” | Zachować gate’y: hotfix → smoke → dwa testy → decyzja GO/FIX/HOLD | Średni |
 
 ---
 
 ## 10. Nierozstrzygnięte decyzje
 
-**1. Publikacja repozytorium i forma wydania**
-- Opcje: (a) publiczne repo GitHub z pełną historią i dokumentacją po zamknięciu testów; (b) prywatne repo z ograniczonym dostępem; (c) brak publikacji
-- Zalety/wady: (a) buduje portfolio i daje feedback społeczności, ale wymaga README, licencji i rozstrzygnięcia kwestii warunków SCS SDK; (b)/(c) ograniczają ekspozycję i ryzyko
-- Rekomendacja: (a) po zamknięciu testów bety
-- Wpływ: określa harmonogram prac dokumentacyjnych
+**1. Ciągłość odpoczynku przez wiele wpisów manualnych**
+- Pytanie: czy wymaganie, aby jedna strona sklejenia pochodziła z telemetrii, jest celową ochroną przed łączeniem dwóch wpisów manualnych?
+- Opcja A: zachować ograniczenie — mniejsze ryzyko fałszywej ciągłości, ale bloki z wieloma lukami mogą pozostać rozbite.
+- Opcja B: dopuścić łączenie po ścisłym pokryciu i audycie — pełniejsza rekonstrukcja, ale wymaga osobnej specyfikacji i testów nadużyć.
+- Rekomendacja: decyzję odłożyć poza gate beta.10.1; nie mieszać z hotfiksem kanonizacji.
 
-**2. Model komercjalizacji**
-- Opcje: (a) całkowicie darmowe; (b) darmowe z opcjonalnym wsparciem (Patreon/Ko-fi); (c) płatne
-- Zalety/wady: (c) generuje zobowiązania supportowe i ciągłości przy niszowym rynku; (a)/(b) minimalizują zobowiązania
-- Rekomendacja: (a) lub (b)
-- Wpływ: określa poziom zobowiązań wobec użytkowników i wymagania wobec dystrybucji
+**2. Publikacja repozytorium i forma wydania**
+- Opcje: publiczne repo po zamknięciu bety, repo prywatne albo brak publikacji.
+- Rekomendacja: publiczne repo dopiero po testach i uporządkowaniu README, licencji oraz warunków SCS SDK.
 
-**3. Zakres testów terenowych przed szerszą dystrybucją**
-- Opcje: (a) uznać obecne dwa scenariusze za wystarczające; (b) rozszerzyć o kombinacje (wielokrotne luki, granica tygodnia, interakcja z rekompensatą)
-- Rekomendacja: (b) — reguła z beta.10 jest świeża i rdzeniowa
-- Wpływ: określa, czy można przejść do etapu publikacji
+**3. Model komercjalizacji**
+- Opcje: bezpłatne, bezpłatne z dobrowolnym wsparciem albo płatne.
+- Rekomendacja: bezpłatne lub dobrowolne wsparcie, aby ograniczyć zobowiązania supportowe.
 
 ---
 
 ## 11. Lista zadań
 
-### Priorytet 1 — ✅ ZAKOŃCZONE 20.07.2026
+### Priorytet 1 — zakończone
 
-**1.1 Wizualna weryfikacja Dashboardu po usunięciu martwego XAML** — ✅ **WYKONANE**
-- Ręczny test UI zaliczony: render Dashboardu, przyciski urządzenia (▲/▼/OK/C), sloty kart, zmiana aktywności, tryby OUT/PROM/podwójna obsada, pauza i liczniki, wydruk 24h, `OperationStatus`, obie nakładki (Alt+1/Alt+2/Alt+Q), zakładki, restart aplikacji
-- Zastrzeżenie: test prowadzono bez uruchomionego ETS2, więc nie objął automatycznego przełączania na „Jazda" ani blokad „podczas jazdy"
+- ✅ Ręczna weryfikacja UI po usunięciu martwego XAML.
+- ✅ Odtworzenie repozytorium i commit bazowy `e510ed9`.
+- ✅ Stała checklista regresji XAML w `BETA_TEST_PLAN.md` (`51cad1f`).
+- ✅ Usunięcie nieaktualnej sekcji instrukcji AI z handoffu (`caec0af`).
+- ✅ Doprecyzowanie trwałości nakładek: pozycja trwała, widoczność nietrwała (`0d9e226`).
+- ✅ Dzień 2 testów terenowych: pojedyncza luka `CardRemoved` zielona na obu kartach; slot 2 domknięty.
+- ✅ Naprawa nakładek kanonicznej historii i wydanie beta.10.1 (`49e200d`, `906b7d5`).
 
-**1.2 Pierwszy commit w naprawionym repozytorium** — ✅ **WYKONANE**
-- `.gitignore` uzupełniony o `output/`; commit bazowy `e510ed9` (198 plików), następnie `9178089` i `7836d75`
-- `git status` czysty, brak dużych artefaktów w historii (paczki release poza repo)
+### Priorytet 2 — najbliższe kroki
 
-### Priorytet 2 — najbliższy krok
+**2.1 Smoke test beta.10.1 na świeżej telemetrii**
+- uruchomić ETS2 i aplikację beta.10.1;
+- wykonać normalną sesję z nowymi rekordami;
+- poprawnie zamknąć sesję, grę i aplikację;
+- ponownie uruchomić aplikację;
+- potwierdzić `APP_READY`, `APP_STOP` z kodem 0, brak `SQLite Error 19` i brak `InvalidCanonicalHistoryException`;
+- sprawdzić zachowanie nowych danych i idempotentność archiwizacji.
 
-**2.1 Rozszerzone testy terenowe reguły z beta.10**
-- Scenariusze: wielokrotne luki w jednym okresie odpoczynku; luka przecinająca granicę tygodnia regulacyjnego; interakcja rozliczonej luki z rekompensatą tygodniową
-- Kryterium: brak rozbieżności między licznikami w UI a raportem PDF po restarcie aplikacji
+**2.2 Dokończenie gate’u terenowego**
+- luka przecinająca granicę tygodnia regulacyjnego;
+- interakcja rozliczonej luki z rekompensatą tygodniową;
+- zgodność RuleEngine, Dashboardu, PDF i stanu po restarcie.
 
-**2.2 Kontrola wizualna jako stały punkt w `BETA_TEST_PLAN.md`**
-- Kryterium: dokument zawiera checklistę UI wykonywaną po każdej zmianie w XAML
+**2.3 Dokumentacja po smoke teście**
+- zaktualizować `RELEASE_NOTES.md`, `KNOWN_ISSUES.md`, `BETA_TEST_PLAN.md` i raport terenowy;
+- zapisać decyzję GO / FIX / HOLD;
+- potwierdzić czyste repozytorium.
 
-**2.3 Kolory ostrzegawcze licznika „DO PRZERWY" (Faza 1 UX)**
-- Kryterium: bursztyn od 4:15, czerwień od 4:30; spójne z prezentacją przekroczeń w innych licznikach
+### Priorytet 3 — po decyzji GO
 
-**2.4 Przygotowanie dokumentacji przedpublikacyjnej**
-- Zakres: `README.md` (opis problemu, architektura, diagram `truncate-and-append`, historia przypadku `05:27`, screeny), aktualizacja `KNOWN_ISSUES.md`
-- Kryterium: osoba postronna rozumie, czym jest projekt i jakie ma ograniczenia
-
-### Priorytet 3 — rozwój późniejszy
-
-- Warstwa zimnej retencji (365 dni) — hak przygotowany
-- Pełny model rekompensat tygodniowych (ślad spłat, precyzyjny termin, przypadki graniczne wzorca dwutygodniowego)
-- Instalator, podpis kodu, automatyczna aktualizacja aplikacji i pluginu
-- Rozpoznawanie dzielonego odpoczynku dobowego 3h+9h jako osobnej, jawnej reguły
-- Ewentualne przywrócenie reguły pierwszej godziny (obecnie odrzucona)
+- Planer podróży MVP „Najwcześniejsza legalna”: najpierw końcowa akceptacja specyfikacji, następnie gałąź funkcjonalna, kontrakty i czerwone testy P0 — bez UI na Etapie 1.
+- Logowanie pełnego łańcucha `InnerException`.
+- Osobna specyfikacja ciągłości przez wiele rozliczonych luk.
+- Pełny model rekompensat tygodniowych.
+- Warstwa zimnej retencji, instalator, podpis kodu i auto-update.
 
 ---
 
 ## 12. Rekomendowany następny krok
 
-**Wykonać rozszerzone testy terenowe reguły ciągłości odpoczynku z beta.10.**
+**Wykonać końcowy smoke test beta.10.1 na świeżej telemetrii ETS2.**
 
-*(Poprzedni rekomendowany krok — wizualna weryfikacja Dashboardu — został wykonany 20.07 i zaliczony; pierwszy commit również.)*
+**Sekwencja:**
+1. uruchom beta.10.1 i ETS2;
+2. wykonaj normalną jazdę, pauzę/inną aktywność i zapis nowych minut;
+3. zakończ sesję oraz zamknij aplikację;
+4. uruchom aplikację ponownie;
+5. sprawdź log, historię, liczniki i archiwizację warm;
+6. uruchom aplikację drugi raz bez zmian, aby potwierdzić idempotentność.
 
-**Co dokładnie zrobić:** przeprowadzić w rzeczywistej grze scenariusze wykraczające poza dwa dotychczas potwierdzone (2h+7h=9h oraz wariant tygodniowy 45h):
-- wielokrotne luki `CardRemoved` w obrębie jednego okresu odpoczynku;
-- luka przecinająca granicę tygodnia regulacyjnego;
-- interakcja rozliczonej luki z zobowiązaniem rekompensaty tygodniowej;
-- kontrolnie: segment `Inna praca` / `Dyspozycyjność` wewnątrz luki — musi przerwać ciągłość.
+**Kryterium zaliczenia:** aplikacja dwukrotnie dochodzi do `APP_READY`, zamyka się kodem 0, nowe rekordy pozostają widoczne i jednoznaczne, archiwizacja daje ten sam wynik, a log nie zawiera `SQLite Error 19`, `InvalidCanonicalHistoryException` ani nowych błędów zapisu.
 
-**Dlaczego teraz:** reguła z beta.10 odwraca wcześniejszą, bardziej restrykcyjną zasadę i dotyka rdzenia klasyfikacji odpoczynku (reset dobowy i tygodniowy). Powstała ostatniego dnia intensywnych wydań i ma pokrycie tylko w dwóch scenariuszach terenowych. To obecnie najwyższe otwarte ryzyko projektu.
-
-**Pliki, których dotyczy:** `RegulationEngine.cs`, `Internal/HistoryAnalysis.cs`, `ManualEntryService.cs`, `ActivityHistoryProcessor.cs`.
-
-**Jak sprawdzić poprawność:** brak rozbieżności między licznikami w UI a raportem PDF po restarcie aplikacji; klasyfikacja odpoczynku zgodna z faktyczną długością nieprzerwanego bloku; rekompensaty naliczone od bazy 9h; każdy wykryty błąd otrzymuje test regresyjny odtwarzający dokładny scenariusz.
+**Po zaliczeniu:** przejść do testu granicy tygodnia i rekompensaty. Po obu scenariuszach podjąć decyzję **GO / FIX / HOLD** dla gate’u beta.10.1 i dopiero wtedy otworzyć implementację Planera podróży.
 
 ---
 
@@ -374,36 +393,22 @@ Uwaga: porządki UI trafiły do commita bazowego razem z resztą drzewa — nie 
 
 *(wersja do wklejenia jako pierwsza wiadomość w nowym oknie kontekstowym)*
 
-**Cel projektu:** ETS2 EU Digital Tachograph to samodzielna aplikacja desktopowa (.NET 9, C#, WPF, SQLite/EF Core) symulująca cyfrowy tachograf zgodny z logiką rozporządzenia UE 561/2006 dla graczy Euro Truck Simulator 2 (singleplayer). Odczytuje oficjalną telemetrię gry przez natywny plugin C++ (SCS Telemetry SDK, protokół v3 w pamięci współdzielonej), prowadzi historię dwóch kart kierowców (podwójna obsada) w czasie gry, liczy wszystkie regulacyjne limity i generuje raporty (PDF, CSV, JSON dla VTC, własny format `.tacho`).
+**Cel projektu:** ETS2 EU Digital Tachograph to aplikacja desktopowa .NET 9/WPF/SQLite z natywnym pluginem C++ SCS Telemetry SDK, symulująca tachograf dla ETS2. Prowadzi historię dwóch kart w `game_time`, liczy limity UE 561/2006, obsługuje cofnięcia/skoki czasu i luki aktywności oraz generuje raporty.
 
-**Architektura:** dziewięć projektów w rozwiązaniu — `Core` (model domenowy, czas gry, `GameClockFormatter`), `Telemetry.Scs` (odczyt pamięci współdzielonej), `Engine` (klasyfikacja ramek, sesje, luki — `ActivityHistoryProcessor`, `CrewTachographEngine`), `RuleEngine` (liczniki, naruszenia, rekompensaty — `RegulationEngine`, `RegulationState`, `CompensationSummary`), `Infrastructure` (SQLite/EF Core/migracje/retencja), `Application` (przypadki użycia, wpisy manualne — `ManualEntryService`, `ActivityGapService`), `Reports` (PDF/eksporty), `Desktop` (WPF — `MainWindow.xaml`, `MainViewModel.cs`), `ScsPlugin` (natywny C++).
+**Obowiązująca wersja:** `0.1.0-beta.10.1`. Beta.10 nie może już pracować na aktywnej bazie. Build Release: 0 błędów i 0 ostrzeżeń; 239/239 testów zielonych.
 
-**Zasada nadrzędna:** historia minutowa (`ActivityRecord`) to jedyne źródło prawdy — liczniki, projekcje (bloki „ciepłe" retencji), raporty i statystyki UI są zawsze wyliczane z niej, nigdy przechowywane osobno. Ta sama zasada dotyczy luk (`ActivityGap`).
+**Zasada nadrzędna:** historia minutowa jest jedynym źródłem prawdy. Liczniki, raporty, bloki warm i projekcje są zawsze wyliczane. Wszystko używa `game_time`, nigdy zegara systemowego.
 
-**Najważniejsze wymagania i reguły:**
-- Wszystko liczone w `game_time`, nigdy na zegarze systemowym (dotyczy też głównego LCD).
-- Podwójna obsada z oknem 30h zamiast 24h; drugi kierowca może odebrać 45-minutową przerwę podczas jazdy pierwszego, ale nigdy odpoczynku dobowego.
-- Cofnięcia i skoki czasu obsługiwane przez `truncate-and-append`: źródłowa gałąź nigdy nie jest niszczona, przycinana jest wyłącznie projekcja kanoniczna.
-- Jawne luki aktywności (`ActivityGap`) z enumem przyczyn (`CardRemoved`, `ForwardTimeJump`, rezerwa `TelemetryUnavailable`); priorytet `CardRemoved > ForwardTimeJump` liczony per karta; najwyżej jedna otwarta luka na kartę w projekcji kanonicznej.
-- Wpisy manualne rozliczają luki przez `ResolveGap` z trzema piktogramami: `Przerwa/Odpoczynek`, `Inna praca`, `Dyspozycyjność` (bez OUT). Wymagane pełne pokrycie luki, bez dziur i nakładania.
-- Odpoczynek dobowy liczony jako **najdłuższy nieprzerwany blok**, nigdy jako suma — `Inna praca` i `Dyspozycyjność` przerywają ciągłość.
-- **Reguła z beta.10:** ciągłość odpoczynku może przechodzić przez rozliczoną lukę `CardRemoved` (przed, po lub po obu stronach). Odwraca wcześniejszą, bardziej restrykcyjną zasadę „wyjęcie karty kończy wszystkie czynności".
-- Klasyfikacja odpoczynku wynika z faktycznej długości bloku, nie z celu wybranego w UI.
-- Rekonstrukcja skoków czasu: ≤2 min → ostatnia aktywność; duży skok po Jeździe → zawsze luka; duży skok przy odpoczynku → rekonstrukcja tylko gdy pojazd stał przed i po; potwierdzony załadunek/rozładunek (protokół v3) → wybrana aktywność bez luki.
+**Kanonizacja beta.10.1:** kolejne sesje są gałęziami czasu. Nowa sesja przejmuje oś od swojej kotwicy w górę przez `TruncateAfter`; poniżej kotwicy może tylko uzupełniać niepokryte minuty. O przynależności minuty decyduje pokrycie, nie położenie wobec kotwicy. Istniejąca historia kanoniczna ma pierwszeństwo; niepokryty backfill manualny zostaje. `SubtractCoveredRanges` odejmuje pokryte zakresy, `EnsureNoOverlap` wymusza brak nakładek, a `InvalidCanonicalHistoryException` wykrywa konflikt przed SQLite.
 
-**Wykonane elementy:** kompletny model domenowy i silnik reguł; pełna obsługa luk (Etapy 0–4: encja, `CardRemoved`, `ResolveGap`, reset dobowy, kreator z blokadą UI); cztery statystyki regulacyjne w UI (praca dobowa 13h, wydłużenia jazdy 2×, skrócone odpoczynki 3×, rekompensaty) z przekroczeniami pokazywanymi bez maskowania; retencja hot/warm; LCD na czasie gry; lista nierozliczonych luk w Historii; ostrzeżenie o kompletności dowodu w raportach (`evidenceComplete` w JSON, `LUKI: brak` / `LUKI NIEROZLICZONE: X` w PDF). **225/225 testów zielonych**, kompilacja Release bez ostrzeżeń.
+**Hotfix beta.10.1:** beta.10 nie startowała po przebudowie warm, ponieważ jedna minuta na każdej karcie występowała w dwóch sesjach i tworzyła nakładające się bloki. Poprawka usunęła tylko dwie zdublowane minuty z projekcji, zachowując około 1007 minut prawidłowego backfillu manualnego i wszystkie rekordy źródłowe. Commity: `49e200d`, `906b7d5`; 14 nowych testów `CanonicalProjectionTests.cs`.
 
-**Naprawione błędy (z testami regresyjnymi):** przypisanie sesji przy cofnięciu czasu (`UNIQUE constraint`), idempotentność zapisu po znaczącym kluczu, fałszywa rekonstrukcja wielogodzinnej Jazdy przy skoku czasu, zła baza rekompensaty (11h→9h), utrata aktywności w gałęzi `GamePaused`, luka przycięta przez późniejszą gałąź czasu. Kluczowa regresja odniesienia: `03:53 + 01:34 = 05:27`.
+**Reguła odpoczynku beta.10:** odpoczynek zmierzony i rozliczona luka `CardRemoved` jako `Przerwa/Odpoczynek` mogą tworzyć jeden ciągły blok z `SourceGapId`. Dzień 2 testów terenowych potwierdził pojedynczą lukę na obu kartach oraz stabilność po restarcie. Slot 2 podczas jazdy jest domknięty. Pozostały granica tygodnia i rekompensata. Wiele rozliczonych luk jest osobnym, nierozstrzygniętym tematem domenowym.
 
-**Aktualne problemy:**
-1. Reguła ciągłości odpoczynku przez lukę (beta.10) przetestowana tylko w dwóch scenariuszach terenowych — warto rozszerzyć o wielokrotne luki, granicę tygodnia i interakcję z rekompensatą. **Najwyższe otwarte ryzyko.**
-2. Model rekompensat tygodniowych jest uproszczony (brak pełnego śladu spłat, termin po numerach tygodni) — świadomie odłożony jako osobny etap.
-3. Kontrola wizualna UI nie jest jeszcze stałym punktem procesu — dla zmiany z 20.07 została wykonana, ale nie ma jej w `BETA_TEST_PLAN.md` jako checklisty po każdej zmianie w XAML.
+**Ważne decyzje:** brak OUT we wpisie manualnym; `CardRemoved > ForwardTimeJump`; najwyżej jedna otwarta luka na kartę; najdłuższy nieprzerwany odpoczynek zamiast sumy; klucz idempotentności `ActivitySessionId + StartGameMinute`; reguła pierwszej godziny podwójnej obsady odrzucona; dzielony odpoczynek 3+9 nierozpoznawany; pełne rekompensaty odłożone.
 
-**Podjęte decyzje warte zapamiętania:** OUT świadomie wyjęty z piktogramów wpisu manualnego; reguła pierwszej godziny przy podwójnej obsadzie odrzucona z zakresu projektu; pełne rekompensaty tygodniowe i zimna retencja (365 dni) odłożone jako przyszłe etapy; dzielony odpoczynek dobowy 3h+9h nierozpoznawany (known issue); klucz idempotentności to `ActivitySessionId + StartGameMinute`, nie losowy `Id`.
+**Numeracja dni:** `displayedDay = floor(GameMinute / 1440) + 1`. Przy porównaniu surowych minut z UI, CSV i PDF zawsze stosuj `+1`.
 
-**Ograniczenia:** Windows x64 wyłącznie; telemetria SCS tylko do odczytu, więc aplikacja nie blokuje fizycznie jazdy w grze, jedynie własny interfejs (zgodnie z zachowaniem prawdziwego DTCO); aplikacja nie jest certyfikowanym tachografem ani implementacją Annex 1C.
+**Planer podróży MVP:** strategia „Najwcześniejsza legalna”, specyfikacja po przeglądzie P0/P1/P2. Implementacja pozostaje za gate’em beta.10.1. Po GO: końcowa akceptacja specyfikacji, osobna gałąź, kontrakty i czerwone testy P0, potem silnik zdarzeniowy, Application Service i UI.
 
-**Stan repozytorium:** odtworzone i działające — `main`, commity `e510ed9` (bazowy, 198 plików), `9178089`, `7836d75`; `output/` wyłączone przez `.gitignore`.
-
-**Najbliższe zadanie:** rozszerzone testy terenowe reguły ciągłości odpoczynku z beta.10 — wielokrotne luki w jednym okresie odpoczynku, luka przecinająca granicę tygodnia regulacyjnego, interakcja z rekompensatą tygodniową. Wizualna weryfikacja Dashboardu i pierwszy commit zostały wykonane 20.07.2026.
+**Najbliższe zadanie:** smoke test świeżej telemetrii beta.10.1: normalna sesja ETS2 → nowe dane → poprawne zamknięcie → restart → kontrola logów i archiwizacji. Następnie test granicy tygodnia oraz interakcji z rekompensatą, po czym decyzja GO / FIX / HOLD.
