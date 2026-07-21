@@ -103,7 +103,12 @@ Zmiana w XAML nie jest gotowa, dopóki wszystkie punkty nie są odhaczone.
 - [ ] Zamknij aplikację — zamyka się czysto, bez procesu zostającego w tle
       i bez osieroconych okien nakładek.
 - [ ] Uruchom ponownie i sprawdź, że utrzymały się: profil kierowcy, stan kart,
-      tryby (OUT / prom), pozycja i widoczność nakładek, ustawienia z zakładki Ustawienia.
+      tryby (OUT / prom), ustawienia z zakładki Ustawienia.
+- [ ] Po restarcie aplikacja uruchamia się poprawnie, a nakładki można ponownie
+      otworzyć i obsługiwać.
+- [ ] Pozycje nakładek S1 i S2 są zgodne z zapisanymi ustawieniami — nakładka
+      przeciągnięta przed restartem wraca w to samo miejsce. Widoczność nie jest
+      zapisywana: po restarcie obie nakładki są ukryte do czasu `ALT+1` / `ALT+2`.
 - [ ] Historia i stan rozliczenia luk są takie same jak przed restartem.
 - [ ] Powtórz punkty 2, 3 i 9 na świeżo uruchomionej aplikacji.
 - [ ] Sprawdź log diagnostyczny — brak nowych błędów bindowania i wyjątków UI.
