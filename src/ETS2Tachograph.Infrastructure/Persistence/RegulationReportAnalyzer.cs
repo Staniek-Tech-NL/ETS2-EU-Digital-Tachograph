@@ -22,6 +22,6 @@ public sealed class RegulationReportAnalyzer(
         return new RegulationReportAnalysisDto(
             evaluation.Violations.Select(x => new ReportViolationDto(
                 x.Type.ToString(), x.Article, x.DetectedAt.TotalMinutes, x.ExcessMinutes)).ToList(),
-            evaluation.CompensationSummary);
+            WeeklyRestCompensationDtoMapper.MapAll(evaluation.CompensationObligations));
     }
 }

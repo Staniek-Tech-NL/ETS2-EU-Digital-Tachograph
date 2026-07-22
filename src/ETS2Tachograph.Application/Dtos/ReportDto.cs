@@ -16,8 +16,9 @@ public sealed record ReportDto(
     IReadOnlyList<ActivityGap> Gaps,
     IReadOnlyList<ReportViolationDto> Violations)
 {
-    public CompensationSummary CompensationSummary { get; init; } =
-        global::ETS2Tachograph.RuleEngine.CompensationSummary.Empty;
+    public IReadOnlyList<WeeklyRestCompensationDto> CompensationObligations { get; init; } = [];
+    public CompensationSummary CompensationSummary =>
+        CompensationSummaryProjection.From(CompensationObligations);
     public long TotalMinutes => DrivingMinutes + OtherWorkMinutes + AvailabilityMinutes + RestMinutes + OutMinutes;
     public int UnresolvedGapCount => Gaps.Count;
     public long GapMinutes => Gaps.Sum(gap => gap.DurationMinutes ?? 0);
@@ -42,9 +43,12 @@ public sealed record ReportViolationDto(
 
 public sealed record RegulationReportAnalysisDto(
     IReadOnlyList<ReportViolationDto> Violations,
-    CompensationSummary CompensationSummary)
+    IReadOnlyList<WeeklyRestCompensationDto> CompensationObligations)
 {
+    public CompensationSummary CompensationSummary =>
+        CompensationSummaryProjection.From(CompensationObligations);
+
     public static RegulationReportAnalysisDto Empty { get; } = new(
         [],
-        global::ETS2Tachograph.RuleEngine.CompensationSummary.Empty);
+        []);
 }

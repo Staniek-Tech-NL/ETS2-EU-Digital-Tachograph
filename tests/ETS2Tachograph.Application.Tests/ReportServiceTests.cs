@@ -1,4 +1,5 @@
 using System.Text;
+using ETS2Tachograph.Application.Dtos;
 using ETS2Tachograph.Application.Persistence;
 using ETS2Tachograph.Application.Services;
 using ETS2Tachograph.Core.Entities;
@@ -140,23 +141,47 @@ public sealed class ReportServiceTests
     }
 
     [Fact]
-    public async Task Report_preserves_shared_compensation_summary_and_exports_it_to_json()
+    public async Task Report_derives_compensation_summary_from_obligations_and_exports_it_to_json()
     {
-        var summary = new CompensationSummary(1_260, new GameWeek(33), 2, true);
+        IReadOnlyList<WeeklyRestCompensationDto> obligations =
+        [
+            Compensation(600, 30, WeeklyRestCompensationStatusDto.Overdue),
+            Compensation(660, 31, WeeklyRestCompensationStatusDto.OpenOnTime)
+        ];
         var repository = new ReportRepository([Record(0, 1, DriverActivity.OtherWork)]);
-        var report = await new ReportService(repository, new FixedRegulationAnalyzer(summary))
+        var report = await new ReportService(repository, new FixedRegulationAnalyzer(obligations))
             .CreateAsync("PL-REPORT", new GameTime(0), new GameTime(1));
 
-        Assert.Equal(summary, report.CompensationSummary);
+        Assert.Equal(obligations, report.CompensationObligations);
+        Assert.Equal(1_260, report.CompensationSummary.TotalOwedMinutes);
+        Assert.Equal(new GameWeek(33), report.CompensationSummary.NearestDueByEndOfWeek);
 
         await using var json = new MemoryStream();
-        await new ReportService(repository, new FixedRegulationAnalyzer(summary))
+        await new ReportService(repository, new FixedRegulationAnalyzer(obligations))
             .ExportVtcJsonAsync(report, json);
         var text = Encoding.UTF8.GetString(json.ToArray());
         Assert.Contains("\"totalOwedMinutes\": 1260", text);
         Assert.Contains("\"count\": 2", text);
         Assert.Contains("\"hasOverdue\": true", text);
     }
+
+    private static WeeklyRestCompensationDto Compensation(
+        long remainingMinutes,
+        long reductionWeek,
+        WeeklyRestCompensationStatusDto status) => new(
+            1,
+            $"obligation-{reductionWeek}",
+            "PL-REPORT",
+            $"rest-{reductionWeek}",
+            reductionWeek * GameWeek.MinutesPerWeek,
+            remainingMinutes,
+            remainingMinutes,
+            reductionWeek,
+            (reductionWeek + 4) * GameWeek.MinutesPerWeek,
+            null,
+            null,
+            null,
+            status);
 
     private static ActivityRecord Record(long start, long end, DriverActivity activity) => new()
     {
@@ -209,10 +234,11 @@ public sealed class ReportServiceTests
             IReadOnlyList<ActivityRecord> history) => Application.Dtos.RegulationReportAnalysisDto.Empty;
     }
 
-    private sealed class FixedRegulationAnalyzer(CompensationSummary summary) : IRegulationReportAnalyzer
+    private sealed class FixedRegulationAnalyzer(
+        IReadOnlyList<WeeklyRestCompensationDto> obligations) : IRegulationReportAnalyzer
     {
         public Application.Dtos.RegulationReportAnalysisDto Analyze(
             GameTime now,
-            IReadOnlyList<ActivityRecord> history) => new([], summary);
+            IReadOnlyList<ActivityRecord> history) => new([], obligations);
     }
 }

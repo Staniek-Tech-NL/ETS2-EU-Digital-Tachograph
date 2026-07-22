@@ -25,7 +25,11 @@ public sealed class PdfReportExporterTests
         };
         var report = new ReportDto("PL-REPORT", 0, 60, 60, 0, 0, 0, 0, [record], [], [])
         {
-            CompensationSummary = new CompensationSummary(1_260, new GameWeek(33), 2, true)
+            CompensationObligations =
+            [
+                Compensation(600, 30, WeeklyRestCompensationStatusDto.Overdue),
+                Compensation(660, 31, WeeklyRestCompensationStatusDto.OpenOnTime)
+            ]
         };
         await using var destination = new MemoryStream();
 
@@ -34,6 +38,24 @@ public sealed class PdfReportExporterTests
         Assert.Equal("%PDF", Encoding.ASCII.GetString(destination.ToArray(), 0, 4));
         Assert.True(destination.Length > 2_000);
     }
+
+    private static WeeklyRestCompensationDto Compensation(
+        long remainingMinutes,
+        long reductionWeek,
+        WeeklyRestCompensationStatusDto status) => new(
+            1,
+            $"obligation-{reductionWeek}",
+            "PL-REPORT",
+            $"rest-{reductionWeek}",
+            reductionWeek * GameWeek.MinutesPerWeek,
+            remainingMinutes,
+            remainingMinutes,
+            reductionWeek,
+            (reductionWeek + 4) * GameWeek.MinutesPerWeek,
+            null,
+            null,
+            null,
+            status);
 
     [Fact]
     public async Task Export_accepts_explicit_unresolved_gap_completeness_summary()

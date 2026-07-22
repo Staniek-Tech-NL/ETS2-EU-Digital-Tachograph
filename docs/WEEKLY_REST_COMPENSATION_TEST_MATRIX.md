@@ -2,7 +2,7 @@
 
 **Stan na:** 22 lipca 2026  
 **Podstawa:** zatwierdzona specyfikacja domenowa i zatwierdzone dane referencyjne  
-**Status:** wdrożona i zielona w RuleEngine; 55/55 testów RuleEngine oraz 252/252 testy rozwiązania
+**Status:** wdrożona i zielona w RuleEngine oraz Application/DTO; 55/55 testów RuleEngine oraz 260/260 testów rozwiązania
 
 Wszystkie przedziały są półotwarte `[StartGameMinute, EndGameMinuteExclusive)`. Każdy blok użyty do utworzenia albo spłaty długu musi być zamknięty przez następującą aktywność inną niż `BreakOrRest`; `now` znajduje się po tej aktywności. Jeżeli w wierszu nie podano inaczej, `WeekEpochOffsetDays = 0`.
 
@@ -28,4 +28,4 @@ Wszystkie przedziały są półotwarte `[StartGameMinute, EndGameMinuteExclusive
 4. `BND-05A/B/C` potwierdziły ścisłą granicę `DueAtExclusive` oraz statusy `PaidOnTime`, `PaidLate` i `Overdue`.
 5. `BND-06A/B` potwierdziły stabilność identyfikatorów i śladu po utworzeniu nowej instancji RuleEngine oraz przy równoważnym innym podziale historii na rekordy.
 
-Gate RuleEngine jest zielony. Integracyjny test restartu przez fizyczny ponowny odczyt SQLite pozostaje zadaniem etapu Infrastructure; nie blokuje stabilności czystej projekcji RuleEngine. DTO, UI i raporty nie korzystają jeszcze z nowego pełnego śladu.
+Gate RuleEngine jest zielony. Integracyjny test restartu przez fizyczny ponowny odczyt SQLite pozostaje zadaniem etapu Infrastructure; nie blokuje stabilności czystej projekcji RuleEngine. Application DTO mapuje pełne zobowiązania i ślad spłaty, a dotychczasowe pola zbiorcze są projekcją pochodną. UI oraz formaty raportów nie prezentują jeszcze pełnego śladu.

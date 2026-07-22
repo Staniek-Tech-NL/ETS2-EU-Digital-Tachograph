@@ -56,7 +56,7 @@ public sealed class ReportService(
             Sum(DriverActivity.Availability), Sum(DriverActivity.BreakOrRest),
             Sum(DriverActivity.OutOfScope), records, gaps, regulation.Violations)
         {
-            CompensationSummary = regulation.CompensationSummary
+            CompensationObligations = regulation.CompensationObligations
         };
     }
 
