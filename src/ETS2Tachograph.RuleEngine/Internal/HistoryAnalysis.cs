@@ -18,6 +18,7 @@ internal static class HistoryAnalysis
         {
             var end = record.EndExclusive > now ? now : record.EndExclusive;
             if (result.Count > 0 &&
+                result[^1].DriverCardId == record.DriverCardId &&
                 result[^1].Activity == record.Activity &&
                 result[^1].EndExclusive == record.Start &&
                 CanJoinAcrossManualEntryBoundary(result[^1], record))
@@ -25,16 +26,21 @@ internal static class HistoryAnalysis
                 result[^1] = result[^1] with
                 {
                     EndExclusive = end,
-                    SourceGapId = result[^1].SourceGapId ?? record.SourceGapId
+                    SourceGapId = result[^1].SourceGapId ?? record.SourceGapId,
+                    SourceRanges = AppendSourceRange(
+                        result[^1].SourceRanges,
+                        new ActivitySourceRange(record.Start, end, record.SourceGapId))
                 };
             }
             else
             {
                 result.Add(new ActivityRun(
+                    record.DriverCardId,
                     record.Start,
                     end,
                     record.Activity,
-                    record.SourceGapId));
+                    record.SourceGapId,
+                    [new ActivitySourceRange(record.Start, end, record.SourceGapId)]));
             }
         }
 
@@ -54,6 +60,28 @@ internal static class HistoryAnalysis
         // merged run so the audit trail still identifies the manual entry.
         return previous.Activity == DriverActivity.BreakOrRest &&
                (previous.SourceGapId is null || current.SourceGapId is null);
+    }
+
+    private static IReadOnlyList<ActivitySourceRange> AppendSourceRange(
+        IReadOnlyList<ActivitySourceRange> existing,
+        ActivitySourceRange incoming)
+    {
+        if (existing.Count == 0)
+            return [incoming];
+
+        var result = existing.ToList();
+        var previous = result[^1];
+        if (previous.EndExclusive == incoming.Start &&
+            previous.SourceGapId == incoming.SourceGapId)
+        {
+            result[^1] = previous with { EndExclusive = incoming.EndExclusive };
+        }
+        else
+        {
+            result.Add(incoming);
+        }
+
+        return result;
     }
 
     public static long DrivingOverlap(

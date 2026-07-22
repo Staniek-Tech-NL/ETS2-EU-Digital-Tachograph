@@ -17,13 +17,16 @@ public sealed record CompensationSummary(
     public static CompensationSummary From(IReadOnlyList<WeeklyRestCompensation> compensations)
     {
         ArgumentNullException.ThrowIfNull(compensations);
-        if (compensations.Count == 0)
-            return Empty;
+        var open = compensations.Where(item => item.IsOpen).ToList();
+        if (open.Count == 0)
+            return compensations.Any(item => item.IsOverdue)
+                ? Empty with { HasOverdue = true }
+                : Empty;
 
         return new CompensationSummary(
-            compensations.Sum(item => item.OwedMinutes),
-            compensations.MinBy(item => item.DueByEndOfWeek.Index)!.DueByEndOfWeek,
-            compensations.Count,
+            open.Sum(item => item.RemainingMinutes),
+            open.MinBy(item => item.DueAtExclusive)!.DueByEndOfWeek,
+            open.Count,
             compensations.Any(item => item.IsOverdue));
     }
 }

@@ -243,15 +243,37 @@ public sealed class RegulationEngineTests
     [Fact]
     public void Reduced_weekly_rest_creates_compensation_obligation()
     {
-        var result = Evaluate([Record(0, 2_400, DriverActivity.BreakOrRest)], 2_400);
+        var result = Evaluate(
+        [
+            Record(0, 2_400, DriverActivity.BreakOrRest),
+            Record(2_400, 2_401, DriverActivity.OtherWork)
+        ], 2_401);
 
         var compensation = Assert.Single(result.Compensations);
         Assert.Equal(300, compensation.OwedMinutes);
+        Assert.Equal(300, compensation.OriginalOwedMinutes);
+        Assert.Equal(WeeklyRestCompensationStatus.OpenOnTime, compensation.Status);
         Assert.False(compensation.IsOverdue);
         Assert.Equal(300, result.CompensationSummary.TotalOwedMinutes);
         Assert.Equal(1, result.CompensationSummary.Count);
         Assert.Equal(compensation.DueByEndOfWeek, result.CompensationSummary.NearestDueByEndOfWeek);
         Assert.False(result.CompensationSummary.HasOverdue);
+    }
+
+    [Fact]
+    public void OngoingReducedWeeklyRest_DoesNotCreateObligationUntilClosed()
+    {
+        var ongoing = Evaluate(
+            [Record(0, 2_400, DriverActivity.BreakOrRest)],
+            2_400);
+        var closed = Evaluate(
+        [
+            Record(0, 2_400, DriverActivity.BreakOrRest),
+            Record(2_400, 2_401, DriverActivity.OtherWork)
+        ], 2_401);
+
+        Assert.Empty(ongoing.CompensationObligations);
+        Assert.Single(closed.CompensationObligations);
     }
 
     [Fact]
@@ -284,24 +306,289 @@ public sealed class RegulationEngineTests
         [
             Record(0, 2_400, DriverActivity.BreakOrRest),
             Record(2_400, 2_460, DriverActivity.OtherWork),
-            Record(2_460, 5_460, DriverActivity.BreakOrRest)
-        ], 5_460);
+            Record(2_460, 5_460, DriverActivity.BreakOrRest),
+            Record(5_460, 5_461, DriverActivity.OtherWork)
+        ], 5_461);
 
         Assert.Empty(result.Compensations);
+        var compensation = Assert.Single(result.CompensationObligations);
+        Assert.Equal(WeeklyRestCompensationStatus.PaidOnTime, compensation.Status);
+        Assert.Equal(0, compensation.RemainingMinutes);
     }
 
     [Fact]
-    public void Twenty_hour_rest_attaches_eleven_hours_to_weekly_compensation()
+    public void Twenty_hour_rest_does_not_partially_reduce_weekly_compensation()
     {
         var result = Evaluate(
         [
             Record(0, 1_440, DriverActivity.BreakOrRest),
             Record(1_440, 1_500, DriverActivity.OtherWork),
-            Record(1_500, 2_700, DriverActivity.BreakOrRest)
-        ], 2_700);
+            Record(1_500, 2_700, DriverActivity.BreakOrRest),
+            Record(2_700, 2_701, DriverActivity.OtherWork)
+        ], 2_701);
 
         var compensation = Assert.Single(result.Compensations);
-        Assert.Equal(600, compensation.OwedMinutes);
+        Assert.Equal(1_260, compensation.OwedMinutes);
+    }
+
+    [Fact]
+    public void Staniek_DoesNotAggregateCompensationFragments_Leaves1253MinutesOpen()
+    {
+        // Approved reference data: WEEKLY_REST_COMPENSATION_REFERENCE_DATA_2026-07-22.md.
+        const string cardId = "Staniek";
+        var history = new[]
+        {
+            RestRecord(cardId, 186_055, 187_502, ActivitySource.ManualEntry,
+                "0F368EE5-460D-43C8-9059-F28B5165C7E3"),
+            RestRecord(cardId, 188_105, 188_767, ActivitySource.Mixed),
+            RestRecord(cardId, 190_059, 190_743, ActivitySource.Mixed),
+            RestRecord(cardId, 192_051, 192_774, ActivitySource.ManualEntry,
+                "2231AB20-B921-4442-80AB-49FBDDA88E22"),
+            RestRecord(cardId, 194_086, 194_749, ActivitySource.Mixed),
+            RestRecord(cardId, 195_807, 196_474, ActivitySource.Mixed),
+            RestRecord(cardId, 196_476, 199_712, ActivitySource.Mixed,
+                "ACC1278D-0FB1-4591-8006-ECE231EF7350")
+        };
+
+        var result = Evaluate(history, 199_714);
+
+        var compensation = Assert.Single(result.Compensations);
+        Assert.Equal(1_253, compensation.OwedMinutes);
+        Assert.Equal(1_253, result.CompensationSummary.TotalOwedMinutes);
+    }
+
+    [Fact]
+    public void Dobos_DoesNotAggregateCompensationFragments_Leaves1192MinutesOpen()
+    {
+        // Approved reference data: WEEKLY_REST_COMPENSATION_REFERENCE_DATA_2026-07-22.md.
+        const string cardId = "Doboś";
+        var history = new[]
+        {
+            RestRecord(cardId, 187_260, 188_768, ActivitySource.Mixed,
+                "81C8CB6D-1FE0-4ADF-9E0A-AF91910573EC"),
+            RestRecord(cardId, 190_059, 190_742, ActivitySource.Mixed),
+            RestRecord(cardId, 192_051, 192_775, ActivitySource.ManualEntry,
+                "2B70FAC9-B06F-4EF7-ADDA-C34E3B98F4CE"),
+            RestRecord(cardId, 194_086, 194_749, ActivitySource.Mixed),
+            RestRecord(cardId, 195_807, 196_474, ActivitySource.Mixed),
+            RestRecord(cardId, 196_751, 199_713, ActivitySource.Mixed,
+                "EFDC2D8D-7CE7-4525-A16C-70D585269377")
+        };
+
+        var result = Evaluate(history, 199_714);
+
+        var compensation = Assert.Single(result.Compensations);
+        Assert.Equal(1_192, compensation.OwedMinutes);
+        Assert.Equal(1_192, result.CompensationSummary.TotalOwedMinutes);
+    }
+
+    [Fact]
+    public void SingleCompensationBlock_OneMinuteTooShort_DoesNotReduceDebt()
+    {
+        var result = Evaluate(
+        [
+            Record(0, 2_400, DriverActivity.BreakOrRest),
+            Record(2_400, 2_460, DriverActivity.OtherWork),
+            Record(2_460, 3_299, DriverActivity.BreakOrRest),
+            Record(3_299, 3_300, DriverActivity.OtherWork)
+        ], 3_300);
+
+        var compensation = Assert.Single(result.Compensations);
+        Assert.Equal(300, compensation.OriginalOwedMinutes);
+        Assert.Equal(300, compensation.RemainingMinutes);
+        Assert.Null(compensation.PaymentRestBlockId);
+        Assert.Null(compensation.PaymentRange);
+        Assert.Null(compensation.SettledAt);
+    }
+
+    [Fact]
+    public void SingleCompensationBlock_ExactlySufficient_SettlesDebtEnBloc()
+    {
+        var result = Evaluate(
+        [
+            Record(0, 2_400, DriverActivity.BreakOrRest),
+            Record(2_400, 2_460, DriverActivity.OtherWork),
+            Record(2_460, 3_300, DriverActivity.BreakOrRest),
+            Record(3_300, 3_301, DriverActivity.OtherWork)
+        ], 3_301);
+
+        Assert.Empty(result.Compensations);
+        var compensation = Assert.Single(result.CompensationObligations);
+        Assert.Equal(0, compensation.RemainingMinutes);
+        Assert.NotNull(compensation.PaymentRestBlockId);
+        Assert.Equal(new GameTime(3_000), compensation.PaymentRange!.Start);
+        Assert.Equal(new GameTime(3_300), compensation.PaymentRange.EndExclusive);
+        Assert.Equal(300, compensation.PaymentRange.DurationMinutes);
+        Assert.Equal(new GameTime(3_300), compensation.SettledAt);
+        Assert.Equal(WeeklyRestCompensationStatus.PaidOnTime, compensation.Status);
+    }
+
+    [Fact]
+    public void SingleBlock_CanSettleSeveralWholeObligations()
+    {
+        var result = Evaluate(
+        [
+            Record(0, 1_440, DriverActivity.BreakOrRest),
+            Record(1_440, 1_500, DriverActivity.OtherWork),
+            Record(3_000, 4_500, DriverActivity.BreakOrRest),
+            Record(4_500, 4_560, DriverActivity.OtherWork),
+            Record(6_000, 11_160, DriverActivity.BreakOrRest),
+            Record(11_160, 11_161, DriverActivity.OtherWork)
+        ], 11_161);
+
+        Assert.Empty(result.Compensations);
+        Assert.Equal(2, result.CompensationObligations.Count);
+        var ordered = result.CompensationObligations
+            .OrderBy(item => item.OriginalOwedMinutes)
+            .ToList();
+        Assert.Equal([1_200L, 1_260L], ordered.Select(item => item.OriginalOwedMinutes));
+        Assert.All(ordered, item => Assert.Equal(0, item.RemainingMinutes));
+        Assert.Single(ordered.Select(item => item.PaymentRestBlockId).Distinct());
+        var firstByFifo = result.CompensationObligations
+            .OrderBy(item => item.SourceRestEndExclusive)
+            .First();
+        var secondByFifo = result.CompensationObligations
+            .OrderBy(item => item.SourceRestEndExclusive)
+            .Last();
+        Assert.Equal(new GameTime(8_700), firstByFifo.PaymentRange!.Start);
+        Assert.Equal(new GameTime(9_960), firstByFifo.PaymentRange.EndExclusive);
+        Assert.Equal(new GameTime(9_960), secondByFifo.PaymentRange!.Start);
+        Assert.Equal(new GameTime(11_160), secondByFifo.PaymentRange.EndExclusive);
+    }
+
+    [Fact]
+    public void Fifo_DoesNotSkipEarlierDebtWhenBlockCannotSettleIt()
+    {
+        var result = Evaluate(
+        [
+            Record(0, 1_440, DriverActivity.BreakOrRest),
+            Record(1_440, 1_441, DriverActivity.OtherWork),
+            Record(10_080, 12_480, DriverActivity.BreakOrRest),
+            Record(12_480, 12_481, DriverActivity.OtherWork),
+            Record(13_000, 13_840, DriverActivity.BreakOrRest),
+            Record(13_840, 13_841, DriverActivity.OtherWork)
+        ], 13_841);
+
+        Assert.Equal(2, result.Compensations.Count);
+        var first = Assert.Single(
+            result.Compensations,
+            item => item.ReductionWeek == new GameWeek(0));
+        var second = Assert.Single(
+            result.Compensations,
+            item => item.ReductionWeek == new GameWeek(1));
+        Assert.Equal(1_260, first.RemainingMinutes);
+        Assert.Equal(300, second.RemainingMinutes);
+        Assert.Equal(1_560, result.CompensationSummary.TotalOwedMinutes);
+        Assert.Null(first.PaymentRestBlockId);
+        Assert.Null(second.PaymentRestBlockId);
+    }
+
+    [Fact]
+    public void Deadline_CompletedOneMinuteBeforeExclusiveBoundary_IsPaidOnTime()
+    {
+        var result = Evaluate(
+        [
+            Record(0, 2_400, DriverActivity.BreakOrRest),
+            Record(2_400, 2_401, DriverActivity.OtherWork),
+            Record(39_479, 40_319, DriverActivity.BreakOrRest),
+            Record(40_319, 40_320, DriverActivity.OtherWork)
+        ], 40_320);
+
+        var compensation = Assert.Single(result.CompensationObligations);
+        Assert.Equal(new GameTime(40_320), compensation.DueAtExclusive);
+        Assert.Equal(new GameTime(40_319), compensation.SettledAt);
+        Assert.Equal(WeeklyRestCompensationStatus.PaidOnTime, compensation.Status);
+        Assert.False(Has(result, ViolationType.WeeklyRestCompensationOverdue));
+    }
+
+    [Fact]
+    public void Deadline_CompletedAtExclusiveBoundary_IsPaidLate()
+    {
+        var result = Evaluate(
+        [
+            Record(0, 2_400, DriverActivity.BreakOrRest),
+            Record(2_400, 2_401, DriverActivity.OtherWork),
+            Record(39_480, 40_320, DriverActivity.BreakOrRest),
+            Record(40_320, 40_321, DriverActivity.OtherWork)
+        ], 40_321);
+
+        var compensation = Assert.Single(result.CompensationObligations);
+        Assert.Equal(new GameTime(40_320), compensation.DueAtExclusive);
+        Assert.Equal(new GameTime(40_320), compensation.SettledAt);
+        Assert.Equal(WeeklyRestCompensationStatus.PaidLate, compensation.Status);
+        Assert.True(Has(result, ViolationType.WeeklyRestCompensationOverdue));
+    }
+
+    [Fact]
+    public void Deadline_UnpaidAtExclusiveBoundary_IsOverdue()
+    {
+        var result = Evaluate(
+        [
+            Record(0, 2_400, DriverActivity.BreakOrRest),
+            Record(2_400, 2_401, DriverActivity.OtherWork)
+        ], 40_320);
+
+        var compensation = Assert.Single(result.Compensations);
+        Assert.Equal(300, compensation.RemainingMinutes);
+        Assert.Equal(WeeklyRestCompensationStatus.Overdue, compensation.Status);
+        Assert.True(Has(result, ViolationType.WeeklyRestCompensationOverdue));
+    }
+
+    [Fact]
+    public void Restart_SameCanonicalHistory_RecreatesIdenticalOpenObligationIdentity()
+    {
+        var first = new RegulationEngine().Evaluate(
+            new RuleContext(new GameTime(2_401), BuildOpenCompensationHistory(splitRest: false)));
+        var second = new RegulationEngine().Evaluate(
+            new RuleContext(new GameTime(2_401), BuildOpenCompensationHistory(splitRest: true)));
+
+        var firstObligation = Assert.Single(first.CompensationObligations);
+        var secondObligation = Assert.Single(second.CompensationObligations);
+        Assert.Equal(1, firstObligation.IdentitySchemeVersion);
+        Assert.Equal(firstObligation.SourceRestBlockId, secondObligation.SourceRestBlockId);
+        Assert.Equal(firstObligation.ObligationId, secondObligation.ObligationId);
+        Assert.Equal(firstObligation, secondObligation);
+    }
+
+    [Fact]
+    public void Restart_SameCanonicalHistory_RecreatesIdenticalPaymentTrace()
+    {
+        var first = new RegulationEngine().Evaluate(
+            new RuleContext(new GameTime(3_301), BuildPaidCompensationHistory(splitRests: false)));
+        var second = new RegulationEngine().Evaluate(
+            new RuleContext(new GameTime(3_301), BuildPaidCompensationHistory(splitRests: true)));
+
+        var firstObligation = Assert.Single(first.CompensationObligations);
+        var secondObligation = Assert.Single(second.CompensationObligations);
+        Assert.Equal(firstObligation.SourceRestBlockId, secondObligation.SourceRestBlockId);
+        Assert.Equal(firstObligation.ObligationId, secondObligation.ObligationId);
+        Assert.Equal(firstObligation.PaymentRestBlockId, secondObligation.PaymentRestBlockId);
+        Assert.Equal(firstObligation.PaymentRange, secondObligation.PaymentRange);
+        Assert.Equal(firstObligation.SettledAt, secondObligation.SettledAt);
+        Assert.Equal(firstObligation.Status, secondObligation.Status);
+        Assert.Equal(firstObligation, secondObligation);
+    }
+
+    [Fact]
+    public void Identity_ChangedSourceRestRange_CreatesNewBlockAndObligationIds()
+    {
+        var first = new RegulationEngine().Evaluate(new RuleContext(
+            new GameTime(2_401),
+            [
+                Record(0, 2_400, DriverActivity.BreakOrRest),
+                Record(2_400, 2_401, DriverActivity.OtherWork)
+            ]));
+        var changed = new RegulationEngine().Evaluate(new RuleContext(
+            new GameTime(2_401),
+            [
+                Record(0, 2_399, DriverActivity.BreakOrRest),
+                Record(2_399, 2_401, DriverActivity.OtherWork)
+            ]));
+
+        var firstObligation = Assert.Single(first.CompensationObligations);
+        var changedObligation = Assert.Single(changed.CompensationObligations);
+        Assert.NotEqual(firstObligation.SourceRestBlockId, changedObligation.SourceRestBlockId);
+        Assert.NotEqual(firstObligation.ObligationId, changedObligation.ObligationId);
     }
 
     [Fact]
@@ -352,4 +639,49 @@ public sealed class RegulationEngineTests
         EndExclusive = new GameTime(end),
         RecordedAtUtc = DateTimeOffset.UtcNow
     };
+
+    private static ActivityRecord RestRecord(
+        string driverCardId,
+        long start,
+        long end,
+        ActivitySource source,
+        string? sourceGapId = null) => Record(start, end, DriverActivity.BreakOrRest) with
+    {
+        DriverCardId = driverCardId,
+        Source = source,
+        SourceGapId = sourceGapId is null ? null : Guid.Parse(sourceGapId)
+    };
+
+    private static IReadOnlyList<ActivityRecord> BuildOpenCompensationHistory(bool splitRest) =>
+        splitRest
+            ?
+            [
+                Record(0, 1_200, DriverActivity.BreakOrRest),
+                Record(1_200, 2_400, DriverActivity.BreakOrRest),
+                Record(2_400, 2_401, DriverActivity.OtherWork)
+            ]
+            :
+            [
+                Record(0, 2_400, DriverActivity.BreakOrRest),
+                Record(2_400, 2_401, DriverActivity.OtherWork)
+            ];
+
+    private static IReadOnlyList<ActivityRecord> BuildPaidCompensationHistory(bool splitRests) =>
+        splitRests
+            ?
+            [
+                Record(0, 1_200, DriverActivity.BreakOrRest),
+                Record(1_200, 2_400, DriverActivity.BreakOrRest),
+                Record(2_400, 2_460, DriverActivity.OtherWork),
+                Record(2_460, 3_000, DriverActivity.BreakOrRest),
+                Record(3_000, 3_300, DriverActivity.BreakOrRest),
+                Record(3_300, 3_301, DriverActivity.OtherWork)
+            ]
+            :
+            [
+                Record(0, 2_400, DriverActivity.BreakOrRest),
+                Record(2_400, 2_460, DriverActivity.OtherWork),
+                Record(2_460, 3_300, DriverActivity.BreakOrRest),
+                Record(3_300, 3_301, DriverActivity.OtherWork)
+            ];
 }

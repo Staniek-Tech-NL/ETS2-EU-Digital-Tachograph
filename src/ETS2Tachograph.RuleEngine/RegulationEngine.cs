@@ -236,44 +236,112 @@ public sealed class RegulationEngine
         GameTime now,
         int offsetDays)
     {
-        var obligations = new List<MutableCompensation>();
+        var obligations = new List<WeeklyRestCompensation>();
 
-        foreach (var run in runs.Where(run => run.Activity == DriverActivity.BreakOrRest))
+        foreach (var run in runs.Where(run =>
+                     run.Activity == DriverActivity.BreakOrRest &&
+                     run.EndExclusive < now))
         {
-            if (run.DurationMinutes is >= 1_440 and < 2_700)
+            var hostMinimumMinutes = run.DurationMinutes switch
             {
-                var week = GameWeek.From(run.Start, offsetDays);
-                obligations.Add(new MutableCompensation(2_700 - run.DurationMinutes, week));
-                continue;
+                >= 2_700 => 2_700,
+                >= 1_440 => 1_440,
+                >= 540 => 540,
+                _ => 0
+            };
+            var attachableMinutes = run.DurationMinutes - hostMinimumMinutes;
+            if (attachableMinutes > 0 && obligations.Any(item => item.IsOpen))
+            {
+                SettleWholeObligations(
+                    obligations,
+                    run,
+                    hostMinimumMinutes,
+                    attachableMinutes);
             }
 
-            var credit = run.DurationMinutes >= 2_700
-                ? run.DurationMinutes - 2_700
-                : run.DurationMinutes >= 540
-                    ? run.DurationMinutes - 540
-                    : 0;
-
-            foreach (var obligation in obligations.Where(item => item.RemainingMinutes > 0))
+            if (run.DurationMinutes is >= 1_440 and < 2_700)
             {
-                var used = Math.Min(credit, obligation.RemainingMinutes);
-                obligation.RemainingMinutes -= used;
-                credit -= used;
-                if (credit == 0)
+                var reductionWeek = GameWeek.From(run.Start, offsetDays);
+                var dueAtExclusive = new GameTime(checked(
+                    ((reductionWeek.Index + 4) * GameWeek.MinutesPerWeek) -
+                    ((long)offsetDays * GameWeek.MinutesPerDay)));
+                var sourceRestBlockId = CompensationIdentity.RestBlockId(run);
+                var originalOwedMinutes = 2_700 - run.DurationMinutes;
+                obligations.Add(new WeeklyRestCompensation
                 {
-                    break;
-                }
+                    IdentitySchemeVersion = CompensationIdentity.SchemeVersion,
+                    ObligationId = CompensationIdentity.ObligationId(
+                        run.DriverCardId,
+                        sourceRestBlockId,
+                        reductionWeek),
+                    DriverCardId = run.DriverCardId,
+                    SourceRestBlockId = sourceRestBlockId,
+                    SourceRestEndExclusive = run.EndExclusive,
+                    OriginalOwedMinutes = originalOwedMinutes,
+                    RemainingMinutes = originalOwedMinutes,
+                    ReductionWeek = reductionWeek,
+                    DueAtExclusive = dueAtExclusive,
+                    Status = now < dueAtExclusive
+                        ? WeeklyRestCompensationStatus.OpenOnTime
+                        : WeeklyRestCompensationStatus.Overdue
+                });
             }
         }
 
-        var currentWeek = GameWeek.From(now, offsetDays);
-        return obligations
-            .Where(item => item.RemainingMinutes > 0)
-            .Select(item => new WeeklyRestCompensation(
-                item.RemainingMinutes,
-                item.ReductionWeek,
-                new GameWeek(item.ReductionWeek.Index + 3),
-                currentWeek.Index > item.ReductionWeek.Index + 3))
+        for (var index = 0; index < obligations.Count; index++)
+        {
+            var obligation = obligations[index];
+            if (!obligation.IsOpen)
+                continue;
+
+            obligations[index] = obligation with
+            {
+                Status = now < obligation.DueAtExclusive
+                    ? WeeklyRestCompensationStatus.OpenOnTime
+                    : WeeklyRestCompensationStatus.Overdue
+            };
+        }
+
+        return obligations;
+    }
+
+    private static void SettleWholeObligations(
+        List<WeeklyRestCompensation> obligations,
+        ActivityRun paymentRun,
+        long hostMinimumMinutes,
+        long attachableMinutes)
+    {
+        var paymentRestBlockId = CompensationIdentity.RestBlockId(paymentRun);
+        var paymentCursor = paymentRun.Start.AddMinutes(hostMinimumMinutes);
+        var ordered = obligations
+            .Select((obligation, index) => (obligation, index))
+            .Where(item => item.obligation.IsOpen)
+            .OrderBy(item => item.obligation.DueAtExclusive)
+            .ThenBy(item => item.obligation.ReductionWeek.Index)
+            .ThenBy(item => item.obligation.SourceRestEndExclusive)
+            .ThenBy(item => item.obligation.ObligationId, StringComparer.Ordinal)
             .ToList();
+
+        foreach (var (obligation, index) in ordered)
+        {
+            if (attachableMinutes < obligation.OriginalOwedMinutes)
+                break;
+
+            var paymentEnd = paymentCursor.AddMinutes(obligation.OriginalOwedMinutes);
+            var status = paymentEnd < obligation.DueAtExclusive
+                ? WeeklyRestCompensationStatus.PaidOnTime
+                : WeeklyRestCompensationStatus.PaidLate;
+            obligations[index] = obligation with
+            {
+                RemainingMinutes = 0,
+                PaymentRestBlockId = paymentRestBlockId,
+                PaymentRange = new CompensationMinuteRange(paymentCursor, paymentEnd),
+                SettledAt = paymentEnd,
+                Status = status
+            };
+            paymentCursor = paymentEnd;
+            attachableMinutes -= obligation.OriginalOwedMinutes;
+        }
     }
 
     private static bool WeeklyPatternInvalid(
@@ -307,9 +375,4 @@ public sealed class RegulationEngine
 
     private sealed record DailyDrivingPeriod(GameTime Start, GameTime End, long DrivingMinutes);
 
-    private sealed class MutableCompensation(long remainingMinutes, GameWeek reductionWeek)
-    {
-        public long RemainingMinutes { get; set; } = remainingMinutes;
-        public GameWeek ReductionWeek { get; } = reductionWeek;
-    }
 }
