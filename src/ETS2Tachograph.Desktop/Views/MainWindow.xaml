@@ -45,7 +45,7 @@
                     SelectedIndex="{Binding SelectedMainTabIndex}">
             <TabItem Header="▣  Dashboard">
                 <Grid Background="#F3F5F8" TextElement.Foreground="#161A20">
-                <Grid Margin="20"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="280"/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition/><RowDefinition Height="300"/></Grid.RowDefinitions>
+                <Grid Margin="20"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="280"/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition/><RowDefinition Height="360"/></Grid.RowDefinitions>
                     <Border Background="White" BorderBrush="#B9C2CD" BorderThickness="1" CornerRadius="10" Margin="0,0,14,12">
                         <Grid><Grid.RowDefinitions><RowDefinition Height="58"/><RowDefinition/></Grid.RowDefinitions>
                             <Border Background="#F7F8FA" BorderBrush="#CDD3DA" BorderThickness="0,0,0,1" CornerRadius="10,10,0,0"><TextBlock Text="BIEŻĄCY PODGLĄD TACHOGRAFU" FontSize="20" FontWeight="Bold" Margin="20,0" VerticalAlignment="Center"/></Border>
@@ -73,7 +73,7 @@
                     <Grid Grid.Row="1" Grid.ColumnSpan="2"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
                         <Border Background="White" BorderBrush="#B9C2CD" BorderThickness="1" CornerRadius="10" Margin="0,0,8,0" Padding="16">
                             <Grid>
-                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                 <TextBlock Text="SLOT 1 - KIEROWCA AKTYWNY" FontSize="18" FontWeight="Bold"/>
                                 <Grid Grid.Row="1" Margin="0,9,0,5">
                                     <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
@@ -84,7 +84,16 @@
                                     <TextBlock Grid.Row="3" Text="Jazda dzienna:" Margin="0,5,0,0"/><TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding DailyDrivingWithLimit}" Margin="0,5,0,0" FontFamily="Consolas" FontWeight="SemiBold"/>
                                     <TextBlock Grid.Row="4" Text="Praca dobowa:" Margin="0,5,0,0"/><TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding DailyWorkWithLimit}" Margin="0,5,0,0" FontFamily="Consolas" FontWeight="SemiBold"/>
                                 </Grid>
-                                <Border Grid.Row="2" Background="#EEF3F7" BorderBrush="#CFD8E2" BorderThickness="1" CornerRadius="7" Padding="10,7" Margin="0,5">
+                                <Border Grid.Row="2" Background="#F4F7FA" BorderBrush="#CFD8E2" BorderThickness="1" CornerRadius="7" Padding="9,6" Margin="0,3">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition Width="1.7*"/><ColumnDefinition Width="1.35*"/></Grid.ColumnDefinitions>
+                                        <StackPanel><TextBlock Text="OTWARTE" FontSize="9" Foreground="#5F6874"/><TextBlock Text="{Binding CompensationOverview.OpenCount}" FontFamily="Consolas" FontWeight="Bold"/></StackPanel>
+                                        <StackPanel Grid.Column="1"><TextBlock Text="DŁUG" FontSize="9" Foreground="#5F6874"/><TextBlock Text="{Binding CompensationOverview.TotalDebtText}" FontFamily="Consolas" FontWeight="Bold"/></StackPanel>
+                                        <StackPanel Grid.Column="2"><TextBlock Text="NAJBLIŻSZY TERMIN" FontSize="9" Foreground="#5F6874"/><TextBlock Text="{Binding CompensationOverview.NearestDueText}" FontFamily="Consolas" FontSize="11" FontWeight="Bold" TextTrimming="CharacterEllipsis"/></StackPanel>
+                                        <StackPanel Grid.Column="3"><TextBlock Text="STATUS" FontSize="9" Foreground="#5F6874"/><TextBlock Text="{Binding CompensationOverview.StatusText}" Foreground="{Binding CompensationOverview.StatusForeground}" FontSize="10" FontWeight="Bold" TextWrapping="Wrap"/></StackPanel>
+                                    </Grid>
+                                </Border>
+                                <Border Grid.Row="3" Background="#EEF3F7" BorderBrush="#CFD8E2" BorderThickness="1" CornerRadius="7" Padding="10,7" Margin="0,5">
                                     <Grid>
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="1.6*"/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
                                         <StackPanel><TextBlock Text="WYBRANA PAUZA" FontSize="10" Foreground="#5F6874"/><TextBlock Text="{Binding RestTargetText}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/></StackPanel>
@@ -92,7 +101,7 @@
                                         <StackPanel Grid.Column="2"><TextBlock Text="POZOSTAŁO" FontSize="10" Foreground="#5F6874"/><TextBlock Text="{Binding RestRemaining}" FontFamily="Consolas" FontSize="18" FontWeight="Bold"/><TextBlock Text="{Binding RestStatus}" FontSize="9" Foreground="#24754D" FontWeight="Bold"/></StackPanel>
                                     </Grid>
                                 </Border>
-                                <Grid Grid.Row="3" Margin="0,3,0,0">
+                                <Grid Grid.Row="4" Margin="0,3,0,0">
                                     <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                     <ComboBox ItemsSource="{Binding RestTargets}" SelectedItem="{Binding SelectedRestTarget, Mode=TwoWay}" DisplayMemberPath="Name" Height="34" Margin="0,0,8,0" Background="White" Foreground="#161A20"/>
                                     <Button Grid.Column="1" Content="ROZPOCZNIJ PAUZĘ" Command="{Binding StartSelectedRestCommand}" Background="#245B94" Padding="13,8" Margin="0"/>
@@ -101,7 +110,7 @@
                         </Border>
                         <Border Grid.Column="1" Background="White" BorderBrush="#B9C2CD" BorderThickness="1" CornerRadius="10" Margin="8,0,0,0" Padding="16">
                             <Grid>
-                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
                                 <TextBlock Text="SLOT 2 - KIEROWCA ZMIENNIK" FontSize="18" FontWeight="Bold"/>
                                 <Grid Grid.Row="1" Margin="0,9,0,5">
                                     <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
@@ -112,7 +121,16 @@
                                     <TextBlock Grid.Row="3" Text="Jazda dzienna:" Margin="0,5,0,0"/><TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Driver2DailyDrivingWithLimit}" Margin="0,5,0,0" FontFamily="Consolas" FontWeight="SemiBold"/>
                                     <TextBlock Grid.Row="4" Text="Praca dobowa:" Margin="0,5,0,0"/><TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Driver2DailyWorkWithLimit}" Margin="0,5,0,0" FontFamily="Consolas" FontWeight="SemiBold"/>
                                 </Grid>
-                                <Border Grid.Row="2" Background="#EEF3F7" BorderBrush="#CFD8E2" BorderThickness="1" CornerRadius="7" Padding="10,7" Margin="0,5">
+                                <Border Grid.Row="2" Background="#F4F7FA" BorderBrush="#CFD8E2" BorderThickness="1" CornerRadius="7" Padding="9,6" Margin="0,3">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition Width="1.7*"/><ColumnDefinition Width="1.35*"/></Grid.ColumnDefinitions>
+                                        <StackPanel><TextBlock Text="OTWARTE" FontSize="9" Foreground="#5F6874"/><TextBlock Text="{Binding Driver2CompensationOverview.OpenCount}" FontFamily="Consolas" FontWeight="Bold"/></StackPanel>
+                                        <StackPanel Grid.Column="1"><TextBlock Text="DŁUG" FontSize="9" Foreground="#5F6874"/><TextBlock Text="{Binding Driver2CompensationOverview.TotalDebtText}" FontFamily="Consolas" FontWeight="Bold"/></StackPanel>
+                                        <StackPanel Grid.Column="2"><TextBlock Text="NAJBLIŻSZY TERMIN" FontSize="9" Foreground="#5F6874"/><TextBlock Text="{Binding Driver2CompensationOverview.NearestDueText}" FontFamily="Consolas" FontSize="11" FontWeight="Bold" TextTrimming="CharacterEllipsis"/></StackPanel>
+                                        <StackPanel Grid.Column="3"><TextBlock Text="STATUS" FontSize="9" Foreground="#5F6874"/><TextBlock Text="{Binding Driver2CompensationOverview.StatusText}" Foreground="{Binding Driver2CompensationOverview.StatusForeground}" FontSize="10" FontWeight="Bold" TextWrapping="Wrap"/></StackPanel>
+                                    </Grid>
+                                </Border>
+                                <Border Grid.Row="3" Background="#EEF3F7" BorderBrush="#CFD8E2" BorderThickness="1" CornerRadius="7" Padding="10,7" Margin="0,5">
                                     <Grid>
                                         <Grid.ColumnDefinitions><ColumnDefinition Width="1.6*"/><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
                                         <StackPanel><TextBlock Text="WYBRANA PAUZA" FontSize="10" Foreground="#5F6874"/><TextBlock Text="{Binding RestTargetText2}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/></StackPanel>
@@ -120,7 +138,7 @@
                                         <StackPanel Grid.Column="2"><TextBlock Text="POZOSTAŁO" FontSize="10" Foreground="#5F6874"/><TextBlock Text="{Binding RestRemaining2}" FontFamily="Consolas" FontSize="18" FontWeight="Bold"/><TextBlock Text="{Binding RestStatus2}" FontSize="9" Foreground="#24754D" FontWeight="Bold"/></StackPanel>
                                     </Grid>
                                 </Border>
-                                <Grid Grid.Row="3" Margin="0,3,0,0">
+                                <Grid Grid.Row="4" Margin="0,3,0,0">
                                     <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
                                     <ComboBox ItemsSource="{Binding RestTargets}" SelectedItem="{Binding SelectedRestTarget2, Mode=TwoWay}" DisplayMemberPath="Name" IsEnabled="{Binding CanSelectRestTarget2}" Height="34" Margin="0,0,8,0" Background="White" Foreground="#161A20"/>
                                     <Button Grid.Column="1" Content="PAUZA KIEROWCY 2" Command="{Binding StartSelectedRest2Command}" Background="#245B94" Padding="13,8" Margin="0"/>
@@ -201,6 +219,70 @@
                             </DataGridTemplateColumn>
                         </DataGrid.Columns>
                     </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="▤  Rekompensaty">
+                <Grid Margin="24" Background="#F3F5F8" TextElement.Foreground="#161A20">
+                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/></Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="REKOMPENSATY ODPOCZYNKU TYGODNIOWEGO" FontSize="23" FontWeight="Bold"/>
+                            <TextBlock Text="Pełny ślad z historii wybranej karty. Identyfikatory są skrócone wyłącznie na ekranie." Foreground="#5F6874" Margin="0,5,0,0"/>
+                            <TextBlock Text="{Binding CompensationDetailsHeader}" Foreground="#36546F" FontWeight="SemiBold" Margin="0,6,0,0"/>
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Bottom">
+                            <ComboBox ItemsSource="{Binding Profiles}" SelectedItem="{Binding CompensationDriverProfile}" DisplayMemberPath="DisplayName" Width="250" Height="38" Margin="4" Background="White" Foreground="#161A20"/>
+                            <Button Content="ODŚWIEŻ SZCZEGÓŁY" Command="{Binding RefreshCompensationDetailsCommand}" Background="#27695E"/>
+                        </StackPanel>
+                    </Grid>
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,18,0,0">
+                        <ItemsControl ItemsSource="{Binding CompensationDetails}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Background="White" BorderBrush="#C7D0DA" BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,0,0,12">
+                                        <Grid>
+                                            <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                                <Border Background="#315D8D" CornerRadius="5" Padding="8,3" Margin="0,0,10,0"><TextBlock Text="{Binding SlotLabel}" Foreground="White" FontWeight="Bold"/></Border>
+                                                <TextBlock Grid.Column="1" Text="{Binding DriverCardId}" VerticalAlignment="Center" FontFamily="Consolas" FontWeight="SemiBold"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding StatusText}" Foreground="{Binding StatusForeground}" VerticalAlignment="Center" FontWeight="Bold"/>
+                                            </Grid>
+                                            <Grid Grid.Row="1" Margin="0,14,0,0">
+                                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="IDENTYFIKATOR ZOBOWIĄZANIA" Foreground="#5F6874" FontSize="10"/>
+                                                    <StackPanel Orientation="Horizontal"><TextBlock Text="{Binding ObligationIdShort}" ToolTip="{Binding ObligationId}" FontFamily="Consolas" VerticalAlignment="Center"/><Button Content="KOPIUJ" Command="{Binding DataContext.CopyIdentifierCommand, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" CommandParameter="{Binding ObligationId}" Padding="8,4" FontSize="10"/></StackPanel>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1">
+                                                    <TextBlock Text="ŹRÓDŁOWY ODPOCZYNEK · KONIEC" Foreground="#5F6874" FontSize="10"/>
+                                                    <StackPanel Orientation="Horizontal"><TextBlock Text="{Binding SourceRestBlockIdShort}" ToolTip="{Binding SourceRestBlockId}" FontFamily="Consolas" VerticalAlignment="Center"/><Button Content="KOPIUJ" Command="{Binding DataContext.CopyIdentifierCommand, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" CommandParameter="{Binding SourceRestBlockId}" Padding="8,4" FontSize="10"/><TextBlock Text="{Binding SourceRestEndText}" Margin="8,0,0,0" VerticalAlignment="Center"/></StackPanel>
+                                                </StackPanel>
+                                            </Grid>
+                                            <Grid Grid.Row="2" Margin="0,14,0,0">
+                                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition Width="1.5*"/></Grid.ColumnDefinitions>
+                                                <StackPanel><TextBlock Text="PEŁNY DŁUG" Foreground="#5F6874" FontSize="10"/><TextBlock Text="{Binding OriginalDebtText}" FontFamily="Consolas" FontSize="18" FontWeight="Bold"/></StackPanel>
+                                                <StackPanel Grid.Column="1"><TextBlock Text="POZOSTAŁO" Foreground="#5F6874" FontSize="10"/><TextBlock Text="{Binding RemainingDebtText}" FontFamily="Consolas" FontSize="18" FontWeight="Bold"/></StackPanel>
+                                                <StackPanel Grid.Column="2"><TextBlock Text="TYDZIEŃ SKRÓCENIA" Foreground="#5F6874" FontSize="10"/><TextBlock Text="{Binding ReductionWeekText}" FontWeight="SemiBold"/></StackPanel>
+                                                <StackPanel Grid.Column="3"><TextBlock Text="TERMIN WYŁĄCZNY" Foreground="#5F6874" FontSize="10"/><TextBlock Text="{Binding DueAtText}" FontFamily="Consolas" FontWeight="SemiBold"/></StackPanel>
+                                            </Grid>
+                                            <Grid Grid.Row="3" Margin="0,14,0,0">
+                                                <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                                <StackPanel>
+                                                    <TextBlock Text="BLOK SPŁACAJĄCY" Foreground="#5F6874" FontSize="10"/>
+                                                    <StackPanel Orientation="Horizontal"><TextBlock Text="{Binding PaymentRestBlockIdShort}" ToolTip="{Binding PaymentRestBlockId}" FontFamily="Consolas" VerticalAlignment="Center"/><Button Content="KOPIUJ" IsEnabled="{Binding HasPaymentRestBlock}" Command="{Binding DataContext.CopyIdentifierCommand, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}" CommandParameter="{Binding PaymentRestBlockId}" Padding="8,4" FontSize="10"/></StackPanel>
+                                                </StackPanel>
+                                                <StackPanel Grid.Column="1"><TextBlock Text="ZAKRES MINUT SPŁATY" Foreground="#5F6874" FontSize="10"/><TextBlock Text="{Binding PaymentRangeText}" FontFamily="Consolas" TextWrapping="Wrap"/></StackPanel>
+                                            </Grid>
+                                            <Grid Grid.Row="4" Margin="0,12,0,0"><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions><TextBlock Text="Moment spłaty (SettledAt)" Foreground="#5F6874"/><TextBlock Grid.Column="1" Text="{Binding SettledAtText}" FontFamily="Consolas" FontWeight="SemiBold"/></Grid>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
                 </Grid>
             </TabItem>
 

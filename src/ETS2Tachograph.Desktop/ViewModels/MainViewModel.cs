@@ -67,12 +67,14 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private string _compensationText = "—";
     private string _compensationForeground = "#91A4B7";
     private bool _compensationOverdue;
+    private CompensationOverview _compensationOverview = CompensationOverview.Empty;
     private bool _dailyExtensionsExceeded;
     private bool _reducedDailyRestsExceeded;
     private string _weeklyDriving = "00:00";
     private string _modesText = "Tryb zwykły · pojedyncza obsada";
     private DriverProfileDto? _selectedProfile;
     private DriverProfileDto? _reportDriverProfile;
+    private DriverProfileDto? _compensationDriverProfile;
     private string _newDriverName = string.Empty;
     private string _newCardNumber = string.Empty;
     private double _drivingThreshold;
@@ -115,6 +117,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private string _driver2CompensationText = "—";
     private string _driver2CompensationForeground = "#91A4B7";
     private bool _driver2CompensationOverdue;
+    private CompensationOverview _driver2CompensationOverview = CompensationOverview.Empty;
     private bool _driver2DailyExtensionsExceeded;
     private bool _driver2ReducedDailyRestsExceeded;
     private string _driver2WeeklyDriving = "00:00";
@@ -219,6 +222,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         ExportCommand = new RelayCommand(async () => await ExportAsync());
         ImportCommand = new RelayCommand(async () => await ImportAsync());
         RefreshReportCommand = new RelayCommand(async () => await RefreshReportAsync());
+        RefreshCompensationDetailsCommand = new RelayCommand(
+            async () => await RefreshCompensationDetailsAsync());
         ShowReportGapsCommand = new RelayCommand(async () => await ShowReportGapsAsync());
         ExportCsvCommand = new RelayCommand(async () => await ExportReportAsync("csv"));
         ExportPdfCommand = new RelayCommand(async () => await ExportReportAsync("pdf"));
@@ -246,6 +251,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         ResolveGapFromHistoryCommand = new RelayCommand<ActivityGapListItemDto>(
             OpenManualEntryFromHistory,
             gap => gap.IsResolvable);
+        CopyIdentifierCommand = new RelayCommand<string>(CopyIdentifier, value =>
+            !string.IsNullOrWhiteSpace(value));
         _clockTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _clockTimer.Tick += (_, _) =>
         {
@@ -263,6 +270,10 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public ObservableCollection<ActivityRecord> ReportRows { get; } = [];
     public ObservableCollection<ManualEntryWorkBlockRow> ManualEntryWorkBlocks { get; } = [];
     public ObservableCollection<ActivityGapListItemDto> ActivityGaps { get; } = [];
+    public ObservableCollection<CompensationDetailRow> CompensationDetails { get; } = [];
+    public string CompensationDetailsHeader => CompensationDetails.Count == 0
+        ? "Brak zobowiązań w bieżących projekcjach kart."
+        : $"Zobowiązania: {CompensationDetails.Count} · otwarte: {CompensationDetails.Count(item => item.IsOpen)}";
     public ICommand OtherWorkCommand { get; }
     public ICommand AvailabilityCommand { get; }
     public ICommand RestCommand { get; }
@@ -275,6 +286,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public ICommand ExportCommand { get; }
     public ICommand ImportCommand { get; }
     public ICommand RefreshReportCommand { get; }
+    public ICommand RefreshCompensationDetailsCommand { get; }
     public ICommand ShowReportGapsCommand { get; }
     public ICommand ExportCsvCommand { get; }
     public ICommand ExportPdfCommand { get; }
@@ -300,11 +312,22 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public ICommand CancelManualEntryCommand { get; }
     public ICommand OpenOptionalManualEntryCommand { get; }
     public ICommand ResolveGapFromHistoryCommand { get; }
+    public ICommand CopyIdentifierCommand { get; }
     public DriverProfileDto? SelectedProfile { get => _selectedProfile; set => Set(ref _selectedProfile, value); }
     public DriverProfileDto? ReportDriverProfile
     {
         get => _reportDriverProfile;
         set { if (Set(ref _reportDriverProfile, value)) InvalidateCurrentReport(); }
+    }
+    public DriverProfileDto? CompensationDriverProfile
+    {
+        get => _compensationDriverProfile;
+        set
+        {
+            if (!Set(ref _compensationDriverProfile, value)) return;
+            CompensationDetails.Clear();
+            OnPropertyChanged(nameof(CompensationDetailsHeader));
+        }
     }
     public string NewDriverName { get => _newDriverName; set => Set(ref _newDriverName, value); }
     public string NewCardNumber { get => _newCardNumber; set => Set(ref _newCardNumber, value); }
@@ -360,6 +383,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public string CompensationText { get => _compensationText; private set => Set(ref _compensationText, value); }
     public string CompensationForeground { get => _compensationForeground; private set => Set(ref _compensationForeground, value); }
     public bool CompensationOverdue { get => _compensationOverdue; private set => Set(ref _compensationOverdue, value); }
+    public CompensationOverview CompensationOverview { get => _compensationOverview; private set => Set(ref _compensationOverview, value); }
     public bool DailyExtensionsExceeded { get => _dailyExtensionsExceeded; private set => Set(ref _dailyExtensionsExceeded, value); }
     public bool ReducedDailyRestsExceeded { get => _reducedDailyRestsExceeded; private set => Set(ref _reducedDailyRestsExceeded, value); }
     public string WeeklyDriving { get => _weeklyDriving; private set => Set(ref _weeklyDriving, value); }
@@ -411,6 +435,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public string Driver2CompensationText { get => _driver2CompensationText; private set => Set(ref _driver2CompensationText, value); }
     public string Driver2CompensationForeground { get => _driver2CompensationForeground; private set => Set(ref _driver2CompensationForeground, value); }
     public bool Driver2CompensationOverdue { get => _driver2CompensationOverdue; private set => Set(ref _driver2CompensationOverdue, value); }
+    public CompensationOverview Driver2CompensationOverview { get => _driver2CompensationOverview; private set => Set(ref _driver2CompensationOverview, value); }
     public bool Driver2DailyExtensionsExceeded { get => _driver2DailyExtensionsExceeded; private set => Set(ref _driver2DailyExtensionsExceeded, value); }
     public bool Driver2ReducedDailyRestsExceeded { get => _driver2ReducedDailyRestsExceeded; private set => Set(ref _driver2ReducedDailyRestsExceeded, value); }
     public string Driver2WeeklyDriving { get => _driver2WeeklyDriving; private set => Set(ref _driver2WeeklyDriving, value); }
@@ -495,8 +520,10 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             await _crew.RegisterCardAsync(card.CardNumber, _cancellation.Token);
         LoadDeviceState();
         ReportDriverProfile = FindProfileByCard(CurrentDriverCardId) ?? SelectedProfile;
+        CompensationDriverProfile = ReportDriverProfile;
         await ReloadHistoryAsync(_cancellation.Token);
         await RefreshReportAsync();
+        await RefreshCompensationDetailsAsync();
         await RefreshActivityGapsAsync(_cancellation.Token);
         _ = ReadTelemetryAsync(_cancellation.Token);
     }
@@ -594,6 +621,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             CompensationText = FormatCompensation(driverRules.CompensationSummary);
             CompensationOverdue = driverRules.CompensationSummary.HasOverdue;
             CompensationForeground = CompensationOverdue ? "#FF6B6B" : "#91A4B7";
+            CompensationOverview = global::ETS2Tachograph.Desktop.CompensationOverview.From(
+                WeeklyRestCompensationDtoMapper.MapAll(driverRules.CompensationObligations));
             DailyExtensionsExceeded = state.DailyExtensionsUsedThisWeek > 2;
             ReducedDailyRestsExceeded = state.ReducedDailyRestsSinceWeeklyRest > 3;
             WeeklyDriving = Format(state.WeeklyDrivingMinutes);
@@ -626,6 +655,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             Driver2CompensationText = FormatCompensation(coRules.CompensationSummary);
             Driver2CompensationOverdue = coRules.CompensationSummary.HasOverdue;
             Driver2CompensationForeground = Driver2CompensationOverdue ? "#FF6B6B" : "#91A4B7";
+            Driver2CompensationOverview = CompensationOverview.From(
+                WeeklyRestCompensationDtoMapper.MapAll(coRules.CompensationObligations));
             Driver2DailyExtensionsExceeded = state.DailyExtensionsUsedThisWeek > 2;
             Driver2ReducedDailyRestsExceeded = state.ReducedDailyRestsSinceWeeklyRest > 3;
             Driver2WeeklyDriving = Format(state.WeeklyDrivingMinutes);
@@ -661,6 +692,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         DailyDrivingWithLimit = "00:00 / 09:00"; DailyWorkWithLimit = "00:00 / 13:00";
         DailyExtensionsUsage = "0 / 2"; ReducedDailyRestsUsage = "0 / 3";
         CompensationText = "—"; CompensationForeground = "#91A4B7"; CompensationOverdue = false;
+        CompensationOverview = global::ETS2Tachograph.Desktop.CompensationOverview.Empty;
         DailyExtensionsExceeded = false; ReducedDailyRestsExceeded = false;
         WeeklyDriving = "00:00"; FortnightlyDriving = "00:00";
         DailyRestDeadline = "24:00"; WeeklyRestDeadline = "144:00";
@@ -673,6 +705,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         Driver2DailyDrivingWithLimit = "00:00 / 09:00"; Driver2DailyWorkWithLimit = "00:00 / 13:00";
         Driver2DailyExtensionsUsage = "0 / 2"; Driver2ReducedDailyRestsUsage = "0 / 3";
         Driver2CompensationText = "—"; Driver2CompensationForeground = "#91A4B7"; Driver2CompensationOverdue = false;
+        Driver2CompensationOverview = CompensationOverview.Empty;
         Driver2DailyExtensionsExceeded = false; Driver2ReducedDailyRestsExceeded = false;
         Driver2FortnightlyDriving = "00:00";
         Driver2DailyRestDeadline = "24:00"; Driver2WeeklyRestDeadline = "144:00";
@@ -1823,6 +1856,47 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 ActivityGaps[index] = gap with { DurationMinutes = duration };
         }
     }
+
+    private async Task RefreshCompensationDetailsAsync()
+    {
+        try
+        {
+            var cardId = CompensationDriverProfile?.Cards.FirstOrDefault()?.CardNumber
+                ?? CurrentDriverCardId;
+            var projection = await _reports.CreateAsync(cardId);
+            CompensationDetails.Clear();
+            foreach (var row in projection.CompensationObligations
+                         .Select(item => CompensationDetailRow.From("KARTA", item))
+                         .OrderBy(item => item.IsOpen ? 0 : 1)
+                         .ThenBy(item => item.DueAtGameMinuteExclusive)
+                         .ThenBy(item => item.ObligationId, StringComparer.Ordinal))
+                CompensationDetails.Add(row);
+            OnPropertyChanged(nameof(CompensationDetailsHeader));
+            OperationStatus = CompensationDetails.Count == 0
+                ? "Wybrana karta nie ma zobowiązań rekompensaty."
+                : $"Wczytano pełny ślad {CompensationDetails.Count} zobowiązań rekompensaty.";
+        }
+        catch (Exception exception)
+        {
+            _diagnostics.Error("COMPENSATION_DETAILS_REFRESH_FAILED", exception);
+            OperationStatus = $"Nie udało się wczytać szczegółów rekompensaty: {exception.Message}";
+        }
+    }
+
+    private void CopyIdentifier(string value)
+    {
+        try
+        {
+            Clipboard.SetText(value);
+            OperationStatus = "Skopiowano pełny identyfikator do schowka.";
+        }
+        catch (Exception exception)
+        {
+            _diagnostics.Error("CLIPBOARD_COPY_FAILED", exception);
+            OperationStatus = $"Nie udało się skopiować identyfikatora: {exception.Message}";
+        }
+    }
+
     private static string Format(long minutes) => minutes < 0 ? $"-{Format(-minutes)}" : $"{minutes / 60:00}:{minutes % 60:00}";
     private static string FormatReportGapWarning(int count, long minutes)
     {

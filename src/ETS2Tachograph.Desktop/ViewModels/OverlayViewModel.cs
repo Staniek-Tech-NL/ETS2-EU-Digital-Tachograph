@@ -32,6 +32,8 @@ public sealed class OverlayViewModel : INotifyPropertyChanged, IDisposable
     public string DailyWork => Slot == 1 ? _source.DailyWorkWithLimit : _source.Driver2DailyWorkWithLimit;
     public string Compensation => Slot == 1 ? _source.CompensationText : _source.Driver2CompensationText;
     public string CompensationForeground => Slot == 1 ? _source.CompensationForeground : _source.Driver2CompensationForeground;
+    public CompensationOverview CompensationOverview =>
+        Slot == 1 ? _source.CompensationOverview : _source.Driver2CompensationOverview;
     public string RestTargetText => Slot == 1 ? _source.RestTargetText : _source.RestTargetText2;
     public string RestElapsed => Slot == 1 ? _source.RestElapsed : _source.RestElapsed2;
     public string RestRemaining => Slot == 1 ? _source.RestRemaining : _source.RestRemaining2;
