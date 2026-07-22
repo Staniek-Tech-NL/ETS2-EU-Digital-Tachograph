@@ -4,6 +4,7 @@ using ETS2Tachograph.Core.Entities;
 using ETS2Tachograph.Core.Enums;
 using ETS2Tachograph.Core.Time;
 using ETS2Tachograph.RuleEngine;
+using PdfSharp.Pdf.IO;
 using Xunit;
 
 namespace ETS2Tachograph.Reports.Tests;
@@ -28,7 +29,7 @@ public sealed class PdfReportExporterTests
             CompensationObligations =
             [
                 Compensation(600, 30, WeeklyRestCompensationStatusDto.Overdue),
-                Compensation(660, 31, WeeklyRestCompensationStatusDto.OpenOnTime)
+                PaidCompensation(660, 31)
             ]
         };
         await using var destination = new MemoryStream();
@@ -36,7 +37,10 @@ public sealed class PdfReportExporterTests
         await new PdfReportExporter().ExportAsync(report, destination);
 
         Assert.Equal("%PDF", Encoding.ASCII.GetString(destination.ToArray(), 0, 4));
-        Assert.True(destination.Length > 2_000);
+        Assert.True(destination.Length > 3_000);
+        destination.Position = 0;
+        using var document = PdfReader.Open(destination, PdfDocumentOpenMode.Import);
+        Assert.NotEmpty(document.Pages);
     }
 
     private static WeeklyRestCompensationDto Compensation(
@@ -56,6 +60,23 @@ public sealed class PdfReportExporterTests
             null,
             null,
             status);
+
+    private static WeeklyRestCompensationDto PaidCompensation(
+        long originalOwedMinutes,
+        long reductionWeek) => new(
+            1,
+            $"obligation-v1-{new string('a', 64)}",
+            "PL-REPORT",
+            $"rest-v1-{new string('b', 64)}",
+            reductionWeek * GameWeek.MinutesPerWeek,
+            originalOwedMinutes,
+            0,
+            reductionWeek,
+            (reductionWeek + 4) * GameWeek.MinutesPerWeek,
+            $"rest-v1-{new string('c', 64)}",
+            new CompensationMinuteRangeDto(10_000, 10_000 + originalOwedMinutes),
+            10_000 + originalOwedMinutes,
+            WeeklyRestCompensationStatusDto.PaidOnTime);
 
     [Fact]
     public async Task Export_accepts_explicit_unresolved_gap_completeness_summary()

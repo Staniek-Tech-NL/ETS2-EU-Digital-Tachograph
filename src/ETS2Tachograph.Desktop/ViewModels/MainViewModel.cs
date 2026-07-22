@@ -1752,7 +1752,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         try
         {
             await using var stream = File.Create(dialog.FileName);
-            if (format == "csv") await _reports.ExportCsvAsync(_currentReport, stream);
+            if (format == "csv") await _reports.ExportCompensationCsvAsync(_currentReport, stream);
             else if (format == "pdf") await _pdfReports.ExportAsync(_currentReport, stream);
             else await _reports.ExportVtcJsonAsync(_currentReport, stream);
             OperationStatus = $"Zapisano raport {format.ToUpperInvariant()}.";

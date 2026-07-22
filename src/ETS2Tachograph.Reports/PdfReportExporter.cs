@@ -78,6 +78,28 @@ public sealed class PdfReportExporter : IPdfReportExporter
             Current().Add(new LayoutRow(headerKind, 24));
         }
 
+        StartTable(
+            RowKind.CompensationSection,
+            RowKind.CompensationHeader,
+            report.CompensationObligations.Count == 0 ? 30 : 82);
+        if (report.CompensationObligations.Count == 0)
+        {
+            Current().Add(new LayoutRow(RowKind.EmptyCompensations, 30));
+        }
+        else
+        {
+            foreach (var obligation in report.CompensationObligations
+                         .OrderBy(item => item.DueAtGameMinuteExclusive)
+                         .ThenBy(item => item.ObligationId, StringComparer.Ordinal))
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (Current().Y + 82 > Bottom)
+                    ContinueTable(RowKind.CompensationSection, RowKind.CompensationHeader);
+                Current().Add(new LayoutRow(RowKind.Compensation, 82, obligation));
+            }
+        }
+
+        AddSimple(RowKind.Spacer, 12);
         StartTable(RowKind.CheckpointSection, RowKind.CheckpointHeader, checkpoints.Count == 0 ? 30 : 28);
         if (checkpoints.Count == 0)
         {
@@ -134,6 +156,7 @@ public sealed class PdfReportExporter : IPdfReportExporter
         var regular = new XFont("ReportSans", 9, XFontStyleEx.Regular);
         var small = new XFont("ReportSans", 7.5, XFontStyleEx.Regular);
         var tiny = new XFont("ReportSans", 6.7, XFontStyleEx.Regular);
+        var micro = new XFont("ReportSans", 5.5, XFontStyleEx.Regular);
         var bold = new XFont("ReportSans", 9, XFontStyleEx.Bold);
         var section = new XFont("ReportSans", 11, XFontStyleEx.Bold);
         var title = new XFont("ReportSans", 18, XFontStyleEx.Bold);
@@ -153,6 +176,28 @@ public sealed class PdfReportExporter : IPdfReportExporter
             switch (row.Kind)
             {
                 case RowKind.Spacer:
+                    break;
+                case RowKind.CompensationSection:
+                    DrawSectionTitle(graphics, y, (row.Data as bool?) == true
+                        ? "REKOMPENSATY ODPOCZYNKU TYGODNIOWEGO - ciąg dalszy"
+                        : "REKOMPENSATY ODPOCZYNKU TYGODNIOWEGO", section, accent);
+                    break;
+                case RowKind.CompensationHeader:
+                    DrawCompensationHeader(graphics, y, bold, dark);
+                    rowIndex = 0;
+                    break;
+                case RowKind.Compensation:
+                    DrawCompensationRow(
+                        graphics,
+                        y,
+                        (WeeklyRestCompensationDto)row.Data!,
+                        small,
+                        tiny,
+                        micro,
+                        rowIndex++ % 2 == 0 ? pale : XColors.White);
+                    break;
+                case RowKind.EmptyCompensations:
+                    DrawEmptyRow(graphics, y, "Brak zobowiązań rekompensaty w historii raportu.", small, pale);
                     break;
                 case RowKind.CheckpointSection:
                     DrawSectionTitle(graphics, y, (row.Data as bool?) == true
@@ -282,6 +327,86 @@ public sealed class PdfReportExporter : IPdfReportExporter
             ["Przerwa", "Czas", "Ciągła przed / po", "Dzienna przed / po", "Reset dzienny"], font, dark);
     }
 
+    private static void DrawCompensationHeader(XGraphics graphics, double y, XFont font, XColor dark)
+    {
+        DrawHeaderCells(
+            graphics,
+            y,
+            [95, 90, 155, 183],
+            ["Status", "Dług / pozostało", "Tydzień / termin wyłączny", "Moment spłaty"],
+            font,
+            dark);
+    }
+
+    private static void DrawCompensationRow(
+        XGraphics graphics,
+        double y,
+        WeeklyRestCompensationDto obligation,
+        XFont font,
+        XFont tiny,
+        XFont micro,
+        XColor background)
+    {
+        graphics.DrawRectangle(new XSolidBrush(background), Left, y, Width, 82);
+        DrawCells(
+            graphics,
+            y,
+            27,
+            [95, 90, 155, 183],
+            [
+                FormatCompensationStatus(obligation.Status),
+                $"{FormatMinutes(obligation.OriginalOwedMinutes)} / {FormatMinutes(obligation.RemainingMinutes)}",
+                $"T{obligation.ReductionWeek} / {FormatGameTime(obligation.DueAtGameMinuteExclusive)}",
+                obligation.SettledAtGameMinute is null
+                    ? "—"
+                    : $"{FormatGameTime(obligation.SettledAtGameMinute.Value)} (min {obligation.SettledAtGameMinute.Value})"
+            ],
+            font,
+            2,
+            tiny);
+
+        graphics.DrawLine(XPens.LightGray, Left, y + 27, Left + Width, y + 27);
+        graphics.DrawString(
+            $"Zobowiązanie (schemat v{obligation.IdentitySchemeVersion}): {obligation.ObligationId}",
+            micro,
+            XBrushes.Black,
+            new XRect(Left + 5, y + 29, Width - 10, 11),
+            XStringFormats.CenterLeft);
+        graphics.DrawLine(XPens.LightGray, Left, y + 42, Left + Width, y + 42);
+        const double traceWidth = Width / 2;
+        graphics.DrawLine(XPens.LightGray, Left + traceWidth, y + 42, Left + traceWidth, y + 82);
+
+        graphics.DrawString(
+            $"Źródło: {obligation.SourceRestBlockId}",
+            micro,
+            XBrushes.Black,
+            new XRect(Left + 5, y + 43, traceWidth - 10, 12),
+            XStringFormats.CenterLeft);
+        graphics.DrawString(
+            $"Koniec źródła: {FormatGameTime(obligation.SourceRestEndGameMinuteExclusive)} (min {obligation.SourceRestEndGameMinuteExclusive})",
+            tiny,
+            XBrushes.DimGray,
+            new XRect(Left + 5, y + 57, traceWidth - 10, 17),
+            XStringFormats.CenterLeft);
+
+        var paymentId = obligation.PaymentRestBlockId ?? "—";
+        graphics.DrawString(
+            $"Blok spłacający: {paymentId}",
+            micro,
+            XBrushes.Black,
+            new XRect(Left + traceWidth + 5, y + 43, traceWidth - 10, 12),
+            XStringFormats.CenterLeft);
+        var paymentRange = obligation.PaymentRange is null
+            ? "Zakres spłaty: —"
+            : $"Zakres spłaty: [{obligation.PaymentRange.StartGameMinute}, {obligation.PaymentRange.EndGameMinuteExclusive}) = {FormatMinutes(obligation.PaymentRange.DurationMinutes)}";
+        graphics.DrawString(
+            paymentRange,
+            tiny,
+            XBrushes.DimGray,
+            new XRect(Left + traceWidth + 5, y + 57, traceWidth - 10, 17),
+            XStringFormats.CenterLeft);
+    }
+
     private static void DrawCheckpointRow(
         XGraphics graphics,
         double y,
@@ -391,6 +516,15 @@ public sealed class PdfReportExporter : IPdfReportExporter
         return $"{FormatMinutes(summary.TotalOwedMinutes)}{count} · {status}";
     }
 
+    private static string FormatCompensationStatus(WeeklyRestCompensationStatusDto status) => status switch
+    {
+        WeeklyRestCompensationStatusDto.OpenOnTime => "OTWARTE",
+        WeeklyRestCompensationStatusDto.Overdue => "ZALEGŁE",
+        WeeklyRestCompensationStatusDto.PaidOnTime => "SPŁACONE",
+        WeeklyRestCompensationStatusDto.PaidLate => "SPŁACONE PO TERMINIE",
+        _ => throw new ArgumentOutOfRangeException(nameof(status), status, "Nieznany status rekompensaty.")
+    };
+
     private static string FormatGameTime(long minutes)
     {
         var day = (minutes / 1_440) + 1;
@@ -423,6 +557,10 @@ public sealed class PdfReportExporter : IPdfReportExporter
     private enum RowKind
     {
         Spacer,
+        CompensationSection,
+        CompensationHeader,
+        Compensation,
+        EmptyCompensations,
         CheckpointSection,
         CheckpointHeader,
         Checkpoint,

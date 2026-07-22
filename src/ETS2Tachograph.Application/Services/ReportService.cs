@@ -80,6 +80,42 @@ public sealed class ReportService(
         await writer.FlushAsync(cancellationToken);
     }
 
+    public async Task ExportCompensationCsvAsync(
+        ReportDto report,
+        Stream destination,
+        CancellationToken cancellationToken = default)
+    {
+        await using var writer = new StreamWriter(destination, new UTF8Encoding(true), leaveOpen: true);
+        await writer.WriteLineAsync(
+            "identity_scheme_version;obligation_id;driver_card_id;source_rest_block_id;" +
+            "source_rest_end_game_minute_exclusive;original_owed_minutes;remaining_minutes;" +
+            "reduction_week;due_at_game_minute_exclusive;payment_rest_block_id;" +
+            "payment_range_start_game_minute;payment_range_end_game_minute_exclusive;" +
+            "settled_at_game_minute;status");
+        foreach (var obligation in report.CompensationObligations
+                     .OrderBy(item => item.DueAtGameMinuteExclusive)
+                     .ThenBy(item => item.ObligationId, StringComparer.Ordinal))
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            await writer.WriteLineAsync(string.Join(';',
+                obligation.IdentitySchemeVersion.ToString(CultureInfo.InvariantCulture),
+                CsvCell(obligation.ObligationId),
+                CsvCell(obligation.DriverCardId),
+                CsvCell(obligation.SourceRestBlockId),
+                obligation.SourceRestEndGameMinuteExclusive.ToString(CultureInfo.InvariantCulture),
+                obligation.OriginalOwedMinutes.ToString(CultureInfo.InvariantCulture),
+                obligation.RemainingMinutes.ToString(CultureInfo.InvariantCulture),
+                obligation.ReductionWeek.ToString(CultureInfo.InvariantCulture),
+                obligation.DueAtGameMinuteExclusive.ToString(CultureInfo.InvariantCulture),
+                CsvCell(obligation.PaymentRestBlockId),
+                obligation.PaymentRange?.StartGameMinute.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
+                obligation.PaymentRange?.EndGameMinuteExclusive.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
+                obligation.SettledAtGameMinute?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
+                obligation.Status.ToString()));
+        }
+        await writer.FlushAsync(cancellationToken);
+    }
+
     public Task ExportVtcJsonAsync(ReportDto report, Stream destination, CancellationToken cancellationToken = default) =>
         JsonSerializer.SerializeAsync(destination, new
         {
@@ -118,6 +154,7 @@ public sealed class ReportService(
                 nearestDueByEndOfWeek = report.CompensationSummary.NearestDueByEndOfWeek?.Index,
                 hasOverdue = report.CompensationSummary.HasOverdue
             },
+            compensationObligations = report.CompensationObligations,
             gaps = report.Gaps.Select(gap => new
             {
                 start = gap.Start.TotalMinutes,
@@ -140,5 +177,15 @@ public sealed class ReportService(
                 sourceGapId = x.SourceGapId
             })
         }, ExportService.JsonOptions, cancellationToken);
+
+    private static string CsvCell(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return string.Empty;
+
+        return value.IndexOfAny([';', '"', '\r', '\n']) < 0
+            ? value
+            : $"\"{value.Replace("\"", "\"\"")}\"";
+    }
 
 }

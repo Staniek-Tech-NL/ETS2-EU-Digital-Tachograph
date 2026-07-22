@@ -48,7 +48,7 @@ public sealed class ReportServiceTests
     }
 
     [Fact]
-    public async Task Csv_export_keeps_each_minute_as_a_separate_diagnostic_row()
+    public async Task Csv_export_writes_exactly_one_record_per_compensation_obligation()
     {
         var repository = new ReportRepository(
         [
@@ -56,15 +56,22 @@ public sealed class ReportServiceTests
             Record(1, 2, DriverActivity.Driving),
             Record(2, 3, DriverActivity.Driving)
         ]);
-        var service = new ReportService(repository, new EmptyRegulationAnalyzer());
+        IReadOnlyList<WeeklyRestCompensationDto> obligations =
+        [
+            Compensation(300, 30, WeeklyRestCompensationStatusDto.OpenOnTime),
+            PaidCompensation(420, 31)
+        ];
+        var service = new ReportService(repository, new FixedRegulationAnalyzer(obligations));
         var report = await service.CreateAsync("PL-REPORT", new GameTime(0), new GameTime(3));
         await using var csv = new MemoryStream();
 
-        await service.ExportCsvAsync(report, csv);
+        await service.ExportCompensationCsvAsync(report, csv);
 
         var lines = Encoding.UTF8.GetString(csv.ToArray())
             .Split('\n', StringSplitOptions.RemoveEmptyEntries);
-        Assert.Equal(4, lines.Length);
+        Assert.Equal(3, lines.Length);
+        Assert.Contains("obligation-30;PL-REPORT;rest-30", lines[1]);
+        Assert.Contains("payment-31;500;920;920;PaidOnTime", lines[2]);
     }
 
     [Fact]
@@ -163,6 +170,11 @@ public sealed class ReportServiceTests
         Assert.Contains("\"totalOwedMinutes\": 1260", text);
         Assert.Contains("\"count\": 2", text);
         Assert.Contains("\"hasOverdue\": true", text);
+        Assert.Contains("\"compensationObligations\"", text);
+        Assert.Contains("\"obligationId\": \"obligation-30\"", text);
+        Assert.Contains("\"sourceRestBlockId\": \"rest-31\"", text);
+        Assert.Contains("\"dueAtGameMinuteExclusive\"", text);
+        Assert.Contains("\"status\": \"Overdue\"", text);
     }
 
     private static WeeklyRestCompensationDto Compensation(
@@ -182,6 +194,23 @@ public sealed class ReportServiceTests
             null,
             null,
             status);
+
+    private static WeeklyRestCompensationDto PaidCompensation(
+        long originalOwedMinutes,
+        long reductionWeek) => new(
+            1,
+            $"obligation-{reductionWeek}",
+            "PL-REPORT",
+            $"rest-{reductionWeek}",
+            reductionWeek * GameWeek.MinutesPerWeek,
+            originalOwedMinutes,
+            0,
+            reductionWeek,
+            (reductionWeek + 4) * GameWeek.MinutesPerWeek,
+            $"payment-{reductionWeek}",
+            new CompensationMinuteRangeDto(500, 920),
+            920,
+            WeeklyRestCompensationStatusDto.PaidOnTime);
 
     private static ActivityRecord Record(long start, long end, DriverActivity activity) => new()
     {
