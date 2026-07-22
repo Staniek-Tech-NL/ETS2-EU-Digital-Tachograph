@@ -8,6 +8,18 @@ Stan na wersję beta po Fazie 1. Ta lista dotyczy potwierdzonych ograniczeń;
 nowe błędy z testów należy dopisywać razem z numerem wersji paczki i raportem
 diagnostycznym.
 
+## Naprawione w beta.11
+
+- Usunięto uproszczony model rekompensat skróconych odpoczynków tygodniowych,
+  który sumował okruchy nadwyżek z wielu późniejszych odpoczynków i przez to
+  zaniżał dług. Spłata jest teraz atomowa (en bloc), przypisana do jednego
+  kwalifikującego odpoczynku co najmniej 9 h, z pełnym terminem i śladem.
+- Dane referencyjne po poprawce: Staniek `1253 min / 20:53`, Doboś
+  `1192 min / 19:52`. Wartości `18 min` i `353 min` są historycznym wynikiem
+  starego algorytmu.
+- Pełny kontrakt zobowiązań jest dostępny w DTO, szczegółach UI, PDF, CSV i JSON
+  oraz odtwarza się identycznie po restarcie plikowej bazy SQLite.
+
 ## Telemetria i czas gry
 
 - Skok czasu do przodu, w tym `g_set_time`, nie dostarcza telemetrii dla pominiętego
@@ -25,15 +37,6 @@ diagnostycznym.
 
 - Jest to symulator, nie certyfikowana implementacja prawna Annex 1C. PDF, CSV,
   JSON i `.tacho` nie są urzędowymi plikami z rzeczywistego tachografu.
-- Rekompensaty skróconych odpoczynków tygodniowych mają nadal uproszczony model:
-  termin jest liczony numerami tygodni, nie ma jeszcze trwałego śladu przypisania
-  spłaty do konkretnego odpoczynku ani pełnej obsługi przypadków granicznych.
-  Model **zaniża dług**: skrócenie tygodniowe (`2700 − długość`) jest spłacane
-  nadwyżką ponad 9 h z każdego kolejnego odpoczynku dobowego, sumowaną po okruchach,
-  podczas gdy art. 8(6)/(7) wymaga rekompensaty w jednym bloku (en bloc) dołączonej
-  do dedykowanego odpoczynku co najmniej 9 h. W efekcie licznik `REKOMPENSATA` może
-  pokazywać dług bliski zeru, mimo że realnie pozostaje do odebrania. Przykład:
-  skrócenie o 1253 min bywa raportowane jako 18 min zaległości.
 - Tryb promu jest włączany ręcznie. Telemetria ETS2 nie daje wiarygodnego zdarzenia,
   które pozwalałoby automatycznie rozpoznać cały przebieg odpoczynku promowego.
 - Pociągi nie są modelowane, ponieważ ETS2 praktycznie nie udostępnia użytecznego
@@ -47,7 +50,9 @@ diagnostycznym.
   gry, ma tylko hak architektoniczny i nie jest jeszcze implementowana.
 - Nie ma jeszcze przycisku świadomego usuwania historii starszej niż wybrana liczba
   dni gry. Aplikacja automatycznie archiwizuje, ale nie usuwa danych.
-- Surowy CSV jest celowo minutowy i może być duży. PDF używa zwiniętych bloków.
+- Surowy diagnostyczny CSV jest celowo minutowy i może być duży. Eksport CSV
+  zobowiązań rekompensaty ma osobny kontrakt: jeden rekord na zobowiązanie.
+  PDF używa zwiniętych bloków aktywności i osobnej tabeli rekompensat.
 - Rekonstruowane odcinki są oznaczane jako `Reconstructed`, a bloki zawierające
   różne źródła jako `Mixed`.
 

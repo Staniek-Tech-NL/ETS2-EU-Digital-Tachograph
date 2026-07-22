@@ -1,3 +1,53 @@
+# ETS2 EU Digital Tachograph 0.1.0-beta.11
+
+Pełny model rekompensat skróconego odpoczynku tygodniowego.
+
+- dług powstaje dopiero po zamknięciu kanonicznego skróconego odpoczynku
+  tygodniowego i wynosi `45 h - długość odpoczynku`;
+- zobowiązanie jest przypisane do tygodnia skrócenia, ma ścisły termin
+  `DueAtExclusive` oraz status `OpenOnTime`, `Overdue`, `PaidOnTime` albo
+  `PaidLate`;
+- spłata następuje wyłącznie en bloc przez jeden kwalifikujący odpoczynek
+  trwający co najmniej 9 godzin; okruchy z kilku odpoczynków nie są sumowane;
+- kilka zobowiązań jest obsługiwanych deterministycznie według FIFO terminu i
+  stabilnych tie-breakerów;
+- pełny ślad obejmuje `ObligationId`, źródłowy odpoczynek, pierwotny i pozostały
+  dług, blok oraz zakres spłaty i `SettledAt`;
+- Dashboard i nakładki pokazują warstwowe podsumowanie, a zakładka
+  `Rekompensaty` pełne zobowiązania obu kart;
+- PDF zawiera tabelę zobowiązań, CSV zapisuje jeden rekord na zobowiązanie, a
+  JSON pełne `CompensationObligations`; dotychczasowe podsumowanie pozostaje
+  projekcją pochodną dla kompatybilności;
+- stabilność całego kontraktu jest sprawdzana także po zamknięciu i ponownym
+  otwarciu plikowej bazy SQLite.
+
+## Dane referencyjne
+
+- Staniek: `1253 min` (`20:53`) otwartego długu;
+- Doboś: `1192 min` (`19:52`) otwartego długu;
+- wcześniejsze wartości `18 min` i `353 min` wynikały z nielegalnego sumowania
+  nadwyżek z wielu odpoczynków i nie są już używane.
+
+## Zgodność
+
+- protokół pluginu SCS bez zmian, nadal wersja 3;
+- brak nowej migracji EF Core i brak wymogu czyszczenia danych użytkownika;
+- stan regulacyjny pozostaje projekcją historii kanonicznej, nie drugim źródłem
+  prawdy;
+- surowy minutowy CSV pozostaje dostępny dla diagnostyki i retencji.
+
+## Weryfikacja
+
+- 262/262 testy automatyczne;
+- RuleEngine 55/55, Application 45/45, Reports 9/9, Infrastructure 48/48;
+- dwa referencyjne testy Stanka i Dobosia oraz macierz progu, FIFO, terminu i
+  restartu;
+- build Release bez błędów i ostrzeżeń;
+- końcowy smoke test terenowy z aktywną telemetrią pozostaje do wykonania przez
+  testera po zbudowaniu paczki.
+
+---
+
 # ETS2 EU Digital Tachograph 0.1.0-beta.10.1
 
 Hotfix wydania beta.10.

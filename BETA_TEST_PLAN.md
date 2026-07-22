@@ -1,14 +1,14 @@
-# Plan testów beta.10
+# Plan testów beta.11
 
 ## Przygotowanie
 
 1. Zamknij ETS2 i poprzednią wersję aplikacji.
 2. Rozpakuj paczkę do nowego katalogu. Nie uruchamiaj programu bezpośrednio z ZIP-a.
-3. Protokół telemetrii ma wersję v3. Skopiuj DLL z katalogu `plugin` do
+3. Protokół telemetrii pozostaje w wersji v3. Skopiuj DLL z katalogu `plugin` do
    `Euro Truck Simulator 2\bin\win_x64\plugins\`, zastępując poprzednią wersję,
    i uruchom ETS2 ponownie.
 4. Uruchom `app\ETS2Tachograph.Desktop.exe`, a następnie ETS2.
-5. Zachowaj `%LocalAppData%\ETS2Tachograph\tachograph.db`. Beta ma pracować na
+5. Zachowaj `%LocalAppData%\ETS2Tachograph\tachograph.db`. Beta.11 ma pracować na
    dotychczasowej historii; aplikacja nadal wykonuje kopię bazy przed migracją.
 
 ## Checklista regresji UI — po każdej zmianie w XAML
@@ -39,7 +39,7 @@ Zmiana w XAML nie jest gotowa, dopóki wszystkie punkty nie są odhaczone.
 ### 3. Nawigacja
 
 - [ ] Wszystkie zakładki lewego paska otwierają się i wracają:
-      **Dashboard**, **Historia**, **Raporty**, **Kierowcy**, **Ustawienia**.
+      **Dashboard**, **Historia**, **Rekompensaty**, **Raporty**, **Kierowcy**, **Ustawienia**.
 - [ ] Przełączanie zakładek tam i z powrotem nie gubi stanu (filtry, wybór karty, zakres).
 - [ ] Skrót z raportu (`POKAŻ LUKI`) przenosi na Historię i podświetla sekcję luk.
 
@@ -84,7 +84,7 @@ Zmiana w XAML nie jest gotowa, dopóki wszystkie punkty nie są odhaczone.
 - [ ] `RAPORTY I STATYSTYKI` renderuje wybór karty i zakresu; `Odśwież raport` przelicza.
 - [ ] Podsumowania (jazda, praca, odpoczynek, rekompensata, liczba naruszeń) mają wartości.
 - [ ] Ostrzeżenie o nierozliczonych lukach pojawia się i nie blokuje eksportu.
-- [ ] Eksporty działają i tworzą plik: `PDF`, `VTC JSON`, `CSV SUROWY`,
+- [ ] Eksporty działają i tworzą plik: `PDF`, `VTC JSON`, `CSV ZOBOWIĄZANIA`,
       `Eksportuj .tacho kierowcy 1`, `Importuj .tacho`.
 - [ ] `Raport diagnostyczny` tworzy ZIP.
 
@@ -135,6 +135,18 @@ Zmiana w XAML nie jest gotowa, dopóki wszystkie punkty nie są odhaczone.
    a reset dobowy jest zapisany na końcu rozliczonego bloku.
 6. Powtórz kontrolnie, dodając w luce segment Innej pracy albo Dyspozycyjności.
    Oczekiwane: segment przerywa ciągłość i odcinki nie sumują się przez niego.
+
+## Test 0B — rekompensata tygodniowa beta.11
+
+1. Potwierdź na Dashboardzie i w zakładce **Rekompensaty**:
+   - Staniek: `1253 min / 20:53`;
+   - Doboś: `1192 min / 19:52`.
+2. Dla każdego zobowiązania sprawdź źródłowy odpoczynek, pełny i pozostały dług,
+   tydzień skrócenia, termin wyłączny, status oraz brak bloku spłacającego.
+3. Potwierdź, że kilka krótszych nadwyżek nie zmniejsza długu. Jeden blok o minutę
+   za krótki nie spłaca niczego, a dokładnie wystarczający spłaca całość en bloc.
+4. Zamknij i uruchom aplikację ponownie. Wszystkie wartości i identyfikatory mają
+   pozostać identyczne.
 
 ## Test 1 — lista nierozliczonych luk
 
@@ -187,6 +199,21 @@ Zmiana w XAML nie jest gotowa, dopóki wszystkie punkty nie są odhaczone.
 5. Wygeneruj raport dla zakresu bez nierozliczonych luk.
 6. Oczekiwane: PDF mówi `LUKI: brak`, a JSON ma `unresolvedGapCount: 0` oraz
    `evidenceComplete: true`.
+7. W PDF sprawdź czytelną tabelę każdego zobowiązania: status, dług, termin,
+   `ObligationId`, źródło, blok i zakres spłaty oraz `SettledAt`.
+8. W CSV sprawdź nagłówek i dokładnie jeden rekord na zobowiązanie.
+9. W JSON sprawdź pełne `compensationObligations`; sekcja `compensation` musi
+   pozostać zgodnym podsumowaniem pochodnym.
+
+## Końcowy smoke test terenowy beta.11
+
+- [ ] Staniek: `1253 min / 20:53` w Dashboardzie, szczegółach i eksportach.
+- [ ] Doboś: `1192 min / 19:52` w Dashboardzie, szczegółach i eksportach.
+- [ ] PDF, CSV i JSON są zgodne z pełnym kontraktem DTO.
+- [ ] Po restarcie aplikacji wyniki i identyfikatory są identyczne.
+- [ ] Przy aktywnej telemetrii ruch automatycznie ustawia **Jazdę**.
+- [ ] Blokady zależne od ruchu działają zgodnie z opisem UI; pamiętaj, że SCS jest
+      tylko do odczytu i nie zatrzymuje fizycznie ciężarówki.
 
 ## Zgłaszanie błędu
 

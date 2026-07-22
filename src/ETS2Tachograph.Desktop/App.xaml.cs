@@ -20,6 +20,7 @@ namespace ETS2Tachograph.Desktop;
 public partial class App : System.Windows.Application
 {
     private const string SingleInstanceMutexName = @"Local\ETS2Tachograph.Desktop.SingleInstance";
+    private const string DatabasePathEnvironmentVariable = "ETS2_TACHOGRAPH_DATABASE_PATH";
 
     private TachographDbContext? _db;
     private ScsTelemetrySource? _source;
@@ -58,7 +59,12 @@ public partial class App : System.Windows.Application
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 "ETS2Tachograph");
             Directory.CreateDirectory(folder);
-            var databasePath = Path.Combine(folder, "tachograph.db");
+            var configuredDatabasePath = Environment.GetEnvironmentVariable(
+                DatabasePathEnvironmentVariable);
+            var databasePath = string.IsNullOrWhiteSpace(configuredDatabasePath)
+                ? Path.Combine(folder, "tachograph.db")
+                : Path.GetFullPath(configuredDatabasePath);
+            Directory.CreateDirectory(Path.GetDirectoryName(databasePath)!);
             var backupPath = DatabaseBackup.CreateBeforeMigration(databasePath);
             if (backupPath is not null)
             {

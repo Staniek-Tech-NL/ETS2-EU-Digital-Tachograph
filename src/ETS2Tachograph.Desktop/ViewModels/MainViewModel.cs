@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Windows;
@@ -40,6 +41,19 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         new("Odpoczynek tygodniowy · 24 h", "TYGODNIOWY 24H", 24 * 60),
         new("Odpoczynek tygodniowy · 45 h", "TYGODNIOWY 45H", 45 * 60)
     ];
+
+    public static string ApplicationVersion
+    {
+        get
+        {
+            var informationalVersion = typeof(MainViewModel).Assembly
+                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
+                .InformationalVersion;
+            return string.IsNullOrWhiteSpace(informationalVersion)
+                ? "wersja nieznana"
+                : informationalVersion.Split('+', 2)[0];
+        }
+    }
 
     private readonly CrewTachographService _crew;
     private readonly ManualEntryService _manualEntries;
