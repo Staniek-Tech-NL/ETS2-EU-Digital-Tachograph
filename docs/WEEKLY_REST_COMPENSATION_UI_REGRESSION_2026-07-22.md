@@ -24,5 +24,5 @@ Aplikacja pracowała w stanie `Oczekiwanie na ETS2...`. Automatyczne przejście 
 ## Kontrola techniczna
 
 - Kompilacja Desktop Release: bez ostrzeżeń i błędów.
-- Pełny pakiet rozwiązania: 260/260 testów zaliczonych.
+- Pełny pakiet rozwiązania: 262/262 testy zaliczone.
 - RuleEngine: 55/55 testów zaliczonych.
