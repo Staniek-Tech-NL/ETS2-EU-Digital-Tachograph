@@ -2,12 +2,26 @@
 
 ## [Status]
 
-Kandydat `0.1.0-beta.11` zostaje wycofany przed smoke testem z powodu dwóch potwierdzonych błędów:
+**Wynik wykonania — 23 lipca 2026:** plan został wdrożony. Wydanie
+`0.1.0-beta.11.1` ma 282/282 zielone testy, build Release 0/0, migrację i
+restart sprawdzone na kopii właściwej bazy oraz gotowy artefakt self-contained.
+Pozostał osobisty smoke test z aktywną telemetrią i decyzja GO/FIX/HOLD.
+
+Kandydat `0.1.0-beta.11` został wycofany przed smoke testem z powodu dwóch potwierdzonych błędów:
 
 1. nieprawidłowej automatycznej klasyfikacji bloku 24 h+ używanego do spłaty rekompensaty;
 2. niezależnego przetwarzania wspólnego skoku czasu przez obie karty podwójnej obsady, powodującego fałszywe luki `ForwardTimeJump`.
 
-Obie poprawki wejdą do jednego wydania `0.1.0-beta.11.1`, ale muszą pozostać osobnymi zmianami technicznymi, testami i commitami.
+Obie poprawki weszły do jednego wydania `0.1.0-beta.11.1`, pozostając osobnymi zmianami technicznymi, testami i commitami.
+
+Obie poprawki zostały zrealizowane jako osobne commity:
+
+- `fedc10b` — wspólna klasyfikacja skoku czasu załogi;
+- `2d2b703` — audytowana decyzja alokacji odpoczynku;
+- `345ac16`, `1cda06e`, `55e5ef5` — Application/SQLite, UI/raporty i testy.
+
+Wartości `262/262`, `55/55` i `48/48` występujące niżej są celowo zachowanym
+baseline’em sprzed implementacji, nie bieżącym stanem projektu.
 
 ---
 

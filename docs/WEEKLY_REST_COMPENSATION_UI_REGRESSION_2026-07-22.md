@@ -2,6 +2,7 @@
 
 **Data:** 22 lipca 2026  
 **Wynik:** zaliczona dla funkcji dostępnych bez aktywnej telemetrii ETS2
+**Charakter dokumentu:** historyczna migawka regresji UI kandydata beta.11; liczby testów poniżej zachowano jako wynik z dnia wykonania.
 
 | Obszar | Wynik | Potwierdzenie |
 |---|---|---|
@@ -26,3 +27,18 @@ Aplikacja pracowała w stanie `Oczekiwanie na ETS2...`. Automatyczne przejście 
 - Kompilacja Desktop Release: bez ostrzeżeń i błędów.
 - Pełny pakiet rozwiązania: 262/262 testy zaliczone.
 - RuleEngine: 55/55 testów zaliczonych.
+
+## Aktualizacja beta.11.1 — 23 lipca 2026
+
+- Bieżący gate automatyczny: 282/282; RuleEngine 62/62; Engine 69/69;
+  Application 50/50; Reports 9/9; Infrastructure 51/51.
+- Zakładka `Rekompensaty` prezentuje kandydatury wygenerowane przez RuleEngine:
+  rolę bloku, podstawę `540/1440/2700`, stary i nowy dług oraz informację,
+  czy wariant zalicza odpoczynek tygodniowy.
+- Brak wyboru daje `PendingRestAllocation`; Raporty pokazują ostrzeżenie i
+  `EvidenceComplete = false`.
+- PDF, CSV i JSON zawierają `RestBlockId`, `CandidateId`, wybraną rolę, czas
+  decyzji, zobowiązania, podstawę i nowy dług.
+- Start i restart UI beta.11.1 zostały sprawdzone na kopii właściwej bazy.
+- Końcowa kontrola z aktywną telemetrią, pełna checklista XAML oraz decyzja
+  GO/FIX/HOLD pozostają do wykonania osobiście przez testera.

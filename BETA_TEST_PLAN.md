@@ -175,6 +175,17 @@ Zmiana w XAML nie jest gotowa, dopóki wszystkie punkty nie są odhaczone.
 6. Oczekiwane: otwarta luka ma status `TRWA`, dopisek „karta nadal wyjęta”, rosnący
    czas i nieaktywną akcję rozliczenia.
 
+## Test 1A — granica licznika pauzy 44/45 min
+
+1. Rozpocznij pauzę możliwie blisko granicy minuty gry.
+2. Przy 44 zatwierdzonych minutach porównaj Dashboard, urządzenie, overlay oraz
+   licznik jazdy ciągłej.
+3. Oczekiwane regulacyjnie: brak resetu jazdy i dokładnie jedna minuta do pełnej
+   przerwy. Jeżeli UI pokazuje `45:00 / ZALICZONA`, zapisz FIX — jest to znany
+   problem prezentacyjny beta.11.1.
+4. Po następnej pełnej minucie oczekiwane jest zaliczenie i reset licznika.
+5. Nie koryguj ręcznie historii ani progu RuleEngine podczas tego testu.
+
 ## Test 2 — rozliczenie z Historii i ślad audytowy
 
 1. Przy zamkniętej luce kliknij **Rozlicz**.

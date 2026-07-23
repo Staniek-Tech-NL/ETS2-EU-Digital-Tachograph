@@ -1,7 +1,8 @@
 # Pakiet startowy projektu — ETS2 EU Digital Tachograph
 
-**Stan na:** 22 lipca 2026  
-**Obowiązująca wersja testowa:** `0.1.0-beta.10.1`  
+**Stan pierwotny:** 22 lipca 2026
+**Aktualizacja techniczna:** 23 lipca 2026
+**Obowiązująca wersja testowa:** `0.1.0-beta.11.1`
 **Przeznaczenie:** przekazanie kompletnego kontekstu do nowej sesji AI bez ponownego analizowania całej rozmowy  
 **Źródło ustaleń:** dotychczasowa rozmowa projektowa i powstała w niej dokumentacja
 
@@ -15,9 +16,9 @@ Użytkownikiem jest gracz ETS2 oczekujący realistycznej obsługi jednej lub dw�
 
 Najważniejszym problemem domenowym jest nietypowy zegar ETS2. `game_time` przyspiesza względem czasu realnego, potrafi przeskakiwać do przodu podczas snu, `g_set_time`, załadunku i rozładunku, a także cofać się po wczytaniu zapisu lub korekcie pozycji. System musi zachować materiał dowodowy, nie liczyć tych samych minut podwójnie i nie wymyślać aktywności dla okresów bez danych.
 
-Projekt przeszedł etapy: model domenowy, telemetria, RuleEngine, integracja Engine, SQLite/EF Core, Application, raporty, realistyczne WPF, dwie karty, nakładki, luki i wpisy manualne, retencja hot/warm oraz wielodniowe beta-testy. Aktualne wydanie to `0.1.0-beta.10.1`. Hotfix usunął blokujący start błąd nakładania rekordów kanonicznych. Zestaw automatyczny ma 239 zielonych testów, a build Release nie zgłasza błędów ani ostrzeżeń.
+Projekt przeszedł etapy: model domenowy, telemetria, RuleEngine, integracja Engine, SQLite/EF Core, Application, raporty, realistyczne WPF, dwie karty, nakładki, luki i wpisy manualne, retencja hot/warm oraz wielodniowe beta-testy. Aktualne wydanie to `0.1.0-beta.11.1`. Zawiera pełny model rekompensat en bloc, audytowaną decyzję alokacji niejednoznacznego odpoczynku 24 h+ oraz wspólną klasyfikację długiego skoku czasu obu kart. Zestaw automatyczny ma 282 zielone testy, a build Release nie zgłasza błędów ani ostrzeżeń.
 
-Projekt nie jest jednak bezwarunkowo gotowy do szerokiej publikacji. Najnowszy potwierdzony problem dotyczy licznika pauzy w UI: może pokazać `45:00 / ZALICZONA`, gdy po zastosowaniu reguły jednej minuty historia regulacyjna zawiera dopiero 44 minuty odpoczynku. RuleEngine działa wtedy poprawnie i nie zeruje jazdy ciągłej; myląca jest prezentacja. Poprawka tego rozjazdu nie została jeszcze wdrożona.
+Projekt nie jest jeszcze bezwarunkowo gotowy do szerokiej publikacji. Beta.11.1 przeszła pełny gate automatyczny, migrację i restart na kopii właściwej bazy, ale końcowy smoke z aktywną telemetrią wykonuje osobiście tester. Nadal otwarty jest wcześniejszy problem prezentacyjny licznika pauzy: UI może pokazać `45:00 / ZALICZONA`, gdy historia po regule jednej minuty zawiera dopiero 44 minuty. RuleEngine pozostaje wtedy poprawny; problem dotyczy warstwy prezentacji.
 
 ---
 
@@ -258,7 +259,7 @@ ETS2 EU Digital Tachograph/
 │   ├── PRODUCTION_STATUS_REPORT_BETA4.md
 │   └── UI_VISIBLE_DATA_REPORT_BETA4.md
 ├── output/releases/
-│   └── ETS2Tachograph-0.1.0-beta.10.1-win-x64.zip
+│   └── ETS2Tachograph-0.1.0-beta.11.1-win-x64.zip
 ├── BETA_TEST_PLAN.md
 ├── KNOWN_ISSUES.md
 ├── RELEASE_NOTES.md
@@ -353,7 +354,7 @@ ETS2 EU Digital Tachograph/
 
 ### 7.3. Testy i dokumentacja
 
-- Aktualnie 239/239 testów: Core 33, Telemetry.Scs 8, Engine 64, RuleEngine 42, Application 38, Reports 9, Infrastructure 45.
+- Aktualnie 282/282 testy: Core 33, Telemetry.Scs 8, Engine 69, RuleEngine 62, Application 50, Reports 9, Infrastructure 51.
 - 14 testów `CanonicalProjectionTests.cs` odtwarzających realne kształty danych obu kart.
 - Testy E2E shared memory, cofnięć czasu, multi-manning, promu, luk, restartu, retencji, PDF i import/eksport.
 - Build Release: 0 błędów, 0 ostrzeżeń.
@@ -366,23 +367,25 @@ ETS2 EU Digital Tachograph/
 - Beta.6–beta.9: protokół v3 i kolejne poprawki rzeczywistej sekwencji cargo.
 - Beta.10: ciągłość odpoczynku przez rozliczoną lukę.
 - Beta.10.1: hotfix kanonicznej historii, 239 testów, poprawny `ProductVersion` z hashem commita.
-- Aktualna paczka: `output/releases/ETS2Tachograph-0.1.0-beta.10.1-win-x64.zip`.
-- SHA-256: `5f4f7d85e33fb3e2ad4111bc7372067477ce611de9f70dc835be29182cb26195`.
-- Plugin pozostaje bitowo zgodny z beta.10, protokół v3; hash `4F73CBFE0893A9D734E22173F7CDDC46B3C78F562B6CCF58288FDB0A73D97D02`.
+- Beta.11: pełny model rekompensat en bloc; kandydat wycofany przed smoke testem z powodu błędnej alokacji bloku 24 h+ i fałszywych luk załogi.
+- Beta.11.1: audytowana alokacja odpoczynku, wspólna klasyfikacja skoku czasu obu kart, 282 testy.
+- Aktualna paczka: `output/releases/ETS2Tachograph-0.1.0-beta.11.1-win-x64.zip`.
+- SHA-256: odczytać z pliku `ETS2Tachograph-0.1.0-beta.11.1-win-x64.zip.sha256` wygenerowanego obok paczki.
+- Plugin pozostaje w protokole v3; hash `BB4F0A70B566A0F870CA4F64652761C6E0371FBEADA6CA9CF98B007F2D6E280D`.
 
 ---
 
 ## 8. Aktualny stan prac
 
-Ostatnią zakończoną zmianą kodu był hotfix beta.10.1. `Canonicalize` wcześniej przycinał starą historię do kotwicy nowej sesji, po czym dopisywał wszystkie rekordy nowej sesji. Jeżeli nowa sesja zawierała minutę sprzed kotwicy już obecną w poprzedniej sesji, projekcja zawierała nakładkę. `BuildWarmBlocks` produkował dwa bloki z tym samym początkiem, a SQLite odrzucał zapis. Aplikacja nie startowała.
+Ostatnią zakończoną zmianą jest wydanie naprawcze beta.11.1. RuleEngine generuje dla zakończonego bloku 24 h+ legalne `RestAllocationCandidate`, a użytkownik wybiera `CandidateId`, nie własny podział minut. Decyzja jest wersjonowana, trwała w SQLite i zachowuje ślad `Active`, `Superseded` albo `Invalidated`. Brak decyzji daje `PendingRestAllocation` i oznacza raport jako niekompletny.
 
-Naprawa odejmuje od rekordu wejściowego wszystkie zakresy już pokryte, zachowując poprawny manualny backfill. Na kopii rzeczywistej bazy zniknęła dokładnie jedna podwójnie liczona minuta na kartę, a około 1007 minut wpisów manualnych zostało zachowane. Pierwszy i drugi start aplikacji, archiwizacja warm i zamknięcie kodem 0 zostały potwierdzone.
+`CrewTachographEngine` klasyfikuje wspólny skok czasu raz dla pojazdu. Gdy jedna karta odpoczywa, druga może zachować wyłącznie własną stabilną aktywność `BreakOrRest`, `OtherWork` albo `Availability`. Jazda, karta wyjęta, pusty slot, zmiana aktywności, cofnięcie czasu i zmiana świata nie są rekonstruowane.
 
-Testy terenowe beta.10/10.1 potwierdziły ciągłość odpoczynku przez pojedynczą lukę `CardRemoved`, również przez restart i granicę tygodnia. Slot 2 w ruchu został domknięty. Wiele rozliczonych luk w jednym odpoczynku zachowuje się inaczej i wymaga decyzji domenowej, ale nie należy do hotfixu kanonizacji.
+Na kopii właściwej bazy audytowalnie rozliczono dwa zakresy Dnia 141: Doboś `15:30–15:45` jako `OtherWork` oraz Staniek `18:56–19:15` jako `Availability`. Źródłem obu rekordów jest `AutomaticCrewReconstruction`; pierwotne `ActivityGap` pozostały w audycie jako rozliczone. Po dwóch restartach istnieją dokładnie dwa rekordy korekty i zero nierozliczonych luk referencyjnych.
 
-**Aktualny błąd pozostający bez poprawki:** licznik celu pauzy w `MainViewModel` zaczyna od minuty kliknięcia. RuleEngine liczy zatwierdzone minuty po regule jednej minuty. W zdarzeniu z 19.07 zapisano 41 minut odpoczynku rekonstruowanego i 3 minuty telemetrii, razem 44. UI mogło pokazać 45, lecz historia od `17:49` do `18:33` miała 44 minuty, więc jazda ciągła `04:07` nie została wyzerowana. Po przełączeniu na Dyspozycyjność te 44 minuty stały się pierwszą częścią dzielonej przerwy; potrzeba następnych ciągłych 30 minut, a nie jednej minuty.
+Gate beta.11.1: 282/282 testy, build Release 0/0, self-contained `win-x64`, poprawne metadane `0.1.0-beta.11.1`, kompletna paczka z pluginem oraz zgodny SHA-256. Do wykonania pozostaje osobisty smoke test z aktywną telemetrią i decyzja GO/FIX/HOLD.
 
-Nie wykonano poprawki UI, nowego testu ani wydania zawierającego tę poprawkę. To jest punkt, od którego należy wznowić pracę. Po incydencie bazodanowym należy też przed kolejnym testem potwierdzić, który katalog `%LocalAppData%\ETS2Tachograph` jest aktywny; kopia odzyskowa była odkładana do `output\ODZYSK-BAZY`.
+**Znany problem poza zakresem beta.11.1:** licznik celu pauzy w `MainViewModel` może wyprzedzić zatwierdzoną historię o jedną minutę. RuleEngine liczy poprawnie; korekta prezentacji wymaga osobnego czerwonego testu `41 min reconstructed + 3 min telemetry = 44 min`.
 
 ---
 
@@ -445,21 +448,18 @@ Nie wykonano poprawki UI, nowego testu ani wydania zawierającego tę poprawkę.
 
 ### Priorytet 1 — najbliższy krok
 
-#### P1.1. Naprawić licznik pauzy UI
+#### P1.1. Osobisty smoke test beta.11.1
+
+- **Opis:** uruchomić wyłącznie artefakt `0.1.0-beta.11.1` z aktywną telemetrią ETS2.
+- **Zakres:** Staniek `20:53`, Doboś `19:52`, warianty alokacji 24 h+, zgodność Dashboardu, szczegółów, PDF, CSV i JSON, restart, automatyczna Jazda oraz blokady zależne od ruchu.
+- **Kryterium ukończenia:** zapisany wynik GO/FIX/HOLD bez ręcznej modyfikacji bazy.
+
+#### P1.2. Naprawić licznik pauzy UI
 
 - **Opis:** zastąpić licznik od chwili kliknięcia licznikiem wynikającym z faktycznie zakwalifikowanego, ciągłego bloku `BreakOrRest` po regule jednej minuty.
 - **Oczekiwany rezultat:** przy historii 41 min rekonstruowanych + 3 min telemetrii UI pokazuje `44:00`, `pozostało 00:01`, bez `ZALICZONA`; po kolejnej pełnej minucie RuleEngine zeruje jazdę i UI pokazuje zaliczenie.
 - **Zależności:** kanoniczna historia, OneMinuteRule, `RegulationEngine`, snapshot.
-- **Pliki:** `MainViewModel.cs`, ewentualnie `TachographSnapshot.cs`/`RegulationState`, `OverlayViewModel.cs`, testy Desktop/Engine/RuleEngine.
-- **Kryterium ukończenia:** czerwony test dokładnego scenariusza, poprawka, wszystkie 239+ testów zielone, dashboard i overlay zgodne, ręczny test w ETS2.
-
-#### P1.2. Wydać następną betę po poprawce
-
-- **Opis:** zbudować WPF Release, spakować aplikację z niezmienionym pluginem v3, zaktualizować dokumentację.
-- **Oczekiwany rezultat:** paczka z jednoznacznym `ProductVersion`, SHA-256 i planem testu 45 min.
-- **Zależności:** P1.1.
-- **Pliki:** `RELEASE_NOTES.md`, `BETA_TEST_PLAN.md`, `KNOWN_ISSUES.md`, `output/releases`.
-- **Kryterium ukończenia:** build 0/0, pełny test suite, zweryfikowany ZIP i hash.
+- **Kryterium ukończenia:** czerwony test dokładnego scenariusza, minimalna poprawka, pełny pakiet testów zielony oraz Dashboard i overlay zgodne.
 
 ### Priorytet 2 — po ukończeniu podstaw
 
@@ -477,17 +477,15 @@ Nie wykonano poprawki UI, nowego testu ani wydania zawierającego tę poprawkę.
 - **Pliki:** `HistoryAnalysis`, `RegulationEngine`, raporty i testy.
 - **Kryterium:** brak podwójnego liczenia, zachowany audyt wielu luk, jednoznaczna klasyfikacja.
 
-#### P2.3. Pełny model rekompensat
+#### P2.3. Pełny model rekompensat — zakończony w beta.11.1
 
-- **Rezultat:** dług spłacany en bloc, przypisany do zobowiązania i terminu.
-- **Zależności:** osobna szczegółowa specyfikacja prawna/domenowa.
-- **Pliki:** `RegulationEngine`, `RegulationState`, persistence, snapshot, UI, PDF/JSON.
-- **Kryterium:** testy 24 h→21 h długu, termin 3 tygodni, dedykowany blok ≥9 h, brak spłaty okruchami.
+- **Rezultat:** spłata en bloc, ścisły termin, FIFO, stabilne identyfikatory, trwała decyzja alokacji i pełny ślad UI/PDF/CSV/JSON.
+- **Stan:** 62/62 testy RuleEngine oraz integracyjny restart SQLite są zielone.
 
-#### P2.4. Zamknąć dokumentacyjny gate
+#### P2.4. Utrzymywać dokumentacyjny gate
 
 - **Rezultat:** aktualne wersje README, known issues, release notes, test plan i handoff.
-- **Zależności:** nowe wydanie.
+- **Zależności:** każda kolejna zmiana wydania.
 - **Kryterium:** dokumenty wskazują tę samą wersję i te same znane ograniczenia.
 
 ### Priorytet 3 — rozwój późniejszy
@@ -514,15 +512,14 @@ Nie wykonano poprawki UI, nowego testu ani wydania zawierającego tę poprawkę.
 
 ## 12. Rekomendowany następny krok
 
-**Naprawić rozjazd licznika pauzy UI z zatwierdzoną historią regulacyjną.**
+**Wykonać osobisty smoke test terenowy beta.11.1.**
 
-1. Dodać test odtwarzający potwierdzony przypadek: aktywność zmieniona na odpoczynek wewnątrz minuty, operacja cargo rekonstruuje 41 minut, telemetria dopisuje 3 minuty, a kolejna aktywność zaczyna się w 45. minucie liczonej przez UI. Historia ma 44 minuty i RuleEngine nie resetuje jazdy.
-2. Przenieść źródło `RestElapsed`, `RestRemaining` i `RestStatus` z `_restStartedAtGameMinute` na faktyczny ciągły blok odpoczynku po OneMinuteRule. Dashboard, urządzenie i overlay muszą czytać tę samą projekcję.
-3. Nie zmieniać progu RuleEngine i nie dopisywać brakującej minuty sztucznie. To UI jest błędne, nie reguła 45 minut.
-4. Zmienić `MainViewModel.cs`, w razie potrzeby wystawić minimalną projekcję przez `TachographSnapshot`/`RegulationState`, zaktualizować `OverlayViewModel.cs` i testy.
-5. Sprawdzić: 44 min → pierwsza część 15+30, brak resetu i 1 min do celu; 45 min → reset; po przerwaniu przy 44 min kolejna 1 min nie wystarcza, wymagane jest 30 min.
-
-To zadanie jest pierwsze, ponieważ usuwa jedyny potwierdzony rozjazd między tym, co widzi tester, a tym, co liczy silnik. Bez niego decyzja GO dla bieżącej bety byłaby myląca.
+1. Użyć paczki `ETS2Tachograph-0.1.0-beta.11.1-win-x64.zip`, nie katalogu deweloperskiego ani wycofanej beta.11.
+2. Potwierdzić Staniek `1253 min / 20:53` i Doboś `1192 min / 19:52`.
+3. Sprawdzić ręczny wybór kandydatury odpoczynku 24 h+, zgodność UI/PDF/CSV/JSON i trwałość po restarcie.
+4. Sprawdzić symetryczne skoki czasu obu kart, automatyczną Jazdę i blokady zależne od ruchu.
+5. Osobno odnotować znany przypadek graniczny licznika pauzy 44/45 min; nie zmieniać progu RuleEngine w ramach smoke testu.
+6. Zapisać decyzję GO/FIX/HOLD. Dopiero po GO rozpocząć Planer; problem licznika pauzy prowadzić jako osobny, test-first hotfix.
 
 ---
 
@@ -531,7 +528,7 @@ To zadanie jest pierwsze, ponieważ usuwa jedyny potwierdzony rozjazd między ty
 ```text
 Jesteś starszym inżynierem C#/.NET współpracującym nad projektem ETS2 EU Digital Tachograph.
 Projekt to symulator tachografu dla ETS2: .NET 9, WPF, SQLite/EF Core, RuleEngine oraz
-natywny plugin C++ SCS SDK. Obowiązująca wersja to beta.10.1, 239 testów zielonych.
+    natywny plugin C++ SCS SDK. Obowiązująca wersja to beta.11.1, 282/282 testy zielone.
 
 Historia minutowa w game_time jest jedynym źródłem prawdy. Nie przechowuj liczników w
 modelu kierowcy. Zachowuj sesje, truncate-and-append, jawne ActivityGap i audyt SourceGapId.
@@ -543,11 +540,10 @@ KNOWN_ISSUES i raporty związane z problemem. Każdy potwierdzony bug najpierw o
 czerwonym testem, potem popraw minimalnie i uruchom pełny zestaw regresji. Po większej
 zmianie zaktualizuj README/RELEASE_NOTES/BETA_TEST_PLAN/KNOWN_ISSUES oraz handoff.
 
-Najbliższe zadanie: naprawić licznik pauzy UI. Obecnie może pokazać 45 min od chwili
-kliknięcia, gdy OneMinuteRule zatwierdził tylko 44 minuty. RuleEngine jest poprawny; nie
-zmieniaj progu 45 min. UI ma liczyć faktyczny ciągły blok BreakOrRest i być zgodne na
-Dashboardzie, urządzeniu oraz overlay. Zacznij od testu 41 min reconstructed + 3 min
-telemetry = 44 min, brak resetu i 1 min pozostała.
+    Najbliższe zadanie: osobisty smoke test artefaktu beta.11.1 i decyzja GO/FIX/HOLD.
+    Sprawdź alokację rekompensaty, wspólne skoki obu kart, zgodność eksportów i restart.
+    Znany rozjazd licznika pauzy 44/45 min pozostaje osobnym zadaniem test-first; RuleEngine
+    jest poprawny i nie wolno zmieniać jego progu w ramach smoke testu.
 ```
 
 ---
@@ -560,7 +556,7 @@ Zasada nadrzędna: całość działa na `game_time` ETS2, nigdy na czasie Window
 
 Architektura ma projekty: Core (encje, czas, ActivityTimeline, OneMinuteRule), Telemetry.Scs (shared memory v3), Engine (`ActivityHistoryProcessor`, `TachographEngine`, `CrewTachographEngine`, snapshoty), RuleEngine, Infrastructure (SQLite, repozytoria, migracje, retencja i kanonizacja), Application (DTO i serwisy), Reports oraz Desktop WPF. Plugin C++ znajduje się w `native/ETS2Tachograph.ScsPlugin`. Przepływ: ETS2 → plugin → shared memory → Telemetry → Engine → SQLite/projekcja kanoniczna → RuleEngine → snapshot/DTO → UI, overlay i eksporty.
 
-Obowiązująca wersja to `0.1.0-beta.10.1`. Ma 239/239 zielonych testów i build Release bez błędów/ostrzeżeń. Paczka: `output/releases/ETS2Tachograph-0.1.0-beta.10.1-win-x64.zip`, SHA-256 `5f4f7d85e33fb3e2ad4111bc7372067477ce611de9f70dc835be29182cb26195`. Plugin v3 jest identyczny z beta.10; jego hash to `4F73CBFE0893A9D734E22173F7CDDC46B3C78F562B6CCF58288FDB0A73D97D02`.
+Obowiązująca wersja to `0.1.0-beta.11.1`. Ma 282/282 zielone testy i build Release bez błędów/ostrzeżeń. Paczka: `output/releases/ETS2Tachograph-0.1.0-beta.11.1-win-x64.zip`; właściwy SHA-256 znajduje się w pliku `.zip.sha256` obok paczki. Plugin pozostaje w protokole v3; jego hash to `BB4F0A70B566A0F870CA4F64652761C6E0371FBEADA6CA9CF98B007F2D6E280D`.
 
 Beta.10.1 naprawiła blokujący start błąd kanonicznej historii. W starszym kodzie nowa sesja mogła ponownie dopisać minutę sprzed własnej kotwicy, która była już w historii. Podczas budowania `WarmActivityBlocks` powstawały dwa bloki z tym samym początkiem i SQLite zgłaszał `UNIQUE constraint failed`. Nie wolno było po prostu odrzucić wszystkich rekordów sprzed kotwicy, bo poprawne wpisy manualne uzupełniają starsze luki i leżą przed kotwicą sesji zapisu. Rozwiązanie: `SubtractCoveredRanges` odejmuje od rekordu zakresy już zajęte przez historię kanoniczną, a `EnsureNoOverlap` twardo sprawdza `End <= next.Start`. Istniejąca historia ma pierwszeństwo, a niepokryty manualny backfill zostaje. `InvalidCanonicalHistoryException` wykrywa konflikt przed SQLite. Na realnych danych usunięto z projekcji po jednej zdublowanej minucie na kartę, zachowując około 1007 minut backfillu i wszystkie rekordy źródłowe.
 
@@ -568,7 +564,7 @@ Funkcje gotowe: jazda automatyczna, ręczne odpoczynek/praca/dyspozycyjność, j
 
 Luki są osobnymi encjami `ActivityGap`, nie aktywnością Unknown. Przyczyny: `ForwardTimeJump`, `CardRemoved`, rezerwa `TelemetryUnavailable`. `CardRemoved` ma priorytet nad skokiem per karta. W projekcji może istnieć najwyżej jedna otwarta luka na kartę. Wyjęcie otwiera lukę, włożenie zamyka. `CardRemoved` wymusza kreator i logicznie blokuje tachograf; `ForwardTimeJump` jest opcjonalny. ManualEntry dopuszcza tylko odpoczynek, Inną pracę i Dyspozycyjność; segmenty muszą dokładnie pokrywać lukę. `SourceGapId` zachowuje audyt. Po zmianie beta.10 odpoczynek manualny może łączyć się minutowo z odpoczynkiem przed i po wyjęciu karty: 2 h + 7 h daje 9 h, a 5 h + 40 h może dać regularny tygodniowy 45 h. Wiele różnych rozliczonych luk w jednym bloku jest nadal decyzją otwartą.
 
-Skoki czasu: do 2 minut są rekonstruowane ostatnią aktywnością. Duży skok po Jeździe nigdy nie tworzy sztucznej Jazdy — powstaje luka. Długi odpoczynek może być rekonstruowany tylko, gdy przed i po skoku pojazd stoi i nadal wybrano odpoczynek. Załadunek/rozładunek jest rozpoznawany przez `cargo_operation_generation`; zachowuje aktywność wybraną na każdej karcie. Beta.9 naprawiła utratę aktywności w gałęzi `GamePaused`. Ramki `running == 0` nie zasilają historii ani `highWaterMark`.
+Skoki czasu: do 2 minut są rekonstruowane ostatnią aktywnością. Duży skok po Jeździe nigdy nie tworzy sztucznej Jazdy — powstaje luka. W podwójnej obsadzie beta.11.1 klasyfikuje wspólny skok raz w `CrewTachographEngine`; odpoczynek jednej karty może wyjaśnić postój, a druga zachowuje tylko własną stabilną aktywność `BreakOrRest`, `OtherWork` albo `Availability`. Załadunek/rozładunek jest rozpoznawany przez `cargo_operation_generation`; zachowuje aktywność wybraną na każdej karcie. Ramki `running == 0` nie zasilają historii ani `highWaterMark`.
 
 Persistence ma backup przed migracją, znaczący klucz idempotentności `ActivitySessionId + StartGameMinute`, atomową granicę sesji obu kart i retencję hot/warm. Hot to ostatnie 14 dni gry minutowo, warm to starsze ciągłe bloki; zmiana samego źródła nie rozcina bloku, tylko daje `Mixed`. Próg używa monotonicznego `highWaterMark`. Cold >365 dni jest tylko hakiem. System niczego automatycznie nie usuwa.
 
@@ -576,6 +572,6 @@ UI WPF ma realistyczny tachograf, Dashboard, Historię, Raporty, Kierowców i Us
 
 Tryb pracy nad projektem jest regresyjny i oparty na dowodach. Każdy potwierdzony błąd należy najpierw odtworzyć testem na dokładnych minutach gry oraz właściwej karcie, slocie i sesji, a dopiero potem wprowadzić najmniejszą poprawkę. Po zmianach w historii albo regułach trzeba uruchomić cały zestaw testów, ponieważ pozornie lokalna korekta może zmienić reset dobowy, tydzień regulacyjny, raport lub drugi slot. Nie wolno maskować konfliktów przez ignorowanie wyjątków, obcinanie liczników do limitu ani sztuczne dopisywanie brakujących minut. Naruszenia pokazują rzeczywisty wynik, przykładowo `3 / 2`, a nie zatrzymane `2 / 2`. Diagnostyka, surowy CSV i źródłowe sesje muszą pozostać dostępne, by dało się odtworzyć każdy wynik. Wersję uznaje się za gotową do bety dopiero po zielonym buildzie i testach, sprawdzeniu paczki oraz hashy, krótkim smoke teście z prawdziwą telemetrią i aktualizacji dokumentów wydania. Obecny terenowy gate potwierdził stabilność beta.10.1 po restarcie, ciągłość obu kart oraz zachowanie na granicy tygodnia, ale nie zamknął jeszcze rozjazdu licznika pauzy w UI.
 
-Znane ograniczenia: rekompensata tygodniowa jest uproszczona i może zaniżać dług, ponieważ spłaca go nadwyżkami z wielu odpoczynków zamiast dedykowanym blokiem en bloc. Wiele manualnych luk w jednym odpoczynku wymaga decyzji. `APP_START_FAILED` nie pokazuje całego `InnerException`. Cold retention, instalator, podpis i auto-update nie istnieją. SCS jest tylko do odczytu, więc blokada nie może fizycznie zatrzymać ciężarówki.
+Znane ograniczenia: wiele manualnych luk w jednym odpoczynku wymaga osobnej decyzji domenowej. Licznik pauzy UI może wyprzedzić zatwierdzoną historię o jedną minutę. `APP_START_FAILED` nie pokazuje całego `InnerException`. Cold retention, instalator, podpis i auto-update nie istnieją. SCS jest tylko do odczytu, więc blokada nie może fizycznie zatrzymać ciężarówki.
 
-Najważniejszy aktualny problem i następne zadanie: licznik pauzy UI może pokazać zaliczenie o minutę za wcześnie. `MainViewModel` liczy od minuty kliknięcia, a OneMinuteRule może zakwalifikować tę minutę jako poprzednią aktywność. W realnym przypadku historia miała 41 min odpoczynku rekonstruowanego + 3 min telemetrii = 44, ale UI mogło wskazać 45. RuleEngine poprawnie nie wyzerował jazdy. Po przerwaniu 44 min liczy się jako pierwsza część 15+30 i potrzeba kolejnych 30 min, nie jednej. Należy najpierw dodać czerwony test 41+3=44, następnie wyliczać `RestElapsed`, `RestRemaining` i `RestStatus` z faktycznego ciągłego bloku zatwierdzonych rekordów. Nie zmieniać progu RuleEngine ani nie dopisywać minuty. Dashboard, urządzenie i overlay muszą czytać tę samą projekcję. Po poprawce wykonać pełne testy, smoke ETS2, wydać następną betę i dopiero wtedy podjąć GO oraz rozpocząć Planer podróży MVP.
+Najbliższy krok to osobisty smoke beta.11.1 i decyzja GO/FIX/HOLD. Odrębny znany problem prezentacyjny dotyczy licznika pauzy: `MainViewModel` może policzyć od minuty kliknięcia, gdy OneMinuteRule zaliczy ją jeszcze do poprzedniej aktywności. Przypadek `41 min reconstructed + 3 min telemetry = 44 min` wymaga osobnego czerwonego testu i minimalnej korekty wspólnej projekcji Dashboardu, urządzenia i overlay. Nie zmieniać progu RuleEngine ani nie dopisywać minuty.

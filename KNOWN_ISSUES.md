@@ -72,6 +72,12 @@ diagnostycznym.
 
 ## Aplikacja i dystrybucja
 
+- Licznik celu pauzy w UI może w przypadku zmiany aktywności wewnątrz minuty
+  wyprzedzić historię zatwierdzoną przez regułę jednej minuty o jedną minutę.
+  RuleEngine nie resetuje jazdy przed faktycznym osiągnięciem 45 minut; ryzyko
+  dotyczy napisu `ZALICZONA` i pól czasu na Dashboardzie/overlay. Przypadek
+  referencyjny do osobnego hotfixu: `41 min reconstructed + 3 min telemetry =
+  44 min`.
 - Blokada wymaganego wpisu manualnego dotyczy stanu tachografu. Oficjalna
   telemetria SCS jest tylko do odczytu, więc aplikacja nie może fizycznie zatrzymać
   ciężarówki w ETS2; próba ruchu jest nadal zapisywana jako jazda.

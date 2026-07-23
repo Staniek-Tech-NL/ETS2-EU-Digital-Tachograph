@@ -1,8 +1,9 @@
 # Macierz testów — rekompensata skróconego odpoczynku tygodniowego
 
-**Stan na:** 22 lipca 2026  
+**Stan pierwotny:** 22 lipca 2026
+**Aktualizacja:** 23 lipca 2026 — beta.11.1
 **Podstawa:** zatwierdzona specyfikacja domenowa i zatwierdzone dane referencyjne  
-**Status:** wdrożona i zielona w RuleEngine, Application/DTO, Infrastructure oraz UI; 55/55 testów RuleEngine oraz 262/262 testy rozwiązania
+**Status:** wdrożona i zielona w RuleEngine, Application/DTO, Infrastructure, UI i raportach; 62/62 testy RuleEngine oraz 282/282 testy rozwiązania
 
 Wszystkie przedziały są półotwarte `[StartGameMinute, EndGameMinuteExclusive)`. Każdy blok użyty do utworzenia albo spłaty długu musi być zamknięty przez następującą aktywność inną niż `BreakOrRest`; `now` znajduje się po tej aktywności. Jeżeli w wierszu nie podano inaczej, `WeekEpochOffsetDays = 0`.
 
@@ -19,6 +20,19 @@ Wszystkie przedziały są półotwarte `[StartGameMinute, EndGameMinuteExclusive
 | BND-05C | `Deadline_UnpaidAtExclusiveBoundary_IsOverdue` | Dług `300` z tygodnia `0`; brak bloku spłacającego; ocena przy `now=40320`. | Otwarte `300 min`, status `Overdue`, naruszenie `WeeklyRestCompensationOverdue`. | **Zielony.** | Status otwartego zobowiązania. |
 | BND-06A | `Restart_SameCanonicalHistory_RecreatesIdenticalOpenObligationIdentity`<br>`Sqlite_restart_recreates_identical_open_compensation_contract` | Zamknięty skrócony tygodniowy bez spłaty; równoważna historia przeliczona przez nową instancję silnika oraz zapisana do plikowej bazy SQLite, zamknięta i ponownie otwarta w nowym kontekście. | Identyczne `ObligationId`, `SourceRestBlockId`, brak `PaymentRestBlockId`, pełna i pozostała kwota, termin, status oraz puste pola spłaty. | **Zielony w RuleEngine i Infrastructure.** | Deterministyczny pełny kontrakt odtworzony z historii po rzeczywistym restarcie SQLite. |
 | BND-06B | `Restart_SameCanonicalHistory_RecreatesIdenticalPaymentTrace`<br>`Sqlite_restart_recreates_identical_paid_compensation_contract` | Zamknięty skrócony tygodniowy oraz dokładnie wystarczający zamknięty blok spłacający; historia przeliczona przez nową instancję silnika oraz zapisana do plikowej bazy SQLite, zamknięta i ponownie otwarta w nowym kontekście. | Identyczne `ObligationId`, `SourceRestBlockId`, `PaymentRestBlockId`, pełna i pozostała kwota, termin, status, `SettledAt` oraz obie granice zakresu spłaty. | **Zielony w RuleEngine i Infrastructure.** | Odtwarzalny z historii pełny ślad spłaty; audyt diagnostyczny nie uczestniczy w obliczeniu. |
+
+## Alokacja niejednoznacznego odpoczynku — beta.11.1
+
+| ID | Test | Kandydatury i oczekiwany wynik | Status |
+|---|---|---|---|
+| ALC-01 | `Staniek_2953_requires_allocation_and_daily_candidate_settles_without_new_debt` | `DailyRestWithCompensation = 09:00 + 20:53`; stary dług spłacony, brak nowego, odpoczynek tygodniowy niezaliczony. Bez decyzji: `PendingRestAllocation`. | **Zielony.** |
+| ALC-02 | `Staniek_2953_weekly_choice_keeps_old_debt_and_creates_1507` | `ReducedWeeklyRestOnly`; stary dług `20:53` pozostaje, powstaje nowy `15:07`. | **Zielony.** |
+| ALC-03 | `Dobos_2852_daily_choice_settles_1952_without_new_debt` | `DailyRestWithCompensation = 09:00 + 19:52`; stary dług spłacony, brak nowego. | **Zielony.** |
+| ALC-04 | `Dobos_2852_weekly_choice_keeps_old_debt_and_creates_1608` | `ReducedWeeklyRestOnly`; stary dług `19:52` pozostaje, powstaje nowy `16:08`. | **Zielony.** |
+| ALC-05 | `Allocation_one_minute_too_short_has_no_compensation_candidate` | Brak kandydatury spłacającej i brak częściowego zmniejszenia długu. | **Zielony.** |
+| ALC-06 | `Allocation_4453_never_uses_compensation_minutes_as_weekly_base` | Rozłączne warianty podstawy `540/1440`; zakaz podwójnego użycia tych samych minut. | **Zielony.** |
+| ALC-07 | `Allocation_6553_regular_weekly_plus_compensation_settles_without_new_debt` | `45:00 + 20:53`; regularny tygodniowy i pełna spłata, bez nowego długu. | **Zielony.** |
+| ALC-08 | `RestAllocationDecisionSqliteRestartTests` | Po restarcie identyczne decyzje, kandydatury i spłaty; zmiana wyboru daje `Superseded`, zmiana bloku `Invalidated`. | **Zielony w Infrastructure.** |
 
 ## Zrealizowana kolejność testów
 

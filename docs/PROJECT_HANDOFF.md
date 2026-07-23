@@ -101,7 +101,7 @@ Użytkownikiem docelowym jest gracz ETS2 ceniący realizm (w tym społeczność 
 
 - `ETS2Tachograph.Core` — model domenowy, czas gry, `ActivityTimeline`, reguła jednej minuty, `GameClockFormatter`
 - `ETS2Tachograph.Telemetry.Scs` — odczyt wersjonowanej pamięci współdzielonej (protokół v3)
-- `ETS2Tachograph.Engine` — klasyfikacja ramek telemetrii, sesje, luki (`ActivityHistoryProcessor`, `CrewTachographEngine`), snapshoty; w beta.11.1 planowany wspólny `CrewTimeJumpResolution`
+- `ETS2Tachograph.Engine` — klasyfikacja ramek telemetrii, sesje, luki (`ActivityHistoryProcessor`, `CrewTachographEngine`), snapshoty oraz wspólny `CrewTimeJumpResolution`
 - `ETS2Tachograph.RuleEngine` — liczniki regulacyjne, naruszenia, rekompensaty (`RegulationEngine`, `RegulationEvaluation`, `RegulationState`, `WeeklyRestCompensation`, `CompensationSummary`); w beta.11.1 planowane `RestAllocationCandidate` i `RestAllocationDecision`
 - `ETS2Tachograph.Infrastructure` — SQLite, EF Core, repozytoria, migracje, retencja i kanoniczna projekcja historii (`Canonicalize`, `SubtractCoveredRanges`, `EnsureNoOverlap`)
 - `ETS2Tachograph.Application` — przypadki użycia, DTO, import/eksport, wpisy manualne (`ManualEntryService`, `ActivityGapService`, `ManualEntryWizardDraft`)
@@ -174,16 +174,16 @@ ETS2 EU Digital Tachograph/
 ├── tests/
 │   ├── ETS2Tachograph.Core.Tests/            (33 testy)
 │   ├── ETS2Tachograph.Telemetry.Scs.Tests/   (8 testów)
-│   ├── ETS2Tachograph.Engine.Tests/          (64 testy)
+│   ├── ETS2Tachograph.Engine.Tests/          (69 testów)
 │   │   ├── ActivityHistoryProcessorTests.cs
 │   │   ├── CrewTachographEngineTests.cs
 │   │   └── ManualEntryLockTests.cs
-│   ├── ETS2Tachograph.RuleEngine.Tests/      (55 testów)
+│   ├── ETS2Tachograph.RuleEngine.Tests/      (62 testy)
 │   │   └── RegulationEngineTests.cs
-│   ├── ETS2Tachograph.Application.Tests/     (45 testów)
+│   ├── ETS2Tachograph.Application.Tests/     (50 testów)
 │   │   └── ManualEntryWizardDraftTests.cs
 │   ├── ETS2Tachograph.Reports.Tests/         (9 testów)
-│   └── ETS2Tachograph.Infrastructure.Tests/  (48 testów)
+│   └── ETS2Tachograph.Infrastructure.Tests/  (51 testów)
 │       ├── CanonicalProjectionTests.cs         (14 testów regresyjnych beta.10.1)
 │       └── WeeklyRestCompensationSqliteRestartTests.cs
 ├── docs/
@@ -306,7 +306,7 @@ Przyjęta decyzja domenowa:
 - wariant `ReducedWeeklyRestOnly` traktuje cały blok `29:53` jako skrócony tygodniowy, pozostawia stary dług i tworzy nowy `15:07`;
 - nie istnieje `DailyRestOnly` dla zamkniętego bloku 24 h+;
 - te same minuty nie mogą jednocześnie należeć do podstawy odpoczynku i do rekompensaty;
-- decyzja ma być trwała, audytowana, wersjonowana i unieważniana po zmianie `RestBlockId`;
+- decyzja jest trwała, audytowana, wersjonowana i unieważniana po zmianie `RestBlockId`;
 - brak decyzji daje `PendingRestAllocation`, ogranicza wiarygodność raportów i blokuje Planer.
 
 ### 8.2 FIX B — koordynacja wspólnego skoku czasu załogi
@@ -340,19 +340,20 @@ Obowiązujący dokument wykonawczy:
 
 > `PLAN_NAPRAWCZY_BETA_11_1.md`
 
-Oba FIX-y mają osobne testy i commity, ale wspólny gate. Beta.11.1 nie może zostać wydana z tylko jedną poprawką.
+Oba FIX-y mają osobne testy i commity oraz przeszły wspólny gate beta.11.1.
 
 ---
 
-## 9. Otwarte problemy i ryzyka
+## 9. Status problemów i ryzyk
 
 | Problem / ryzyko | Wpływ | Stan / przyczyna | Działanie | Priorytet |
 |---|---|---|---|---|
-| Automatyczna klasyfikacja bloku 24 h+ hostującego rekompensatę | Błędna spłata starego długu i powstanie nowego zobowiązania | Beta.11 wybiera podstawę z całkowitej długości przed alokacją minut | Kandydatury RuleEngine + ręczna, audytowana decyzja użytkownika | **P0 — blocker beta.11.1** |
-| Fałszywe luki drugiej karty podczas wspólnego skoku | Niekompletna historia, błędne raporty i konieczność zbędnego wpisu manualnego | Każdy `ActivityHistoryProcessor` rozstrzyga wspólny skok niezależnie | Wspólny `CrewTimeJumpResolution` w `CrewTachographEngine`; dwie symetryczne regresje Dnia 141 | **P0 — blocker beta.11.1** |
+| Automatyczna klasyfikacja bloku 24 h+ hostującego rekompensatę | Błędna spłata starego długu i powstanie nowego zobowiązania | Naprawione: kandydatury RuleEngine i audytowana decyzja użytkownika | Utrzymywać regresje ALC-01–08 | **Zamknięte w beta.11.1** |
+| Fałszywe luki drugiej karty podczas wspólnego skoku | Niekompletna historia, błędne raporty i konieczność zbędnego wpisu manualnego | Naprawione: wspólny `CrewTimeJumpResolution` i symetryczne regresje Dnia 141 | Utrzymywać zabezpieczenia Jazdy, pustego slotu, karty wyjętej i zmiany aktywności | **Zamknięte w beta.11.1** |
 | Nierozstrzygnięta alokacja odpoczynku | Stan regulacyjny i Planer mogą zależeć od interpretacji użytkownika | Brak zapisanej `RestAllocationDecision` | Status `PendingRestAllocation`, ostrzeżenie, brak automatycznej spłaty i blokada wiarygodnego planowania | P1 |
-| Migracja i trwałość decyzji alokacji | Ryzyko utraty wyboru lub związania go ze zmienionym blokiem | Nowy trwały kontrakt zależny od `RestBlockId` | Test restartu SQLite, wersja schematu decyzji, unieważnienie po zmianie historii | P1 |
-| Korekta dwóch luk referencyjnych | Ręczny DELETE zniszczyłby dowód i audyt | Luki są poprawnymi danymi referencyjnymi błędu | Zachować do zielonych regresji; potem audytowana rekonstrukcja z `ResolutionSource` | P1 |
+| Licznik pauzy UI 44/45 min | Dashboard lub overlay może pokazać zaliczenie minutę przed RuleEngine | Początek pauzy w środku minuty i reguła jednej minuty | Osobny czerwony test `41 reconstructed + 3 telemetry = 44`; nie zmieniać progu RuleEngine | P1 |
+| Migracja i trwałość decyzji alokacji | Ryzyko utraty wyboru lub związania go ze zmienionym blokiem | Sprawdzone na kopii bazy i po restarcie SQLite | Utrzymywać wersję schematu, `Superseded` i `Invalidated` | Kontrola regresyjna |
+| Korekta dwóch luk referencyjnych | Ręczny DELETE zniszczyłby dowód i audyt | Wykonana na kopii jako `AutomaticCrewReconstruction`; źródłowe luki zachowane jako rozliczone | Nie modyfikować oryginalnej bazy dowodowej | **Zamknięte na kopii** |
 | Ciągłość przez wiele rozliczonych luk | Długi rzeczywisty odpoczynek może pozostać rozbity | Osobny nierozstrzygnięty przypadek domenowy | Nie mieszać z beta.11.1 | P2 |
 | Log `APP_START_FAILED` pomija `InnerException` | Wydłuża diagnozę awarii EF/SQLite | Logowany jest tylko wyjątek zewnętrzny | Osobne zadanie diagnostyczne po gate'cie | P2 |
 | Numeracja dni w analizach surowych | Ryzyko fałszywego zgłoszenia błędu o jeden dzień | UI stosuje `floor(GameMinute / 1440) + 1` | Zawsze stosować `+1` przy porównaniu minut z UI/CSV/PDF | Procesowy |
@@ -381,9 +382,9 @@ Oba FIX-y mają osobne testy i commity, ale wspólny gate. Beta.11.1 nie może z
 
 **Wydanie**
 - beta.11 pozostaje wycofana;
-- następny numer to `0.1.0-beta.11.1`;
-- nowy artefakt musi mieć nowy ZIP i nowy SHA-256;
-- oba FIX-y muszą przejść wspólny gate.
+- obowiązujący numer to `0.1.0-beta.11.1`;
+- artefakt ma osobny ZIP i SHA-256;
+- oba FIX-y przeszły wspólny gate automatyczny.
 
 ### 10.2 Nadal nierozstrzygnięte poza bieżącym gate'em
 
@@ -469,26 +470,26 @@ Oba FIX-y mają osobne testy i commity, ale wspólny gate. Beta.11.1 nie może z
 
 **Wykonać osobisty smoke test terenowy na artefakcie beta.11.1, następnie zapisać decyzję GO / FIX / HOLD.**
 
-Kolejność obowiązująca:
+Zakończona kolejność techniczna i pozostały gate:
 
 ```text
-zamrożenie dowodów
-→ kontrakty domenowe
-→ czerwone testy Engine i RuleEngine
-→ dwa osobne FIX-y
-→ Application / persistence / UI / raporty
-→ korekta danych na kopii
-→ pełny gate automatyczny
-→ artefakt beta.11.1
+zamrożenie dowodów ✓
+→ kontrakty domenowe ✓
+→ czerwone testy Engine i RuleEngine ✓
+→ dwa osobne FIX-y ✓
+→ Application / persistence / UI / raporty ✓
+→ korekta danych na kopii ✓
+→ pełny gate automatyczny ✓
+→ artefakt beta.11.1 ✓
 → smoke terenowy
 → GO / FIX / HOLD
 ```
 
 Nie wykonywać obecnie:
 - smoke testu beta.11;
-- ręcznego rozliczania lub usuwania dwóch luk Dnia 141;
+- ręcznego rozliczania lub usuwania dwóch luk w oryginalnej bazie dowodowej;
 - implementacji Planera podróży;
-- pobocznych refaktorów niezwiązanych z oboma blockerami.
+- pobocznych refaktorów przed decyzją GO/FIX/HOLD.
 
 ---
 
@@ -498,14 +499,14 @@ Nie wykonywać obecnie:
 
 **Cel projektu:** ETS2 EU Digital Tachograph to aplikacja .NET 9/WPF/SQLite z natywnym pluginem C++ SCS Telemetry SDK. Prowadzi historię dwóch kart w `game_time`, wylicza reguły UE 561/2006, obsługuje cofnięcia i skoki czasu, luki, raporty oraz nakładki.
 
-**Status:** kandydat `0.1.0-beta.11` został wycofany przed smoke testem. Bazowy kod ma 262/262 testy i build Release 0/0, lecz dwa przypadki graniczne nie są pokryte. Docelowe wydanie naprawcze: `0.1.0-beta.11.1`.
+**Status:** kandydat `0.1.0-beta.11` został wycofany przed smoke testem. Wydanie naprawcze `0.1.0-beta.11.1` jest zbudowane i gotowe do osobistego smoke testu. Ma 282/282 zielone testy oraz build Release 0 błędów i 0 ostrzeżeń.
 
-**FIX A — rekompensaty:** beta.11 automatycznie traktuje zakończony blok 24 h+ jako tygodniowy, nawet gdy blok ma oznaczać 9 h odpoczynku bazowego z dołączoną rekompensatą. Przyjęto ręczną, audytowaną decyzję po zamknięciu bloku: RuleEngine generuje legalne `RestAllocationCandidate`, a użytkownik wybiera `CandidateId`. Staniek `29:53`: `DailyRestWithCompensation = 09:00 + 20:53`, stary dług spłacony, brak nowego; `ReducedWeeklyRestOnly` pozostawia stary dług i tworzy `15:07`. Doboś `28:52` analogicznie tworzy `16:08` w wariancie tygodniowym. `DailyRestOnly` nie istnieje dla bloku 24 h+. Zakaz podwójnego użycia minut.
+**FIX A — rekompensaty:** wdrożono ręczną, audytowaną decyzję po zamknięciu bloku 24 h+. RuleEngine generuje legalne `RestAllocationCandidate`, a użytkownik wybiera `CandidateId`. Staniek `29:53`: `DailyRestWithCompensation = 09:00 + 20:53`, stary dług spłacony, brak nowego; `ReducedWeeklyRestOnly` pozostawia stary dług i tworzy `15:07`. Doboś `28:52` analogicznie tworzy `16:08` w wariancie tygodniowym. `DailyRestOnly` nie istnieje dla bloku 24 h+. Zakaz podwójnego użycia minut.
 
-**FIX B — skoki załogi:** wspólny skok czasu jest obecnie oceniany niezależnie przez obie karty. Pozostawiono dwie luki referencyjne: Doboś S2, Dzień 141 `15:30–15:45`, gdy odpoczywał Staniek S1; oraz Staniek S1, Dzień 141 `18:56–19:15`, gdy odpoczywał Doboś S2. `CrewTachographEngine` ma klasyfikować skok raz i przekazywać obu kartom wspólny kontekst. Druga karta może zachować tylko własną stabilną aktywność `BreakOrRest`, `OtherWork` albo `Availability`; nigdy Jazdę, pusty slot ani kartę wyjętą.
+**FIX B — skoki załogi:** `CrewTachographEngine` klasyfikuje wspólny skok raz i przekazuje obu kartom wspólny kontekst. Druga karta zachowuje tylko własną stabilną aktywność `BreakOrRest`, `OtherWork` albo `Availability`; nigdy Jazdę, pusty slot ani kartę wyjętą. Dwie luki referencyjne Dnia 141 zostały audytowalnie rozliczone na kopii bazy jako `AutomaticCrewReconstruction`, bez usuwania źródłowego śladu.
 
 **Zasada nadrzędna:** historia minutowa pozostaje źródłem faktów. `RestAllocationDecision` jest audytowaną interpretacją sposobu wykorzystania zakończonego bloku i nie zmienia `ActivityRecord`.
 
-**Baseline:** 262/262; RuleEngine 55/55; Application 45/45; Reports 9/9; Infrastructure 48/48; build 0/0. Commit restartu SQLite: `87e2fdf`. Wycofany ZIP beta.11: SHA-256 `73217638efb6271588427a5e3ee889bc40116923c0cf66726e1596cdbc998bb1`.
+**Gate beta.11.1:** 282/282; Core 33, Telemetry.Scs 8, Engine 69, RuleEngine 62, Application 50, Reports 9, Infrastructure 51; build 0/0. Właściwy SHA-256 ZIP-a beta.11.1 znajduje się w pliku `.zip.sha256` obok paczki.
 
-**Najbliższe zadanie:** zabezpieczyć kopię i hash bazy z dwiema lukami, zaktualizować specyfikację i macierze, dodać czerwone testy obu FIX-ów, następnie wdrożyć je w osobnych commitach. Oba muszą przejść wspólny gate beta.11.1. Smoke test i Planer podróży pozostają wstrzymane do formalnego GO.
+**Najbliższe zadanie:** osobisty smoke test artefaktu beta.11.1 i zapis decyzji GO/FIX/HOLD. Planer podróży pozostaje wstrzymany do formalnego GO. Znany rozjazd prezentacji pauzy 44/45 min prowadzić jako osobny test-first hotfix.
