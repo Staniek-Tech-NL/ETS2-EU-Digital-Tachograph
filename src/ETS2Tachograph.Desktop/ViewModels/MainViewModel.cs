@@ -961,7 +961,6 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         }
         var displayedActivity = snapshot.ProvisionalActivity ?? snapshot.ManualActivity;
         var isResting = IsCardInserted && displayedActivity == DriverActivity.BreakOrRest;
-        var now = snapshot.GameTime?.TotalMinutes;
 
         if (!isResting)
         {
@@ -973,18 +972,11 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             return;
         }
 
-        if (now is not null && (_restStartedAtGameMinute is null || now.Value < _restStartedAtGameMinute.Value))
-            _restStartedAtGameMinute = now.Value;
-
-        var elapsed = now is not null && _restStartedAtGameMinute is not null
-            ? Math.Max(0, now.Value - _restStartedAtGameMinute.Value)
-            : 0;
-        var remaining = Math.Max(0, SelectedRestTarget.Minutes - elapsed);
-
-        RestElapsed = Format(elapsed);
-        RestRemaining = Format(remaining);
-        RestProgressPercent = Math.Min(100, elapsed * 100d / SelectedRestTarget.Minutes);
-        RestStatus = remaining == 0 ? "ZALICZONA" : "W TRAKCIE";
+        var projection = ProjectRestCounter(snapshot, SelectedRestTarget.Minutes);
+        RestElapsed = projection.Elapsed;
+        RestRemaining = projection.Remaining;
+        RestProgressPercent = projection.ProgressPercent;
+        RestStatus = projection.Status;
     }
 
     private void UpdateRestCounters2(CrewTachographSnapshot crewSnapshot)
@@ -1025,7 +1017,6 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
         var activity = snapshot.ProvisionalActivity ?? snapshot.ManualActivity;
         var isResting = IsCard2Inserted && activity == DriverActivity.BreakOrRest;
-        var now = snapshot.GameTime?.TotalMinutes;
         if (!isResting)
         {
             _restStartedAtGameMinute2 = null;
@@ -1033,14 +1024,28 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             RestProgressPercent2 = 0; RestStatus2 = "OCZEKUJE";
             return;
         }
-        if (now is not null && (_restStartedAtGameMinute2 is null || now.Value < _restStartedAtGameMinute2.Value))
-            _restStartedAtGameMinute2 = now.Value;
-        var elapsed = now is not null && _restStartedAtGameMinute2 is not null
-            ? Math.Max(0, now.Value - _restStartedAtGameMinute2.Value) : 0;
-        var remaining = Math.Max(0, SelectedRestTarget2.Minutes - elapsed);
-        RestElapsed2 = Format(elapsed); RestRemaining2 = Format(remaining);
-        RestProgressPercent2 = Math.Min(100, elapsed * 100d / SelectedRestTarget2.Minutes);
-        RestStatus2 = remaining == 0 ? "ZALICZONA" : "W TRAKCIE";
+        var projection = ProjectRestCounter(snapshot, SelectedRestTarget2.Minutes);
+        RestElapsed2 = projection.Elapsed;
+        RestRemaining2 = projection.Remaining;
+        RestProgressPercent2 = projection.ProgressPercent;
+        RestStatus2 = projection.Status;
+    }
+
+    internal static (
+        string Elapsed,
+        string Remaining,
+        double ProgressPercent,
+        string Status) ProjectRestCounter(
+        TachographSnapshot snapshot,
+        int targetMinutes)
+    {
+        var elapsed = snapshot.Regulation?.State.CurrentContinuousBreakMinutes ?? 0;
+        var remaining = Math.Max(0, targetMinutes - elapsed);
+        return (
+            Format(elapsed),
+            Format(remaining),
+            Math.Min(100, elapsed * 100d / targetMinutes),
+            elapsed >= targetMinutes ? "ZALICZONA" : "W TRAKCIE");
     }
 
     private void ToggleOutMode()

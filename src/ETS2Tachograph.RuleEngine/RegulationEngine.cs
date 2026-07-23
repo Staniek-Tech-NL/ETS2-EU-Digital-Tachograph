@@ -50,6 +50,12 @@ public sealed class RegulationEngine
         var previousBounds = HistoryAnalysis.WeekBounds(previousWeek, options.WeekEpochOffsetDays);
 
         var continuousDriving = ContinuousDriving(runs);
+        var currentBreak =
+            runs.Count > 0 &&
+            runs[^1].Activity == DriverActivity.BreakOrRest &&
+            runs[^1].EndExclusive == context.Now
+                ? runs[^1].DurationMinutes
+                : 0;
         var qualifiedRestRuns = QualifiedDailyRestRuns(runs);
         var qualifiedRestSet = qualifiedRestRuns.ToHashSet();
         var compensationProjection = ProjectCompensations(
@@ -93,6 +99,7 @@ public sealed class RegulationEngine
         var state = new RegulationState
         {
             ContinuousDrivingMinutes = continuousDriving,
+            CurrentContinuousBreakMinutes = currentBreak,
             DailyDrivingMinutes = dailyDriving,
             DailyWorkMinutes = DailyWorkSince(runs, dailyAnchor),
             WeeklyDrivingMinutes = weeklyDriving,

@@ -5,6 +5,7 @@ namespace ETS2Tachograph.RuleEngine;
 public sealed record RegulationState
 {
     public long ContinuousDrivingMinutes { get; init; }
+    public long CurrentContinuousBreakMinutes { get; init; }
     public long DailyDrivingMinutes { get; init; }
     public long DailyWorkMinutes { get; init; }
     public long WeeklyDrivingMinutes { get; init; }
