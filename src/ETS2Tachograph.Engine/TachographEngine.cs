@@ -35,15 +35,26 @@ public sealed class TachographEngine : ITachographEngine
     public TachographSnapshot ProcessFrame(TelemetryFrame frame) =>
         ProcessFrame(frame, frame.SpeedKph, slot: 1);
 
-    internal TachographSnapshot ProcessFrame(TelemetryFrame frame, double vehicleSpeedKph, int slot)
+    internal TachographSnapshot ProcessFrame(
+        TelemetryFrame frame,
+        double vehicleSpeedKph,
+        int slot,
+        CrewTimeJumpResolution? crewTimeJumpResolution = null)
     {
         // An inserted card closes a restored open CardRemoved gap at the first
         // trustworthy game minute. A rollback before its start leaves it on the
         // abandoned source branch and Process opens a clean activity branch.
         var closedGap = _history.CloseCardRemoved(frame.GameTime);
-        var processed = _history.Process(frame, vehicleSpeedKph, slot);
+        var processed = _history.Process(
+            frame,
+            vehicleSpeedKph,
+            slot,
+            crewTimeJumpResolution);
         return ApplyUpdate(frame, Merge(closedGap, processed), frame.GameTime);
     }
+
+    internal DriverActivity? StableActivityForCrewJump(TelemetryFrame frame) =>
+        _history.StableActivityForCrewJump(frame);
 
     public TachographSnapshot Flush(DateTimeOffset recordedAtUtc)
     {

@@ -242,6 +242,7 @@ public sealed class CrewTachographEngine
     public CrewTachographSnapshot ProcessFrame(TelemetryFrame frame)
     {
         ArgumentNullException.ThrowIfNull(frame);
+        var previousFrame = _lastFrame;
         _lastFrame = frame;
         if (!frame.GamePaused)
             _lastValidGameTime = frame.GameTime;
@@ -250,17 +251,37 @@ public sealed class CrewTachographEngine
         TachographSnapshot? driver = null;
         TachographSnapshot? coDriver = null;
         var detachedCardUpdates = new List<CardSnapshotUpdate>();
-        if (GetEngine(TachographSlot.Driver) is { } driverEngine)
-            driver = driverEngine.ProcessFrame(frame);
-
-        if (GetEngine(TachographSlot.CoDriver) is { } coDriverEngine)
+        var driverEngine = GetEngine(TachographSlot.Driver);
+        var coDriverEngine = GetEngine(TachographSlot.CoDriver);
+        DriverActivity? coDriverActivity = null;
+        if (coDriverEngine is not null)
         {
-            var coDriverActivity = ResolveCoDriverActivity(frame);
-            coDriverEngine.SetManualActivity(coDriverActivity);
+            coDriverActivity = ResolveCoDriverActivity(frame);
+            coDriverEngine.SetManualActivity(coDriverActivity.Value);
+        }
+
+        var crewTimeJumpResolution = ResolveCrewTimeJump(
+            previousFrame,
+            frame,
+            driverEngine,
+            coDriverEngine);
+
+        if (driverEngine is not null)
+        {
+            driver = driverEngine.ProcessFrame(
+                frame,
+                frame.SpeedKph,
+                slot: (int)TachographSlot.Driver,
+                crewTimeJumpResolution);
+        }
+
+        if (coDriverEngine is not null)
+        {
             coDriver = coDriverEngine.ProcessFrame(
                 frame with { SpeedKph = 0 },
                 vehicleSpeedKph: frame.SpeedKph,
-                slot: (int)TachographSlot.CoDriver);
+                slot: (int)TachographSlot.CoDriver,
+                crewTimeJumpResolution);
         }
 
         foreach (var (cardId, removedFromSlot) in _removedCards.ToList())
@@ -271,6 +292,45 @@ public sealed class CrewTachographEngine
 
         Current = BuildSnapshot(frame, driver, coDriver, detachedCardUpdates);
         return Current;
+    }
+
+    private CrewTimeJumpResolution? ResolveCrewTimeJump(
+        TelemetryFrame? previousFrame,
+        TelemetryFrame frame,
+        TachographEngine? driverEngine,
+        TachographEngine? coDriverEngine)
+    {
+        if (previousFrame is null ||
+            driverEngine is null ||
+            coDriverEngine is null ||
+            previousFrame.GamePaused ||
+            frame.GamePaused ||
+            frame.GameTime - previousFrame.GameTime <= 2 ||
+            frame.GameTime <= previousFrame.GameTime ||
+            frame.WorldGeneration != previousFrame.WorldGeneration ||
+            frame.CargoOperationGeneration != previousFrame.CargoOperationGeneration ||
+            IsVehicleMoving(previousFrame.SpeedKph) ||
+            IsVehicleMoving(frame.SpeedKph))
+        {
+            return null;
+        }
+
+        var activities = new Dictionary<int, DriverActivity?>
+        {
+            [(int)TachographSlot.Driver] =
+                driverEngine.StableActivityForCrewJump(frame),
+            [(int)TachographSlot.CoDriver] =
+                coDriverEngine.StableActivityForCrewJump(frame with { SpeedKph = 0 })
+        };
+        var explainedByCrewRest = activities.Values.Any(
+            activity => activity == DriverActivity.BreakOrRest);
+
+        return new CrewTimeJumpResolution(
+            previousFrame.GameTime.TotalMinutes + 1,
+            frame.GameTime.TotalMinutes,
+            VehicleStationaryBeforeAndAfter: true,
+            explainedByCrewRest,
+            activities);
     }
 
     private DriverActivity ResolveCoDriverActivity(TelemetryFrame frame)
@@ -329,6 +389,9 @@ public sealed class CrewTachographEngine
             pair.Value.SetMultiManning(active && inserted);
         }
     }
+
+    private bool IsVehicleMoving(double speedKph) =>
+        Math.Abs(speedKph) > _settings.DrivingSpeedThresholdKph;
 
     private void EnsureManualEntryResolved(TachographSlot slot)
     {

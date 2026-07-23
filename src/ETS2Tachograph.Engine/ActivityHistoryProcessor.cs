@@ -407,7 +407,11 @@ public sealed class ActivityHistoryProcessor
     public ActivityHistoryUpdate Process(TelemetryFrame frame) =>
         Process(frame, frame.SpeedKph, slot: 1);
 
-    internal ActivityHistoryUpdate Process(TelemetryFrame frame, double vehicleSpeedKph, int slot)
+    internal ActivityHistoryUpdate Process(
+        TelemetryFrame frame,
+        double vehicleSpeedKph,
+        int slot,
+        CrewTimeJumpResolution? crewTimeJumpResolution = null)
     {
         ArgumentNullException.ThrowIfNull(frame);
         if (slot is not (1 or 2))
@@ -563,6 +567,16 @@ public sealed class ActivityHistoryProcessor
                 // tachograph pictogram for the driver.
                 missingMinutesActivity = reconstructionActivity;
             }
+            else if (CanApplyCrewTimeJumpResolution(
+                         crewTimeJumpResolution,
+                         slot,
+                         previousMinute,
+                         frame.GameTime,
+                         reconstructionActivity.Value,
+                         activity))
+            {
+                missingMinutesActivity = reconstructionActivity;
+            }
             else if (CanReconstructLongRest(
                          reconstructionActivity.Value,
                          activity,
@@ -682,6 +696,41 @@ public sealed class ActivityHistoryProcessor
         previousVehicleSpeedKph is not null &&
         !IsVehicleMoving(previousVehicleSpeedKph.Value) &&
         !IsVehicleMoving(currentVehicleSpeedKph);
+
+    internal DriverActivity? StableActivityForCrewJump(TelemetryFrame frame)
+    {
+        var previousActivity = _lastActivity ?? _activityBeforePause;
+        var currentActivity = SelectActivity(frame);
+        return previousActivity is not null && previousActivity.Value == currentActivity
+            ? currentActivity
+            : null;
+    }
+
+    private static bool CanApplyCrewTimeJumpResolution(
+        CrewTimeJumpResolution? resolution,
+        int slot,
+        GameTime previousMinute,
+        GameTime currentMinute,
+        DriverActivity previousActivity,
+        DriverActivity currentActivity)
+    {
+        if (resolution is null ||
+            !resolution.VehicleStationaryBeforeAndAfter ||
+            !resolution.ExplainedByCrewRest ||
+            resolution.StartGameMinute != previousMinute.TotalMinutes + 1 ||
+            resolution.EndGameMinuteExclusive != currentMinute.TotalMinutes ||
+            previousActivity != currentActivity ||
+            !resolution.ReconstructedActivities.TryGetValue(slot, out var resolvedActivity) ||
+            resolvedActivity != currentActivity)
+        {
+            return false;
+        }
+
+        return resolvedActivity is
+            DriverActivity.BreakOrRest or
+            DriverActivity.OtherWork or
+            DriverActivity.Availability;
+    }
 
     private bool VehicleWasAndIsStopped(
         double? previousVehicleSpeedKph,

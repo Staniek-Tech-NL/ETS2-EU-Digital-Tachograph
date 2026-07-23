@@ -186,6 +186,111 @@ public sealed class CrewTachographEngineTests
     }
 
     [Fact]
+    public void Crew_jump_01_slot_one_rest_reconstructs_stable_slot_two_activity_without_gap()
+    {
+        var crew = Crew();
+        crew.SetManualActivity(TachographSlot.Driver, DriverActivity.BreakOrRest);
+        crew.SetManualActivity(TachographSlot.CoDriver, DriverActivity.OtherWork);
+        crew.ProcessFrame(Frame(202_529, 0));
+
+        var jumped = crew.ProcessFrame(Frame(202_545, 0));
+        crew.ProcessFrame(Frame(202_546, 0));
+
+        Assert.Empty(jumped.Driver!.CreatedGaps);
+        Assert.Empty(jumped.CoDriver!.CreatedGaps);
+        Assert.Equal(
+            15,
+            crew.GetEngine("CARD-A")!.History.CurrentTimeline.Records.Where(record =>
+                record.Start >= new GameTime(202_530) &&
+                record.EndExclusive <= new GameTime(202_545) &&
+                record.Activity == DriverActivity.BreakOrRest &&
+                record.Source == ActivitySource.Reconstructed).Sum(record => record.DurationMinutes));
+        Assert.Equal(
+            15,
+            crew.GetEngine("CARD-B")!.History.CurrentTimeline.Records.Where(record =>
+                record.Start >= new GameTime(202_530) &&
+                record.EndExclusive <= new GameTime(202_545) &&
+                record.Activity == DriverActivity.OtherWork &&
+                record.Source == ActivitySource.Reconstructed).Sum(record => record.DurationMinutes));
+    }
+
+    [Fact]
+    public void Crew_jump_02_slot_two_rest_reconstructs_stable_slot_one_activity_without_gap()
+    {
+        var crew = Crew();
+        crew.SetManualActivity(TachographSlot.Driver, DriverActivity.Availability);
+        crew.SetManualActivity(TachographSlot.CoDriver, DriverActivity.BreakOrRest);
+        crew.ProcessFrame(Frame(202_735, 0));
+
+        var jumped = crew.ProcessFrame(Frame(202_755, 0));
+        crew.ProcessFrame(Frame(202_756, 0));
+
+        Assert.Empty(jumped.Driver!.CreatedGaps);
+        Assert.Empty(jumped.CoDriver!.CreatedGaps);
+        Assert.Equal(
+            19,
+            crew.GetEngine("CARD-A")!.History.CurrentTimeline.Records.Where(record =>
+                record.Start >= new GameTime(202_736) &&
+                record.EndExclusive <= new GameTime(202_755) &&
+                record.Activity == DriverActivity.Availability &&
+                record.Source == ActivitySource.Reconstructed).Sum(record => record.DurationMinutes));
+        Assert.Equal(
+            19,
+            crew.GetEngine("CARD-B")!.History.CurrentTimeline.Records.Where(record =>
+                record.Start >= new GameTime(202_736) &&
+                record.EndExclusive <= new GameTime(202_755) &&
+                record.Activity == DriverActivity.BreakOrRest &&
+                record.Source == ActivitySource.Reconstructed).Sum(record => record.DurationMinutes));
+    }
+
+    [Fact]
+    public void Crew_jump_without_rest_preserves_safe_gap_policy()
+    {
+        var crew = Crew();
+        crew.SetManualActivity(TachographSlot.Driver, DriverActivity.OtherWork);
+        crew.SetManualActivity(TachographSlot.CoDriver, DriverActivity.Availability);
+        crew.ProcessFrame(Frame(100, 0));
+
+        var jumped = crew.ProcessFrame(Frame(120, 0));
+
+        Assert.Single(jumped.Driver!.CreatedGaps);
+        Assert.Single(jumped.CoDriver!.CreatedGaps);
+    }
+
+    [Fact]
+    public void Crew_rest_jump_does_not_reconstruct_driving_on_other_card()
+    {
+        var crew = Crew();
+        crew.ProcessFrame(Frame(100, 30));
+        crew.StartCoDriverMovingBreak();
+
+        var jumped = crew.ProcessFrame(Frame(120, 30));
+
+        Assert.Single(jumped.Driver!.CreatedGaps);
+        Assert.Single(jumped.CoDriver!.CreatedGaps);
+        Assert.DoesNotContain(
+            crew.GetEngine("CARD-A")!.History.CurrentTimeline.Records,
+            record => record.Start > new GameTime(100) &&
+                      record.Start < new GameTime(120) &&
+                      record.Activity == DriverActivity.Driving);
+    }
+
+    [Fact]
+    public void Crew_rest_jump_with_changed_other_activity_creates_gap_for_changed_card()
+    {
+        var crew = Crew();
+        crew.SetManualActivity(TachographSlot.Driver, DriverActivity.BreakOrRest);
+        crew.SetManualActivity(TachographSlot.CoDriver, DriverActivity.Availability);
+        crew.ProcessFrame(Frame(100, 0));
+        crew.SetManualActivity(TachographSlot.CoDriver, DriverActivity.OtherWork);
+
+        var jumped = crew.ProcessFrame(Frame(120, 0));
+
+        Assert.Empty(jumped.Driver!.CreatedGaps);
+        Assert.Single(jumped.CoDriver!.CreatedGaps);
+    }
+
+    [Fact]
     public void Cards_are_reassigned_by_ejecting_and_inserting_into_opposite_slots()
     {
         var crew = Crew();
