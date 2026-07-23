@@ -15,12 +15,15 @@ roboczym:
   tylko dla kompletnego planu;
 - naprawiono błąd startowy WPF spowodowany dwukierunkowymi powiązaniami
   właściwości tylko do odczytu;
-- poprawiono kontrast tekstu list rozwijanych edytora segmentu.
+- poprawiono kontrast tekstu list rozwijanych edytora segmentu;
+- naprawiono licznik celu pauzy 44/45: Dashboard, urządzenie i overlay odczytują
+  długość bieżącego, ciągłego bloku `BreakOrRest` z RuleEngine zamiast czasu od
+  kliknięcia; dedykowana przerwa slotu 2 podczas jazdy pozostaje bez zmian.
 
 ## Weryfikacja lokalna
 
-- 310/310 testów automatycznych w konfiguracji Release;
-- Desktop 28/28;
+- 315/315 testów automatycznych;
+- RuleEngine 65/65, Desktop 30/30;
 - build Release: 0 błędów, 0 ostrzeżeń;
 - rzeczywisty start aplikacji potwierdzony diagnostycznie;
 - nie utworzono ani nie opublikowano nowej paczki beta.

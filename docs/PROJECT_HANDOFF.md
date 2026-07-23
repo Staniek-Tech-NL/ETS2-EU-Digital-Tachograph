@@ -2,10 +2,10 @@
 
 **Baza wydaniowa:** 0.1.0-beta.11.1 — bez nowej publikacji
 **Data przygotowania dokumentu:** 20 lipca 2026
-**Ostatnia aktualizacja:** 23 lipca 2026 — smoke beta.11.1 zielony, decyzja GO
+**Ostatnia aktualizacja:** 24 lipca 2026 — lokalny hotfix licznika pauzy 44/45
 **Bieżący stan lokalny:** wariant B wpisu manualnego, katalog ISO i korekta
-`ODP. TYG.` wdrożone; 310/310 testów Release, build 0/0, start aplikacji
-potwierdzony
+`ODP. TYG.` oraz hotfix licznika pauzy wdrożone; 315/315 testów, build Release
+0/0
 **Przeznaczenie:** pakiet startowy dla nowej sesji AI / nowego okna kontekstowego
 
 ---
@@ -21,11 +21,11 @@ Użytkownikiem docelowym jest gracz ETS2 ceniący realizm (w tym społeczność 
 **Aktualny etap:** opublikowaną bazą pozostaje **0.1.0-beta.11.1**.
 Późniejsze zmiany są lokalne i nie stanowią nowej bety. Obejmują wariant B
 wpisu manualnego, pełny katalog ISO 3166-1, osobny kod tachografowy i
-formatowanie `ODP. TYG.`. Stan automatyczny bieżącego drzewa: `310/310`,
-build Release 0 błędów i 0 ostrzeżeń. Start aplikacji po zmianach XAML został
-potwierdzony. Końcowy smoke artefaktu beta.11.1 z aktywną telemetrią został
-zaliczony 23 lipca 2026; decyzja wydaniowa: **GO**. Planer pozostaje wstrzymany
-do osobnej decyzji o rozpoczęciu prac.
+formatowanie `ODP. TYG.` oraz hotfix licznika pauzy 44/45. Stan automatyczny
+bieżącego drzewa: `315/315`, build Release 0 błędów i 0 ostrzeżeń. Końcowy
+smoke artefaktu beta.11.1 z aktywną telemetrią został zaliczony 23 lipca 2026;
+decyzja wydaniowa: **GO**. Hotfix nie został dołączony do zamrożonego artefaktu.
+Planer pozostaje wstrzymany do osobnej decyzji o rozpoczęciu prac.
 
 ---
 
@@ -282,8 +282,9 @@ ETS2 EU Digital Tachograph/
   - luka przycięta przez późniejszą gałąź czasu (beta.3→beta.4)
   - nakładające się minuty między sesjami blokujące start aplikacji (`SQLite Error 19`) — beta.10.1
   - sumowanie okruchów rekompensaty z wielu odpoczynków — beta.11
-- **310/310 testów automatycznych** (Core 33, Telemetry.Scs 8, Engine 69,
-  RuleEngine 62, Application 50, Reports 9, Infrastructure 51, Desktop 28)
+  - licznik pauzy UI wyprzedzający RuleEngine na granicy 44/45 — lokalny hotfix
+- **315/315 testów automatycznych** (Core 33, Telemetry.Scs 8, Engine 69,
+  RuleEngine 65, Application 50, Reports 9, Infrastructure 51, Desktop 30)
 - Kompilacja Release: 0 błędów, 0 ostrzeżeń
 - Dwa długie scenariusze terenowe potwierdzone w rzeczywistej grze (2h+7h=9h odpoczynku; wariant tygodniowy 45h)
 - Wydania beta.4 → beta.11 z artefaktami i sumami SHA-256; beta.11 ma poprawny `ProductVersion`, ale została wycofana przed smoke testem i nie jest obowiązującą wersją testową
@@ -376,7 +377,7 @@ Oba FIX-y mają osobne testy i commity oraz przeszły wspólny gate beta.11.1.
 | Automatyczna klasyfikacja bloku 24 h+ hostującego rekompensatę | Błędna spłata starego długu i powstanie nowego zobowiązania | Naprawione: kandydatury RuleEngine i audytowana decyzja użytkownika | Utrzymywać regresje ALC-01–08 | **Zamknięte w beta.11.1** |
 | Fałszywe luki drugiej karty podczas wspólnego skoku | Niekompletna historia, błędne raporty i konieczność zbędnego wpisu manualnego | Naprawione: wspólny `CrewTimeJumpResolution` i symetryczne regresje Dnia 141 | Utrzymywać zabezpieczenia Jazdy, pustego slotu, karty wyjętej i zmiany aktywności | **Zamknięte w beta.11.1** |
 | Nierozstrzygnięta alokacja odpoczynku | Stan regulacyjny i Planer mogą zależeć od interpretacji użytkownika | Brak zapisanej `RestAllocationDecision` | Status `PendingRestAllocation`, ostrzeżenie, brak automatycznej spłaty i blokada wiarygodnego planowania | P1 |
-| Licznik pauzy UI 44/45 min | Dashboard lub overlay może pokazać zaliczenie minutę przed RuleEngine | Początek pauzy w środku minuty i reguła jednej minuty | Osobny czerwony test `41 reconstructed + 3 telemetry = 44`; nie zmieniać progu RuleEngine | P1 |
+| Licznik pauzy UI 44/45 min | Dashboard lub overlay pokazywał zaliczenie minutę przed RuleEngine | Naprawione lokalnie: `CurrentContinuousBreakMinutes` z bieżącego bloku po regule jednej minuty | Utrzymywać testy graniczne 41+3=44 i 45=reset; moving break slotu 2 pozostawić osobno | **Zamknięte lokalnie 2026-07-24** |
 | Migracja i trwałość decyzji alokacji | Ryzyko utraty wyboru lub związania go ze zmienionym blokiem | Sprawdzone na kopii bazy i po restarcie SQLite | Utrzymywać wersję schematu, `Superseded` i `Invalidated` | Kontrola regresyjna |
 | Korekta dwóch luk referencyjnych | Ręczny DELETE zniszczyłby dowód i audyt | Wykonana na kopii jako `AutomaticCrewReconstruction`; źródłowe luki zachowane jako rozliczone | Nie modyfikować oryginalnej bazy dowodowej | **Zamknięte na kopii** |
 | Ciągłość przez wiele rozliczonych luk | Długi rzeczywisty odpoczynek może pozostać rozbity | Osobny nierozstrzygnięty przypadek domenowy | Nie mieszać z beta.11.1 | P2 |
@@ -527,8 +528,9 @@ Nie wykonywać obecnie:
 
 **Status:** bazą wydaniową pozostaje `0.1.0-beta.11.1`. Bieżący katalog
 roboczy zawiera nieopublikowany wariant B wpisu manualnego, katalog ISO oraz
-korektę `ODP. TYG.`. Ma 310/310 zielonych testów i build Release 0/0.
-Nie tworzyć ani nie publikować nowej bety bez osobnej decyzji.
+korektę `ODP. TYG.` i hotfix licznika pauzy 44/45. Ma 315/315 zielonych testów
+i build Release 0/0. Nie tworzyć ani nie publikować nowej bety bez osobnej
+decyzji.
 
 **FIX A — rekompensaty:** wdrożono ręczną, audytowaną decyzję po zamknięciu bloku 24 h+. RuleEngine generuje legalne `RestAllocationCandidate`, a użytkownik wybiera `CandidateId`. Staniek `29:53`: `DailyRestWithCompensation = 09:00 + 20:53`, stary dług spłacony, brak nowego; `ReducedWeeklyRestOnly` pozostawia stary dług i tworzy `15:07`. Doboś `28:52` analogicznie tworzy `16:08` w wariancie tygodniowym. `DailyRestOnly` nie istnieje dla bloku 24 h+. Zakaz podwójnego użycia minut.
 
@@ -541,6 +543,12 @@ Nie tworzyć ani nie publikować nowej bety bez osobnej decyzji.
 **Gate terenowy:** smoke artefaktu beta.11.1 z aktywną telemetrią zaliczony
 23 lipca 2026; wszystkie testy zielone, decyzja **GO**.
 
-**Najbliższe zadanie:** wybrać osobny kolejny zakres prac. Planer podróży
-pozostaje wstrzymany do decyzji właściciela projektu. Znany rozjazd prezentacji
-pauzy 44/45 min prowadzić jako osobny test-first hotfix.
+**Hotfix licznika pauzy:** `RegulationState.CurrentContinuousBreakMinutes`
+wyznacza długość bieżącego bloku `BreakOrRest` sięgającego `Now`. Liczniki UI
+slotów 1 i 2 korzystają z tej wartości; moving break slotu 2 pozostał bez zmian.
+Gate po hotfixie: 315/315, build Release 0/0. Raport:
+`BUGFIX_REPORT_QUALIFIED_BREAK_COUNTER_2026-07-24.md`.
+
+**Najbliższe zadanie:** wykonać manualną weryfikację wizualną 44→45 w ETS2 albo
+wybrać osobny kolejny zakres prac. Planer podróży pozostaje wstrzymany do
+decyzji właściciela projektu.

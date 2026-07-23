@@ -6,11 +6,24 @@
 
 Opublikowaną bazą pozostaje beta.11.1. Bieżący kod zawiera również
 nieopublikowane zmiany lokalne UI: wariant B wpisu manualnego, katalog krajów
-ISO i korektę prezentacji `ODP. TYG.`. Lokalny gate Release wynosi 310/310.
+ISO, korektę prezentacji `ODP. TYG.` oraz hotfix licznika pauzy 44/45.
+Lokalny gate wynosi 315/315, a build Release ma 0 błędów i 0 ostrzeżeń.
 Artefakt beta.11.1 przeszedł końcowy smoke z aktywną telemetrią 23 lipca 2026;
 wszystkie testy były zielone, a decyzja wydaniowa brzmi **GO**.
 Nowe błędy z testów należy dopisywać razem ze statusem `lokalne` albo numerem
 wydanej paczki i raportem diagnostycznym.
+
+## Naprawione lokalnie po beta.11.1
+
+- Licznik celu pauzy nie korzysta już z czasu od kliknięcia w UI.
+  `RegulationState.CurrentContinuousBreakMinutes` wskazuje długość bieżącego,
+  ciągłego bloku `BreakOrRest` po regule jednej minuty.
+- Dashboard, urządzenie i overlay dla slotów 1 i 2 pokazują ten sam stan co
+  RuleEngine. Referencyjne `41 min reconstructed + 3 min telemetry` daje
+  `00:44`, `00:01` do celu i status `W TRAKCIE`; 45. minuta daje `ZALICZONA`.
+- Dedykowana przerwa slotu 2 podczas jazdy nadal korzysta z osobnej logiki
+  `CrewTachographEngine` i nie została zmieniona.
+- Raport naprawy: `docs/BUGFIX_REPORT_QUALIFIED_BREAK_COUNTER_2026-07-24.md`.
 
 ## Naprawione w beta.11.1
 
@@ -77,12 +90,6 @@ wydanej paczki i raportem diagnostycznym.
 
 ## Aplikacja i dystrybucja
 
-- Licznik celu pauzy w UI może w przypadku zmiany aktywności wewnątrz minuty
-  wyprzedzić historię zatwierdzoną przez regułę jednej minuty o jedną minutę.
-  RuleEngine nie resetuje jazdy przed faktycznym osiągnięciem 45 minut; ryzyko
-  dotyczy napisu `ZALICZONA` i pól czasu na Dashboardzie/overlay. Przypadek
-  referencyjny do osobnego hotfixu: `41 min reconstructed + 3 min telemetry =
-  44 min`.
 - Blokada wymaganego wpisu manualnego dotyczy stanu tachografu. Oficjalna
   telemetria SCS jest tylko do odczytu, więc aplikacja nie może fizycznie zatrzymać
   ciężarówki w ETS2; próba ruchu jest nadal zapisywana jako jazda.

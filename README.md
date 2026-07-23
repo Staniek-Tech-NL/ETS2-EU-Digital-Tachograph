@@ -12,8 +12,9 @@ kierowców i wylicza liczniki zgodnie z zaimplementowanym zakresem reguł.
 - opublikowaną bazą wersjonowaną pozostaje `0.1.0-beta.11.1`;
 - końcowy smoke beta.11.1 z aktywną telemetrią zaliczony 23 lipca 2026 —
   wszystkie testy zielone, decyzja **GO**;
-- bieżące zmiany UI są wdrożone wyłącznie lokalnie i nie tworzą nowej wersji beta;
-- lokalny gate Release: **310/310 testów**, 0 błędów i 0 ostrzeżeń;
+- bieżące zmiany UI oraz hotfix licznika pauzy 44/45 są wdrożone wyłącznie
+  lokalnie i nie tworzą nowej wersji beta;
+- lokalny gate: **315/315 testów**, build Release 0 błędów i 0 ostrzeżeń;
 - aplikacja została uruchomiona diagnostycznie po ostatnich zmianach XAML.
 
 ## Podgląd
@@ -45,6 +46,8 @@ kierowców i wylicza liczniki zgodnie z zaimplementowanym zakresem reguł.
   odpoczynku, pracy i dyspozycyjności, automatyczne dzielenie oraz scalanie;
 - licznik `ODP. TYG.` prezentowany jako liczba zakończonych okresów 24 h
   z dokładnym czasem telemetrycznym, np. `3/6 (89:39)`;
+- licznik celu pauzy na Dashboardzie, urządzeniu i overlay korzysta z bieżącego,
+  ciągłego bloku `BreakOrRest` zakwalifikowanego przez RuleEngine;
 - nakładki `S1` i `S2`, zapamiętujące osobne położenie;
 - trwała baza SQLite, import/eksport `.tacho`, surowy CSV, VTC JSON i raport PDF;
 - raport diagnostyczny ZIP do beta-testów;
