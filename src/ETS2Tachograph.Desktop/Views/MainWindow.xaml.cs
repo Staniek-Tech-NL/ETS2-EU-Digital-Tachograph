@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 
@@ -23,6 +24,8 @@ public partial class MainWindow : Window
     private readonly OverlayWindow _overlay2;
     private DateTime _driver1PressedAt;
     private DateTime _driver2PressedAt;
+    private string _countrySearchText = string.Empty;
+    private DateTime _countrySearchUpdatedAtUtc = DateTime.MinValue;
     private HwndSource? _windowSource;
 
     public MainWindow(MainViewModel viewModel)
@@ -54,6 +57,59 @@ public partial class MainWindow : Window
         var command = DateTime.UtcNow - _driver2PressedAt >= TimeSpan.FromSeconds(3)
             ? viewModel.EjectCard2Command : viewModel.Driver2ActivityCommand;
         if (command.CanExecute(null)) command.Execute(null);
+    }
+
+    private void ManualEntryPlan_DoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not DataGrid { SelectedItem: ManualEntrySegmentRow segment } ||
+            DataContext is not MainViewModel viewModel)
+        {
+            return;
+        }
+
+        if (viewModel.EditManualEntrySegmentCommand.CanExecute(segment))
+            viewModel.EditManualEntrySegmentCommand.Execute(segment);
+    }
+
+    private void CountryComboBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+    {
+        if (sender is not ComboBox comboBox || string.IsNullOrWhiteSpace(e.Text)) return;
+
+        var now = DateTime.UtcNow;
+        if (now - _countrySearchUpdatedAtUtc > TimeSpan.FromSeconds(1))
+            _countrySearchText = string.Empty;
+
+        var searchText = _countrySearchText + e.Text.Trim();
+        var match = FindCountryMatch(comboBox, searchText);
+        if (match is null)
+        {
+            searchText = e.Text.Trim();
+            match = FindCountryMatch(comboBox, searchText);
+        }
+        if (match is null) return;
+
+        _countrySearchText = searchText;
+        _countrySearchUpdatedAtUtc = now;
+        comboBox.SelectedItem = match;
+        comboBox.IsDropDownOpen = true;
+        e.Handled = true;
+    }
+
+    private static CountryOption? FindCountryMatch(ComboBox comboBox, string searchText)
+    {
+        var countries = comboBox.Items.OfType<CountryOption>().ToList();
+        return countries.FirstOrDefault(country =>
+                   string.Equals(country.IsoAlpha2, searchText, StringComparison.CurrentCultureIgnoreCase))
+               ?? countries.FirstOrDefault(country =>
+                   country.TachographCode is not ("EUR" or "WLD") &&
+                   string.Equals(country.TachographCode, searchText, StringComparison.CurrentCultureIgnoreCase))
+               ?? countries.FirstOrDefault(country =>
+                   country.IsoAlpha2.StartsWith(searchText, StringComparison.CurrentCultureIgnoreCase))
+               ?? countries.FirstOrDefault(country =>
+                   country.DisplayName.StartsWith(searchText, StringComparison.CurrentCultureIgnoreCase))
+               ?? countries.FirstOrDefault(country =>
+                   country.TachographCode is not ("EUR" or "WLD") &&
+                   country.TachographCode.StartsWith(searchText, StringComparison.CurrentCultureIgnoreCase));
     }
 
     private void RegisterOverlayHotkey(object? sender, EventArgs e)

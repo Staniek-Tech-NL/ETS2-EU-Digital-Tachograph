@@ -18,6 +18,11 @@
 
   <ItemGroup>
     <Resource Include="Assets\**\*" />
+    <EmbeddedResource Include="Data\Countries.iso3166-1.json"
+                      LogicalName="ETS2Tachograph.Desktop.Data.Countries.iso3166-1.json" />
+    <EmbeddedResource Include="Resources\CountryNames.pl.json"
+                      LogicalName="ETS2Tachograph.Desktop.Resources.CountryNames.pl.json"
+                      WithCulture="false" />
   </ItemGroup>
 
 </Project>
