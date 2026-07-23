@@ -1,5 +1,6 @@
 using ETS2Tachograph.Application.Dtos;
 using ETS2Tachograph.Core.Time;
+using ETS2Tachograph.RuleEngine;
 
 namespace ETS2Tachograph.Desktop;
 
@@ -35,6 +36,76 @@ public sealed record CompensationOverview(
             status.Item1,
             status.Item2);
     }
+
+    private static string FormatMinutes(long minutes) =>
+        $"{minutes / 60:00}:{minutes % 60:00}";
+}
+
+public sealed record RestAllocationChoiceRow(
+    string RestBlockId,
+    string RestBlockIdShort,
+    string CandidateId,
+    string DriverCardId,
+    long EndGameMinuteExclusive,
+    string RangeText,
+    string PurposeText,
+    string AllocationText,
+    string OldDebtResultText,
+    string NewDebtText,
+    string WeeklyResultText)
+{
+    public static RestAllocationChoiceRow From(
+        RestAllocationProjectionDto allocation,
+        RestAllocationCandidateDto candidate,
+        IReadOnlyList<WeeklyRestCompensationDto> obligations)
+    {
+        var compensationMinutes = obligations
+            .Where(item => candidate.ObligationIds.Contains(
+                item.ObligationId,
+                StringComparer.Ordinal))
+            .Sum(item => item.OriginalOwedMinutes);
+        return new RestAllocationChoiceRow(
+            allocation.RestBlockId,
+            Shorten(allocation.RestBlockId),
+            candidate.CandidateId,
+            allocation.DriverCardId,
+            allocation.EndGameMinuteExclusive,
+            $"{GameClockFormatter.Format(new GameTime(allocation.StartGameMinute))} – " +
+            GameClockFormatter.Format(new GameTime(allocation.EndGameMinuteExclusive)),
+            PurposeLabel(candidate.Purpose),
+            compensationMinutes > 0
+                ? $"{FormatMinutes(candidate.HostMinimumMinutes)} + {FormatMinutes(compensationMinutes)}"
+                : FormatMinutes(
+                    allocation.EndGameMinuteExclusive - allocation.StartGameMinute),
+            compensationMinutes > 0
+                ? $"Stary dług: spłata {FormatMinutes(compensationMinutes)}"
+                : "Stary dług: bez spłaty",
+            candidate.NewDebtMinutes == 0
+                ? "Nowy dług: brak"
+                : $"Nowy dług: {FormatMinutes(candidate.NewDebtMinutes)}",
+            candidate.SatisfiesWeeklyRestRequirement
+                ? "Odpoczynek tygodniowy: zaliczony"
+                : "Odpoczynek tygodniowy: niezaliczony");
+    }
+
+    private static string PurposeLabel(RestAllocationPurpose purpose) => purpose switch
+    {
+        RestAllocationPurpose.DailyRestWithCompensation =>
+            "DOBOWY + REKOMPENSATA",
+        RestAllocationPurpose.ReducedWeeklyRestOnly =>
+            "SKRÓCONY TYGODNIOWY",
+        RestAllocationPurpose.ReducedWeeklyRestWithCompensation =>
+            "SKRÓCONY TYGODNIOWY + REKOMPENSATA",
+        RestAllocationPurpose.RegularWeeklyRestOnly =>
+            "REGULARNY TYGODNIOWY",
+        RestAllocationPurpose.RegularWeeklyRestWithCompensation =>
+            "REGULARNY TYGODNIOWY + REKOMPENSATA",
+        _ => purpose.ToString().ToUpperInvariant()
+    };
+
+    private static string Shorten(string value) => value.Length <= 27
+        ? value
+        : $"{value[..14]}…{value[^10..]}";
 
     private static string FormatMinutes(long minutes) =>
         $"{minutes / 60:00}:{minutes % 60:00}";

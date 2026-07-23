@@ -101,10 +101,26 @@ public partial class App : System.Windows.Application
                     WeekEpochOffsetDays = savedSettings.WeekEpochOffsetDays
                 });
             var activityRepository = new ActivityRepository(_db, _diagnostics);
+            var restAllocationRepository = new RestAllocationRepository(_db);
+            var knownCards = (await driverService.GetProfilesAsync())
+                .SelectMany(profile => profile.Cards)
+                .Select(card => card.CardNumber)
+                .ToList();
+            var crewGapCorrection = await new AutomaticCrewGapCorrectionService(
+                    activityRepository,
+                    activityRepository)
+                .CorrectAsync(knownCards);
+            if (crewGapCorrection.ResolvedGapIds.Count > 0)
+            {
+                _diagnostics.Info(
+                    "AUTOMATIC_CREW_RECONSTRUCTION",
+                    $"Rozliczono {crewGapCorrection.ResolvedGapIds.Count} fałszywe luki skoku czasu załogi.");
+            }
             var crewService = new CrewTachographService(
                 crewEngine,
                 activityRepository,
-                new ActivityRetentionService(activityRepository));
+                new ActivityRetentionService(activityRepository),
+                restAllocationRepository);
             var manualEntryService = new ManualEntryService(
                 activityRepository,
                 _diagnostics);
@@ -118,7 +134,15 @@ public partial class App : System.Windows.Application
                     new RegulationReportAnalyzer(options: new RegulationOptions
                     {
                         WeekEpochOffsetDays = savedSettings.WeekEpochOffsetDays
-                    })),
+                    }),
+                    restAllocationRepository),
+                new RestAllocationService(
+                    activityRepository,
+                    restAllocationRepository,
+                    options: new RegulationOptions
+                    {
+                        WeekEpochOffsetDays = savedSettings.WeekEpochOffsetDays
+                    }),
                 new PdfReportExporter(), settingsService, savedSettings, _source, _diagnostics);
             var window = new MainWindow(_viewModel);
             MainWindow = window;

@@ -100,6 +100,33 @@ public sealed class PdfReportExporter : IPdfReportExporter
         }
 
         AddSimple(RowKind.Spacer, 12);
+        AddSimple(RowKind.RestAllocationSection, 30);
+        var allocationRows = report.RestAllocations
+            .SelectMany(allocation => allocation.Candidates.Select(candidate =>
+                new RestAllocationPdfRow(
+                    allocation,
+                    candidate,
+                    StringComparer.Ordinal.Equals(allocation.SelectedCandidate?.CandidateId, candidate.CandidateId))))
+            .ToList();
+        if (allocationRows.Count == 0)
+        {
+            AddSimple(RowKind.EmptyRestAllocations, 30);
+        }
+        else
+        {
+            foreach (var allocationRow in allocationRows)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                if (Current().Y + 64 > Bottom)
+                {
+                    NewPage();
+                    Current().Add(new LayoutRow(RowKind.RestAllocationSection, 30, true));
+                }
+                Current().Add(new LayoutRow(RowKind.RestAllocation, 64, allocationRow));
+            }
+        }
+
+        AddSimple(RowKind.Spacer, 12);
         StartTable(RowKind.CheckpointSection, RowKind.CheckpointHeader, checkpoints.Count == 0 ? 30 : 28);
         if (checkpoints.Count == 0)
         {
@@ -198,6 +225,24 @@ public sealed class PdfReportExporter : IPdfReportExporter
                     break;
                 case RowKind.EmptyCompensations:
                     DrawEmptyRow(graphics, y, "Brak zobowiązań rekompensaty w historii raportu.", small, pale);
+                    break;
+                case RowKind.RestAllocationSection:
+                    DrawSectionTitle(graphics, y, (row.Data as bool?) == true
+                        ? "PRZYDZIAŁ ODPOCZYNKU - ciąg dalszy"
+                        : "PRZYDZIAŁ ODPOCZYNKU I REKOMPENSATY", section, accent);
+                    break;
+                case RowKind.RestAllocation:
+                    DrawRestAllocationRow(
+                        graphics,
+                        y,
+                        (RestAllocationPdfRow)row.Data!,
+                        small,
+                        tiny,
+                        micro,
+                        rowIndex++ % 2 == 0 ? pale : XColors.White);
+                    break;
+                case RowKind.EmptyRestAllocations:
+                    DrawEmptyRow(graphics, y, "Brak bloków wymagających decyzji o przydziale.", small, pale);
                     break;
                 case RowKind.CheckpointSection:
                     DrawSectionTitle(graphics, y, (row.Data as bool?) == true
@@ -407,6 +452,57 @@ public sealed class PdfReportExporter : IPdfReportExporter
             XStringFormats.CenterLeft);
     }
 
+    private static void DrawRestAllocationRow(
+        XGraphics graphics,
+        double y,
+        RestAllocationPdfRow row,
+        XFont font,
+        XFont tiny,
+        XFont micro,
+        XColor background)
+    {
+        graphics.DrawRectangle(new XSolidBrush(background), Left, y, Width, 64);
+        var allocation = row.Allocation;
+        var candidate = row.Candidate;
+        var decisionStatus = allocation.Decision?.Status.ToString() ?? (allocation.IsPending ? "Pending" : "None");
+        graphics.DrawString(
+            $"{(row.Selected ? "WYBRANY" : "KANDYDAT")} · {candidate.Purpose} · podstawa {FormatMinutes(candidate.HostMinimumMinutes)} · nowy dług {FormatMinutes(candidate.NewDebtMinutes)} · tydzień: {(candidate.SatisfiesWeeklyRestRequirement ? "TAK" : "NIE")}",
+            font,
+            XBrushes.Black,
+            new XRect(Left + 5, y + 1, Width - 10, 18),
+            XStringFormats.CenterLeft);
+        graphics.DrawString(
+            $"RestBlockId: {allocation.RestBlockId}",
+            micro,
+            XBrushes.Black,
+            new XRect(Left + 5, y + 19, Width - 10, 11),
+            XStringFormats.CenterLeft);
+        graphics.DrawString(
+            $"CandidateId: {candidate.CandidateId}",
+            micro,
+            XBrushes.Black,
+            new XRect(Left + 5, y + 31, Width - 10, 11),
+            XStringFormats.CenterLeft);
+        var obligations = candidate.ObligationIds.Count == 0
+            ? "—"
+            : string.Join(", ", candidate.ObligationIds);
+        graphics.DrawString(
+            $"Zobowiązania: {obligations}",
+            micro,
+            XBrushes.Black,
+            new XRect(Left + 5, y + 43, Width * 0.58, 18),
+            XStringFormats.CenterLeft);
+        var decisionTrace = allocation.Decision is null
+            ? $"Decyzja: {decisionStatus}"
+            : $"Decyzja: {decisionStatus} · {allocation.Decision.DecidedAtUtc:O}";
+        graphics.DrawString(
+            decisionTrace,
+            tiny,
+            XBrushes.DimGray,
+            new XRect(Left + (Width * 0.59), y + 43, Width * 0.4, 18),
+            XStringFormats.CenterLeft);
+    }
+
     private static void DrawCheckpointRow(
         XGraphics graphics,
         double y,
@@ -561,6 +657,9 @@ public sealed class PdfReportExporter : IPdfReportExporter
         CompensationHeader,
         Compensation,
         EmptyCompensations,
+        RestAllocationSection,
+        RestAllocation,
+        EmptyRestAllocations,
         CheckpointSection,
         CheckpointHeader,
         Checkpoint,
@@ -571,6 +670,11 @@ public sealed class PdfReportExporter : IPdfReportExporter
         Activity,
         EmptyActivities
     }
+
+    private sealed record RestAllocationPdfRow(
+        RestAllocationProjectionDto Allocation,
+        RestAllocationCandidateDto Candidate,
+        bool Selected);
 
     private sealed class WindowsReportFontResolver : IFontResolver
     {

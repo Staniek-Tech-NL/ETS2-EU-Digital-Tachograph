@@ -52,6 +52,7 @@ public sealed record ReportActivityBlock(
         ActivitySource.Reconstructed => "Rekonstruowane",
         ActivitySource.Mixed => "Mieszane",
         ActivitySource.ManualEntry => "Wpis manualny",
+        ActivitySource.AutomaticCrewReconstruction => "Automatyczna rekonstrukcja załogi",
         _ => source.ToString()
     };
 }

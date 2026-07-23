@@ -63,6 +63,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private readonly ImportService _import;
     private readonly SettingsService _settings;
     private readonly ReportService _reports;
+    private readonly RestAllocationService _restAllocations;
     private readonly IPdfReportExporter _pdfReports;
     private readonly DiagnosticLogService _diagnostics;
     private readonly string _defaultDriverCardId;
@@ -106,6 +107,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private int _reportViolationCount;
     private bool _reportHasUnresolvedGaps;
     private string _reportGapWarningText = string.Empty;
+    private bool _reportHasPendingRestAllocation;
+    private string _reportRestAllocationWarningText = string.Empty;
     private int _selectedMainTabIndex;
     private bool _isCardInserted;
     private bool _isCardDialogVisible;
@@ -204,6 +207,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         ExportService export,
         ImportService import,
         ReportService reports,
+        RestAllocationService restAllocations,
         IPdfReportExporter pdfReports,
         SettingsService settings,
         SettingsDto savedSettings,
@@ -218,6 +222,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _import = import;
         _settings = settings;
         _reports = reports;
+        _restAllocations = restAllocations;
         _pdfReports = pdfReports;
         _defaultDriverCardId = driverCardId;
         _drivingThreshold = savedSettings.DrivingSpeedThresholdKph;
@@ -238,6 +243,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         RefreshReportCommand = new RelayCommand(async () => await RefreshReportAsync());
         RefreshCompensationDetailsCommand = new RelayCommand(
             async () => await RefreshCompensationDetailsAsync());
+        SelectRestAllocationCommand = new RelayCommand<RestAllocationChoiceRow>(
+            async row => await SelectRestAllocationAsync(row),
+            row => row is not null);
         ShowReportGapsCommand = new RelayCommand(async () => await ShowReportGapsAsync());
         ExportCsvCommand = new RelayCommand(async () => await ExportReportAsync("csv"));
         ExportPdfCommand = new RelayCommand(async () => await ExportReportAsync("pdf"));
@@ -285,6 +293,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public ObservableCollection<ManualEntryWorkBlockRow> ManualEntryWorkBlocks { get; } = [];
     public ObservableCollection<ActivityGapListItemDto> ActivityGaps { get; } = [];
     public ObservableCollection<CompensationDetailRow> CompensationDetails { get; } = [];
+    public ObservableCollection<RestAllocationChoiceRow> PendingRestAllocationChoices { get; } = [];
+    public bool HasPendingRestAllocations => PendingRestAllocationChoices.Count > 0;
     public string CompensationDetailsHeader => CompensationDetails.Count == 0
         ? "Brak zobowiązań w bieżących projekcjach kart."
         : $"Zobowiązania: {CompensationDetails.Count} · otwarte: {CompensationDetails.Count(item => item.IsOpen)}";
@@ -301,6 +311,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public ICommand ImportCommand { get; }
     public ICommand RefreshReportCommand { get; }
     public ICommand RefreshCompensationDetailsCommand { get; }
+    public ICommand SelectRestAllocationCommand { get; }
     public ICommand ShowReportGapsCommand { get; }
     public ICommand ExportCsvCommand { get; }
     public ICommand ExportPdfCommand { get; }
@@ -340,7 +351,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         {
             if (!Set(ref _compensationDriverProfile, value)) return;
             CompensationDetails.Clear();
+            PendingRestAllocationChoices.Clear();
             OnPropertyChanged(nameof(CompensationDetailsHeader));
+            OnPropertyChanged(nameof(HasPendingRestAllocations));
         }
     }
     public string NewDriverName { get => _newDriverName; set => Set(ref _newDriverName, value); }
@@ -375,6 +388,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public int ReportViolationCount { get => _reportViolationCount; private set => Set(ref _reportViolationCount, value); }
     public bool ReportHasUnresolvedGaps { get => _reportHasUnresolvedGaps; private set => Set(ref _reportHasUnresolvedGaps, value); }
     public string ReportGapWarningText { get => _reportGapWarningText; private set => Set(ref _reportGapWarningText, value); }
+    public bool ReportHasPendingRestAllocation { get => _reportHasPendingRestAllocation; private set => Set(ref _reportHasPendingRestAllocation, value); }
+    public string ReportRestAllocationWarningText { get => _reportRestAllocationWarningText; private set => Set(ref _reportRestAllocationWarningText, value); }
     public int SelectedMainTabIndex { get => _selectedMainTabIndex; set => Set(ref _selectedMainTabIndex, value); }
     public string ConnectionStatus
     {
@@ -1700,6 +1715,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _currentReport = null;
         ReportHasUnresolvedGaps = false;
         ReportGapWarningText = string.Empty;
+        ReportHasPendingRestAllocation = false;
+        ReportRestAllocationWarningText = string.Empty;
         try
         {
             GameTime? from = ParseOptionalReportTime(ReportFrom, "OD");
@@ -1719,11 +1736,17 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             ReportGapWarningText = ReportHasUnresolvedGaps
                 ? FormatReportGapWarning(_currentReport.UnresolvedGapCount, _currentReport.GapMinutes)
                 : string.Empty;
+            ReportHasPendingRestAllocation = _currentReport.PendingRestAllocation;
+            ReportRestAllocationWarningText = ReportHasPendingRestAllocation
+                ? "Raport nie jest rozstrzygający: co najmniej jeden odpoczynek wymaga wyboru sposobu zaliczenia."
+                : string.Empty;
             ReportRows.Clear();
             foreach (var record in _currentReport.Records) ReportRows.Add(record);
             OperationStatus = ReportHasUnresolvedGaps
                 ? ReportGapWarningText
-                : $"Raport: {_currentReport.Records.Count} rekordów. Luki: brak — kompletność potwierdzona.";
+                : ReportHasPendingRestAllocation
+                    ? ReportRestAllocationWarningText
+                    : $"Raport: {_currentReport.Records.Count} rekordów. Luki: brak — kompletność potwierdzona.";
         }
         catch (Exception ex) { OperationStatus = ex.Message; }
     }
@@ -1744,6 +1767,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _currentReport = null;
         ReportHasUnresolvedGaps = false;
         ReportGapWarningText = string.Empty;
+        ReportHasPendingRestAllocation = false;
+        ReportRestAllocationWarningText = string.Empty;
     }
 
     private async Task ExportReportAsync(string format)
@@ -1879,13 +1904,27 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 ?? CurrentDriverCardId;
             var projection = await _reports.CreateAsync(cardId);
             CompensationDetails.Clear();
+            PendingRestAllocationChoices.Clear();
             foreach (var row in projection.CompensationObligations
                          .Select(item => CompensationDetailRow.From("KARTA", item))
                          .OrderBy(item => item.IsOpen ? 0 : 1)
                          .ThenBy(item => item.DueAtGameMinuteExclusive)
                          .ThenBy(item => item.ObligationId, StringComparer.Ordinal))
                 CompensationDetails.Add(row);
+            foreach (var allocation in projection.RestAllocations
+                         .Where(item => item.IsPending)
+                         .OrderBy(item => item.EndGameMinuteExclusive))
+            {
+                foreach (var candidate in allocation.Candidates)
+                {
+                    PendingRestAllocationChoices.Add(RestAllocationChoiceRow.From(
+                        allocation,
+                        candidate,
+                        projection.CompensationObligations));
+                }
+            }
             OnPropertyChanged(nameof(CompensationDetailsHeader));
+            OnPropertyChanged(nameof(HasPendingRestAllocations));
             OperationStatus = CompensationDetails.Count == 0
                 ? "Wybrana karta nie ma zobowiązań rekompensaty."
                 : $"Wczytano pełny ślad {CompensationDetails.Count} zobowiązań rekompensaty.";
@@ -1894,6 +1933,38 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         {
             _diagnostics.Error("COMPENSATION_DETAILS_REFRESH_FAILED", exception);
             OperationStatus = $"Nie udało się wczytać szczegółów rekompensaty: {exception.Message}";
+        }
+    }
+
+    private async Task SelectRestAllocationAsync(RestAllocationChoiceRow? row)
+    {
+        if (row is null)
+            return;
+        try
+        {
+            var now = _crew.Current.Frame?.GameTime ??
+                new GameTime(Math.Max(
+                    row.EndGameMinuteExclusive + 1,
+                    _currentReport?.ToGameMinuteExclusive ?? 0));
+            await _restAllocations.DecideAsync(
+                row.DriverCardId,
+                row.RestBlockId,
+                row.CandidateId,
+                now,
+                DateTimeOffset.UtcNow,
+                _cancellation.Token);
+            await _crew.RefreshRestAllocationDecisionsAsync(
+                row.DriverCardId,
+                _cancellation.Token);
+            await RefreshReportAsync();
+            await RefreshCompensationDetailsAsync();
+            OperationStatus = "Zapisano audytowaną decyzję rozliczenia odpoczynku.";
+        }
+        catch (Exception exception)
+        {
+            _diagnostics.Error("REST_ALLOCATION_DECISION_FAILED", exception);
+            OperationStatus =
+                $"Nie udało się zapisać decyzji rozliczenia: {exception.Message}";
         }
     }
 
