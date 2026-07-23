@@ -8,6 +8,17 @@ Stan na wersję beta po Fazie 1. Ta lista dotyczy potwierdzonych ograniczeń;
 nowe błędy z testów należy dopisywać razem z numerem wersji paczki i raportem
 diagnostycznym.
 
+## Naprawione w beta.11.1
+
+- Naprawiono automatyczną klasyfikację bloku 24 h+ hostującego rekompensatę.
+  RuleEngine generuje legalne kandydatury, a użytkownik wybiera rolę bloku.
+- Naprawiono fałszywe `ForwardTimeJump` drugiej karty podczas wspólnego skoku
+  czasu załogi. Rekonstrukcja zachowuje wyłącznie stabilną aktywność własną.
+- Dwie luki referencyjne Dnia 141 są korygowane audytowalnie jako
+  `AutomaticCrewReconstruction`; nie są usuwane ręcznym SQL.
+- Decyzje alokacji i pełny ślad odtwarzają się po restarcie SQLite oraz są
+  dostępne w UI, PDF, CSV i JSON.
+
 ## Naprawione w beta.11
 
 - Usunięto uproszczony model rekompensat skróconych odpoczynków tygodniowych,
@@ -19,6 +30,9 @@ diagnostycznym.
   starego algorytmu.
 - Pełny kontrakt zobowiązań jest dostępny w DTO, szczegółach UI, PDF, CSV i JSON
   oraz odtwarza się identycznie po restarcie plikowej bazy SQLite.
+
+> Beta.11 została wycofana przed smoke testem. Obowiązującym następcą jest
+> beta.11.1.
 
 ## Telemetria i czas gry
 

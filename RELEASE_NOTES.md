@@ -1,4 +1,41 @@
-# ETS2 EU Digital Tachograph 0.1.0-beta.11
+# ETS2 EU Digital Tachograph 0.1.0-beta.11.1
+
+Wydanie naprawcze zastępujące wycofanego kandydata beta.11.
+
+- zakończony blok 24 h+ otrzymuje legalne kandydatury sposobu rozliczenia;
+  użytkownik wybiera `CandidateId`, bez ręcznego dzielenia minut;
+- wariant dobowy z rekompensatą używa podstawy 9 h, a wariant tygodniowy całego
+  bloku zachowuje konsekwencje skróconego odpoczynku tygodniowego;
+- te same minuty nie mogą jednocześnie tworzyć podstawy odpoczynku i spłacać
+  rekompensaty; spłata pozostaje pełna i en bloc;
+- decyzje są trwałe, wersjonowane i audytowane w SQLite; zmiana decyzji zachowuje
+  `Superseded`, a zmiana kanonicznego `RestBlockId` unieważnia stary wybór;
+- wspólny skok czasu podwójnej obsady jest klasyfikowany raz dla pojazdu.
+  Stabilne `BreakOrRest`, `OtherWork` i `Availability` są rekonstruowane
+  symetrycznie, bez wymyślania Jazdy;
+- dwie referencyjne luki Dnia 141 zostały poprawione na kopii bazy bez ręcznego
+  SQL. Oryginalny ślad pozostał, a rekordy korekty mają źródło
+  `AutomaticCrewReconstruction`;
+- UI pokazuje warianty RuleEngine, a PDF, CSV i JSON pełny ślad alokacji.
+  Nierozstrzygnięty wybór oznacza raport jako niekompletny.
+
+## Weryfikacja
+
+- 282/282 testy automatyczne;
+- RuleEngine 62/62, Engine 69/69, Application 50/50, Reports 9/9,
+  Infrastructure 51/51;
+- build Release: 0 błędów, 0 ostrzeżeń;
+- migracja i dwa restarty sprawdzone na kopii właściwej bazy;
+- po restarcie dokładnie dwa audytowane rekordy rekonstrukcji i zero
+  nierozliczonych luk referencyjnych;
+- końcowy smoke terenowy z aktywną telemetrią wykonuje tester osobiście.
+
+---
+
+# ETS2 EU Digital Tachograph 0.1.0-beta.11 — WYCOFANY KANDYDAT
+
+Ta paczka nie przeszła do końcowego smoke testu z powodu błędnej alokacji
+niejednoznacznego odpoczynku 24 h+ i fałszywych luk wspólnego skoku załogi.
 
 Pełny model rekompensat skróconego odpoczynku tygodniowego.
 

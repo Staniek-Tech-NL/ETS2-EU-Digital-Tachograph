@@ -1,4 +1,4 @@
-# Plan testów beta.11
+# Plan testów beta.11.1
 
 ## Przygotowanie
 
@@ -8,7 +8,7 @@
    `Euro Truck Simulator 2\bin\win_x64\plugins\`, zastępując poprzednią wersję,
    i uruchom ETS2 ponownie.
 4. Uruchom `app\ETS2Tachograph.Desktop.exe`, a następnie ETS2.
-5. Zachowaj `%LocalAppData%\ETS2Tachograph\tachograph.db`. Beta.11 ma pracować na
+5. Zachowaj `%LocalAppData%\ETS2Tachograph\tachograph.db`. Beta.11.1 ma pracować na
    dotychczasowej historii; aplikacja nadal wykonuje kopię bazy przed migracją.
 
 ## Checklista regresji UI — po każdej zmianie w XAML
@@ -136,7 +136,7 @@ Zmiana w XAML nie jest gotowa, dopóki wszystkie punkty nie są odhaczone.
 6. Powtórz kontrolnie, dodając w luce segment Innej pracy albo Dyspozycyjności.
    Oczekiwane: segment przerywa ciągłość i odcinki nie sumują się przez niego.
 
-## Test 0B — rekompensata tygodniowa beta.11
+## Test 0B — alokacja rekompensaty beta.11.1
 
 1. Potwierdź na Dashboardzie i w zakładce **Rekompensaty**:
    - Staniek: `1253 min / 20:53`;
@@ -147,6 +147,22 @@ Zmiana w XAML nie jest gotowa, dopóki wszystkie punkty nie są odhaczone.
    za krótki nie spłaca niczego, a dokładnie wystarczający spłaca całość en bloc.
 4. Zamknij i uruchom aplikację ponownie. Wszystkie wartości i identyfikatory mają
    pozostać identyczne.
+5. Dla zakończonego bloku 24 h+ wybierz kolejno dostępne warianty:
+   `DailyRestWithCompensation` oraz `ReducedWeeklyRestOnly`.
+6. Sprawdź, że UI pokazuje podstawę, stary i nowy dług oraz zaliczenie tygodnia
+   dokładnie tak samo jak PDF, CSV i JSON.
+7. Bez wyboru raport ma pokazywać ostrzeżenie i `EvidenceComplete = false`.
+
+## Test 0C — wspólny skok czasu załogi beta.11.1
+
+1. Gdy Staniek odpoczywa, wykonaj skok czasu przy stabilnej Innej pracy albo
+   Dyspozycyjności Dobosia. Oczekiwane: brak luki obu kart.
+2. Powtórz symetrycznie, gdy odpoczywa Doboś.
+3. Kontrolnie powtórz bez odpoczywającej karty, z Jazdą oraz ze zmianą aktywności.
+   Oczekiwane: bezpieczna luka pozostaje.
+4. Po restarcie sprawdź, że korekta Dnia 141 nadal ma źródło
+   `AutomaticCrewReconstruction`, a pierwotne luki są widoczne w audycie jako
+   rozliczone.
 
 ## Test 1 — lista nierozliczonych luk
 
