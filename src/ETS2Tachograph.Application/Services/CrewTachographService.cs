@@ -10,7 +10,8 @@ namespace ETS2Tachograph.Application.Services;
 public sealed class CrewTachographService(
     CrewTachographEngine engine,
     IActivityRepository activities,
-    ActivityRetentionService? retention = null)
+    ActivityRetentionService? retention = null,
+    IRestAllocationRepository? restAllocations = null)
 {
     private readonly Dictionary<string, long> _highWaterMarks =
         new(StringComparer.OrdinalIgnoreCase);
@@ -35,6 +36,12 @@ public sealed class CrewTachographService(
             x.StartedAt,
             x.Records,
             x.Gaps ?? [])).ToList());
+        if (restAllocations is not null)
+        {
+            engine.SetRestAllocationDecisions(
+                cardId,
+                await restAllocations.LoadDriverDecisionsAsync(cardId, cancellationToken));
+        }
     }
 
     public void InsertCard(TachographSlot slot, string cardId) => engine.InsertCard(slot, cardId);
@@ -108,6 +115,17 @@ public sealed class CrewTachographService(
         GameTime? toExclusive = null,
         CancellationToken cancellationToken = default) =>
         activities.LoadDriverHistoryAsync(cardId, from, toExclusive, cancellationToken);
+
+    public async Task RefreshRestAllocationDecisionsAsync(
+        string cardId,
+        CancellationToken cancellationToken = default)
+    {
+        if (restAllocations is null)
+            return;
+        engine.SetRestAllocationDecisions(
+            cardId,
+            await restAllocations.LoadDriverDecisionsAsync(cardId, cancellationToken));
+    }
 
     private Task SaveSnapshotsAsync(
         IReadOnlyList<(string CardId, TachographSnapshot Snapshot)> cardSnapshots,

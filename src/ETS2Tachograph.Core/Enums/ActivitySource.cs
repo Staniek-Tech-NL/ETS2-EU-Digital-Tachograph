@@ -6,5 +6,6 @@ public enum ActivitySource
     Manual = 1,
     Reconstructed = 2,
     Mixed = 3,
-    ManualEntry = 4
+    ManualEntry = 4,
+    AutomaticCrewReconstruction = 5
 }

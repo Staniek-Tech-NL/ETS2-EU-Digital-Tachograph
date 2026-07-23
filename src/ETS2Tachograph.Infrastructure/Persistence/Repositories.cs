@@ -459,10 +459,11 @@ public sealed class ActivityRepository :
                 "Only a canonical activity gap can be resolved.");
         if (write.Segments.Any(record =>
                 !string.Equals(record.DriverCardId, gapEntity.DriverCardId, StringComparison.OrdinalIgnoreCase) ||
-                record.Source != ActivitySource.ManualEntry ||
+                record.Source is not (ActivitySource.ManualEntry or
+                    ActivitySource.AutomaticCrewReconstruction) ||
                 record.SourceGapId != write.GapId ||
                 record.Condition != SpecialCondition.None))
-            throw new InvalidOperationException("Invalid manual-entry persistence payload.");
+            throw new InvalidOperationException("Invalid gap-resolution persistence payload.");
 
         ManualEntryValidator.Validate(
             gapContext.Gap,
@@ -538,8 +539,9 @@ public sealed class ActivityRepository :
                    pair.First.Start == pair.Second.Start &&
                    pair.First.EndExclusive == pair.Second.EndExclusive &&
                    pair.First.Activity == pair.Second.Activity &&
-                   pair.First.Source == ActivitySource.ManualEntry &&
-                   pair.Second.Source == ActivitySource.ManualEntry &&
+                    pair.First.Source == pair.Second.Source &&
+                    (pair.First.Source is ActivitySource.ManualEntry or
+                        ActivitySource.AutomaticCrewReconstruction) &&
                    pair.First.SourceGapId == pair.Second.SourceGapId &&
                    pair.First.Condition == pair.Second.Condition);
     }

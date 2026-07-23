@@ -10,7 +10,8 @@ namespace ETS2Tachograph.Application.Services;
 
 public sealed class ReportService(
     IActivityRepository activities,
-    IRegulationReportAnalyzer regulationAnalyzer)
+    IRegulationReportAnalyzer regulationAnalyzer,
+    IRestAllocationRepository? restAllocations = null)
 {
 
     public async Task<ReportDto> CreateAsync(
@@ -49,14 +50,23 @@ public sealed class ReportService(
         }).Where(gap => gap.EndExclusive > gap.Start).ToList();
         long Sum(DriverActivity activity) => records.Where(x => x.Activity == activity)
             .Sum(x => x.EndExclusive - x.Start);
-        var regulation = regulationAnalyzer.Analyze(new GameTime(end), records);
+        var decisions = restAllocations is null
+            ? []
+            : await restAllocations.LoadDriverDecisionsAsync(
+                driverCardId,
+                cancellationToken);
+        var regulation = regulationAnalyzer.Analyze(
+            new GameTime(end),
+            records,
+            decisions);
         return new ReportDto(
             driverCardId, start, end,
             Sum(DriverActivity.Driving), Sum(DriverActivity.OtherWork),
             Sum(DriverActivity.Availability), Sum(DriverActivity.BreakOrRest),
             Sum(DriverActivity.OutOfScope), records, gaps, regulation.Violations)
         {
-            CompensationObligations = regulation.CompensationObligations
+            CompensationObligations = regulation.CompensationObligations,
+            RestAllocations = regulation.RestAllocations
         };
     }
 
@@ -91,12 +101,18 @@ public sealed class ReportService(
             "source_rest_end_game_minute_exclusive;original_owed_minutes;remaining_minutes;" +
             "reduction_week;due_at_game_minute_exclusive;payment_rest_block_id;" +
             "payment_range_start_game_minute;payment_range_end_game_minute_exclusive;" +
-            "settled_at_game_minute;status");
+            "settled_at_game_minute;status;source_allocation_purpose;source_candidate_id;" +
+            "source_host_minimum_minutes;source_new_debt_minutes;payment_allocation_purpose;" +
+            "payment_candidate_id;payment_decided_at_utc");
         foreach (var obligation in report.CompensationObligations
                      .OrderBy(item => item.DueAtGameMinuteExclusive)
                      .ThenBy(item => item.ObligationId, StringComparer.Ordinal))
         {
             cancellationToken.ThrowIfCancellationRequested();
+            var sourceAllocation = report.RestAllocations.SingleOrDefault(item =>
+                item.RestBlockId == obligation.SourceRestBlockId);
+            var paymentAllocation = report.RestAllocations.SingleOrDefault(item =>
+                item.RestBlockId == obligation.PaymentRestBlockId);
             await writer.WriteLineAsync(string.Join(';',
                 obligation.IdentitySchemeVersion.ToString(CultureInfo.InvariantCulture),
                 CsvCell(obligation.ObligationId),
@@ -111,7 +127,18 @@ public sealed class ReportService(
                 obligation.PaymentRange?.StartGameMinute.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
                 obligation.PaymentRange?.EndGameMinuteExclusive.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
                 obligation.SettledAtGameMinute?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
-                obligation.Status.ToString()));
+                obligation.Status.ToString(),
+                sourceAllocation?.SelectedCandidate?.Purpose.ToString() ?? string.Empty,
+                CsvCell(sourceAllocation?.SelectedCandidate?.CandidateId),
+                sourceAllocation?.SelectedCandidate?.HostMinimumMinutes.ToString(
+                    CultureInfo.InvariantCulture) ?? string.Empty,
+                sourceAllocation?.SelectedCandidate?.NewDebtMinutes.ToString(
+                    CultureInfo.InvariantCulture) ?? string.Empty,
+                paymentAllocation?.SelectedCandidate?.Purpose.ToString() ?? string.Empty,
+                CsvCell(paymentAllocation?.SelectedCandidate?.CandidateId),
+                paymentAllocation?.Decision?.DecidedAtUtc.ToString(
+                    "O",
+                    CultureInfo.InvariantCulture) ?? string.Empty));
         }
         await writer.FlushAsync(cancellationToken);
     }
@@ -144,7 +171,8 @@ public sealed class ReportService(
                 coveredMinutes = report.CoveredMinutes,
                 rangeMinutes = report.RangeMinutes,
                 balanceMatchesRange = report.CoverageMatchesRange,
-                evidenceComplete = report.EvidenceComplete
+                evidenceComplete = report.EvidenceComplete,
+                pendingRestAllocation = report.PendingRestAllocation
             },
             violations = report.Violations.Select(x => new { x.Type, x.Article, x.ExcessMinutes }),
             compensation = new
@@ -155,6 +183,7 @@ public sealed class ReportService(
                 hasOverdue = report.CompensationSummary.HasOverdue
             },
             compensationObligations = report.CompensationObligations,
+            restAllocations = report.RestAllocations,
             gaps = report.Gaps.Select(gap => new
             {
                 start = gap.Start.TotalMinutes,

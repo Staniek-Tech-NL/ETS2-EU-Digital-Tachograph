@@ -16,12 +16,24 @@ public sealed class RegulationReportAnalyzer(
 
     public RegulationReportAnalysisDto Analyze(
         GameTime now,
-        IReadOnlyList<ActivityRecord> history)
+        IReadOnlyList<ActivityRecord> history) =>
+        Analyze(now, history, []);
+
+    public RegulationReportAnalysisDto Analyze(
+        GameTime now,
+        IReadOnlyList<ActivityRecord> history,
+        IReadOnlyList<RestAllocationDecision> decisions)
     {
-        var evaluation = _engine.Evaluate(new RuleContext(now, history), _options);
+        var evaluation = _engine.Evaluate(
+            new RuleContext(now, history),
+            _options,
+            decisions);
         return new RegulationReportAnalysisDto(
             evaluation.Violations.Select(x => new ReportViolationDto(
                 x.Type.ToString(), x.Article, x.DetectedAt.TotalMinutes, x.ExcessMinutes)).ToList(),
-            WeeklyRestCompensationDtoMapper.MapAll(evaluation.CompensationObligations));
+            WeeklyRestCompensationDtoMapper.MapAll(evaluation.CompensationObligations))
+        {
+            RestAllocations = RestAllocationDtoMapper.MapAll(evaluation.RestAllocations)
+        };
     }
 }

@@ -13,6 +13,7 @@ public sealed class TachographEngine : ITachographEngine
     private readonly ActivityHistoryProcessor _history;
     private readonly RegulationEngine _rules;
     private readonly int _weekEpochOffsetDays;
+    private IReadOnlyList<RestAllocationDecision> _restAllocationDecisions = [];
 
     public TachographEngine(
         string driverCardId,
@@ -108,7 +109,8 @@ public sealed class TachographEngine : ITachographEngine
                 {
                     MultiManning = MultiManningEnabled,
                     WeekEpochOffsetDays = _weekEpochOffsetDays
-                });
+                },
+                _restAllocationDecisions);
         Current = Current with
         {
             LastClosedRecord = _history.CurrentTimeline.Records.LastOrDefault(),
@@ -146,6 +148,15 @@ public sealed class TachographEngine : ITachographEngine
         RefreshModeState();
     }
 
+    public void SetRestAllocationDecisions(
+        IReadOnlyList<RestAllocationDecision> decisions)
+    {
+        _restAllocationDecisions = decisions
+            .Where(item => item.Status == RestAllocationDecisionStatus.Active)
+            .ToList();
+        RefreshModeState();
+    }
+
     public void ApplyManualEntryResolution(
         ActivityGap resolvedGap,
         IReadOnlyList<ActivityRecord> segments)
@@ -164,7 +175,8 @@ public sealed class TachographEngine : ITachographEngine
                 {
                     MultiManning = MultiManningEnabled,
                     WeekEpochOffsetDays = _weekEpochOffsetDays
-                });
+                },
+                _restAllocationDecisions);
 
         Current = Current with
         {
@@ -194,7 +206,8 @@ public sealed class TachographEngine : ITachographEngine
                 {
                     MultiManning = MultiManningEnabled,
                     WeekEpochOffsetDays = _weekEpochOffsetDays
-                });
+                },
+                _restAllocationDecisions);
 
         Current = new TachographSnapshot
         {

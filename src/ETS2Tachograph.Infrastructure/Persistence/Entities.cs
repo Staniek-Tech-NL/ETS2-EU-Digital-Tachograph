@@ -122,3 +122,17 @@ public sealed class TachographSettingsEntity
     public double DrivingSpeedThresholdKph { get; set; } = 1;
     public int WeekEpochOffsetDays { get; set; }
 }
+
+public sealed class RestAllocationDecisionEntity
+{
+    public Guid DecisionId { get; set; }
+    public required string DriverCardId { get; set; }
+    public DriverCardEntity DriverCard { get; set; } = null!;
+    public required string RestBlockId { get; set; }
+    public required string CandidateId { get; set; }
+    public long EffectiveAtGameMinute { get; set; }
+    public DateTimeOffset DecidedAtUtc { get; set; }
+    public int DecisionSchemeVersion { get; set; }
+    public int Status { get; set; }
+    public Guid? SupersedesDecisionId { get; set; }
+}

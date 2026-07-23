@@ -15,6 +15,8 @@ public sealed class TachographDbContext(DbContextOptions<TachographDbContext> op
     public DbSet<RegulationSnapshotEntity> RegulationSnapshots => Set<RegulationSnapshotEntity>();
     public DbSet<FerryRestRecordEntity> FerryRestRecords => Set<FerryRestRecordEntity>();
     public DbSet<TachographSettingsEntity> TachographSettings => Set<TachographSettingsEntity>();
+    public DbSet<RestAllocationDecisionEntity> RestAllocationDecisions =>
+        Set<RestAllocationDecisionEntity>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -98,6 +100,23 @@ public sealed class TachographDbContext(DbContextOptions<TachographDbContext> op
         {
             entity.ToTable("TachographSettings");
             entity.HasKey(x => x.Id);
+        });
+        modelBuilder.Entity<RestAllocationDecisionEntity>(entity =>
+        {
+            entity.ToTable("RestAllocationDecisions");
+            entity.HasKey(x => x.DecisionId);
+            entity.Property(x => x.DriverCardId).HasMaxLength(64).IsRequired();
+            entity.Property(x => x.RestBlockId).HasMaxLength(96).IsRequired();
+            entity.Property(x => x.CandidateId).HasMaxLength(96).IsRequired();
+            entity.HasIndex(x => new
+            {
+                x.DriverCardId,
+                x.RestBlockId,
+                x.Status,
+                x.DecidedAtUtc
+            });
+            entity.HasOne(x => x.DriverCard).WithMany()
+                .HasForeignKey(x => x.DriverCardId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

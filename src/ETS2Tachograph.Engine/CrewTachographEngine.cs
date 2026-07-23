@@ -102,6 +102,16 @@ public sealed class CrewTachographEngine
     public TachographEngine? GetEngine(TachographSlot slot) =>
         GetEngine(slot == TachographSlot.Driver ? DriverCardId : CoDriverCardId);
 
+    public void SetRestAllocationDecisions(
+        string cardId,
+        IReadOnlyList<RestAllocationDecision> decisions)
+    {
+        var engine = GetEngine(cardId) ??
+            throw new InvalidOperationException("The driver card is not registered.");
+        engine.SetRestAllocationDecisions(decisions);
+        RebuildCurrent();
+    }
+
     public InsertedCardResult InsertCard(TachographSlot slot, string cardId)
     {
         var engine = RegisterCard(cardId);

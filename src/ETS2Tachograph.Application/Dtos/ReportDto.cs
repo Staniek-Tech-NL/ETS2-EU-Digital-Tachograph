@@ -17,6 +17,8 @@ public sealed record ReportDto(
     IReadOnlyList<ReportViolationDto> Violations)
 {
     public IReadOnlyList<WeeklyRestCompensationDto> CompensationObligations { get; init; } = [];
+    public IReadOnlyList<RestAllocationProjectionDto> RestAllocations { get; init; } = [];
+    public bool PendingRestAllocation => RestAllocations.Any(item => item.IsPending);
     public CompensationSummary CompensationSummary =>
         CompensationSummaryProjection.From(CompensationObligations);
     public long TotalMinutes => DrivingMinutes + OtherWorkMinutes + AvailabilityMinutes + RestMinutes + OutMinutes;
@@ -25,7 +27,10 @@ public sealed record ReportDto(
     public long CoveredMinutes => TotalMinutes + GapMinutes;
     public long RangeMinutes => Math.Max(0, ToGameMinuteExclusive - FromGameMinute);
     public bool CoverageMatchesRange => CoveredMinutes == RangeMinutes;
-    public bool EvidenceComplete => UnresolvedGapCount == 0 && CoverageMatchesRange;
+    public bool EvidenceComplete =>
+        UnresolvedGapCount == 0 &&
+        CoverageMatchesRange &&
+        !PendingRestAllocation;
     public string GapSummaryText => UnresolvedGapCount == 0
         ? "LUKI: brak"
         : $"LUKI NIEROZLICZONE: {UnresolvedGapCount} · {FormatMinutes(GapMinutes)}";
@@ -45,6 +50,8 @@ public sealed record RegulationReportAnalysisDto(
     IReadOnlyList<ReportViolationDto> Violations,
     IReadOnlyList<WeeklyRestCompensationDto> CompensationObligations)
 {
+    public IReadOnlyList<RestAllocationProjectionDto> RestAllocations { get; init; } = [];
+    public bool PendingRestAllocation => RestAllocations.Any(item => item.IsPending);
     public CompensationSummary CompensationSummary =>
         CompensationSummaryProjection.From(CompensationObligations);
 
