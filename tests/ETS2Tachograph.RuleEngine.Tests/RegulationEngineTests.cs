@@ -49,6 +49,48 @@ public sealed class RegulationEngineTests
     }
 
     [Fact]
+    public void Current_continuous_break_matches_qualified_block_not_wall_clock()
+    {
+        var gapId = Guid.NewGuid().ToString();
+        var result = Evaluate(
+        [
+            Record(0, 240, DriverActivity.Driving),
+            RestRecord("PL-TEST", 240, 281, ActivitySource.ManualEntry, gapId),
+            RestRecord("PL-TEST", 281, 284, ActivitySource.Telemetry)
+        ], 284);
+
+        Assert.Equal(44, result.State.CurrentContinuousBreakMinutes);
+        Assert.NotEqual(0, result.State.ContinuousDrivingMinutes);
+    }
+
+    [Fact]
+    public void Current_continuous_break_reaches_45_and_resets_continuous_driving()
+    {
+        var gapId = Guid.NewGuid().ToString();
+        var result = Evaluate(
+        [
+            Record(0, 240, DriverActivity.Driving),
+            RestRecord("PL-TEST", 240, 281, ActivitySource.ManualEntry, gapId),
+            RestRecord("PL-TEST", 281, 285, ActivitySource.Telemetry)
+        ], 285);
+
+        Assert.Equal(45, result.State.CurrentContinuousBreakMinutes);
+        Assert.Equal(0, result.State.ContinuousDrivingMinutes);
+    }
+
+    [Fact]
+    public void Current_continuous_break_is_zero_while_driving()
+    {
+        var result = Evaluate(
+        [
+            Record(0, 45, DriverActivity.BreakOrRest),
+            Record(45, 46, DriverActivity.Driving)
+        ], 46);
+
+        Assert.Equal(0, result.State.CurrentContinuousBreakMinutes);
+    }
+
+    [Fact]
     public void Split_15_then_30_minute_break_resets_continuous_driving()
     {
         var result = Evaluate(
