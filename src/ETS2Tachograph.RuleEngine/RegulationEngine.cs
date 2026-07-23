@@ -27,7 +27,8 @@ public sealed class RegulationEngine
 
     public RegulationEvaluation Evaluate(
         RuleContext context,
-        RegulationOptions? options = null)
+        RegulationOptions? options = null,
+        IReadOnlyList<RestAllocationDecision>? restAllocationDecisions = null)
     {
         ArgumentNullException.ThrowIfNull(context);
         options ??= new RegulationOptions();
@@ -51,7 +52,16 @@ public sealed class RegulationEngine
         var continuousDriving = ContinuousDriving(runs);
         var qualifiedRestRuns = QualifiedDailyRestRuns(runs);
         var qualifiedRestSet = qualifiedRestRuns.ToHashSet();
-        var qualifiedRests = qualifiedRestRuns.Select(ClassifyRest).ToList();
+        var compensationProjection = ProjectCompensations(
+            qualifiedRestRuns,
+            context.Now,
+            options.WeekEpochOffsetDays,
+            restAllocationDecisions ?? []);
+        var qualifiedRests = qualifiedRestRuns
+            .Select(run => ClassifyRest(
+                run,
+                WeeklyClassification(run, context.Now, compensationProjection.Allocations)))
+            .ToList();
         var dailyPeriods = DailyDrivingPeriods(runs, qualifiedRestSet);
         var dailyDriving = dailyPeriods.Count == 0 ? 0 : dailyPeriods[^1].DrivingMinutes;
         var extensions = dailyPeriods.Count(period =>
@@ -65,20 +75,20 @@ public sealed class RegulationEngine
         var dailyAnchor = lastDailyRest?.EndExclusive ?? firstMinute;
         var dailyWindow = options.MultiManning ? 1_800 : 1_440;
 
-        var lastWeeklyRest = qualifiedRestRuns.LastOrDefault(run => run.DurationMinutes >= 1_440);
+        var lastWeeklyRest = qualifiedRestRuns.LastOrDefault(run =>
+            WeeklyClassification(run, context.Now, compensationProjection.Allocations) is not null);
         var weeklyAnchor = lastWeeklyRest?.EndExclusive ?? firstMinute;
         var reducedDailyRests = CountReducedDailyRestsSince(
             qualifiedRestRuns,
             lastWeeklyRest?.EndExclusive);
-        var compensations = ProjectCompensations(
-            qualifiedRestRuns,
-            context.Now,
-            options.WeekEpochOffsetDays);
+        var compensations = compensationProjection.Obligations;
         var weeklyPatternInvalid = WeeklyPatternInvalid(
             history,
             qualifiedRestRuns,
             currentWeek,
-            options.WeekEpochOffsetDays);
+            options.WeekEpochOffsetDays,
+            context.Now,
+            compensationProjection.Allocations);
 
         var state = new RegulationState
         {
@@ -92,7 +102,8 @@ public sealed class RegulationEngine
             MinutesUntilBreak = ContinuousDrivingLimit - continuousDriving,
             MinutesUntilDailyRestDeadline = dailyWindow - (context.Now - dailyAnchor),
             MinutesUntilWeeklyRestDeadline = 8_640 - (context.Now - weeklyAnchor),
-            LastDailyRestResetAt = lastDailyRest?.EndExclusive
+            LastDailyRestResetAt = lastDailyRest?.EndExclusive,
+            PendingRestAllocation = compensationProjection.Allocations.Any(item => item.IsPending)
         };
 
         var ruleInput = new RegulationRuleInput(
@@ -102,7 +113,11 @@ public sealed class RegulationEngine
             weeklyPatternInvalid);
         var violations = _rules.SelectMany(rule => rule.Evaluate(ruleInput)).ToList();
 
-        return new RegulationEvaluation(state, violations, compensations)
+        return new RegulationEvaluation(
+            state,
+            violations,
+            compensations,
+            compensationProjection.Allocations)
         {
             QualifiedRests = qualifiedRests
         };
@@ -208,19 +223,43 @@ public sealed class RegulationEngine
             .ToList();
     }
 
-    private static QualifiedRestPeriod ClassifyRest(ActivityRun run) => new(
+    private static QualifiedRestPeriod ClassifyRest(
+        ActivityRun run,
+        WeeklyRestClassification? weeklyClassification) => new(
         run.Start,
         run.EndExclusive,
         run.SourceGapId,
         run.DurationMinutes < 660
             ? DailyRestClassification.Reduced
             : DailyRestClassification.Regular,
-        run.DurationMinutes switch
+        weeklyClassification);
+
+    private static WeeklyRestClassification? WeeklyClassification(
+        ActivityRun run,
+        GameTime now,
+        IReadOnlyList<RestAllocationProjection> allocations)
+    {
+        if (run.DurationMinutes < 1_440)
+            return null;
+        if (run.EndExclusive >= now)
         {
-            >= 2_700 => WeeklyRestClassification.Regular,
-            >= 1_440 => WeeklyRestClassification.Reduced,
-            _ => null
-        });
+            return run.DurationMinutes >= 2_700
+                ? WeeklyRestClassification.Regular
+                : WeeklyRestClassification.Reduced;
+        }
+
+        var restBlockId = CompensationIdentity.RestBlockId(run);
+        var allocation = allocations.FirstOrDefault(item =>
+            string.Equals(item.RestBlockId, restBlockId, StringComparison.Ordinal));
+        if (allocation?.SelectedCandidate?.SatisfiesWeeklyRestRequirement != true)
+            return null;
+
+        return allocation.SelectedCandidate.Purpose is
+            RestAllocationPurpose.RegularWeeklyRestOnly or
+            RestAllocationPurpose.RegularWeeklyRestWithCompensation
+                ? WeeklyRestClassification.Regular
+                : WeeklyRestClassification.Reduced;
+    }
 
     private static long DailyWorkSince(
         IReadOnlyList<ActivityRun> runs,
@@ -231,60 +270,80 @@ public sealed class RegulationEngine
             run.EndExclusive.TotalMinutes -
             Math.Max(run.Start.TotalMinutes, dailyAnchor.TotalMinutes)));
 
-    private static IReadOnlyList<WeeklyRestCompensation> ProjectCompensations(
+    private static CompensationProjection ProjectCompensations(
         IReadOnlyList<ActivityRun> runs,
         GameTime now,
-        int offsetDays)
+        int offsetDays,
+        IReadOnlyList<RestAllocationDecision> decisions)
     {
         var obligations = new List<WeeklyRestCompensation>();
+        var allocations = new List<RestAllocationProjection>();
 
         foreach (var run in runs.Where(run =>
                      run.Activity == DriverActivity.BreakOrRest &&
                      run.EndExclusive < now))
         {
-            var hostMinimumMinutes = run.DurationMinutes switch
+            if (run.DurationMinutes < 1_440)
             {
-                >= 2_700 => 2_700,
-                >= 1_440 => 1_440,
-                >= 540 => 540,
-                _ => 0
-            };
-            var attachableMinutes = run.DurationMinutes - hostMinimumMinutes;
-            if (attachableMinutes > 0 && obligations.Any(item => item.IsOpen))
-            {
-                SettleWholeObligations(
-                    obligations,
-                    run,
-                    hostMinimumMinutes,
-                    attachableMinutes);
+                var attachableMinutes = run.DurationMinutes - 540;
+                if (attachableMinutes > 0 && obligations.Any(item => item.IsOpen))
+                {
+                    SettleWholeObligations(
+                        obligations,
+                        run,
+                        540,
+                        attachableMinutes);
+                }
+
+                continue;
             }
 
-            if (run.DurationMinutes is >= 1_440 and < 2_700)
+            var restBlockId = CompensationIdentity.RestBlockId(run);
+            var candidates = BuildRestAllocationCandidates(
+                obligations,
+                run,
+                restBlockId);
+            var decision = decisions
+                .Where(item =>
+                    item.Status == RestAllocationDecisionStatus.Active &&
+                    string.Equals(item.DriverCardId, run.DriverCardId, StringComparison.OrdinalIgnoreCase) &&
+                    string.Equals(item.RestBlockId, restBlockId, StringComparison.Ordinal))
+                .OrderByDescending(item => item.DecidedAtUtc)
+                .ThenByDescending(item => item.DecisionId)
+                .FirstOrDefault();
+            var selectedCandidate = decision is null
+                ? candidates.Count == 1 ? candidates[0] : null
+                : candidates.FirstOrDefault(item =>
+                    string.Equals(item.CandidateId, decision.CandidateId, StringComparison.Ordinal));
+            allocations.Add(new RestAllocationProjection(
+                restBlockId,
+                run.DriverCardId,
+                run.Start,
+                run.EndExclusive,
+                candidates,
+                decision,
+                selectedCandidate));
+
+            if (selectedCandidate is null)
+                continue;
+
+            if (selectedCandidate.ObligationIds.Count > 0)
             {
-                var reductionWeek = GameWeek.From(run.Start, offsetDays);
-                var dueAtExclusive = new GameTime(checked(
-                    ((reductionWeek.Index + 4) * GameWeek.MinutesPerWeek) -
-                    ((long)offsetDays * GameWeek.MinutesPerDay)));
-                var sourceRestBlockId = CompensationIdentity.RestBlockId(run);
-                var originalOwedMinutes = 2_700 - run.DurationMinutes;
-                obligations.Add(new WeeklyRestCompensation
-                {
-                    IdentitySchemeVersion = CompensationIdentity.SchemeVersion,
-                    ObligationId = CompensationIdentity.ObligationId(
-                        run.DriverCardId,
-                        sourceRestBlockId,
-                        reductionWeek),
-                    DriverCardId = run.DriverCardId,
-                    SourceRestBlockId = sourceRestBlockId,
-                    SourceRestEndExclusive = run.EndExclusive,
-                    OriginalOwedMinutes = originalOwedMinutes,
-                    RemainingMinutes = originalOwedMinutes,
-                    ReductionWeek = reductionWeek,
-                    DueAtExclusive = dueAtExclusive,
-                    Status = now < dueAtExclusive
-                        ? WeeklyRestCompensationStatus.OpenOnTime
-                        : WeeklyRestCompensationStatus.Overdue
-                });
+                SettleSelectedObligations(
+                    obligations,
+                    run,
+                    selectedCandidate.HostMinimumMinutes,
+                    selectedCandidate.ObligationIds);
+            }
+
+            if (selectedCandidate.NewDebtMinutes > 0)
+            {
+                obligations.Add(CreateObligation(
+                    run,
+                    restBlockId,
+                    selectedCandidate.NewDebtMinutes,
+                    now,
+                    offsetDays));
             }
         }
 
@@ -302,7 +361,145 @@ public sealed class RegulationEngine
             };
         }
 
-        return obligations;
+        return new CompensationProjection(obligations, allocations);
+    }
+
+    private static IReadOnlyList<RestAllocationCandidate> BuildRestAllocationCandidates(
+        IReadOnlyList<WeeklyRestCompensation> obligations,
+        ActivityRun run,
+        string restBlockId)
+    {
+        var candidates = new List<RestAllocationCandidate>();
+        if (run.DurationMinutes < 2_700)
+        {
+            var dailyObligations = WholeObligationsThatFit(
+                obligations,
+                run.DurationMinutes - 540);
+            if (dailyObligations.Count > 0)
+            {
+                candidates.Add(Candidate(
+                    restBlockId,
+                    RestAllocationPurpose.DailyRestWithCompensation,
+                    540,
+                    dailyObligations,
+                    newDebtMinutes: 0,
+                    satisfiesWeeklyRestRequirement: false));
+            }
+
+            candidates.Add(Candidate(
+                restBlockId,
+                RestAllocationPurpose.ReducedWeeklyRestOnly,
+                1_440,
+                [],
+                checked((int)(2_700 - run.DurationMinutes)),
+                satisfiesWeeklyRestRequirement: true));
+
+            var weeklyObligations = WholeObligationsThatFit(
+                obligations,
+                run.DurationMinutes - 1_440);
+            if (weeklyObligations.Count > 0)
+            {
+                candidates.Add(Candidate(
+                    restBlockId,
+                    RestAllocationPurpose.ReducedWeeklyRestWithCompensation,
+                    1_440,
+                    weeklyObligations,
+                    newDebtMinutes: 1_260,
+                    satisfiesWeeklyRestRequirement: true));
+            }
+        }
+        else
+        {
+            candidates.Add(Candidate(
+                restBlockId,
+                RestAllocationPurpose.RegularWeeklyRestOnly,
+                2_700,
+                [],
+                newDebtMinutes: 0,
+                satisfiesWeeklyRestRequirement: true));
+            var regularObligations = WholeObligationsThatFit(
+                obligations,
+                run.DurationMinutes - 2_700);
+            if (regularObligations.Count > 0)
+            {
+                candidates.Add(Candidate(
+                    restBlockId,
+                    RestAllocationPurpose.RegularWeeklyRestWithCompensation,
+                    2_700,
+                    regularObligations,
+                    newDebtMinutes: 0,
+                    satisfiesWeeklyRestRequirement: true));
+            }
+        }
+
+        return candidates;
+    }
+
+    private static RestAllocationCandidate Candidate(
+        string restBlockId,
+        RestAllocationPurpose purpose,
+        int hostMinimumMinutes,
+        IReadOnlyList<string> obligationIds,
+        int newDebtMinutes,
+        bool satisfiesWeeklyRestRequirement) => new(
+            CompensationIdentity.RestAllocationCandidateId(
+                restBlockId,
+                purpose,
+                hostMinimumMinutes,
+                obligationIds,
+                newDebtMinutes),
+            restBlockId,
+            purpose,
+            hostMinimumMinutes,
+            obligationIds,
+            newDebtMinutes,
+            satisfiesWeeklyRestRequirement);
+
+    private static IReadOnlyList<string> WholeObligationsThatFit(
+        IReadOnlyList<WeeklyRestCompensation> obligations,
+        long attachableMinutes)
+    {
+        var result = new List<string>();
+        foreach (var obligation in OrderedOpenObligations(obligations))
+        {
+            if (attachableMinutes < obligation.OriginalOwedMinutes)
+                break;
+            result.Add(obligation.ObligationId);
+            attachableMinutes -= obligation.OriginalOwedMinutes;
+        }
+
+        return result;
+    }
+
+    private static WeeklyRestCompensation CreateObligation(
+        ActivityRun run,
+        string sourceRestBlockId,
+        int originalOwedMinutes,
+        GameTime now,
+        int offsetDays)
+    {
+        var reductionWeek = GameWeek.From(run.Start, offsetDays);
+        var dueAtExclusive = new GameTime(checked(
+            ((reductionWeek.Index + 4) * GameWeek.MinutesPerWeek) -
+            ((long)offsetDays * GameWeek.MinutesPerDay)));
+        return new WeeklyRestCompensation
+        {
+            IdentitySchemeVersion = CompensationIdentity.SchemeVersion,
+            ObligationId = CompensationIdentity.ObligationId(
+                run.DriverCardId,
+                sourceRestBlockId,
+                reductionWeek),
+            DriverCardId = run.DriverCardId,
+            SourceRestBlockId = sourceRestBlockId,
+            SourceRestEndExclusive = run.EndExclusive,
+            OriginalOwedMinutes = originalOwedMinutes,
+            RemainingMinutes = originalOwedMinutes,
+            ReductionWeek = reductionWeek,
+            DueAtExclusive = dueAtExclusive,
+            Status = now < dueAtExclusive
+                ? WeeklyRestCompensationStatus.OpenOnTime
+                : WeeklyRestCompensationStatus.Overdue
+        };
     }
 
     private static void SettleWholeObligations(
@@ -344,11 +541,55 @@ public sealed class RegulationEngine
         }
     }
 
+    private static void SettleSelectedObligations(
+        List<WeeklyRestCompensation> obligations,
+        ActivityRun paymentRun,
+        int hostMinimumMinutes,
+        IReadOnlyList<string> selectedObligationIds)
+    {
+        var paymentRestBlockId = CompensationIdentity.RestBlockId(paymentRun);
+        var paymentCursor = paymentRun.Start.AddMinutes(hostMinimumMinutes);
+        foreach (var obligationId in selectedObligationIds)
+        {
+            var index = obligations.FindIndex(item =>
+                item.IsOpen &&
+                string.Equals(item.ObligationId, obligationId, StringComparison.Ordinal));
+            if (index < 0)
+                throw new InvalidOperationException(
+                    $"Rest allocation references unavailable obligation {obligationId}.");
+
+            var obligation = obligations[index];
+            var paymentEnd = paymentCursor.AddMinutes(obligation.OriginalOwedMinutes);
+            var status = paymentEnd < obligation.DueAtExclusive
+                ? WeeklyRestCompensationStatus.PaidOnTime
+                : WeeklyRestCompensationStatus.PaidLate;
+            obligations[index] = obligation with
+            {
+                RemainingMinutes = 0,
+                PaymentRestBlockId = paymentRestBlockId,
+                PaymentRange = new CompensationMinuteRange(paymentCursor, paymentEnd),
+                SettledAt = paymentEnd,
+                Status = status
+            };
+            paymentCursor = paymentEnd;
+        }
+    }
+
+    private static IEnumerable<WeeklyRestCompensation> OrderedOpenObligations(
+        IEnumerable<WeeklyRestCompensation> obligations) => obligations
+        .Where(item => item.IsOpen)
+        .OrderBy(item => item.DueAtExclusive)
+        .ThenBy(item => item.ReductionWeek.Index)
+        .ThenBy(item => item.SourceRestEndExclusive)
+        .ThenBy(item => item.ObligationId, StringComparer.Ordinal);
+
     private static bool WeeklyPatternInvalid(
         IReadOnlyList<ActivityRecord> history,
         IReadOnlyList<ActivityRun> runs,
         GameWeek currentWeek,
-        int offsetDays)
+        int offsetDays,
+        GameTime now,
+        IReadOnlyList<RestAllocationProjection> allocations)
     {
         if (history.Count == 0)
         {
@@ -365,14 +606,19 @@ public sealed class RegulationEngine
 
         var weeklyRests = runs.Where(run =>
             run.Activity == DriverActivity.BreakOrRest &&
-            run.DurationMinutes >= 1_440 &&
+            WeeklyClassification(run, now, allocations) is not null &&
             run.Start.TotalMinutes >= windowStart &&
             run.Start.TotalMinutes < windowEnd).ToList();
 
         return weeklyRests.Count < 2 ||
-            weeklyRests.All(run => run.DurationMinutes < 2_700);
+            weeklyRests.All(run =>
+                WeeklyClassification(run, now, allocations) != WeeklyRestClassification.Regular);
     }
 
     private sealed record DailyDrivingPeriod(GameTime Start, GameTime End, long DrivingMinutes);
+
+    private sealed record CompensationProjection(
+        IReadOnlyList<WeeklyRestCompensation> Obligations,
+        IReadOnlyList<RestAllocationProjection> Allocations);
 
 }

@@ -16,4 +16,5 @@ public sealed record RegulationState
     public long MinutesUntilDailyRestDeadline { get; init; }
     public long MinutesUntilWeeklyRestDeadline { get; init; }
     public GameTime? LastDailyRestResetAt { get; init; }
+    public bool PendingRestAllocation { get; init; }
 }

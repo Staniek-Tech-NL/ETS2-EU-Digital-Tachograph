@@ -302,13 +302,17 @@ public sealed class RegulationEngineTests
     [Fact]
     public void Extra_regular_rest_can_satisfy_oldest_compensation()
     {
-        var result = Evaluate(
+        ActivityRecord[] history =
         [
             Record(0, 2_400, DriverActivity.BreakOrRest),
             Record(2_400, 2_460, DriverActivity.OtherWork),
             Record(2_460, 5_460, DriverActivity.BreakOrRest),
             Record(5_460, 5_461, DriverActivity.OtherWork)
-        ], 5_461);
+        ];
+        var result = EvaluateChoosing(
+            history,
+            5_461,
+            RestAllocationPurpose.RegularWeeklyRestWithCompensation);
 
         Assert.Empty(result.Compensations);
         var compensation = Assert.Single(result.CompensationObligations);
@@ -336,7 +340,7 @@ public sealed class RegulationEngineTests
     {
         // Approved reference data: WEEKLY_REST_COMPENSATION_REFERENCE_DATA_2026-07-22.md.
         const string cardId = "Staniek";
-        var history = new[]
+        ActivityRecord[] history =
         {
             RestRecord(cardId, 186_055, 187_502, ActivitySource.ManualEntry,
                 "0F368EE5-460D-43C8-9059-F28B5165C7E3"),
@@ -362,7 +366,7 @@ public sealed class RegulationEngineTests
     {
         // Approved reference data: WEEKLY_REST_COMPENSATION_REFERENCE_DATA_2026-07-22.md.
         const string cardId = "Doboś";
-        var history = new[]
+        ActivityRecord[] history =
         {
             RestRecord(cardId, 187_260, 188_768, ActivitySource.Mixed,
                 "81C8CB6D-1FE0-4ADF-9E0A-AF91910573EC"),
@@ -426,7 +430,7 @@ public sealed class RegulationEngineTests
     [Fact]
     public void SingleBlock_CanSettleSeveralWholeObligations()
     {
-        var result = Evaluate(
+        ActivityRecord[] history =
         [
             Record(0, 1_440, DriverActivity.BreakOrRest),
             Record(1_440, 1_500, DriverActivity.OtherWork),
@@ -434,7 +438,11 @@ public sealed class RegulationEngineTests
             Record(4_500, 4_560, DriverActivity.OtherWork),
             Record(6_000, 11_160, DriverActivity.BreakOrRest),
             Record(11_160, 11_161, DriverActivity.OtherWork)
-        ], 11_161);
+        ];
+        var result = EvaluateChoosing(
+            history,
+            11_161,
+            RestAllocationPurpose.RegularWeeklyRestWithCompensation);
 
         Assert.Empty(result.Compensations);
         Assert.Equal(2, result.CompensationObligations.Count);
@@ -459,7 +467,7 @@ public sealed class RegulationEngineTests
     [Fact]
     public void Fifo_DoesNotSkipEarlierDebtWhenBlockCannotSettleIt()
     {
-        var result = Evaluate(
+        ActivityRecord[] history =
         [
             Record(0, 1_440, DriverActivity.BreakOrRest),
             Record(1_440, 1_441, DriverActivity.OtherWork),
@@ -467,7 +475,11 @@ public sealed class RegulationEngineTests
             Record(12_480, 12_481, DriverActivity.OtherWork),
             Record(13_000, 13_840, DriverActivity.BreakOrRest),
             Record(13_840, 13_841, DriverActivity.OtherWork)
-        ], 13_841);
+        ];
+        var result = EvaluateChoosing(
+            history,
+            13_841,
+            RestAllocationPurpose.ReducedWeeklyRestOnly);
 
         Assert.Equal(2, result.Compensations.Count);
         var first = Assert.Single(
@@ -481,6 +493,129 @@ public sealed class RegulationEngineTests
         Assert.Equal(1_560, result.CompensationSummary.TotalOwedMinutes);
         Assert.Null(first.PaymentRestBlockId);
         Assert.Null(second.PaymentRestBlockId);
+    }
+
+    [Fact]
+    public void Staniek_2953_requires_allocation_and_daily_candidate_settles_without_new_debt()
+    {
+        var history = CompensationAllocationHistory(1_253, 1_793);
+        var pending = Evaluate(history, history[^1].EndExclusive.TotalMinutes);
+        var allocation = Assert.Single(pending.PendingRestAllocations);
+        var daily = Assert.Single(allocation.Candidates,
+            item => item.Purpose == RestAllocationPurpose.DailyRestWithCompensation);
+        var weekly = Assert.Single(allocation.Candidates,
+            item => item.Purpose == RestAllocationPurpose.ReducedWeeklyRestOnly);
+        Assert.Equal(540, daily.HostMinimumMinutes);
+        Assert.Equal(0, daily.NewDebtMinutes);
+        Assert.Equal(907, weekly.NewDebtMinutes);
+        Assert.True(pending.State.PendingRestAllocation);
+
+        var selected = EvaluateChoosing(
+            history,
+            history[^1].EndExclusive.TotalMinutes,
+            RestAllocationPurpose.DailyRestWithCompensation);
+
+        var oldDebt = Assert.Single(selected.CompensationObligations);
+        Assert.Equal(1_253, oldDebt.OriginalOwedMinutes);
+        Assert.Equal(0, oldDebt.RemainingMinutes);
+        Assert.False(selected.State.PendingRestAllocation);
+    }
+
+    [Fact]
+    public void Staniek_2953_weekly_choice_keeps_old_debt_and_creates_1507()
+    {
+        var history = CompensationAllocationHistory(1_253, 1_793);
+
+        var selected = EvaluateChoosing(
+            history,
+            history[^1].EndExclusive.TotalMinutes,
+            RestAllocationPurpose.ReducedWeeklyRestOnly);
+
+        Assert.Equal(
+            [907L, 1_253L],
+            selected.Compensations.Select(item => item.RemainingMinutes).Order().ToArray());
+    }
+
+    [Fact]
+    public void Dobos_2852_daily_choice_settles_1952_without_new_debt()
+    {
+        var history = CompensationAllocationHistory(1_192, 1_732);
+
+        var selected = EvaluateChoosing(
+            history,
+            history[^1].EndExclusive.TotalMinutes,
+            RestAllocationPurpose.DailyRestWithCompensation);
+
+        var obligation = Assert.Single(selected.CompensationObligations);
+        Assert.Equal(1_192, obligation.OriginalOwedMinutes);
+        Assert.Equal(0, obligation.RemainingMinutes);
+    }
+
+    [Fact]
+    public void Dobos_2852_weekly_choice_keeps_old_debt_and_creates_1608()
+    {
+        var history = CompensationAllocationHistory(1_192, 1_732);
+
+        var selected = EvaluateChoosing(
+            history,
+            history[^1].EndExclusive.TotalMinutes,
+            RestAllocationPurpose.ReducedWeeklyRestOnly);
+
+        Assert.Equal(
+            [968L, 1_192L],
+            selected.Compensations.Select(item => item.RemainingMinutes).Order().ToArray());
+    }
+
+    [Fact]
+    public void Allocation_one_minute_too_short_has_no_compensation_candidate()
+    {
+        var history = CompensationAllocationHistory(1_253, 1_792);
+
+        var result = Evaluate(history, history[^1].EndExclusive.TotalMinutes);
+
+        var allocation = result.RestAllocations.Last();
+        Assert.DoesNotContain(
+            allocation.Candidates,
+            item => item.ObligationIds.Count > 0);
+        var oldDebt = Assert.Single(
+            result.Compensations,
+            item => item.OriginalOwedMinutes == 1_253);
+        Assert.Equal(1_253, oldDebt.RemainingMinutes);
+    }
+
+    [Fact]
+    public void Allocation_4453_never_uses_compensation_minutes_as_weekly_base()
+    {
+        var history = CompensationAllocationHistory(1_253, 2_693);
+        var pending = Evaluate(history, history[^1].EndExclusive.TotalMinutes);
+        var allocation = Assert.Single(pending.PendingRestAllocations);
+        Assert.Contains(allocation.Candidates, item =>
+            item.Purpose == RestAllocationPurpose.DailyRestWithCompensation &&
+            item.NewDebtMinutes == 0);
+        Assert.Contains(allocation.Candidates, item =>
+            item.Purpose == RestAllocationPurpose.ReducedWeeklyRestOnly &&
+            item.NewDebtMinutes == 7);
+        Assert.Contains(allocation.Candidates, item =>
+            item.Purpose == RestAllocationPurpose.ReducedWeeklyRestWithCompensation &&
+            item.NewDebtMinutes == 1_260);
+    }
+
+    [Fact]
+    public void Allocation_6553_regular_weekly_plus_compensation_settles_without_new_debt()
+    {
+        var history = CompensationAllocationHistory(1_253, 3_953);
+
+        var selected = EvaluateChoosing(
+            history,
+            history[^1].EndExclusive.TotalMinutes,
+            RestAllocationPurpose.RegularWeeklyRestWithCompensation);
+
+        var obligation = Assert.Single(selected.CompensationObligations);
+        Assert.Equal(0, obligation.RemainingMinutes);
+        var allocation = selected.RestAllocations.Last();
+        Assert.True(allocation.SelectedCandidate!.SatisfiesWeeklyRestRequirement);
+        Assert.Equal(2_700, allocation.SelectedCandidate.HostMinimumMinutes);
+        Assert.Equal(0, allocation.SelectedCandidate.NewDebtMinutes);
     }
 
     [Fact]
@@ -627,6 +762,29 @@ public sealed class RegulationEngineTests
         RegulationOptions? options = null) =>
         _engine.Evaluate(new RuleContext(new GameTime(now), history), options);
 
+    private RegulationEvaluation EvaluateChoosing(
+        IReadOnlyList<ActivityRecord> history,
+        long now,
+        RestAllocationPurpose purpose)
+    {
+        var initial = Evaluate(history, now);
+        var allocation = Assert.Single(initial.PendingRestAllocations);
+        var candidate = Assert.Single(
+            allocation.Candidates,
+            item => item.Purpose == purpose);
+        var decision = new RestAllocationDecision(
+            Guid.NewGuid(),
+            allocation.DriverCardId,
+            allocation.RestBlockId,
+            candidate.CandidateId,
+            allocation.EndExclusive.TotalMinutes,
+            DateTimeOffset.UtcNow,
+            DecisionSchemeVersion: 1);
+        return _engine.Evaluate(
+            new RuleContext(new GameTime(now), history),
+            restAllocationDecisions: [decision]);
+    }
+
     private static bool Has(RegulationEvaluation result, ViolationType type) =>
         result.Violations.Any(violation => violation.Type == type);
 
@@ -651,6 +809,22 @@ public sealed class RegulationEngineTests
         Source = source,
         SourceGapId = sourceGapId is null ? null : Guid.Parse(sourceGapId)
     };
+
+    private static IReadOnlyList<ActivityRecord> CompensationAllocationHistory(
+        int originalDebtMinutes,
+        int paymentRestMinutes)
+    {
+        var sourceRestMinutes = 2_700 - originalDebtMinutes;
+        var paymentStart = sourceRestMinutes + 60L;
+        var paymentEnd = paymentStart + paymentRestMinutes;
+        return
+        [
+            Record(0, sourceRestMinutes, DriverActivity.BreakOrRest),
+            Record(sourceRestMinutes, paymentStart, DriverActivity.OtherWork),
+            Record(paymentStart, paymentEnd, DriverActivity.BreakOrRest),
+            Record(paymentEnd, paymentEnd + 1, DriverActivity.OtherWork)
+        ];
+    }
 
     private static IReadOnlyList<ActivityRecord> BuildOpenCompensationHistory(bool splitRest) =>
         splitRest

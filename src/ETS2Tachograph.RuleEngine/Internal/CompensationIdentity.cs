@@ -45,6 +45,28 @@ internal static class CompensationIdentity
         return $"obligation-v{SchemeVersion}-{Hash(stream.ToArray())}";
     }
 
+    public static string RestAllocationCandidateId(
+        string restBlockId,
+        RestAllocationPurpose purpose,
+        int hostMinimumMinutes,
+        IReadOnlyList<string> obligationIds,
+        int newDebtMinutes)
+    {
+        using var stream = new MemoryStream();
+        using var writer = new BinaryWriter(stream, Encoding.UTF8, leaveOpen: true);
+        WriteText(writer, "ETS2TACHO-REST-ALLOCATION-CANDIDATE");
+        writer.Write(SchemeVersion);
+        WriteText(writer, restBlockId);
+        writer.Write((int)purpose);
+        writer.Write(hostMinimumMinutes);
+        writer.Write(newDebtMinutes);
+        writer.Write(obligationIds.Count);
+        foreach (var obligationId in obligationIds)
+            WriteText(writer, obligationId);
+        writer.Flush();
+        return $"allocation-v{SchemeVersion}-{Hash(stream.ToArray())}";
+    }
+
     private static void WriteText(BinaryWriter writer, string value)
     {
         var bytes = Encoding.UTF8.GetBytes(value);
