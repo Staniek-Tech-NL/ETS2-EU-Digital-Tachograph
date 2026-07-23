@@ -261,15 +261,18 @@ Zmiana w XAML nie jest gotowa, dopóki wszystkie punkty nie są odhaczone.
 9. W JSON sprawdź pełne `compensationObligations`; sekcja `compensation` musi
    pozostać zgodnym podsumowaniem pochodnym.
 
-## Końcowy smoke test terenowy beta.11.1 / bieżącego drzewa
+## Końcowy smoke test terenowy artefaktu beta.11.1
 
-- [ ] Staniek: `1253 min / 20:53` w Dashboardzie, szczegółach i eksportach.
-- [ ] Doboś: `1192 min / 19:52` w Dashboardzie, szczegółach i eksportach.
-- [ ] PDF, CSV i JSON są zgodne z pełnym kontraktem DTO.
-- [ ] Po restarcie aplikacji wyniki i identyfikatory są identyczne.
-- [ ] Przy aktywnej telemetrii ruch automatycznie ustawia **Jazdę**.
-- [ ] Blokady zależne od ruchu działają zgodnie z opisem UI; pamiętaj, że SCS jest
+- [x] Staniek: `1253 min / 20:53` w Dashboardzie, szczegółach i eksportach.
+- [x] Doboś: `1192 min / 19:52` w Dashboardzie, szczegółach i eksportach.
+- [x] PDF, CSV i JSON są zgodne z pełnym kontraktem DTO.
+- [x] Po restarcie aplikacji wyniki i identyfikatory są identyczne.
+- [x] Przy aktywnej telemetrii ruch automatycznie ustawia **Jazdę**.
+- [x] Blokady zależne od ruchu działają zgodnie z opisem UI; pamiętaj, że SCS jest
       tylko do odczytu i nie zatrzymuje fizycznie ciężarówki.
+
+**Wynik z 23 lipca 2026:** wszystkie testy zielone. Decyzja: **GO** dla
+artefaktu `0.1.0-beta.11.1`.
 
 ## Zgłaszanie błędu
 

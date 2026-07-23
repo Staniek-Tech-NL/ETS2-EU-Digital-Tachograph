@@ -55,6 +55,11 @@ tygodnia i rekompensaty są pokryte późniejszym modelem, testami RuleEngine or
 dokumentacją rekompensat. Obserwacje dotyczące bloków z wieloma rozliczonymi
 lukami pozostają osobną decyzją domenową.
 
+Artefakt beta.11.1 przeszedł osobisty smoke z aktywną telemetrią 23 lipca 2026
+i otrzymał decyzję **GO**. Poniższy warunek smoke bieżącego drzewa pozostaje
+osobnym zabezpieczeniem, ponieważ lokalne zmiany UI powstały już po zamrożeniu
+artefaktu beta.11.1.
+
 Planer nie przechodzi do implementacji przed:
 
 1. osobistym smoke bieżącego drzewa z aktywną telemetrią,

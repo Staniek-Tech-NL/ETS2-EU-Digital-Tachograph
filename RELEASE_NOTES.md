@@ -57,7 +57,9 @@ Wydanie naprawcze zastępujące wycofanego kandydata beta.11.
 - migracja i dwa restarty sprawdzone na kopii właściwej bazy;
 - po restarcie dokładnie dwa audytowane rekordy rekonstrukcji i zero
   nierozliczonych luk referencyjnych;
-- końcowy smoke terenowy z aktywną telemetrią wykonuje tester osobiście.
+- końcowy smoke terenowy z aktywną telemetrią wykonany 23 lipca 2026;
+- wszystkie pozycje checklisty smoke testu zakończone wynikiem zielonym;
+- decyzja wydaniowa: **GO** dla `0.1.0-beta.11.1`.
 
 ---
 

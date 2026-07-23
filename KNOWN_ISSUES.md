@@ -7,6 +7,8 @@
 Opublikowaną bazą pozostaje beta.11.1. Bieżący kod zawiera również
 nieopublikowane zmiany lokalne UI: wariant B wpisu manualnego, katalog krajów
 ISO i korektę prezentacji `ODP. TYG.`. Lokalny gate Release wynosi 310/310.
+Artefakt beta.11.1 przeszedł końcowy smoke z aktywną telemetrią 23 lipca 2026;
+wszystkie testy były zielone, a decyzja wydaniowa brzmi **GO**.
 Nowe błędy z testów należy dopisywać razem ze statusem `lokalne` albo numerem
 wydanej paczki i raportem diagnostycznym.
 

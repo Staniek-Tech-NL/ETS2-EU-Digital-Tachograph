@@ -10,6 +10,8 @@ kierowców i wylicza liczniki zgodnie z zaimplementowanym zakresem reguł.
 ## Aktualny stan
 
 - opublikowaną bazą wersjonowaną pozostaje `0.1.0-beta.11.1`;
+- końcowy smoke beta.11.1 z aktywną telemetrią zaliczony 23 lipca 2026 —
+  wszystkie testy zielone, decyzja **GO**;
 - bieżące zmiany UI są wdrożone wyłącznie lokalnie i nie tworzą nowej wersji beta;
 - lokalny gate Release: **310/310 testów**, 0 błędów i 0 ostrzeżeń;
 - aplikacja została uruchomiona diagnostycznie po ostatnich zmianach XAML.

@@ -18,7 +18,13 @@ Najważniejszym problemem domenowym jest nietypowy zegar ETS2. `game_time` przys
 
 Projekt przeszedł etapy: model domenowy, telemetria, RuleEngine, integracja Engine, SQLite/EF Core, Application, raporty, realistyczne WPF, dwie karty, nakładki, luki i wpisy manualne, retencja hot/warm oraz wielodniowe beta-testy. Aktualne wydanie to `0.1.0-beta.11.1`. Zawiera pełny model rekompensat en bloc, audytowaną decyzję alokacji niejednoznacznego odpoczynku 24 h+ oraz wspólną klasyfikację długiego skoku czasu obu kart. Zestaw automatyczny ma 282 zielone testy, a build Release nie zgłasza błędów ani ostrzeżeń.
 
-Projekt nie jest jeszcze bezwarunkowo gotowy do szerokiej publikacji. Beta.11.1 przeszła pełny gate automatyczny, migrację i restart na kopii właściwej bazy, ale końcowy smoke z aktywną telemetrią wykonuje osobiście tester. Nadal otwarty jest wcześniejszy problem prezentacyjny licznika pauzy: UI może pokazać `45:00 / ZALICZONA`, gdy historia po regule jednej minuty zawiera dopiero 44 minuty. RuleEngine pozostaje wtedy poprawny; problem dotyczy warstwy prezentacji.
+Beta.11.1 przeszła pełny gate automatyczny, migrację, restart na kopii właściwej
+bazy oraz końcowy smoke z aktywną telemetrią. Wszystkie pozycje smoke testu
+zakończyły się wynikiem zielonym 23 lipca 2026; decyzja wydaniowa: **GO**.
+Nadal otwarty jest wcześniejszy problem prezentacyjny licznika pauzy: UI może
+pokazać `45:00 / ZALICZONA`, gdy historia po regule jednej minuty zawiera dopiero
+44 minuty. RuleEngine pozostaje wtedy poprawny; problem dotyczy warstwy
+prezentacji i nie zablokował świadomie podjętej decyzji GO dla beta.11.1.
 
 ---
 
@@ -383,7 +389,10 @@ Ostatnią zakończoną zmianą jest wydanie naprawcze beta.11.1. RuleEngine gene
 
 Na kopii właściwej bazy audytowalnie rozliczono dwa zakresy Dnia 141: Doboś `15:30–15:45` jako `OtherWork` oraz Staniek `18:56–19:15` jako `Availability`. Źródłem obu rekordów jest `AutomaticCrewReconstruction`; pierwotne `ActivityGap` pozostały w audycie jako rozliczone. Po dwóch restartach istnieją dokładnie dwa rekordy korekty i zero nierozliczonych luk referencyjnych.
 
-Gate beta.11.1: 282/282 testy, build Release 0/0, self-contained `win-x64`, poprawne metadane `0.1.0-beta.11.1`, kompletna paczka z pluginem oraz zgodny SHA-256. Do wykonania pozostaje osobisty smoke test z aktywną telemetrią i decyzja GO/FIX/HOLD.
+Gate beta.11.1: 282/282 testy, build Release 0/0, self-contained `win-x64`,
+poprawne metadane `0.1.0-beta.11.1`, kompletna paczka z pluginem oraz zgodny
+SHA-256. Osobisty smoke test z aktywną telemetrią zaliczony 23 lipca 2026;
+decyzja: **GO**.
 
 **Znany problem poza zakresem beta.11.1:** licznik celu pauzy w `MainViewModel` może wyprzedzić zatwierdzoną historię o jedną minutę. RuleEngine liczy poprawnie; korekta prezentacji wymaga osobnego czerwonego testu `41 min reconstructed + 3 min telemetry = 44 min`.
 
@@ -446,13 +455,14 @@ Gate beta.11.1: 282/282 testy, build Release 0/0, self-contained `win-x64`, popr
 
 ## 11. Lista zadań
 
-### Priorytet 1 — najbliższy krok
+### Priorytet 1 — zamknięty gate wydaniowy
 
 #### P1.1. Osobisty smoke test beta.11.1
 
 - **Opis:** uruchomić wyłącznie artefakt `0.1.0-beta.11.1` z aktywną telemetrią ETS2.
 - **Zakres:** Staniek `20:53`, Doboś `19:52`, warianty alokacji 24 h+, zgodność Dashboardu, szczegółów, PDF, CSV i JSON, restart, automatyczna Jazda oraz blokady zależne od ruchu.
-- **Kryterium ukończenia:** zapisany wynik GO/FIX/HOLD bez ręcznej modyfikacji bazy.
+- **Wynik:** zakończony 23 lipca 2026; wszystkie testy zielone, decyzja **GO**,
+  bez ręcznej modyfikacji bazy.
 
 #### P1.2. Naprawić licznik pauzy UI
 
@@ -512,14 +522,14 @@ Gate beta.11.1: 282/282 testy, build Release 0/0, self-contained `win-x64`, popr
 
 ## 12. Rekomendowany następny krok
 
-**Wykonać osobisty smoke test terenowy beta.11.1.**
+**Gate beta.11.1 jest zamknięty wynikiem GO.**
 
-1. Użyć paczki `ETS2Tachograph-0.1.0-beta.11.1-win-x64.zip`, nie katalogu deweloperskiego ani wycofanej beta.11.
-2. Potwierdzić Staniek `1253 min / 20:53` i Doboś `1192 min / 19:52`.
-3. Sprawdzić ręczny wybór kandydatury odpoczynku 24 h+, zgodność UI/PDF/CSV/JSON i trwałość po restarcie.
-4. Sprawdzić symetryczne skoki czasu obu kart, automatyczną Jazdę i blokady zależne od ruchu.
-5. Osobno odnotować znany przypadek graniczny licznika pauzy 44/45 min; nie zmieniać progu RuleEngine w ramach smoke testu.
-6. Zapisać decyzję GO/FIX/HOLD. Dopiero po GO rozpocząć Planer; problem licznika pauzy prowadzić jako osobny, test-first hotfix.
+1. Zachować artefakt `ETS2Tachograph-0.1.0-beta.11.1-win-x64.zip` i jego
+   SHA-256 jako zamrożony punkt odniesienia.
+2. Nie dopisywać późniejszych zmian lokalnych do zakresu beta.11.1.
+3. Podjąć osobną decyzję o następnym zakresie: test-first hotfix licznika pauzy
+   44/45 min, lokalizacja PL/EN albo Planer podróży.
+4. Planer rozpocząć dopiero po jawnej decyzji właściciela projektu.
 
 ---
 
@@ -540,8 +550,9 @@ KNOWN_ISSUES i raporty związane z problemem. Każdy potwierdzony bug najpierw o
 czerwonym testem, potem popraw minimalnie i uruchom pełny zestaw regresji. Po większej
 zmianie zaktualizuj README/RELEASE_NOTES/BETA_TEST_PLAN/KNOWN_ISSUES oraz handoff.
 
-    Najbliższe zadanie: osobisty smoke test artefaktu beta.11.1 i decyzja GO/FIX/HOLD.
-    Sprawdź alokację rekompensaty, wspólne skoki obu kart, zgodność eksportów i restart.
+    Smoke test artefaktu beta.11.1 z aktywną telemetrią został zaliczony
+    23 lipca 2026; wszystkie testy zielone, decyzja GO.
+    Następny zakres wymaga osobnej decyzji właściciela projektu.
     Znany rozjazd licznika pauzy 44/45 min pozostaje osobnym zadaniem test-first; RuleEngine
     jest poprawny i nie wolno zmieniać jego progu w ramach smoke testu.
 ```
@@ -570,8 +581,14 @@ Persistence ma backup przed migracją, znaczący klucz idempotentności `Activit
 
 UI WPF ma realistyczny tachograf, Dashboard, Historię, Raporty, Kierowców i Ustawienia. Nakładki: Alt+1 S1, Alt+2 S2, Alt+Q dodatkowo S1; pozycje są zapisywane osobno, widoczność nie. PDF agreguje minuty w bloki, CSV pozostaje surowy. PDF i JSON pokazują nierozliczone luki oraz bilans kompletności. Eksport `.tacho` jest własnym formatem, nie urzędowym Annex 1C.
 
-Tryb pracy nad projektem jest regresyjny i oparty na dowodach. Każdy potwierdzony błąd należy najpierw odtworzyć testem na dokładnych minutach gry oraz właściwej karcie, slocie i sesji, a dopiero potem wprowadzić najmniejszą poprawkę. Po zmianach w historii albo regułach trzeba uruchomić cały zestaw testów, ponieważ pozornie lokalna korekta może zmienić reset dobowy, tydzień regulacyjny, raport lub drugi slot. Nie wolno maskować konfliktów przez ignorowanie wyjątków, obcinanie liczników do limitu ani sztuczne dopisywanie brakujących minut. Naruszenia pokazują rzeczywisty wynik, przykładowo `3 / 2`, a nie zatrzymane `2 / 2`. Diagnostyka, surowy CSV i źródłowe sesje muszą pozostać dostępne, by dało się odtworzyć każdy wynik. Wersję uznaje się za gotową do bety dopiero po zielonym buildzie i testach, sprawdzeniu paczki oraz hashy, krótkim smoke teście z prawdziwą telemetrią i aktualizacji dokumentów wydania. Obecny terenowy gate potwierdził stabilność beta.10.1 po restarcie, ciągłość obu kart oraz zachowanie na granicy tygodnia, ale nie zamknął jeszcze rozjazdu licznika pauzy w UI.
+Tryb pracy nad projektem jest regresyjny i oparty na dowodach. Każdy potwierdzony błąd należy najpierw odtworzyć testem na dokładnych minutach gry oraz właściwej karcie, slocie i sesji, a dopiero potem wprowadzić najmniejszą poprawkę. Po zmianach w historii albo regułach trzeba uruchomić cały zestaw testów, ponieważ pozornie lokalna korekta może zmienić reset dobowy, tydzień regulacyjny, raport lub drugi slot. Nie wolno maskować konfliktów przez ignorowanie wyjątków, obcinanie liczników do limitu ani sztuczne dopisywanie brakujących minut. Naruszenia pokazują rzeczywisty wynik, przykładowo `3 / 2`, a nie zatrzymane `2 / 2`. Diagnostyka, surowy CSV i źródłowe sesje muszą pozostać dostępne, by dało się odtworzyć każdy wynik. Wersję uznaje się za gotową do bety dopiero po zielonym buildzie i testach, sprawdzeniu paczki oraz hashy, krótkim smoke teście z prawdziwą telemetrią i aktualizacji dokumentów wydania. Terenowy gate beta.11.1 został zaliczony 23 lipca 2026 i zakończony decyzją GO. Znany rozjazd licznika pauzy 44/45 min pozostaje osobnym problemem prezentacyjnym.
 
 Znane ograniczenia: wiele manualnych luk w jednym odpoczynku wymaga osobnej decyzji domenowej. Licznik pauzy UI może wyprzedzić zatwierdzoną historię o jedną minutę. `APP_START_FAILED` nie pokazuje całego `InnerException`. Cold retention, instalator, podpis i auto-update nie istnieją. SCS jest tylko do odczytu, więc blokada nie może fizycznie zatrzymać ciężarówki.
 
-Najbliższy krok to osobisty smoke beta.11.1 i decyzja GO/FIX/HOLD. Odrębny znany problem prezentacyjny dotyczy licznika pauzy: `MainViewModel` może policzyć od minuty kliknięcia, gdy OneMinuteRule zaliczy ją jeszcze do poprzedniej aktywności. Przypadek `41 min reconstructed + 3 min telemetry = 44 min` wymaga osobnego czerwonego testu i minimalnej korekty wspólnej projekcji Dashboardu, urządzenia i overlay. Nie zmieniać progu RuleEngine ani nie dopisywać minuty.
+Gate beta.11.1 jest zamknięty wynikiem GO. Następny zakres wymaga osobnej
+decyzji właściciela projektu. Odrębny znany problem prezentacyjny dotyczy
+licznika pauzy: `MainViewModel` może policzyć od minuty kliknięcia, gdy
+OneMinuteRule zaliczy ją jeszcze do poprzedniej aktywności. Przypadek
+`41 min reconstructed + 3 min telemetry = 44 min` wymaga osobnego czerwonego
+testu i minimalnej korekty wspólnej projekcji Dashboardu, urządzenia i overlay.
+Nie zmieniać progu RuleEngine ani nie dopisywać minuty.

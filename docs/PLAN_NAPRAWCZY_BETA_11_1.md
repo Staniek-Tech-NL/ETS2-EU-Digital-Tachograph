@@ -11,7 +11,9 @@ zamknięty; nie należy ponownie traktować go jako listy niewykonanych zadań.
 **Wynik wykonania — 23 lipca 2026:** plan został wdrożony. Wydanie
 `0.1.0-beta.11.1` ma 282/282 zielone testy, build Release 0/0, migrację i
 restart sprawdzone na kopii właściwej bazy oraz gotowy artefakt self-contained.
-Pozostał osobisty smoke test z aktywną telemetrią i decyzja GO/FIX/HOLD.
+Osobisty smoke test z aktywną telemetrią został wykonany 23 lipca 2026.
+Wszystkie pozycje zakończyły się wynikiem zielonym; decyzja wydaniowa:
+**GO** dla `0.1.0-beta.11.1`.
 
 Kandydat `0.1.0-beta.11` został wycofany przed smoke testem z powodu dwóch potwierdzonych błędów:
 

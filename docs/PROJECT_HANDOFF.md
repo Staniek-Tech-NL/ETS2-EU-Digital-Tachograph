@@ -2,6 +2,7 @@
 
 **Baza wydaniowa:** 0.1.0-beta.11.1 — bez nowej publikacji
 **Data przygotowania dokumentu:** 20 lipca 2026
+**Ostatnia aktualizacja:** 23 lipca 2026 — smoke beta.11.1 zielony, decyzja GO
 **Bieżący stan lokalny:** wariant B wpisu manualnego, katalog ISO i korekta
 `ODP. TYG.` wdrożone; 310/310 testów Release, build 0/0, start aplikacji
 potwierdzony
@@ -22,8 +23,9 @@ Późniejsze zmiany są lokalne i nie stanowią nowej bety. Obejmują wariant B
 wpisu manualnego, pełny katalog ISO 3166-1, osobny kod tachografowy i
 formatowanie `ODP. TYG.`. Stan automatyczny bieżącego drzewa: `310/310`,
 build Release 0 błędów i 0 ostrzeżeń. Start aplikacji po zmianach XAML został
-potwierdzony. Końcowy smoke z aktywną telemetrią nadal wykonuje osobiście tester;
-Planer pozostaje wstrzymany do osobnej decyzji.
+potwierdzony. Końcowy smoke artefaktu beta.11.1 z aktywną telemetrią został
+zaliczony 23 lipca 2026; decyzja wydaniowa: **GO**. Planer pozostaje wstrzymany
+do osobnej decyzji o rozpoczęciu prac.
 
 ---
 
@@ -222,7 +224,7 @@ ETS2 EU Digital Tachograph/
 │   └── JOURNEY_PLANNER_MVP_PLAN.md
 ├── output/releases/                    [ignorowane przez git — 1,26 GB paczek]
 │   ├── ETS2Tachograph-0.1.0-beta.11-win-x64.zip  [WYCOFANY KANDYDAT]
-│   └── ETS2Tachograph-0.1.0-beta.11.1-win-x64.zip [GOTOWY DO SMOKE]
+│   └── ETS2Tachograph-0.1.0-beta.11.1-win-x64.zip [SMOKE ZALICZONY — GO]
 ├── BETA_TEST_PLAN.md
 ├── KNOWN_ISSUES.md
 ├── RELEASE_NOTES.md
@@ -420,7 +422,7 @@ Oba FIX-y mają osobne testy i commity oraz przeszły wspólny gate beta.11.1.
 
 ## 11. Lista zadań
 
-### Priorytet 1 — wspólny gate beta.11.1
+### Priorytet 1 — wspólny gate beta.11.1 — zakończony
 
 #### 1. Zamrożenie dowodów
 - [x] oznaczyć beta.11 jako wycofaną w dokumentacji;
@@ -476,8 +478,8 @@ Oba FIX-y mają osobne testy i commity oraz przeszły wspólny gate beta.11.1.
 - [x] czyste drzewo poza lokalnym katalogiem `.claude/`;
 - [x] self-contained `win-x64`;
 - [x] ZIP beta.11.1 i plik SHA-256 wygenerowany obok paczki;
-- [ ] smoke test wyłącznie na artefakcie beta.11.1;
-- [ ] decyzja GO/FIX/HOLD.
+- [x] smoke test wyłącznie na artefakcie beta.11.1;
+- [x] decyzja GO/FIX/HOLD: **GO**, 23 lipca 2026.
 
 ### Priorytet 2 — po GO beta.11.1
 
@@ -491,9 +493,11 @@ Oba FIX-y mają osobne testy i commity oraz przeszły wspólny gate beta.11.1.
 
 ## 12. Rekomendowany następny krok
 
-**Wykonać osobisty smoke test terenowy na artefakcie beta.11.1, następnie zapisać decyzję GO / FIX / HOLD.**
+**Gate beta.11.1 jest zamknięty wynikiem GO. Przed rozpoczęciem kolejnego
+większego zakresu podjąć osobną decyzję: test-first hotfix licznika pauzy
+44/45 min, lokalizacja PL/EN albo Planer podróży.**
 
-Zakończona kolejność techniczna i pozostały gate:
+Zakończona kolejność techniczna:
 
 ```text
 zamrożenie dowodów ✓
@@ -504,15 +508,14 @@ zamrożenie dowodów ✓
 → korekta danych na kopii ✓
 → pełny gate automatyczny ✓
 → artefakt beta.11.1 ✓
-→ smoke terenowy
-→ GO / FIX / HOLD
+→ smoke terenowy ✓
+→ GO ✓
 ```
 
 Nie wykonywać obecnie:
 - publikacji nowej wersji beta;
 - ręcznego rozliczania lub usuwania dwóch luk w oryginalnej bazie dowodowej;
-- implementacji Planera podróży;
-- pobocznych refaktorów przed decyzją GO/FIX/HOLD.
+- implementacji Planera podróży bez osobnej decyzji właściciela projektu.
 
 ---
 
@@ -535,4 +538,9 @@ Nie tworzyć ani nie publikować nowej bety bez osobnej decyzji.
 
 **Gate beta.11.1:** 282/282; Core 33, Telemetry.Scs 8, Engine 69, RuleEngine 62, Application 50, Reports 9, Infrastructure 51; build 0/0. Właściwy SHA-256 ZIP-a beta.11.1 znajduje się w pliku `.zip.sha256` obok paczki.
 
-**Najbliższe zadanie:** osobisty smoke test artefaktu beta.11.1 i zapis decyzji GO/FIX/HOLD. Planer podróży pozostaje wstrzymany do formalnego GO. Znany rozjazd prezentacji pauzy 44/45 min prowadzić jako osobny test-first hotfix.
+**Gate terenowy:** smoke artefaktu beta.11.1 z aktywną telemetrią zaliczony
+23 lipca 2026; wszystkie testy zielone, decyzja **GO**.
+
+**Najbliższe zadanie:** wybrać osobny kolejny zakres prac. Planer podróży
+pozostaje wstrzymany do decyzji właściciela projektu. Znany rozjazd prezentacji
+pauzy 44/45 min prowadzić jako osobny test-first hotfix.

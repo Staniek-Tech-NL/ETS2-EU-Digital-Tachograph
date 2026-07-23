@@ -5,7 +5,7 @@
 **Stan dokumentu:** zaakceptowany plan wykonawczy  
 **Data przygotowania:** 23 lipca 2026  
 **Wersja bazowa:** `0.1.0-beta.11.1`  
-**Warunek rozpoczęcia:** formalny werdykt **GO** po smoke teście beta.11.1  
+**Warunek rozpoczęcia:** spełniony — formalny werdykt **GO** po smoke teście beta.11.1
 **Warunek zakończenia:** gotowość do pierwszej szerokiej publikacji  
 **Języki MVP:** `pl-PL`, `en-GB`
 
@@ -39,7 +39,7 @@ GO dla beta.11.1
 Lokalizacja:
 
 - nie wchodzi do zamrożonego artefaktu beta.11.1;
-- nie wpływa na wieczorny smoke test beta.11.1;
+- nie zmienia wyniku zakończonego smoke testu beta.11.1;
 - może być przygotowywana dopiero po formalnym GO;
 - musi być realizowana na osobnej gałęzi;
 - nie może zmieniać reguł domenowych, danych, protokołu telemetrii ani kontraktów eksportowych;
@@ -406,15 +406,16 @@ Klucz nie może zawierać języka ani odnosić się do bieżącego położenia w
 
 ## Etap 0 — gate wejściowy
 
-**Status początkowy:** oczekuje na GO beta.11.1.
+**Status początkowy:** gate wydaniowy beta.11.1 spełniony 23 lipca 2026;
+oczekuje na osobną decyzję o rozpoczęciu mini-projektu.
 
 Warunki:
 
-- [ ] smoke test beta.11.1 zaliczony;
-- [ ] decyzja GO zapisana;
-- [ ] repozytorium czyste;
-- [ ] artefakt beta.11.1 zamrożony;
-- [ ] poprawki kosmetyczne UI rozdzielone od lokalizacji;
+- [x] smoke test beta.11.1 zaliczony;
+- [x] decyzja GO zapisana;
+- [x] repozytorium czyste poza prywatnym, nietkniętym katalogiem `.claude/`;
+- [x] artefakt beta.11.1 zamrożony;
+- [x] późniejsze poprawki UI rozdzielone od artefaktu beta.11.1 i lokalizacji;
 - [ ] utworzona osobna gałąź mini-projektu.
 
 Proponowana gałąź:
@@ -425,7 +426,8 @@ feature/localization-pl-en
 
 Gate:
 
-> Lokalizacja nie rozpoczyna się przed formalnym GO dla beta.11.1.
+> Formalny GO dla beta.11.1 został zapisany. Lokalizacja rozpoczyna się dopiero
+> po osobnej decyzji właściciela projektu i utworzeniu dedykowanej gałęzi.
 
 ---
 
@@ -673,7 +675,7 @@ Gate:
 
 Warunki:
 
-- [ ] GO beta.11.1;
+- [x] GO beta.11.1;
 - [ ] fundament `.resx` gotowy;
 - [ ] PL kompletne;
 - [ ] EN kompletne;
@@ -831,14 +833,10 @@ Słownik jest punktem startowym. Przed implementacją powinien zostać zweryfiko
 
 ## 13. Rekomendowany następny krok
 
-Do czasu formalnego GO beta.11.1:
+Formalny GO beta.11.1 został zapisany 23 lipca 2026. Nie zmieniać zamrożonego
+artefaktu i nie scalać do niego późniejszych zmian UI ani lokalizacji.
 
-- nie rozpoczynać implementacji lokalizacji;
-- nie zmieniać zamrożonego artefaktu;
-- zachować ten dokument jako zatwierdzony backlog;
-- kosmetykę UI prowadzić osobno i nie scalać jej do beta.11.1.
-
-Po GO:
+Po osobnej decyzji właściciela projektu o rozpoczęciu lokalizacji:
 
 1. utworzyć gałąź `feature/localization-pl-en`;
 2. wykonać Etap 1 — inwentaryzację tekstów;
