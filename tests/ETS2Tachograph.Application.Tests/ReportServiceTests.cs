@@ -177,6 +177,84 @@ public sealed class ReportServiceTests
         Assert.Contains("\"status\": \"Overdue\"", text);
     }
 
+    [Fact]
+    public async Task Allocation_trace_is_exported_to_csv_and_json_and_marks_report_incomplete()
+    {
+        var candidate = new RestAllocationCandidateDto(
+            "candidate-29h53",
+            "rest-29h53",
+            RestAllocationPurpose.DailyRestWithCompensation,
+            540,
+            ["obligation-30"],
+            0,
+            false);
+        var decision = new RestAllocationDecisionDto(
+            Guid.Parse("10000000-0000-0000-0000-000000000001"),
+            "PL-REPORT",
+            "rest-29h53",
+            candidate.CandidateId,
+            1_793,
+            DateTimeOffset.Parse("2026-07-23T08:00:00+00:00"),
+            1,
+            RestAllocationDecisionStatus.Active,
+            null);
+        var allocation = new RestAllocationProjectionDto(
+            "rest-29h53",
+            "PL-REPORT",
+            0,
+            1_793,
+            [candidate],
+            decision,
+            candidate,
+            false,
+            false);
+        var obligation = PaidCompensation(1_253, 30) with
+        {
+            SourceRestBlockId = "rest-29h53",
+            PaymentRestBlockId = "rest-29h53"
+        };
+        var report = new ReportDto(
+            "PL-REPORT", 0, 1, 1, 0, 0, 0, 0,
+            [Record(0, 1, DriverActivity.Driving)], [], [])
+        {
+            CompensationObligations = [obligation],
+            RestAllocations = [allocation]
+        };
+        var service = new ReportService(
+            new ReportRepository(report.Records),
+            new EmptyRegulationAnalyzer());
+
+        await using var csv = new MemoryStream();
+        await service.ExportCompensationCsvAsync(report, csv);
+        var csvText = Encoding.UTF8.GetString(csv.ToArray());
+        Assert.Contains("source_allocation_purpose", csvText);
+        Assert.Contains("DailyRestWithCompensation;candidate-29h53;540;0", csvText);
+
+        await using var json = new MemoryStream();
+        await service.ExportVtcJsonAsync(report, json);
+        var jsonText = Encoding.UTF8.GetString(json.ToArray());
+        Assert.Contains("\"pendingRestAllocation\": false", jsonText);
+        Assert.Contains("\"restAllocations\"", jsonText);
+        Assert.Contains("\"candidateId\": \"candidate-29h53\"", jsonText);
+        Assert.Contains("\"decisionSchemeVersion\": 1", jsonText);
+        Assert.True(report.EvidenceComplete);
+
+        var pendingReport = report with
+        {
+            RestAllocations =
+            [
+                allocation with
+                {
+                    Decision = null,
+                    SelectedCandidate = null,
+                    IsPending = true
+                }
+            ]
+        };
+        Assert.True(pendingReport.PendingRestAllocation);
+        Assert.False(pendingReport.EvidenceComplete);
+    }
+
     private static WeeklyRestCompensationDto Compensation(
         long remainingMinutes,
         long reductionWeek,

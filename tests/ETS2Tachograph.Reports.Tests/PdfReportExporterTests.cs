@@ -30,7 +30,8 @@ public sealed class PdfReportExporterTests
             [
                 Compensation(600, 30, WeeklyRestCompensationStatusDto.Overdue),
                 PaidCompensation(660, 31)
-            ]
+            ],
+            RestAllocations = [AllocationTrace()]
         };
         await using var destination = new MemoryStream();
 
@@ -41,6 +42,37 @@ public sealed class PdfReportExporterTests
         destination.Position = 0;
         using var document = PdfReader.Open(destination, PdfDocumentOpenMode.Import);
         Assert.NotEmpty(document.Pages);
+    }
+
+    private static RestAllocationProjectionDto AllocationTrace()
+    {
+        var candidate = new RestAllocationCandidateDto(
+            "candidate-pdf-trace",
+            "rest-pdf-trace",
+            RestAllocationPurpose.DailyRestWithCompensation,
+            540,
+            ["obligation-31"],
+            0,
+            false);
+        return new RestAllocationProjectionDto(
+            "rest-pdf-trace",
+            "PL-REPORT",
+            1_000,
+            2_200,
+            [candidate],
+            new RestAllocationDecisionDto(
+                Guid.Parse("20000000-0000-0000-0000-000000000001"),
+                "PL-REPORT",
+                "rest-pdf-trace",
+                candidate.CandidateId,
+                2_200,
+                DateTimeOffset.Parse("2026-07-23T08:00:00+00:00"),
+                1,
+                RestAllocationDecisionStatus.Active,
+                null),
+            candidate,
+            false,
+            false);
     }
 
     private static WeeklyRestCompensationDto Compensation(
