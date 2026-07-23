@@ -7,6 +7,13 @@ kierowców i wylicza liczniki zgodnie z zaimplementowanym zakresem reguł.
 > Projekt jest symulatorem do ETS2. Nie jest certyfikowanym tachografem ani
 > narzędziem do rozliczania rzeczywistego czasu pracy kierowcy.
 
+## Aktualny stan
+
+- opublikowaną bazą wersjonowaną pozostaje `0.1.0-beta.11.1`;
+- bieżące zmiany UI są wdrożone wyłącznie lokalnie i nie tworzą nowej wersji beta;
+- lokalny gate Release: **310/310 testów**, 0 błędów i 0 ostrzeżeń;
+- aplikacja została uruchomiona diagnostycznie po ostatnich zmianach XAML.
+
 ## Podgląd
 
 ### Panel główny
@@ -29,7 +36,13 @@ kierowców i wylicza liczniki zgodnie z zaimplementowanym zakresem reguł.
 - 45-minutowa przerwa drugiego kierowcy podczas jazdy;
 - liczniki jazdy ciągłej, dziennej, tygodniowej i dwutygodniowej;
 - odpoczynek dzienny, tygodniowy, tryb podwójnej obsady, OUT i prom;
-- wybór kraju rozpoczęcia i zakończenia pracy;
+- przeszukiwalny wybór kraju rozpoczęcia i zakończenia z pełnego katalogu
+  ISO 3166-1 alpha-2; historia przechowuje ISO, a LCD używa osobnego kodu
+  tachografowego;
+- wizualny edytor wpisu manualnego: pełny plan luki, szybkie akcje, segmenty
+  odpoczynku, pracy i dyspozycyjności, automatyczne dzielenie oraz scalanie;
+- licznik `ODP. TYG.` prezentowany jako liczba zakończonych okresów 24 h
+  z dokładnym czasem telemetrycznym, np. `3/6 (89:39)`;
 - nakładki `S1` i `S2`, zapamiętujące osobne położenie;
 - trwała baza SQLite, import/eksport `.tacho`, surowy CSV, VTC JSON i raport PDF;
 - raport diagnostyczny ZIP do beta-testów;
@@ -170,6 +183,14 @@ Wymagania deweloperskie:
 dotnet restore
 dotnet build ETS2Tachograph.sln --configuration Release
 dotnet test ETS2Tachograph.sln --configuration Release
+```
+
+Aktualny podział testów:
+
+```text
+Core 33 · Telemetry.Scs 8 · Engine 69 · RuleEngine 62
+Application 50 · Reports 9 · Infrastructure 51 · Desktop 28
+Razem 310
 ```
 
 Plugin należy zbudować jako `Release|x64` z projektu

@@ -1,9 +1,29 @@
 # Raport danych widocznych w UI — ETS2 EU Digital Tachograph
 
-**Wersja:** 0.1.0-beta.4  
+**Nazwa pliku:** zachowana ze względów zgodności z wcześniejszymi odnośnikami
+**Baza wydaniowa:** 0.1.0-beta.11.1
+**Stan lokalny:** nieopublikowany wariant B i katalog ISO
 **Zakres:** wyłącznie informacje, które użytkownik może odczytać z interfejsu WPF,
 ekranu tachografu, jego menu albo nakładek. Raport nie obejmuje danych dostępnych
 jedynie w bazie SQLite, kodzie lub wewnętrznym stanie silnika.
+
+## Aktualizacja bieżąca
+
+Do widocznych danych i operacji doszły:
+
+- `ODP. TYG.` w formacie ukończonych okresów 24 h oraz dokładnego czasu,
+  np. `3/6 (89:39)`;
+- przeszukiwalny wybór kraju w formacie `PL — Polska`, z zapamiętywaniem
+  ostatniego wyboru per karta;
+- wariant B wpisu manualnego: kontekst kierowcy i luki, szybkie akcje, pełna
+  lista segmentów, edycja dnia/godziny, sumy aktywności i status pokrycia;
+- przycisk `ZATWIERDŹ WPIS` aktywny wyłącznie dla kompletnego planu.
+
+Lista kraju prezentuje kod ISO i nazwę, natomiast LCD może używać krótszego kodu
+tachografowego. Tekst list rozwijanych edytora segmentu jest czarny na jasnym
+tle. Dalsze sekcje opisujące wcześniejsze ekrany pozostają bazą funkcjonalną,
+ale nazwy starych przycisków kreatora manualnego nie mają pierwszeństwa nad
+niniejszą aktualizacją i `BETA_TEST_PLAN.md`.
 
 ## 1. Górny pasek aplikacji
 

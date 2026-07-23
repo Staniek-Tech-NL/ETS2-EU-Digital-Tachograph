@@ -1,5 +1,14 @@
 # Stage 3.5 - integration engine
 
+## Current status
+
+The integration described below is implemented on telemetry protocol v3. The
+current unreleased tree passes 310/310 Release tests. Manual-entry persistence
+still flows through `ManualEntryService` and `ManualEntryValidator`; the new
+`ManualEntryPlanEditor` exists only as the Desktop working copy and does not
+bypass canonical-history validation. Country ISO/tachograph mapping and
+`ODP. TYG.` formatting are also Desktop presentation concerns.
+
 Stage 3.5 introduces one central application layer between SCS telemetry and the
 tachograph rules.
 

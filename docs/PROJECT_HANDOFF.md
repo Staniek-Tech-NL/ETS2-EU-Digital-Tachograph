@@ -1,8 +1,10 @@
 # PROJECT HANDOFF — ETS2 EU Digital Tachograph
 
-**Wersja projektu:** 0.1.0-beta.11.1 — GOTOWA DO SMOKE TESTU
+**Baza wydaniowa:** 0.1.0-beta.11.1 — bez nowej publikacji
 **Data przygotowania dokumentu:** 20 lipca 2026
-**Ostatnia aktualizacja:** 23 lipca 2026 — oba FIX-y wdrożone; 282/282 testy, migracja i korekta kopii bazy zielone
+**Bieżący stan lokalny:** wariant B wpisu manualnego, katalog ISO i korekta
+`ODP. TYG.` wdrożone; 310/310 testów Release, build 0/0, start aplikacji
+potwierdzony
 **Przeznaczenie:** pakiet startowy dla nowej sesji AI / nowego okna kontekstowego
 
 ---
@@ -15,7 +17,13 @@ Projekt powstał jako reakcja na niedociągnięcia istniejących na rynku narzę
 
 Użytkownikiem docelowym jest gracz ETS2 ceniący realizm (w tym społeczność VTC), a autor projektu jest jednocześnie jego głównym testerem i deweloperem (samouk, korzysta z Claude Code / Codex jako wsparcia).
 
-**Aktualny etap:** kandydat **0.1.0-beta.11 został wycofany przed końcowym smoke testem**. Oba blokery naprawiono w **0.1.0-beta.11.1** jako osobne zmiany: audytowaną alokację bloków 24 h+ oraz wspólną klasyfikację skoku czasu załogi. Stan automatyczny: `282/282`, build Release 0 błędów i 0 ostrzeżeń. Migracja, dwa restarty oraz korekta dwóch luk Dnia 141 zostały sprawdzone na kopii właściwej bazy. Końcowy smoke z aktywną telemetrią wykonuje osobiście tester; Planer pozostaje wstrzymany do decyzji GO.
+**Aktualny etap:** opublikowaną bazą pozostaje **0.1.0-beta.11.1**.
+Późniejsze zmiany są lokalne i nie stanowią nowej bety. Obejmują wariant B
+wpisu manualnego, pełny katalog ISO 3166-1, osobny kod tachografowy i
+formatowanie `ODP. TYG.`. Stan automatyczny bieżącego drzewa: `310/310`,
+build Release 0 błędów i 0 ostrzeżeń. Start aplikacji po zmianach XAML został
+potwierdzony. Końcowy smoke z aktywną telemetrią nadal wykonuje osobiście tester;
+Planer pozostaje wstrzymany do osobnej decyzji.
 
 ---
 
@@ -55,7 +63,13 @@ Użytkownikiem docelowym jest gracz ETS2 ceniący realizm (w tym społeczność 
 - Realistyczny panel tachografu (ekran LCD, menu, przyciski fizyczne) — **[GOTOWE]**
 - Ekran Historia z filtrowaniem i listą luk — **[GOTOWE]**
 - Ekran Raporty z wyborem karty/zakresu i ostrzeżeniem o kompletności — **[GOTOWE]**
-- Kreator wpisu manualnego (blokujący dla `CardRemoved`, opcjonalny dla `ForwardTimeJump`) — **[GOTOWE]**
+- Kreator wpisu manualnego wariant B (blokujący dla `CardRemoved`, opcjonalny
+  dla `ForwardTimeJump`): pełny plan, szybkie akcje, edycja trzech aktywności,
+  dzielenie/scalanie i walidacja pokrycia — **[GOTOWE LOKALNIE]**
+- Przeszukiwalny katalog 249 krajów ISO z osobnym kodem tachografowym oraz
+  pamięcią ostatniego kraju per karta — **[GOTOWE LOKALNIE]**
+- Prezentacja `ODP. TYG.` jako ukończone okresy 24 h z dokładnym czasem,
+  np. `3/6 (89:39)` — **[GOTOWE LOKALNIE]**
 - Kontrola wizualna działającego UI po zmianach w XAML — **[GOTOWE]**; stała checklista regresji została dodana do `BETA_TEST_PLAN.md` 21.07
 
 ### Wymagania dotyczące danych
@@ -102,9 +116,14 @@ Użytkownikiem docelowym jest gracz ETS2 ceniący realizm (w tym społeczność 
 - `ETS2Tachograph.Core` — model domenowy, czas gry, `ActivityTimeline`, reguła jednej minuty, `GameClockFormatter`
 - `ETS2Tachograph.Telemetry.Scs` — odczyt wersjonowanej pamięci współdzielonej (protokół v3)
 - `ETS2Tachograph.Engine` — klasyfikacja ramek telemetrii, sesje, luki (`ActivityHistoryProcessor`, `CrewTachographEngine`), snapshoty oraz wspólny `CrewTimeJumpResolution`
-- `ETS2Tachograph.RuleEngine` — liczniki regulacyjne, naruszenia, rekompensaty (`RegulationEngine`, `RegulationEvaluation`, `RegulationState`, `WeeklyRestCompensation`, `CompensationSummary`); w beta.11.1 planowane `RestAllocationCandidate` i `RestAllocationDecision`
+- `ETS2Tachograph.RuleEngine` — liczniki regulacyjne, naruszenia, rekompensaty
+  (`RegulationEngine`, `RegulationEvaluation`, `RegulationState`,
+  `WeeklyRestCompensation`, `CompensationSummary`,
+  `RestAllocationCandidate`, `RestAllocationDecision`)
 - `ETS2Tachograph.Infrastructure` — SQLite, EF Core, repozytoria, migracje, retencja i kanoniczna projekcja historii (`Canonicalize`, `SubtractCoveredRanges`, `EnsureNoOverlap`)
-- `ETS2Tachograph.Application` — przypadki użycia, DTO, import/eksport, wpisy manualne (`ManualEntryService`, `ActivityGapService`, `ManualEntryWizardDraft`)
+- `ETS2Tachograph.Application` — przypadki użycia, DTO, import/eksport i trwały
+  zapis wpisów manualnych (`ManualEntryService`, `ActivityGapService`,
+  `ManualEntryValidator`)
 - `ETS2Tachograph.Reports` — generowanie PDF, prezentacja bloków (`PdfReportExporter`, `ReportPresentationBuilder`)
 - `ETS2Tachograph.Desktop` — WPF (`MainWindow.xaml`, `MainViewModel.cs`, `OverlayViewModel.cs`)
 - `ETS2Tachograph.ScsPlugin` — natywny plugin C++ dla ETS2 x64
@@ -183,9 +202,12 @@ ETS2 EU Digital Tachograph/
 │   ├── ETS2Tachograph.Application.Tests/     (50 testów)
 │   │   └── ManualEntryWizardDraftTests.cs
 │   ├── ETS2Tachograph.Reports.Tests/         (9 testów)
-│   └── ETS2Tachograph.Infrastructure.Tests/  (51 testów)
-│       ├── CanonicalProjectionTests.cs         (14 testów regresyjnych beta.10.1)
-│       └── WeeklyRestCompensationSqliteRestartTests.cs
+│   ├── ETS2Tachograph.Infrastructure.Tests/  (51 testów)
+│   │   ├── CanonicalProjectionTests.cs         (14 testów regresyjnych beta.10.1)
+│   │   └── WeeklyRestCompensationSqliteRestartTests.cs
+│   └── ETS2Tachograph.Desktop.Tests/         (28 testów)
+│       ├── CountryCatalogTests.cs
+│       └── ManualEntryPlanEditorTests.cs
 ├── docs/
 │   ├── PROJECT_HANDOFF.md              ← ten dokument
 │   ├── Agent raporty/
@@ -258,7 +280,8 @@ ETS2 EU Digital Tachograph/
   - luka przycięta przez późniejszą gałąź czasu (beta.3→beta.4)
   - nakładające się minuty między sesjami blokujące start aplikacji (`SQLite Error 19`) — beta.10.1
   - sumowanie okruchów rekompensaty z wielu odpoczynków — beta.11
-- **282/282 testy automatyczne** (Core 33, Telemetry.Scs 8, Engine 69, RuleEngine 62, Application 50, Reports 9, Infrastructure 51)
+- **310/310 testów automatycznych** (Core 33, Telemetry.Scs 8, Engine 69,
+  RuleEngine 62, Application 50, Reports 9, Infrastructure 51, Desktop 28)
 - Kompilacja Release: 0 błędów, 0 ostrzeżeń
 - Dwa długie scenariusze terenowe potwierdzone w rzeczywistej grze (2h+7h=9h odpoczynku; wariant tygodniowy 45h)
 - Wydania beta.4 → beta.11 z artefaktami i sumami SHA-256; beta.11 ma poprawny `ProductVersion`, ale została wycofana przed smoke testem i nie jest obowiązującą wersją testową
@@ -486,7 +509,7 @@ zamrożenie dowodów ✓
 ```
 
 Nie wykonywać obecnie:
-- smoke testu beta.11;
+- publikacji nowej wersji beta;
 - ręcznego rozliczania lub usuwania dwóch luk w oryginalnej bazie dowodowej;
 - implementacji Planera podróży;
 - pobocznych refaktorów przed decyzją GO/FIX/HOLD.
@@ -499,7 +522,10 @@ Nie wykonywać obecnie:
 
 **Cel projektu:** ETS2 EU Digital Tachograph to aplikacja .NET 9/WPF/SQLite z natywnym pluginem C++ SCS Telemetry SDK. Prowadzi historię dwóch kart w `game_time`, wylicza reguły UE 561/2006, obsługuje cofnięcia i skoki czasu, luki, raporty oraz nakładki.
 
-**Status:** kandydat `0.1.0-beta.11` został wycofany przed smoke testem. Wydanie naprawcze `0.1.0-beta.11.1` jest zbudowane i gotowe do osobistego smoke testu. Ma 282/282 zielone testy oraz build Release 0 błędów i 0 ostrzeżeń.
+**Status:** bazą wydaniową pozostaje `0.1.0-beta.11.1`. Bieżący katalog
+roboczy zawiera nieopublikowany wariant B wpisu manualnego, katalog ISO oraz
+korektę `ODP. TYG.`. Ma 310/310 zielonych testów i build Release 0/0.
+Nie tworzyć ani nie publikować nowej bety bez osobnej decyzji.
 
 **FIX A — rekompensaty:** wdrożono ręczną, audytowaną decyzję po zamknięciu bloku 24 h+. RuleEngine generuje legalne `RestAllocationCandidate`, a użytkownik wybiera `CandidateId`. Staniek `29:53`: `DailyRestWithCompensation = 09:00 + 20:53`, stary dług spłacony, brak nowego; `ReducedWeeklyRestOnly` pozostawia stary dług i tworzy `15:07`. Doboś `28:52` analogicznie tworzy `16:08` w wariancie tygodniowym. `DailyRestOnly` nie istnieje dla bloku 24 h+. Zakaz podwójnego użycia minut.
 

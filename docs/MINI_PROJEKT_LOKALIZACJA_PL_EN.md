@@ -9,6 +9,20 @@
 **Warunek zakończenia:** gotowość do pierwszej szerokiej publikacji  
 **Języki MVP:** `pl-PL`, `en-GB`
 
+## Aktualizacja stanu lokalnego
+
+Mini-projekt nadal nie został rozpoczęty jako pełna lokalizacja PL/EN. Bieżący
+kod wprowadził jednak pierwszy wersjonowany zasób językowy:
+
+- `Data/Countries.iso3166-1.json` przechowuje stabilne dane ISO i kody
+  tachografowe;
+- `Resources/CountryNames.pl.json` przechowuje polskie nazwy 249 krajów;
+- historia zapisuje ISO, nie przetłumaczoną nazwę.
+
+Przy wdrażaniu `.resx` nie wolno duplikować ani zastępować stabilnych kodów
+ISO. Nazwy krajów należy włączyć do wspólnego mechanizmu lokalizacji albo
+utrzymać jako wersjonowane katalogi językowe o tym samym kontrakcie.
+
 ---
 
 ## 1. Status i decyzja projektowa
@@ -160,7 +174,10 @@ Kontrakty maszynowe pozostają niezmienne. Język wpływa wyłącznie na prezent
 
 ### 4.1 Technologia
 
-Podstawą lokalizacji będą zasoby `.resx`.
+Podstawą lokalizacji interfejsu i raportów będą zasoby `.resx`. Katalog krajów
+jest istniejącym wyjątkiem danych referencyjnych: stabilne rekordy ISO pozostają
+w JSON, a lokalizowane nazwy mogą pozostać w osobnych plikach językowych albo
+zostać podłączone do `.resx` bez zmiany zapisywanych kodów.
 
 Proponowana struktura:
 

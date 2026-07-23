@@ -1,9 +1,11 @@
 # Macierz testów — rekompensata skróconego odpoczynku tygodniowego
 
 **Stan pierwotny:** 22 lipca 2026
-**Aktualizacja:** 23 lipca 2026 — beta.11.1
-**Podstawa:** zatwierdzona specyfikacja domenowa i zatwierdzone dane referencyjne  
-**Status:** wdrożona i zielona w RuleEngine, Application/DTO, Infrastructure, UI i raportach; 62/62 testy RuleEngine oraz 282/282 testy rozwiązania
+**Baza wydaniowa:** beta.11.1
+**Podstawa:** zatwierdzona specyfikacja domenowa i zatwierdzone dane referencyjne
+**Status:** wdrożona i zielona w RuleEngine, Application/DTO, Infrastructure,
+UI i raportach; 62/62 testy RuleEngine oraz 310/310 testów bieżącego rozwiązania
+Release. Wynik 282/282 pozostaje historycznym gate’em paczki beta.11.1.
 
 Wszystkie przedziały są półotwarte `[StartGameMinute, EndGameMinuteExclusive)`. Każdy blok użyty do utworzenia albo spłaty długu musi być zamknięty przez następującą aktywność inną niż `BreakOrRest`; `now` znajduje się po tej aktywności. Jeżeli w wierszu nie podano inaczej, `WeekEpochOffsetDays = 0`.
 

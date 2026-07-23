@@ -1,4 +1,8 @@
-# Plan testów beta.11.1
+# Plan testów — beta.11.1 i bieżące zmiany lokalne
+
+Sekcje terenowe zachowują kontrakt paczki beta.11.1. Checklista UI obejmuje
+również bieżące, nieopublikowane zmiany lokalne. Nie wolno na jej podstawie
+tworzyć ani publikować nowej paczki beta bez osobnej decyzji.
 
 ## Przygotowanie
 
@@ -75,9 +79,34 @@ Zmiana w XAML nie jest gotowa, dopóki wszystkie punkty nie są odhaczone.
 - [ ] Sekcja `LUKI AKTYWNOŚCI` pokazuje kartę, slot, zakres, długość, przyczynę i stan.
 - [ ] Licznik luk w nagłówku zgadza się z liczbą pozycji nierozliczonych.
 - [ ] Przełącznik `Pokaż rozliczone` filtruje listę w obie strony.
-- [ ] `Rozlicz` otwiera kreatora; `ANULUJ` zamyka bez zapisu, `OK · ZAPISZ WPIS` zapisuje.
-- [ ] `DODAJ PRACĘ` / `USUŃ ZAZNACZONY BLOK` w kreatorze działają, a walidacja
-      pokazuje komunikat zamiast blokować okno.
+- [ ] `Rozlicz` otwiera wariant B kreatora; cała luka jest początkowo jednym
+      segmentem `Przerwa / Odpoczynek`.
+- [ ] Szybkie akcje zastępują całą lukę odpoczynkiem, inną pracą albo
+      dyspozycyjnością.
+- [ ] `DODAJ / ZASTĄP SEGMENT` automatycznie dzieli plan, a sąsiednie segmenty
+      tej samej aktywności są scalane.
+- [ ] `EDYTUJ`, podwójne kliknięcie i `USUŃ` działają zgodnie z planem;
+      usunięcie pracy lub dyspozycyjności przywraca odpoczynek.
+- [ ] Pola dnia i godziny obsługują zakres przechodzący przez północ i nie
+      pozwalają wyjść poza granice luki.
+- [ ] Podsumowanie pokazuje pokrycie oraz sumy trzech aktywności;
+      `ZATWIERDŹ WPIS` jest aktywny wyłącznie dla kompletnego planu.
+- [ ] `ANULUJ`, `Esc` i krzyżyk wymagają potwierdzenia, jeśli kopia robocza
+      została zmieniona.
+- [ ] Listy aktywności i dni mają czarny tekst na jasnym tle.
+
+### 7A. Kraje i licznik odpoczynku tygodniowego
+
+- [ ] Dialog rozpoczęcia i zakończenia pokazuje listę `PL — Polska` zamiast
+      dowolnego pola tekstowego.
+- [ ] Wyszukiwanie działa po ISO i początku polskiej nazwy kraju.
+- [ ] `POTWIERDŹ OK` jest nieaktywne bez poprawnego wyboru.
+- [ ] Ostatni kraj jest odtwarzany osobno dla każdej karty, bez automatycznego
+      zatwierdzania.
+- [ ] LCD używa kodu tachografowego, a historia zachowuje stabilny kod ISO.
+- [ ] Dla `89:39` pole `ODP. TYG.` pokazuje dokładnie `3/6 (89:39)`.
+- [ ] Próg zmienia się na `4/6` dopiero przy `96:00`; po `144:00` nadmiar jest
+      prezentowany jako `6/6+ (HH:MM)`.
 
 ### 8. Raporty
 
@@ -232,7 +261,7 @@ Zmiana w XAML nie jest gotowa, dopóki wszystkie punkty nie są odhaczone.
 9. W JSON sprawdź pełne `compensationObligations`; sekcja `compensation` musi
    pozostać zgodnym podsumowaniem pochodnym.
 
-## Końcowy smoke test terenowy beta.11
+## Końcowy smoke test terenowy beta.11.1 / bieżącego drzewa
 
 - [ ] Staniek: `1253 min / 20:53` w Dashboardzie, szczegółach i eksportach.
 - [ ] Doboś: `1192 min / 19:52` w Dashboardzie, szczegółach i eksportach.

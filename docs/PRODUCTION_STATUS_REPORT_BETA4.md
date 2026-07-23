@@ -1,10 +1,29 @@
-# Raport stanu produkcji — ETS2 EU Digital Tachograph
+# Raport stanu projektu — ETS2 EU Digital Tachograph
 
-**Wersja:** 0.1.0-beta.4  
-**Data raportu:** 18 lipca 2026  
-**Platforma:** Windows x64  
-**Technologie:** .NET 9, C#, WPF, SQLite, Entity Framework Core, natywny plugin C++  
-**Telemetria:** oficjalne SCS SDK 1.14, protokół shared memory v2
+**Nazwa pliku:** zachowana ze względów zgodności z wcześniejszymi odnośnikami
+**Baza wydaniowa:** 0.1.0-beta.11.1
+**Stan lokalny:** nieopublikowane zmiany UI, 310/310 testów Release, build 0/0
+**Platforma:** Windows x64
+**Technologie:** .NET 9, C#, WPF, SQLite, Entity Framework Core, natywny plugin C++
+**Telemetria:** oficjalne SCS SDK 1.14, protokół shared memory v3
+
+## Aktualizacja bieżąca
+
+Od bazowego raportu beta.4 projekt otrzymał m.in. protokół v3, kanoniczną
+historię bez nakładek, pełny model rekompensat, audytowaną alokację odpoczynku,
+wspólną klasyfikację skoku czasu załogi, wariant B wpisu manualnego, katalog 249
+krajów ISO i korektę `ODP. TYG.`.
+
+Nowy zakres UI nie został opublikowany jako beta. Bieżąca walidacja:
+
+- Core 33, Telemetry.Scs 8, Engine 69, RuleEngine 62;
+- Application 50, Reports 9, Infrastructure 51, Desktop 28;
+- razem 310/310 testów Release;
+- aplikacja uruchamia się po ostatnich zmianach XAML.
+
+Pozostała część dokumentu opisuje fundamenty projektu wypracowane pierwotnie
+w beta.4; w razie konfliktu pierwszeństwo ma powyższa aktualizacja,
+`PROJECT_HANDOFF.md` i `KNOWN_ISSUES.md`.
 
 ## 1. Podsumowanie wykonawcze
 

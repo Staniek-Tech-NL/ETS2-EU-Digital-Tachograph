@@ -4,9 +4,11 @@
 > pluginu trzeba całkowicie uruchomić ETS2 ponownie; ponowne wczytanie zapisu nie
 > przeładuje biblioteki natywnej.
 
-Stan na wersję beta po Fazie 1. Ta lista dotyczy potwierdzonych ograniczeń;
-nowe błędy z testów należy dopisywać razem z numerem wersji paczki i raportem
-diagnostycznym.
+Opublikowaną bazą pozostaje beta.11.1. Bieżący kod zawiera również
+nieopublikowane zmiany lokalne UI: wariant B wpisu manualnego, katalog krajów
+ISO i korektę prezentacji `ODP. TYG.`. Lokalny gate Release wynosi 310/310.
+Nowe błędy z testów należy dopisywać razem ze statusem `lokalne` albo numerem
+wydanej paczki i raportem diagnostycznym.
 
 ## Naprawione w beta.11.1
 
@@ -55,8 +57,9 @@ diagnostycznym.
   które pozwalałoby automatycznie rozpoznać cały przebieg odpoczynku promowego.
 - Pociągi nie są modelowane, ponieważ ETS2 praktycznie nie udostępnia użytecznego
   scenariusza kolejowego dla tego projektu.
-- Kraj rozpoczęcia i zakończenia jest wybierany ręcznie; nie jest automatycznie
-  ustalany z pozycji ciężarówki.
+- Kraj rozpoczęcia i zakończenia jest wybierany przez użytkownika z
+  przeszukiwalnego katalogu ISO 3166-1 alpha-2; nie jest automatycznie ustalany
+  z pozycji ciężarówki. LCD może prezentować odpowiadający kod tachografowy.
 
 ## Historia, retencja i raporty
 

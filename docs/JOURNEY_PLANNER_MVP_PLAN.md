@@ -2,11 +2,12 @@
 
 **Projekt:** ETS2 EU Digital Tachograph  
 **Funkcja:** Planer podróży — strategia „Najwcześniejsza legalna”  
-**Wersja dokumentu:** 2.1 — aktualizacja gate’u beta.10 po Dniu 2  
-**Data aktualizacji:** 21 lipca 2026  
-**Status specyfikacji:** **SKORYGOWANA — GOTOWA DO KOŃCOWEGO PRZEGLĄDU**  
+**Wersja dokumentu:** 2.2 — aktualizacja po beta.11.1 i lokalnych zmianach UI
+**Status specyfikacji:** **SKORYGOWANA — WSTRZYMANA DO OSOBNEJ DECYZJI**
 **Status implementacji:** **NIE ROZPOCZĘTA**  
-**Gate przed implementacją:** rozszerzone testy terenowe beta.10 — **W TRAKCIE — DZIEŃ 2 ZIELONY; POZOSTAŁY 2 SCENARIUSZE**  
+**Gate przed implementacją:** baza beta.11.1 pozostaje bez nowej publikacji;
+bieżący kod lokalny ma 310/310 testów Release. Planer nie jest częścią
+aktualnego zakresu UI i wymaga osobnej decyzji rozpoczęcia.
 **Dokument przeglądu:** `JOURNEY_PLANNER_MVP_REVIEW_REPORT.md`  
 **Raport terenowy:** `FIELD_TEST_REPORT_2026-07-21.md`
 
@@ -49,21 +50,21 @@ Potwierdzono dla obu kart:
 - stabilność wyniku po restarcie aplikacji,
 - poprawne przerwanie odpoczynku kierowcy w slocie 2 podczas jazdy pojazdu.
 
-Do zamknięcia gate’u beta.10 pozostają dwa scenariusze:
-
-1. luka przecinająca granicę tygodnia regulacyjnego,
-2. interakcja rozliczonej luki z rekompensatą tygodniową.
-
-Obserwacje dotyczące bloków z wieloma rozliczonymi lukami pozostają poza werdyktem Dnia 2 i poza zakresem bieżącego gate’u. Nie powodują zmian w kodzie bez osobnej decyzji projektowej.
+Gate beta.10 został zastąpiony późniejszą bazą beta.11.1. Scenariusze granicy
+tygodnia i rekompensaty są pokryte późniejszym modelem, testami RuleEngine oraz
+dokumentacją rekompensat. Obserwacje dotyczące bloków z wieloma rozliczonymi
+lukami pozostają osobną decyzją domenową.
 
 Planer nie przechodzi do implementacji przed:
 
-1. wykonaniem dwóch pozostałych scenariuszy,
+1. osobistym smoke bieżącego drzewa z aktywną telemetrią,
 2. rozliczeniem ewentualnych problemów,
-3. aktualizacją dokumentacji beta,
-4. potwierdzeniem czystego stanu repozytorium.
+3. osobną decyzją właściciela projektu o rozpoczęciu Planera,
+4. aktualizacją dokumentacji aktywnego zakresu,
+5. potwierdzeniem kontrolowanego stanu repozytorium.
 
-Nie oznacza to, że Planer jest anulowany. Jego specyfikacja może zostać domknięta wcześniej, ale kodowanie pozostaje za gate’em beta.10.
+Nie oznacza to, że Planer jest anulowany. Jego specyfikacja może zostać
+domknięta wcześniej, ale kodowanie pozostaje za osobną decyzją projektową.
 
 ---
 
@@ -1266,10 +1267,10 @@ Planer jest ukończony, gdy:
 
 ## 30. Kolejność względem backlogu
 
-1. **Wykonać dwa pozostałe scenariusze terenowe beta.10: granicę tygodnia i rekompensatę tygodniową.**
-2. Rozliczyć ewentualne błędy i zaktualizować dokumentację beta.
-3. Podjąć decyzję `GO / FIX / HOLD` dla gate’u beta.10.
-4. Zatwierdzić wersję 2.1 tego planu jako specyfikację implementacyjną.
+1. Utrzymać bieżący lokalny zakres UI bez publikowania nowej bety.
+2. Wykonać osobisty smoke z aktywną telemetrią dla aktualnego drzewa.
+3. Podjąć osobną decyzję `GO / FIX / HOLD` dla rozpoczęcia Planera.
+4. Zatwierdzić wersję 2.2 tego planu jako specyfikację implementacyjną.
 5. Utworzyć gałąź Planera.
 6. Napisać kontrakty i testy P0.
 7. Zaimplementować silnik zdarzeniowy.
@@ -1287,6 +1288,14 @@ Planer jest ukończony, gdy:
 ---
 
 ## 32. Historia zmian dokumentu
+
+### Wersja 2.2 — bieżący stan lokalny
+
+- zastąpiono nieaktualny gate beta.10 bieżącym stanem beta.11.1;
+- odnotowano 310/310 testów Release bez tworzenia nowej paczki;
+- potwierdzono, że wariant B wpisu manualnego pozostaje wejściowym warunkiem
+  blokującym Planer przy nierozliczonej luce;
+- utrzymano implementację Planera jako nierozpoczętą.
 
 ### Wersja 2.1 — 21.07.2026
 

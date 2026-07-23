@@ -1,6 +1,11 @@
 # Specyfikacja domenowa — rekompensata skróconego odpoczynku tygodniowego
 
-Stan na 22 lipca 2026. **Status: zatwierdzona domenowo.** Specyfikacja dotyczy projekcji regulacyjnej w `game_time`; jedna minuta gry jest jednostką atomową. Terminy „musi”, „nie może” i „dokładnie” są normatywne. Zakres nie obejmuje oceny, czy kierowca był uprawniony do skorzystania ze szczególnych odstępstw pasażerskich lub międzynarodowego transportu rzeczy — takie uprawnienie musi pochodzić z osobnej, jawnej deklaracji domenowej.
+**Status bieżący: zatwierdzona i wdrożona domenowo.** Implementacja beta.11.1
+pozostaje obowiązująca; 62/62 testy RuleEngine są zielone. Bieżące,
+nieopublikowane zmiany UI nie zmieniają tej specyfikacji, progów ani sposobu
+kwalifikowania odpoczynku.
+
+Specyfikacja dotyczy projekcji regulacyjnej w `game_time`; jedna minuta gry jest jednostką atomową. Terminy „musi”, „nie może” i „dokładnie” są normatywne. Zakres nie obejmuje oceny, czy kierowca był uprawniony do skorzystania ze szczególnych odstępstw pasażerskich lub międzynarodowego transportu rzeczy — takie uprawnienie musi pochodzić z osobnej, jawnej deklaracji domenowej.
 
 | Warunek | Działanie | Wynik |
 |---|---|---|

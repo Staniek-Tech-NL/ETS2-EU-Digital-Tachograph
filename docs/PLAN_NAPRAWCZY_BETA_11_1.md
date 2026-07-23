@@ -2,6 +2,12 @@
 
 ## [Status]
 
+**Aktualizacja bieżąca:** beta.11.1 pozostaje bazą wydaniową i nie została
+zastąpiona nową paczką. Po wykonaniu tego planu wdrożono lokalnie osobny zakres
+UI: wariant B wpisu manualnego, katalog ISO oraz `ODP. TYG.`. Bieżący gate
+Release wynosi 310/310, build 0/0. Zakres planu naprawczego poniżej pozostaje
+zamknięty; nie należy ponownie traktować go jako listy niewykonanych zadań.
+
 **Wynik wykonania — 23 lipca 2026:** plan został wdrożony. Wydanie
 `0.1.0-beta.11.1` ma 282/282 zielone testy, build Release 0/0, migrację i
 restart sprawdzone na kopii właściwej bazy oraz gotowy artefakt self-contained.

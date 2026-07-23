@@ -1,5 +1,13 @@
 # Stage 3 - RuleEngine scope
 
+## Current status
+
+The scope below is implemented. The release baseline is `0.1.0-beta.11.1`.
+The current unreleased working tree passes 62/62 RuleEngine tests and 310/310
+tests across the solution. Recent manual-entry, country-selector, and
+`ODP. TYG.` work is presentation/application work and does not change the
+RuleEngine thresholds or source history.
+
 The RuleEngine is a pure projection over immutable activity history. It implements the
 freight-transport baseline of Regulation (EC) 561/2006:
 
