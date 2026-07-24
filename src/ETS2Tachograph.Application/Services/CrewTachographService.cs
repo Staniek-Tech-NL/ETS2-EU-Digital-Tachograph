@@ -116,6 +116,11 @@ public sealed class CrewTachographService(
         CancellationToken cancellationToken = default) =>
         activities.LoadDriverHistoryAsync(cardId, from, toExclusive, cancellationToken);
 
+    public Task<IReadOnlyList<ActivityGap>> LoadDriverGapsAsync(
+        string cardId,
+        CancellationToken cancellationToken = default) =>
+        activities.LoadDriverGapsAsync(cardId, cancellationToken: cancellationToken);
+
     public async Task RefreshRestAllocationDecisionsAsync(
         string cardId,
         CancellationToken cancellationToken = default)

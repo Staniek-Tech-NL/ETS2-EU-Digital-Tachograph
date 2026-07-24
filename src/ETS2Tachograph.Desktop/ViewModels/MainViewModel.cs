@@ -245,6 +245,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _weekOffset = savedSettings.WeekEpochOffsetDays;
         _telemetry = telemetry;
         _diagnostics = diagnostics;
+        JourneyPlanner = new JourneyPlannerViewModel(new JourneyPlannerService(crew));
         foreach (var country in AvailableCountryOptions)
             CountryOptions.Add(country);
         OtherWorkCommand = new RelayCommand(() => SetActivity(DriverActivity.OtherWork));
@@ -330,6 +331,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public ObservableCollection<CompensationDetailRow> CompensationDetails { get; } = [];
     public ObservableCollection<RestAllocationChoiceRow> PendingRestAllocationChoices { get; } = [];
     public ObservableCollection<CountryOption> CountryOptions { get; } = [];
+    public JourneyPlannerViewModel JourneyPlanner { get; }
     public bool HasPendingRestAllocations => PendingRestAllocationChoices.Count > 0;
     public string CompensationDetailsHeader => CompensationDetails.Count == 0
         ? "Brak zobowiązań w bieżących projekcjach kart."
@@ -714,6 +716,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
     private void Refresh(CrewTachographSnapshot snapshot)
     {
+        JourneyPlanner.ObserveStateChange();
         var frame = snapshot.Frame;
         if (frame is not null)
         {

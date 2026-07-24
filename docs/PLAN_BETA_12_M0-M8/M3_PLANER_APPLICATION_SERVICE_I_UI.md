@@ -4,7 +4,7 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status początkowy:** **NIE ROZPOCZĘTY**  
+**Status bieżący:** **IMPLEMENTACJA ZAKOŃCZONA — HOLD DO TESTU RĘCZNEGO UŻYTKOWNIKA**
 **Kryterium wejścia:** Silnik M2 i jego testy są zielone.  
 **Kryterium wyjścia:** Kompletny przepływ użytkownika Planera, zgodność z RuleEngine i poprawne unieważnianie wyniku.  
 **Następny etap:** M4
@@ -15,17 +15,17 @@
 
 ### Zadania
 
-- [ ] Zaimplementować `JourneyPlannerService`.
-- [ ] Zapewnić atomowe pobieranie snapshotu.
-- [ ] Obsłużyć `CardRemoved`, `ForwardTimeJump`, brak telemetrii i stale snapshot.
-- [ ] Dodać `JourneyPlannerViewModel` i `JourneyPlannerView`.
-- [ ] Dodać zakładkę `PLANER` do nawigacji.
-- [ ] Dodać formularz: czas jazdy GPS, czas do zakończenia dostawy, bufor, karta.
-- [ ] Dodać walidację `HH:MM`, w tym godziny powyżej 23.
-- [ ] Dodać wynik: status, wiarygodność, przyjazd, zakończenie, margines, segmenty i ostrzeżenia.
-- [ ] Dodać prezentację `CalendarWait` i powodów segmentów.
-- [ ] Dodać unieważnienie starego wyniku po zmianie stanu.
-- [ ] Sprawdzić S1 i S2 bez sztucznego aktywowania multi-manning.
+- [x] Zaimplementować `JourneyPlannerService`.
+- [x] Zapewnić atomowe pobieranie snapshotu.
+- [x] Obsłużyć `CardRemoved`, `ForwardTimeJump`, brak telemetrii i stale snapshot.
+- [x] Dodać `JourneyPlannerViewModel` i widok Planera.
+- [x] Dodać zakładkę `PLANER` do nawigacji.
+- [x] Dodać formularz: czas jazdy GPS, czas do zakończenia dostawy, bufor, karta.
+- [x] Dodać walidację `HH:MM`, w tym godziny powyżej 23.
+- [x] Dodać wynik: status, wiarygodność, przyjazd, zakończenie, margines, segmenty i ostrzeżenia.
+- [x] Dodać prezentację `CalendarWait` i powodów segmentów.
+- [x] Dodać unieważnienie starego wyniku po zmianie stanu.
+- [x] Sprawdzić S1 i S2 bez sztucznego aktywowania multi-manning.
 
 ### Gate M3
 
@@ -34,6 +34,15 @@
 - zmiana stanu kierowcy unieważnia wynik;
 - brak zapisu planu do historii;
 - UI Planera przechodzi testy funkcjonalne i wizualne.
+
+Stan gate'u:
+
+- [x] pełny przepływ od formularza do harmonogramu jest pokryty automatycznie;
+- [x] wynik pochodzi z `JourneyPlanningEngine` i tego samego stanu regulacyjnego;
+- [x] zmiana snapshotu unieważnia widoczny wynik;
+- [x] Planer nie zapisuje hipotetycznych aktywności;
+- [x] automatyczne testy ViewModelu i kontrolny smoke wizualny zakładki są zielone;
+- [ ] końcowy test ręczny użytkownika.
 
 ---
 
@@ -93,16 +102,28 @@ Planer nie może zapisywać hipotetycznych aktywności do SQLite, modyfikować p
 
 ## Szablon aktualizacji statusu
 
-- **Data rozpoczęcia:**
-- **Data zakończenia:**
-- **Wynik:** `GO` / `FIX` / `HOLD` / `NIE DOTYCZY`
-- **Commit / punkt przywracania:**
-- **Build Release:**
-- **Testy automatyczne:**
-- **Testy manualne / dowody:**
-- **Otwarte błędy P0:**
-- **Otwarte błędy P1:**
-- **Uwagi do następnego etapu:**
+- **Data rozpoczęcia:** 2026-07-24
+- **Data zakończenia implementacji:** 2026-07-24
+- **Wynik:** **HOLD** — oczekiwanie wyłącznie na końcowy test ręczny użytkownika
+- **Commit / punkt przywracania:** do wpisania po utworzeniu commita M3
+- **Build Release:** 0 błędów / 0 ostrzeżeń
+- **Testy automatyczne:** 400/400
+- **Testy manualne / dowody:** kontrolny smoke wizualny aplikacji przy 1280×800 zielony; końcowy test ręczny wykonuje użytkownik
+- **Otwarte błędy P0:** 0
+- **Otwarte błędy P1:** 0
+- **Uwagi do następnego etapu:** M4 pozostaje zamknięty do czasu ręcznego potwierdzenia M3.
+
+## Końcowa checklista ręczna użytkownika
+
+- [ ] Zakładka `PLANER` otwiera się poprawnie i nie ma obciętych elementów.
+- [ ] `01:60` jest odrzucane, a czas powyżej 23 godzin (np. `28:00`) jest akceptowany.
+- [ ] Dla aktywnej karty S1 plan pokazuje status, wiarygodność, przyjazd, zakończenie, margines i segmenty.
+- [ ] Bufor wpływa na czas zakończenia dostawy, ale nie na czas przyjazdu.
+- [ ] Przełączenie S1/S2 nie aktywuje samoistnie podwójnej obsady i unieważnia poprzedni wynik.
+- [ ] Nowa telemetria lub zmiana stanu karty unieważnia poprzedni wynik.
+- [ ] Ostrzeżenia oraz powody segmentów, w tym `CalendarWait`, są czytelne, gdy występują.
+
+Po potwierdzeniu tej checklisty wynik M3 można zmienić z **HOLD** na **GO** i otworzyć M4.
 
 ---
 

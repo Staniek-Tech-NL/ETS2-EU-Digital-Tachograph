@@ -74,6 +74,7 @@ public sealed class CrewTachographEngine
         _lastFrame is not null && Math.Abs(_lastFrame.SpeedKph) > _settings.DrivingSpeedThresholdKph;
     public IReadOnlyCollection<string> RegisteredCardIds => _engines.Keys;
     public IReadOnlyCollection<string> RemovedCardIds => _removedCards.Keys;
+    public int WeekEpochOffsetDays => _regulationOptions.WeekEpochOffsetDays;
 
     public TachographEngine RegisterCard(
         string cardId,

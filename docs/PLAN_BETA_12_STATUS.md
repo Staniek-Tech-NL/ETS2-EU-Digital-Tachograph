@@ -17,7 +17,7 @@
 | **M0** | Stabilizacja stanu wejściowego | 🟢 GO | GO | M1 |
 | **M1** | Planer: kontrakty i czerwone testy | 🟢 GO | GO | M2 |
 | **M2** | Planer: silnik zdarzeniowy | 🟢 GO | GO | M3 |
-| M3 | Planer: Application Service i UI | ⚪ nie rozpoczęty | — | M4 |
+| **M3** | Planer: Application Service i UI | 🔴 HOLD — test ręczny | HOLD | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
@@ -153,15 +153,45 @@ regresja `41+3=44` zielona 2026-07-24).
 
 ---
 
-## M3–M8 — do rozpoczęcia
+## M3 — Planer: Application Service i UI (IMPLEMENTACJA ZAKOŃCZONA — HOLD)
+
+**Kryterium wejścia:** zielony silnik M2. **Stan:** spełnione przez commit
+`751cd07`.
+
+### Gate M3
+
+- [x] przepływ formularz → `JourneyPlannerService` → harmonogram działa
+- [x] atomowy snapshot korzysta z kanonicznej historii, luk i stanu regulacyjnego
+- [x] zmiana stanu unieważnia poprzedni wynik
+- [x] wybór S1/S2 nie aktywuje sam podwójnej obsady
+- [x] brak zapisu hipotetycznego planu do historii
+- [x] build Release i pełna regresja automatyczna są zielone
+- [x] kontrolny smoke wizualny zakładki przy 1280×800 jest zielony
+- [ ] końcowy test ręczny użytkownika
+
+### Stan zamknięcia M3
+
+- **Data rozpoczęcia:** 2026-07-24
+- **Data zakończenia implementacji:** 2026-07-24
+- **Wynik:** **HOLD** — użytkownik wykona końcowy test ręczny
+- **Commit / punkt przywracania:** do wpisania po utworzeniu commita M3
+- **Build Release:** 0 błędów / 0 ostrzeżeń
+- **Testy automatyczne:** 400/400
+- **Testy manualne / dowody:** kontrolny smoke wizualny aplikacji zielony; pełna
+  checklista ręczna pozostaje po stronie użytkownika
+- **Otwarte błędy P0:** 0
+- **Otwarte błędy P1:** 0
+- **Uwagi do następnego etapu:** M4 pozostaje zamknięty do czasu formalnego GO M3.
+
+---
+
+## M4–M8 — do rozpoczęcia
 
 Każdy etap otwieramy dopiero po **GO** poprzedniego. Szczegółowe zadania i gate'y
 w `docs/PLAN_BETA_12_M0-M8/`. Poniżej rejestr decyzji wypełniany przy zamykaniu
 kolejnych etapów (szablon: data start/koniec, wynik, commit, build, testy auto,
 dowody manualne, P0, P1, uwagi).
 
-- **M3** — `JourneyPlannerService` + ViewModel + zakładka PLANER, unieważnianie
-  wyniku. — *nie rozpoczęty*
 - **M4** — walidacja gotowej inwentaryzacji UI + formalny **UI freeze**. — *nie rozpoczęty*
 - **M5** — pełne `pl-PL` i `en-GB`, zielone regresje obu języków. — *nie rozpoczęty*
 - **M6** — niezmienny RC beta.12: numer + commit + SHA-256, ZIP zamrożony. — *nie rozpoczęty*

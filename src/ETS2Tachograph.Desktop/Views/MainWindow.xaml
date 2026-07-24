@@ -332,6 +332,128 @@
                 </Grid>
             </TabItem>
 
+            <TabItem Header="⌖  PLANER">
+                <Grid Margin="24" Background="#F3F5F8" TextElement.Foreground="#161A20"
+                      DataContext="{Binding JourneyPlanner}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="PLANER PODRÓŻY" FontSize="23" FontWeight="Bold"/>
+                        <TextBlock Text="Strategia: najwcześniejsza legalna · obliczenia tylko do odczytu"
+                                   Foreground="#5F6874" Margin="0,5,0,0"/>
+                    </StackPanel>
+
+                    <Border Grid.Row="1" Background="White" BorderBrush="#B9C2CD"
+                            BorderThickness="1" CornerRadius="10" Padding="18" Margin="0,16,0,12">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="KARTA" FontSize="10" Foreground="#5F6874" FontWeight="Bold"/>
+                                <ComboBox ItemsSource="{Binding Slots}" SelectedItem="{Binding SelectedSlot}"
+                                          DisplayMemberPath="Name" Height="38" Margin="4"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="JAZDA GPS · HH:MM" FontSize="10" Foreground="#5F6874" FontWeight="Bold"/>
+                                <TextBox Text="{Binding RemainingDrive, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="Pozostały czas samej jazdy, np. 12:35"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="DO KOŃCA DOSTAWY" FontSize="10" Foreground="#5F6874" FontWeight="Bold"/>
+                                <TextBox Text="{Binding DeliveryWindow, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="Czas do wymaganego zakończenia dostawy, także ponad 23 h"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="3">
+                                <TextBlock Text="PRACA PO PRZYJEŹDZIE" FontSize="10" Foreground="#5F6874" FontWeight="Bold"/>
+                                <TextBox Text="{Binding OperationalBuffer, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="Bufor klasyfikowany jako inna praca"/>
+                            </StackPanel>
+                            <Button Grid.Column="4" Content="OBLICZ PLAN" Command="{Binding CalculateCommand}"
+                                    Background="#27695E" Padding="22,11" VerticalAlignment="Bottom" Margin="12,4,4,4"/>
+                        </Grid>
+                    </Border>
+
+                    <StackPanel Grid.Row="2">
+                        <TextBlock Text="{Binding ValidationMessage}" Foreground="#B3261E"
+                                   FontWeight="SemiBold" TextWrapping="Wrap"/>
+                        <Border Background="#EAF2F8" BorderBrush="#9EB6CB" BorderThickness="1"
+                                CornerRadius="8" Padding="14" Margin="0,6,0,12">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel>
+                                    <TextBlock Text="WYNIK" FontSize="10" Foreground="#5F6874"/>
+                                    <TextBlock Text="{Binding StatusText}" FontWeight="Bold" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="WIARYGODNOŚĆ" FontSize="10" Foreground="#5F6874"/>
+                                    <TextBlock Text="{Binding ConfidenceText}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="PRZYJAZD" FontSize="10" Foreground="#5F6874"/>
+                                    <TextBlock Text="{Binding ArrivalText}" FontFamily="Consolas" FontWeight="Bold"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="3">
+                                    <TextBlock Text="KONIEC DOSTAWY" FontSize="10" Foreground="#5F6874"/>
+                                    <TextBlock Text="{Binding CompletionText}" FontFamily="Consolas" FontWeight="Bold"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="4">
+                                    <TextBlock Text="MARGINES" FontSize="10" Foreground="#5F6874"/>
+                                    <TextBlock Text="{Binding MarginText}" FontFamily="Consolas" FontWeight="Bold"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </StackPanel>
+
+                    <Grid Grid.Row="3">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="3*"/><ColumnDefinition/></Grid.ColumnDefinitions>
+                        <DataGrid ItemsSource="{Binding Segments}" AutoGenerateColumns="False" IsReadOnly="True"
+                                  HeadersVisibility="Column" Margin="0,0,12,0">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Header="SEGMENT" Binding="{Binding Type}" Width="120"/>
+                                <DataGridTextColumn Header="OD" Binding="{Binding Start}" Width="110"/>
+                                <DataGridTextColumn Header="DO" Binding="{Binding End}" Width="110"/>
+                                <DataGridTextColumn Header="CZAS" Binding="{Binding Duration}" Width="75"/>
+                                <DataGridTextColumn Header="POWÓD" Binding="{Binding Reason}" Width="*"/>
+                                <DataGridTextColumn Header="AKTYWNOŚĆ" Binding="{Binding Activity}" Width="120"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <Border Grid.Column="1" Background="White" BorderBrush="#B9C2CD"
+                                BorderThickness="1" CornerRadius="10" Padding="14">
+                            <StackPanel>
+                                <TextBlock Text="OSTRZEŻENIA I OGRANICZENIA" FontWeight="Bold" Margin="0,0,0,8"/>
+                                <ItemsControl ItemsSource="{Binding Warnings}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="#FFF4D6" BorderBrush="#D99B22"
+                                                    BorderThickness="1" CornerRadius="6" Padding="9" Margin="0,3">
+                                                <TextBlock Text="{Binding}" TextWrapping="Wrap" Foreground="#6B4300"/>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                                <TextBlock Text="CalendarWait oznacza oczekiwanie do zmiany okresu regulacyjnego. Czas może jednocześnie kwalifikować się jako odpoczynek."
+                                           Foreground="#5F6874" TextWrapping="Wrap" Margin="0,12,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </TabItem>
+
             <TabItem Header="▥  Raporty"><Grid Margin="24"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition/></Grid.RowDefinitions>
                 <Grid><TextBlock Text="RAPORTY I STATYSTYKI" FontSize="23" FontWeight="Bold"/><StackPanel Orientation="Horizontal" HorizontalAlignment="Right"><Button Content="CSV ZOBOWIĄZANIA" Command="{Binding ExportCsvCommand}"/><Button Content="PDF" Command="{Binding ExportPdfCommand}" Background="#27695E"/><Button Content="VTC JSON" Command="{Binding ExportVtcCommand}"/></StackPanel></Grid>
                 <Border Grid.Row="1" Style="{StaticResource MetricCard}" Margin="0,18,0,10"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="1.3*"/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="KIEROWCA / KARTA" Foreground="{StaticResource Muted}"/><ComboBox ItemsSource="{Binding Profiles}" SelectedItem="{Binding ReportDriverProfile}" DisplayMemberPath="DisplayName" Height="38" Margin="4"/></StackPanel><StackPanel Grid.Column="1"><TextBlock Text="OD CZASU GRY" Foreground="{StaticResource Muted}"/><TextBox Text="{Binding ReportFrom, UpdateSourceTrigger=PropertyChanged}" ToolTip="Np. Dzień 12, 14:30 · puste oznacza początek historii"/></StackPanel><StackPanel Grid.Column="2"><TextBlock Text="DO CZASU GRY" Foreground="{StaticResource Muted}"/><TextBox Text="{Binding ReportTo, UpdateSourceTrigger=PropertyChanged}" ToolTip="Np. Dzień 12, 18:00 · puste oznacza koniec historii"/></StackPanel><Button Grid.Column="3" Content="GENERUJ RAPORT" Command="{Binding RefreshReportCommand}" Background="#27695E" VerticalAlignment="Bottom"/></Grid></Border>
