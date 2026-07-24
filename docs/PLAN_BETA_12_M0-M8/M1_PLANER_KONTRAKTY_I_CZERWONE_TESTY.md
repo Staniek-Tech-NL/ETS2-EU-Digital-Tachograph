@@ -4,7 +4,7 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status początkowy:** **NIE ROZPOCZĘTY**  
+**Status:** **ZAKOŃCZONY — GO (2026-07-24)**
 **Kryterium wejścia:** Formalny wynik **GO** dla M0.  
 **Kryterium wyjścia:** Kontrakty zatwierdzone, czerwone testy kompletne, brak zależności od WPF i zapisu do SQLite.  
 **Następny etap:** M2
@@ -15,15 +15,15 @@
 
 ### Zadania
 
-- [ ] Zatwierdzić `JOURNEY_PLANNER_MVP_PLAN.md` 2.2 jako specyfikację implementacyjną beta.12.
-- [ ] Dodać kontrakty request/result/status/confidence/segments/warnings/usage/limits.
-- [ ] Dodać `JourneyPlanningSnapshot` i `JourneyPlanSnapshotIdentity`.
-- [ ] Dodać `DailyRestPlanningWindow`.
-- [ ] Dodać testy `JP-P0-01–08`.
-- [ ] Dodać testy statusów `JP-ST-01–08`.
-- [ ] Dodać testy snapshotu i unieważniania wyniku.
-- [ ] Dodać testy zakończenia algorytmu i limitów bezpieczeństwa.
-- [ ] Nie tworzyć jeszcze UI Planera.
+- [x] Zatwierdzić `JOURNEY_PLANNER_MVP_PLAN.md` 2.2 jako specyfikację implementacyjną beta.12.
+- [x] Dodać kontrakty request/result/status/confidence/segments/warnings/usage/limits.
+- [x] Dodać `JourneyPlanningSnapshot` i `JourneyPlanSnapshotIdentity`.
+- [x] Dodać `DailyRestPlanningWindow`.
+- [x] Dodać testy `JP-P0-01–08`.
+- [x] Dodać testy statusów `JP-ST-01–08`.
+- [x] Dodać testy snapshotu i unieważniania wyniku.
+- [x] Dodać testy zakończenia algorytmu i limitów bezpieczeństwa.
+- [x] Nie tworzyć jeszcze UI Planera.
 
 ### Gate M1
 
@@ -88,16 +88,19 @@ Planer nie może zapisywać hipotetycznych aktywności do SQLite, modyfikować p
 
 ## Szablon aktualizacji statusu
 
-- **Data rozpoczęcia:**
-- **Data zakończenia:**
-- **Wynik:** `GO` / `FIX` / `HOLD` / `NIE DOTYCZY`
-- **Commit / punkt przywracania:**
-- **Build Release:**
-- **Testy automatyczne:**
-- **Testy manualne / dowody:**
-- **Otwarte błędy P0:**
-- **Otwarte błędy P1:**
-- **Uwagi do następnego etapu:**
+- **Data rozpoczęcia:** 2026-07-24
+- **Data zakończenia:** 2026-07-24
+- **Wynik:** **GO**
+- **Commit / punkt przywracania:** bieżące drzewo robocze M1; commit nieutworzony
+- **Build Release:** 0 błędów / 0 ostrzeżeń
+- **Testy automatyczne:** regresja + kontrakty M1 355/355; pakiet `Stage=M2Red`
+  13/13 prawidłowo czerwony na celowej granicy `NotImplementedException`
+- **Testy manualne / dowody:** nie dotyczy — brak zmian UI
+- **Otwarte błędy P0:** 0
+- **Otwarte błędy P1:** 0
+- **Uwagi do następnego etapu:** M2 ma zastąpić celową granicę
+  `JourneyPlanningEngine.Plan` deterministycznym silnikiem zdarzeniowym i
+  sukcesywnie zazielenić pakiet `Stage=M2Red`.
 
 ---
 

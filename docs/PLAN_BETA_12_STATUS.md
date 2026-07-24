@@ -15,7 +15,7 @@
 | Etap | Zakres | Status | Wynik | Blokuje |
 |---|---|---|---|---|
 | **M0** | Stabilizacja stanu wejściowego | 🟢 GO | GO | M1 |
-| M1 | Planer: kontrakty i czerwone testy | ⚪ nie rozpoczęty | — | M2 |
+| **M1** | Planer: kontrakty i czerwone testy | 🟢 GO | GO | M2 |
 | M2 | Planer: silnik zdarzeniowy | ⚪ nie rozpoczęty | — | M3 |
 | M3 | Planer: Application Service i UI | ⚪ nie rozpoczęty | — | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
@@ -83,15 +83,54 @@ regresja `41+3=44` zielona 2026-07-24).
 
 ---
 
-## M1–M8 — do rozpoczęcia
+## M1 — Planer: kontrakty i czerwone testy (ZAMKNIĘTY — GO)
+
+**Kryterium wejścia:** formalny wynik GO dla M0. **Stan:** spełnione.
+
+### Zadania i stan
+
+| Zadanie M1 | Stan | Uwaga |
+|---|---|---|
+| Zatwierdzenie specyfikacji 2.2 | ✅ zrobione | Zatwierdzona dla beta.12; doprecyzowano `DriverActivity` i `MultiManningActive` |
+| Kontrakty Planera | ✅ zrobione | Request, result, status, confidence, segmenty, warningi, usage i limity |
+| Snapshot i tożsamość | ✅ zrobione | Porównanie sesji, świata, czasu, karty i high-water mark |
+| Okno odpoczynku dobowego | ✅ zrobione | Osobny termin ukończenia oraz start wariantu 9/11 h |
+| `JP-P0-01–08` | ✅ zrobione | Osiem testów blokujących M2 |
+| `JP-ST-01–08` | ✅ zrobione | Pełny kontrakt ośmiu statusów terminalnych |
+| Determinizm i limity bezpieczeństwa | ✅ zrobione | Czerwone testy postępu, determinizmu i trzech limitów |
+| Izolacja od UI i persistence | ✅ zrobione | Brak referencji WPF, EF Core, SQLite i Infrastructure |
+
+### Gate M1
+
+- [x] kontrakty zaakceptowane
+- [x] testy blokujące istnieją i prawidłowo zawodzą bez implementacji M2
+- [x] brak zależności Planera od WPF
+- [x] brak operacji zapisu do SQLite w kontrakcie Planera
+
+### Zamknięcie M1
+
+- **Data rozpoczęcia:** 2026-07-24
+- **Data zakończenia:** 2026-07-24
+- **Wynik:** **GO**
+- **Commit / punkt przywracania:** bieżące drzewo robocze M1; commit nieutworzony
+- **Build Release:** 0 błędów / 0 ostrzeżeń
+- **Testy automatyczne:** 355/355 regresji i kontraktów; 13/13 testów
+  `Stage=M2Red` prawidłowo czerwonych na celowej granicy M2
+- **Testy manualne / dowody:** nie dotyczy — brak zmian UI
+- **Otwarte błędy P0:** 0
+- **Otwarte błędy P1:** 0
+- **Uwagi do następnego etapu:** M2 może rozpocząć implementację silnika i
+  zazielenianie czerwonego pakietu.
+
+---
+
+## M2–M8 — do rozpoczęcia
 
 Każdy etap otwieramy dopiero po **GO** poprzedniego. Szczegółowe zadania i gate'y
 w `docs/PLAN_BETA_12_M0-M8/`. Poniżej rejestr decyzji wypełniany przy zamykaniu
 kolejnych etapów (szablon: data start/koniec, wynik, commit, build, testy auto,
 dowody manualne, P0, P1, uwagi).
 
-- **M1** — kontrakty request/result/status + czerwone testy `JP-P0-01–08`,
-  `JP-ST-01–08`; brak zależności od WPF i zapisu do SQLite. — *nie rozpoczęty*
 - **M2** — deterministyczny silnik „Najwcześniejsza legalna", niezmienniki,
   kontrolowane zakończenie. — *nie rozpoczęty*
 - **M3** — `JourneyPlannerService` + ViewModel + zakładka PLANER, unieważnianie

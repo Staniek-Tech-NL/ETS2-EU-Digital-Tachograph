@@ -3,11 +3,11 @@
 **Projekt:** ETS2 EU Digital Tachograph  
 **Funkcja:** Planer podróży — strategia „Najwcześniejsza legalna”  
 **Wersja dokumentu:** 2.2 — aktualizacja po beta.11.1 i lokalnych zmianach UI
-**Status specyfikacji:** **SKORYGOWANA — WSTRZYMANA DO OSOBNEJ DECYZJI**
-**Status implementacji:** **NIE ROZPOCZĘTA**  
-**Gate przed implementacją:** baza beta.11.1 pozostaje bez nowej publikacji;
-bieżący kod lokalny ma 310/310 testów Release. Planer nie jest częścią
-aktualnego zakresu UI i wymaga osobnej decyzji rozpoczęcia.
+**Status specyfikacji:** **ZATWIERDZONA DLA BETA.12 (M1 GO 2026-07-24)**
+**Status implementacji:** **M1 ZAKOŃCZONY — ALGORYTM M2 NIEZAIMPLEMENTOWANY**
+**Gate przed implementacją:** M0 zakończony formalnym GO; decyzja właściciela
+o rozpoczęciu Planera została wydana 2026-07-24. Kontrakty i czerwone testy M1
+są gotowe, a implementacja algorytmu pozostaje zakresem M2.
 **Dokument przeglądu:** `JOURNEY_PLANNER_MVP_REVIEW_REPORT.md`  
 **Raport terenowy:** `FIELD_TEST_REPORT_2026-07-21.md`
 
@@ -20,6 +20,14 @@ aktualnego zakresu UI i wymaga osobnej decyzji rozpoczęcia.
 Koncepcja Planera podróży została zaakceptowana. MVP będzie obsługiwał jedną strategię:
 
 > **Najwcześniejsza legalna**
+
+Wersja 2.2 została zatwierdzona 2026-07-24 jako specyfikacja implementacyjna
+beta.12. Przy materializacji kontraktów doprecyzowano dwie niespójności:
+
+- pole `RegulatoryActivity` używa istniejącego domenowego typu `DriverActivity`
+  zamiast nieistniejącego `ActivityType`;
+- snapshot zawiera jawne `MultiManningActive`, ponieważ wybór S1/S2 nie może
+  sam aktywować okna 30 h.
 
 Po przeglądzie pierwotnego planu zaktualizowano specyfikację w zakresie:
 
@@ -334,6 +342,7 @@ public sealed record JourneyPlanningSnapshot(
     RegulationEvaluation Evaluation,
     IReadOnlyList<ActivityRecord> History,
     IReadOnlyList<ActivityGap> Gaps,
+    bool MultiManningActive,
     bool TelemetryAvailable);
 ```
 
@@ -423,7 +432,7 @@ public sealed record JourneyPlanSegment(
     long EndGameMinute,
     int DurationMinutes,
     JourneyPlanSegmentReason Reason,
-    ActivityType RegulatoryActivity,
+    DriverActivity RegulatoryActivity,
     bool UsesRegulatoryException,
     string? WarningCode);
 ```
