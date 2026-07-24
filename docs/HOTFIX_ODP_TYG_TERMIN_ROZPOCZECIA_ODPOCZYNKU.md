@@ -4,12 +4,26 @@
 **Obszar:** wirtualny tachograf / ekran liczników karty  
 **Typ zmiany:** hotfix prezentacyjny  
 **Priorytet:** P1  
-**Status dokumentu:** zatwierdzony plan wykonawczy, implementacja do wykonania  
+**Status dokumentu:** **ZAKOŃCZONY — GREEN**
 **Data:** 24 lipca 2026  
 **Baza wydaniowa:** `0.1.0-beta.11.1`  
 **Stan bieżącego drzewa przed hotfixem:** lokalne zmiany po beta.11.1, `315/315` testów Release, build `0 błędów / 0 ostrzeżeń`  
 **Planowany gate odbioru:** testy z IDE i smoke test kandydata beta.12  
 **Zakres wersji:** zmiana lokalna; nie należy przypisywać jej do opublikowanego artefaktu beta.11.1
+
+## Wynik wdrożenia — 24 lipca 2026
+
+- Etap 1 wykonano przed implementacją: 18/18 przypadków formatera oraz 4/4
+  przypadki projekcji potwierdzono w stanie **RED**.
+- `RegulationState` wystawia `WeeklyRestWindowElapsedMinutes` i
+  `WeeklyRestStartDeadlineGameMinute` z jednej kotwicy RuleEngine.
+- `WeeklyRestWindowFormatter` jest wspólny dla S1 i S2, używa wyłącznie liczb
+  `game_time`, obsługuje `1/6–6/6+` i fallback `—/6 (—)`.
+- Nie zmieniono XAML, SQLite, historii, protokołu telemetrii ani progów reguł.
+- Testy celowane: formatter 18/18; wybrane testy RuleEngine 11/11.
+- Pełny gate Release: **338/338**, build **0 błędów / 0 ostrzeżeń**.
+- Ręczny smoke LCD S1/S2 z aktywną telemetrią: **GREEN**, potwierdzony przez
+  użytkownika 24 lipca 2026.
 
 ---
 

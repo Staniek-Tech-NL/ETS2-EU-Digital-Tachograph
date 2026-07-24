@@ -11,8 +11,8 @@ jedynie w bazie SQLite, kodzie lub wewnętrznym stanie silnika.
 
 Do widocznych danych i operacji doszły:
 
-- `ODP. TYG.` w formacie ukończonych okresów 24 h oraz dokładnego czasu,
-  np. `3/6 (89:39)`;
+- `ODP. TYG.` w formacie bieżącego okresu 24 h `1/6–6/6+` oraz stałego terminu
+  rozpoczęcia odpoczynku w `game_time`, np. `4/6 (D141 22:55)`;
 - przeszukiwalny wybór kraju w formacie `PL — Polska`, z zapamiętywaniem
   ostatniego wyboru per karta;
 - wariant B wpisu manualnego: kontekst kierowcy i luki, szybkie akcje, pełna
@@ -168,7 +168,7 @@ Dla każdej karty osobno menu pokazuje:
 | `TYDZIEŃ` | Łączna jazda tygodniowa |
 | `2 TYG.` | Łączna jazda w okresie dwutygodniowym |
 | `ODP. DZIENNY` | Czas pozostały do terminu odpoczynku dziennego |
-| `ODP. TYG.` | Czas pozostały do terminu odpoczynku tygodniowego |
+| `ODP. TYG.` | Numer bieżącego okresu 24 h oraz termin rozpoczęcia odpoczynku tygodniowego w `game_time` |
 
 Ekran wyboru karty pokazuje też, czy `KARTA 1` i `KARTA 2` są gotowe, czy ich brak.
 

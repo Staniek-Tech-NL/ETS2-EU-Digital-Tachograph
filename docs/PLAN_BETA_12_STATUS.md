@@ -31,7 +31,7 @@ Legenda: ⚪ nie rozpoczęty · 🟡 w toku · 🟢 GO · 🔴 FIX/HOLD
 ## M0 — Stabilizacja stanu wejściowego (AKTYWNY)
 
 **Kryterium wejścia:** baza beta.11.1, lokalny gate zielony, zielona regresja
-granicy pauzy 44/45. **Stan:** spełnione (gate 315/315, build Release 0/0,
+granicy pauzy 44/45. **Stan:** spełnione (gate 338/338, build Release 0/0,
 regresja `41+3=44` zielona 2026-07-24).
 
 ### Zadania i stan
@@ -39,24 +39,24 @@ regresja `41+3=44` zielona 2026-07-24).
 | Zadanie M0 | Stan | Uwaga |
 |---|---|---|
 | `KNOWN_ISSUES.md`: 44/45 naprawione lokalnie 2026-07-24 | ✅ zrobione | Sekcja „Naprawione lokalnie po beta.11.1" + ref. `41+3=44` + gate 315/315 |
-| `BETA_TEST_PLAN.md`: Test 1A zaliczony, scenariusz `41+3=44` | 🟡 w edycji | Redagowane w tym oknie |
-| Pełna checklista UI bieżącego drzewa | ⚪ do wykonania | Manualna, obszar WPF Desktop |
-| Wariant B wpisu manualnego | ⚪ do wykonania | |
-| Katalog krajów + kod tachografowy | ⚪ do wykonania | |
-| `ODP. TYG.` na progach 89:39 / 96:00 / 144:00+ | ⚪ do wykonania | |
-| Oba sloty, nakładki, OUT, Prom, restart, logi | ⚪ do wykonania | |
-| Aktywna telemetria, auto-Jazda, blokady od ruchu | ⚪ do wykonania | |
-| Eksporty i zachowanie danych po restarcie | ⚪ do wykonania | |
+| `BETA_TEST_PLAN.md`: Test 1A zaliczony, scenariusz `41+3=44` | ✅ zrobione | Regresja automatyczna i procedura powtórzenia opisana |
+| Pełna checklista UI bieżącego drzewa | ✅ zrobione | Wynik ręczny użytkownika 10/10 zielony, 2026-07-24 |
+| Wariant B wpisu manualnego | ✅ zrobione | Ujęty w ręcznym wyniku 10/10 |
+| Katalog krajów + kod tachografowy | ✅ zrobione | Ujęty w ręcznym wyniku 10/10 |
+| `ODP. TYG.`: `1/6–6/6+` + termin `Dxxx HH:mm` | ✅ zrobione | WRF-01–16, gate 338/338 i ręczny smoke LCD S1/S2 zielone |
+| Oba sloty, nakładki, OUT, Prom, restart, logi | ✅ zrobione | Ujęte w ręcznym wyniku 10/10 |
+| Aktywna telemetria, auto-Jazda, blokady od ruchu | ✅ zrobione | Ujęte w ręcznym wyniku 10/10 |
+| Eksporty i zachowanie danych po restarcie | ✅ zrobione | Ujęte w ręcznym wyniku 10/10 |
 | Inwentaryzacja pozostałych elementów UI (`beta.12` / `poza zakresem`) | ⚪ do wykonania | Wejście do M4 |
 
 ### Gate M0 (do zamknięcia)
 
-- [ ] pełna regresja lokalnego drzewa zielona
-- [x] brak otwartych P0/P1 (stan na 2026-07-24)
-- [ ] wszystkie znane rozbieżności opisane
+- [x] pełna regresja lokalnego drzewa zielona (338/338)
+- [x] brak otwartych P0/P1
+- [x] wszystkie znane rozbieżności opisane
 - [x] build Release 0/0
-- [x] pełny pakiet testów automatycznych zielony (315/315)
-- [ ] kontrolowany punkt przywracania (commit) po zamknięciu docs + checklisty
+- [x] pełny pakiet testów automatycznych zielony (338/338)
+- [x] kontrolowany punkt przywracania: commit hotfixu ODP.TYG. po zielonym smoke teście
 
 ### Otwarte pozycje / ryzyka
 
@@ -64,17 +64,19 @@ regresja `41+3=44` zielona 2026-07-24).
   `41+3=44` jest zielona; pełne potwierdzenie in-game granicy 44/45 jest też
   wymagane w smoke M7.
 - Rozbieżność nazewnicza: dokument M0 opisuje bazę jako „310/310" (migawka sprzed
-  hotfixa), bieżące drzewo to 315/315 po dołożeniu testów granicy 44/45.
+  hotfixów), bieżące drzewo to 338/338 po regresjach granicy 44/45 i WRF-01–16.
+- Hotfix P1 `ODP. TYG.` zamknięty: gate automatyczny i ręczny smoke LCD S1/S2
+  z aktywną telemetrią są zielone.
 
 ### Szablon zamknięcia M0
 
 - **Data rozpoczęcia:** 2026-07-24
 - **Data zakończenia:** —
 - **Wynik:** — (`GO` / `FIX` / `HOLD`)
-- **Commit / punkt przywracania:** —
+- **Commit / punkt przywracania:** bieżący commit hotfixu ODP.TYG.
 - **Build Release:** 0 błędów / 0 ostrzeżeń
-- **Testy automatyczne:** 315/315
-- **Testy manualne / dowody:** checklista UI — w toku
+- **Testy automatyczne:** 338/338
+- **Testy manualne / dowody:** checklista UI 10/10 zielona; smoke LCD S1/S2 po hotfixie zielony
 - **Otwarte błędy P0:** 0
 - **Otwarte błędy P1:** 0
 - **Uwagi do następnego etapu:** —

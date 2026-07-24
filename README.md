@@ -14,7 +14,7 @@ kierowców i wylicza liczniki zgodnie z zaimplementowanym zakresem reguł.
   wszystkie testy zielone, decyzja **GO**;
 - bieżące zmiany UI oraz hotfix licznika pauzy 44/45 są wdrożone wyłącznie
   lokalnie i nie tworzą nowej wersji beta;
-- lokalny gate: **315/315 testów**, build Release 0 błędów i 0 ostrzeżeń;
+- lokalny gate: **338/338 testów**, build Release 0 błędów i 0 ostrzeżeń;
 - aplikacja została uruchomiona diagnostycznie po ostatnich zmianach XAML.
 
 ## Podgląd
@@ -44,8 +44,8 @@ kierowców i wylicza liczniki zgodnie z zaimplementowanym zakresem reguł.
   tachografowego;
 - wizualny edytor wpisu manualnego: pełny plan luki, szybkie akcje, segmenty
   odpoczynku, pracy i dyspozycyjności, automatyczne dzielenie oraz scalanie;
-- licznik `ODP. TYG.` prezentowany jako liczba zakończonych okresów 24 h
-  z dokładnym czasem telemetrycznym, np. `3/6 (89:39)`;
+- licznik `ODP. TYG.` pokazujący numer bieżącego okresu 24 h oraz stały termin
+  rozpoczęcia odpoczynku w `game_time`, np. `4/6 (D141 22:55)`;
 - licznik celu pauzy na Dashboardzie, urządzeniu i overlay korzysta z bieżącego,
   ciągłego bloku `BreakOrRest` zakwalifikowanego przez RuleEngine;
 - nakładki `S1` i `S2`, zapamiętujące osobne położenie;

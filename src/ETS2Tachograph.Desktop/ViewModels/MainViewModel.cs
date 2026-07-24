@@ -140,7 +140,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private string _driver2WeeklyDriving = "00:00";
     private string _driver2FortnightlyDriving = "00:00";
     private string _driver2DailyRestDeadline = "24:00";
-    private string _driver2WeeklyRestDeadline = "6/6 (144:00)";
+    private string _driver2WeeklyRestDeadline = "—/6 (—)";
     private int _cardDialogSlot = 1;
     private double _currentSpeed;
     private double _odometer = 123456.7;
@@ -161,7 +161,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private string _endCountryIso = "PL";
     private string _fortnightlyDriving = "00:00";
     private string _dailyRestDeadline = "24:00";
-    private string _weeklyRestDeadline = "6/6 (144:00)";
+    private string _weeklyRestDeadline = "—/6 (—)";
     private string _currentActivityDuration = "00:00";
     private DriverActivity? _lastDisplayedActivity;
     private long? _activityStartedAtMinute;
@@ -788,7 +788,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             WeeklyDriving = Format(state.WeeklyDrivingMinutes);
             FortnightlyDriving = Format(state.FortnightlyDrivingMinutes);
             DailyRestDeadline = Format(state.MinutesUntilDailyRestDeadline);
-            WeeklyRestDeadline = FormatWeeklyRestWindow(state.MinutesUntilWeeklyRestDeadline);
+            WeeklyRestDeadline = WeeklyRestWindowFormatter.Format(
+                state.WeeklyRestWindowElapsedMinutes,
+                state.WeeklyRestStartDeadlineGameMinute);
         }
         else ResetDriver1Counters();
 
@@ -822,7 +824,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             Driver2WeeklyDriving = Format(state.WeeklyDrivingMinutes);
             Driver2FortnightlyDriving = Format(state.FortnightlyDrivingMinutes);
             Driver2DailyRestDeadline = Format(state.MinutesUntilDailyRestDeadline);
-            Driver2WeeklyRestDeadline = FormatWeeklyRestWindow(state.MinutesUntilWeeklyRestDeadline);
+            Driver2WeeklyRestDeadline = WeeklyRestWindowFormatter.Format(
+                state.WeeklyRestWindowElapsedMinutes,
+                state.WeeklyRestStartDeadlineGameMinute);
         }
         else ResetDriver2Counters();
         UpdateRestCounters2(snapshot);
@@ -855,7 +859,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         CompensationOverview = global::ETS2Tachograph.Desktop.CompensationOverview.Empty;
         DailyExtensionsExceeded = false; ReducedDailyRestsExceeded = false;
         WeeklyDriving = "00:00"; FortnightlyDriving = "00:00";
-        DailyRestDeadline = "24:00"; WeeklyRestDeadline = "6/6 (144:00)";
+        DailyRestDeadline = "24:00"; WeeklyRestDeadline = "—/6 (—)";
     }
 
     private void ResetDriver2Counters()
@@ -868,7 +872,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         Driver2CompensationOverview = CompensationOverview.Empty;
         Driver2DailyExtensionsExceeded = false; Driver2ReducedDailyRestsExceeded = false;
         Driver2FortnightlyDriving = "00:00";
-        Driver2DailyRestDeadline = "24:00"; Driver2WeeklyRestDeadline = "6/6 (144:00)";
+        Driver2DailyRestDeadline = "24:00"; Driver2WeeklyRestDeadline = "—/6 (—)";
     }
 
     private void SetActivity(DriverActivity activity)
@@ -2339,18 +2343,6 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     }
 
     private static string Format(long minutes) => minutes < 0 ? $"-{Format(-minutes)}" : $"{minutes / 60:00}:{minutes % 60:00}";
-    private static string FormatWeeklyRestWindow(long totalMinutes)
-    {
-        totalMinutes = Math.Max(0, totalMinutes);
-
-        var completedPeriods = Math.Min(totalMinutes / (24 * 60), 6);
-        var exactTime = $"{totalMinutes / 60:00}:{totalMinutes % 60:00}";
-
-        return totalMinutes > 6 * 24 * 60
-            ? $"6/6+ ({exactTime})"
-            : $"{completedPeriods}/6 ({exactTime})";
-    }
-
     private static string FormatReportGapWarning(int count, long minutes)
     {
         var noun = count == 1

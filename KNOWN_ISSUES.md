@@ -7,7 +7,7 @@
 Opublikowaną bazą pozostaje beta.11.1. Bieżący kod zawiera również
 nieopublikowane zmiany lokalne UI: wariant B wpisu manualnego, katalog krajów
 ISO, korektę prezentacji `ODP. TYG.` oraz hotfix licznika pauzy 44/45.
-Lokalny gate wynosi 315/315, a build Release ma 0 błędów i 0 ostrzeżeń.
+Lokalny gate wynosi 338/338, a build Release ma 0 błędów i 0 ostrzeżeń.
 Artefakt beta.11.1 przeszedł końcowy smoke z aktywną telemetrią 23 lipca 2026;
 wszystkie testy były zielone, a decyzja wydaniowa brzmi **GO**.
 Nowe błędy z testów należy dopisywać razem ze statusem `lokalne` albo numerem
@@ -15,6 +15,10 @@ wydanej paczki i raportem diagnostycznym.
 
 ## Naprawione lokalnie po beta.11.1
 
+- `ODP. TYG.` nie odlicza już błędnie okresów w dół i nie pokazuje surowego
+  czasu pozostałego. Wspólny formatter S1/S2 prezentuje bieżący okres
+  `1/6–6/6+` oraz stały termin rozpoczęcia odpoczynku w `game_time`, np.
+  `4/6 (D141 22:55)`. Brak wiarygodnej kotwicy daje `—/6 (—)`.
 - Licznik celu pauzy nie korzysta już z czasu od kliknięcia w UI.
   `RegulationState.CurrentContinuousBreakMinutes` wskazuje długość bieżącego,
   ciągłego bloku `BreakOrRest` po regule jednej minuty.

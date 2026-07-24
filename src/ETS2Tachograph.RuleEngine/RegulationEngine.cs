@@ -83,7 +83,12 @@ public sealed class RegulationEngine
 
         var lastWeeklyRest = qualifiedRestRuns.LastOrDefault(run =>
             WeeklyClassification(run, context.Now, compensationProjection.Allocations) is not null);
-        var weeklyAnchor = lastWeeklyRest?.EndExclusive ?? firstMinute;
+        GameTime? weeklyAnchor = lastWeeklyRest?.EndExclusive ??
+            (history.Count == 0 ? null : firstMinute);
+        var weeklyWindowElapsed = weeklyAnchor is null
+            ? (long?)null
+            : context.Now - weeklyAnchor.Value;
+        var weeklyStartDeadline = weeklyAnchor?.AddMinutes(8_640);
         var reducedDailyRests = CountReducedDailyRestsSince(
             qualifiedRestRuns,
             lastWeeklyRest?.EndExclusive);
@@ -108,7 +113,9 @@ public sealed class RegulationEngine
             ReducedDailyRestsSinceWeeklyRest = reducedDailyRests,
             MinutesUntilBreak = ContinuousDrivingLimit - continuousDriving,
             MinutesUntilDailyRestDeadline = dailyWindow - (context.Now - dailyAnchor),
-            MinutesUntilWeeklyRestDeadline = 8_640 - (context.Now - weeklyAnchor),
+            MinutesUntilWeeklyRestDeadline = 8_640 - (weeklyWindowElapsed ?? 0),
+            WeeklyRestWindowElapsedMinutes = weeklyWindowElapsed,
+            WeeklyRestStartDeadlineGameMinute = weeklyStartDeadline?.TotalMinutes,
             LastDailyRestResetAt = lastDailyRest?.EndExclusive,
             PendingRestAllocation = compensationProjection.Allocations.Any(item => item.IsPending)
         };

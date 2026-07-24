@@ -35,6 +35,74 @@ public sealed class RegulationEngineTests
         Assert.Equal(270 - minutes, result.State.MinutesUntilBreak);
     }
 
+    [Fact] // WRF-16
+    public void Weekly_rest_remaining_deadline_rule_is_unchanged()
+    {
+        var result = Evaluate(
+            [Record(100, 200, DriverActivity.OtherWork)],
+            300);
+
+        Assert.Equal(8_440, result.State.MinutesUntilWeeklyRestDeadline);
+        Assert.False(Has(result, ViolationType.WeeklyRestMissing));
+    }
+
+    [Fact] // WRF-12
+    public void Weekly_rest_deadline_projection_keeps_driver_states_independent()
+    {
+        var slot1 = Evaluate(
+            [Record(100, 200, DriverActivity.OtherWork)],
+            300);
+        var slot2 = Evaluate(
+            [Record(500, 600, DriverActivity.OtherWork)],
+            700);
+
+        Assert.Equal(8_740, slot1.State.WeeklyRestStartDeadlineGameMinute);
+        Assert.Equal(9_140, slot2.State.WeeklyRestStartDeadlineGameMinute);
+    }
+
+    [Fact] // WRF-13
+    public void Weekly_rest_deadline_projection_is_deterministic_for_same_history()
+    {
+        var history = new[]
+        {
+            Record(100, 200, DriverActivity.OtherWork)
+        };
+
+        var beforeRestart = Evaluate(history, 300);
+        var afterRestart = Evaluate(history, 300);
+
+        Assert.Equal(
+            beforeRestart.State.WeeklyRestStartDeadlineGameMinute,
+            afterRestart.State.WeeklyRestStartDeadlineGameMinute);
+        Assert.Equal(
+            beforeRestart.State.WeeklyRestWindowElapsedMinutes,
+            afterRestart.State.WeeklyRestWindowElapsedMinutes);
+    }
+
+    [Fact] // WRF-14
+    public void Weekly_rest_deadline_projection_changes_with_new_canonical_branch()
+    {
+        var oldBranch = Evaluate(
+            [Record(100, 200, DriverActivity.OtherWork)],
+            300);
+        var newBranch = Evaluate(
+            [Record(500, 600, DriverActivity.OtherWork)],
+            700);
+
+        Assert.NotEqual(
+            oldBranch.State.WeeklyRestStartDeadlineGameMinute,
+            newBranch.State.WeeklyRestStartDeadlineGameMinute);
+    }
+
+    [Fact] // WRF-15
+    public void Weekly_rest_deadline_projection_does_not_invent_anchor_without_history()
+    {
+        var result = Evaluate([], 300);
+
+        Assert.Null(result.State.WeeklyRestStartDeadlineGameMinute);
+        Assert.Null(result.State.WeeklyRestWindowElapsedMinutes);
+    }
+
     [Fact]
     public void Uninterrupted_45_minute_break_resets_continuous_driving()
     {

@@ -104,9 +104,13 @@ Zmiana w XAML nie jest gotowa, dopóki wszystkie punkty nie są odhaczone.
 - [ ] Ostatni kraj jest odtwarzany osobno dla każdej karty, bez automatycznego
       zatwierdzania.
 - [ ] LCD używa kodu tachografowego, a historia zachowuje stabilny kod ISO.
-- [ ] Dla `89:39` pole `ODP. TYG.` pokazuje dokładnie `3/6 (89:39)`.
-- [ ] Próg zmienia się na `4/6` dopiero przy `96:00`; po `144:00` nadmiar jest
-      prezentowany jako `6/6+ (HH:MM)`.
+- [ ] Dla referencyjnego `89:39` pole `ODP. TYG.` pokazuje dokładnie
+      `4/6 (D141 22:55)`.
+- [ ] Próg zmienia się z `4/6` na `5/6` dopiero przy `96:00`, a na `6/6`
+      przy `120:00`; dokładnie przy `144:00` nadal jest `6/6`, a od `144:01`
+      widnieje `6/6+`.
+- [ ] Termin `Dxxx HH:mm` pozostaje stały przy postępie czasu dla tej samej
+      kotwicy, jest niezależny dla S1/S2 i po restarcie ma tę samą wartość.
 
 ### 8. Raporty
 

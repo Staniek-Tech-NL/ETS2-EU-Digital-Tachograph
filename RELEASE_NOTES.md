@@ -4,8 +4,8 @@ Ten zakres nie jest nową wersją beta. Numer aplikacji pozostaje
 `0.1.0-beta.11.1`, a poniższe zmiany istnieją wyłącznie w bieżącym katalogu
 roboczym:
 
-- licznik `ODP. TYG.` używa pełnych zakończonych okresów 24 h i zachowuje
-  dokładny czas telemetryczny, np. `3/6 (89:39)`;
+- licznik `ODP. TYG.` pokazuje bieżący okres 24 h w skali `1/6–6/6+` oraz
+  stały termin rozpoczęcia odpoczynku w `game_time`, np. `4/6 (D141 22:55)`;
 - ręczne pole kraju zastąpiono przeszukiwalną listą 249 pozycji ISO 3166-1
   alpha-2 z polskimi nazwami i osobnym kodem tachografowym;
 - wdrożono wariant B wpisu manualnego z pełnym planem, trzema aktywnościami,
@@ -22,8 +22,8 @@ roboczym:
 
 ## Weryfikacja lokalna
 
-- 315/315 testów automatycznych;
-- RuleEngine 65/65, Desktop 30/30;
+- 338/338 testów automatycznych;
+- RuleEngine 70/70, Desktop 48/48;
 - build Release: 0 błędów, 0 ostrzeżeń;
 - rzeczywisty start aplikacji potwierdzony diagnostycznie;
 - nie utworzono ani nie opublikowano nowej paczki beta.

@@ -33,6 +33,10 @@ Przykład:
 89:39 → 3/6 (89:39)
 ```
 
+> Aktualizacja 24 lipca 2026: powyższy format jest historycznym wynikiem prac
+> z 23 lipca. Hotfix beta.12 zastąpił go licznikiem bieżącego okresu 1-based
+> i stałym terminem `game_time`: `89:39 → 4/6 (D141 22:55)`.
+
 Licznik jest obliczany przez dzielenie całkowite surowej liczby minut przez
 1440. Nie stosuje się zaokrąglania dni w górę. Po przekroczeniu 144 godzin
 prezentowany jest zapis `6/6+ (HH:MM)`.

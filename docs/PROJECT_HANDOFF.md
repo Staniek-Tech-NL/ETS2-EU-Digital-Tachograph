@@ -2,9 +2,9 @@
 
 **Baza wydaniowa:** 0.1.0-beta.11.1 — bez nowej publikacji
 **Data przygotowania dokumentu:** 20 lipca 2026
-**Ostatnia aktualizacja:** 24 lipca 2026 — lokalny hotfix licznika pauzy 44/45
+**Ostatnia aktualizacja:** 24 lipca 2026 — lokalne hotfixy licznika pauzy 44/45 i `ODP. TYG.`
 **Bieżący stan lokalny:** wariant B wpisu manualnego, katalog ISO i korekta
-`ODP. TYG.` oraz hotfix licznika pauzy wdrożone; 315/315 testów, build Release
+`ODP. TYG.` oraz hotfix licznika pauzy wdrożone; 338/338 testów, build Release
 0/0
 **Przeznaczenie:** pakiet startowy dla nowej sesji AI / nowego okna kontekstowego
 
@@ -22,7 +22,7 @@ Użytkownikiem docelowym jest gracz ETS2 ceniący realizm (w tym społeczność 
 Późniejsze zmiany są lokalne i nie stanowią nowej bety. Obejmują wariant B
 wpisu manualnego, pełny katalog ISO 3166-1, osobny kod tachografowy i
 formatowanie `ODP. TYG.` oraz hotfix licznika pauzy 44/45. Stan automatyczny
-bieżącego drzewa: `315/315`, build Release 0 błędów i 0 ostrzeżeń. Końcowy
+bieżącego drzewa: `338/338`, build Release 0 błędów i 0 ostrzeżeń. Końcowy
 smoke artefaktu beta.11.1 z aktywną telemetrią został zaliczony 23 lipca 2026;
 decyzja wydaniowa: **GO**. Hotfix nie został dołączony do zamrożonego artefaktu.
 Planer pozostaje wstrzymany do osobnej decyzji o rozpoczęciu prac.
@@ -70,8 +70,9 @@ Planer pozostaje wstrzymany do osobnej decyzji o rozpoczęciu prac.
   dzielenie/scalanie i walidacja pokrycia — **[GOTOWE LOKALNIE]**
 - Przeszukiwalny katalog 249 krajów ISO z osobnym kodem tachografowym oraz
   pamięcią ostatniego kraju per karta — **[GOTOWE LOKALNIE]**
-- Prezentacja `ODP. TYG.` jako ukończone okresy 24 h z dokładnym czasem,
-  np. `3/6 (89:39)` — **[GOTOWE LOKALNIE]**
+- Prezentacja `ODP. TYG.` jako bieżący okres 24 h `1/6–6/6+` ze stałym
+  terminem rozpoczęcia odpoczynku w `game_time`, np. `4/6 (D141 22:55)`
+  — **[GOTOWE LOKALNIE]**
 - Kontrola wizualna działającego UI po zmianach w XAML — **[GOTOWE]**; stała checklista regresji została dodana do `BETA_TEST_PLAN.md` 21.07
 
 ### Wymagania dotyczące danych
@@ -283,8 +284,8 @@ ETS2 EU Digital Tachograph/
   - nakładające się minuty między sesjami blokujące start aplikacji (`SQLite Error 19`) — beta.10.1
   - sumowanie okruchów rekompensaty z wielu odpoczynków — beta.11
   - licznik pauzy UI wyprzedzający RuleEngine na granicy 44/45 — lokalny hotfix
-- **315/315 testów automatycznych** (Core 33, Telemetry.Scs 8, Engine 69,
-  RuleEngine 65, Application 50, Reports 9, Infrastructure 51, Desktop 30)
+- **338/338 testów automatycznych** (Core 33, Telemetry.Scs 8, Engine 69,
+  RuleEngine 70, Application 50, Reports 9, Infrastructure 51, Desktop 48)
 - Kompilacja Release: 0 błędów, 0 ostrzeżeń
 - Dwa długie scenariusze terenowe potwierdzone w rzeczywistej grze (2h+7h=9h odpoczynku; wariant tygodniowy 45h)
 - Wydania beta.4 → beta.11 z artefaktami i sumami SHA-256; beta.11 ma poprawny `ProductVersion`, ale została wycofana przed smoke testem i nie jest obowiązującą wersją testową
@@ -528,7 +529,7 @@ Nie wykonywać obecnie:
 
 **Status:** bazą wydaniową pozostaje `0.1.0-beta.11.1`. Bieżący katalog
 roboczy zawiera nieopublikowany wariant B wpisu manualnego, katalog ISO oraz
-korektę `ODP. TYG.` i hotfix licznika pauzy 44/45. Ma 315/315 zielonych testów
+korektę `ODP. TYG.` i hotfix licznika pauzy 44/45. Ma 338/338 zielonych testów
 i build Release 0/0. Nie tworzyć ani nie publikować nowej bety bez osobnej
 decyzji.
 
