@@ -206,12 +206,23 @@ Zmiana w XAML nie jest gotowa, dopóki wszystkie punkty nie są odhaczone.
 
 ## Test 1A — granica licznika pauzy 44/45 min
 
+**Status: ZALICZONY (lokalnie 2026-07-24).** Hotfix licznika pauzy potwierdzony
+scenariuszem referencyjnym `41 min reconstructed + 3 min telemetry = 44 min`:
+Dashboard, urządzenie oraz overlay slotów 1 i 2 pokazują `00:44`, `00:01` do celu
+i status `W TRAKCIE`; 45. minuta daje `ZALICZONA` z resetem licznika jazdy
+ciągłej. Regresja pokryta testami automatycznymi granicy 44/45 (gate 315/315,
+raport `docs/BUGFIX_REPORT_QUALIFIED_BREAK_COUNTER_2026-07-24.md`). Pozostaje
+wizualne potwierdzenie granicy in-game w ramach smoke (M7).
+
+Procedura powtórzenia:
+
 1. Rozpocznij pauzę możliwie blisko granicy minuty gry.
 2. Przy 44 zatwierdzonych minutach porównaj Dashboard, urządzenie, overlay oraz
    licznik jazdy ciągłej.
 3. Oczekiwane regulacyjnie: brak resetu jazdy i dokładnie jedna minuta do pełnej
-   przerwy. Jeżeli UI pokazuje `45:00 / ZALICZONA`, zapisz FIX — jest to znany
-   problem prezentacyjny beta.11.1.
+   przerwy (`00:44`, `00:01` do celu, `W TRAKCIE`). Wynik `45:00 / ZALICZONA`
+   przy 44 minutach oznaczałby nawrót naprawionego problemu prezentacyjnego
+   beta.11.1 — wtedy zapisz FIX.
 4. Po następnej pełnej minucie oczekiwane jest zaliczenie i reset licznika.
 5. Nie koryguj ręcznie historii ani progu RuleEngine podczas tego testu.
 
