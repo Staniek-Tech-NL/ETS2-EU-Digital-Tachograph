@@ -137,6 +137,7 @@ Po potwierdzeniu tej checklisty wynik M3 można zmienić z **HOLD** na **GO** i 
   w panelu rozliczenia zamiast znikać z widoku.
 - Obie poprawki mają testy regresyjne. Pełny gate po poprawkach: 402/402,
   build Release 0 błędów / 0 ostrzeżeń.
+- **Commit poprawek po smoke:** `95f9777`.
 
 ---
 

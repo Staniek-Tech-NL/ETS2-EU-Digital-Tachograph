@@ -185,7 +185,8 @@ regresja `41+3=44` zielona 2026-07-24).
 
 Pierwszy smoke użytkownika wykrył dwa blokery: stale snapshot Planera przy
 telemetrii oraz ukrytą nieważną decyzję rekompensaty karty Staniek. Oba zostały
-poprawione i pokryte regresją; wymagany jest ponowny test ręczny użytkownika.
+poprawione i pokryte regresją w `95f9777`; wymagany jest ponowny test ręczny
+użytkownika.
 
 ---
 
