@@ -12,6 +12,38 @@ namespace ETS2Tachograph.Application.Tests;
 public sealed class ReportServiceTests
 {
     [Fact]
+    public async Task Available_range_uses_first_start_and_last_exclusive_end()
+    {
+        var service = new ReportService(
+            new ReportRepository(
+            [
+                Record(120, 180, DriverActivity.Driving),
+                Record(300, 420, DriverActivity.BreakOrRest)
+            ]),
+            new EmptyRegulationAnalyzer());
+
+        var range = await service.GetAvailableRangeAsync("PL-REPORT");
+
+        Assert.True(range.HasData);
+        Assert.Equal(120, range.FromGameMinuteInclusive);
+        Assert.Equal(420, range.ToGameMinuteExclusive);
+    }
+
+    [Fact]
+    public async Task Available_range_returns_explicit_empty_state()
+    {
+        var service = new ReportService(
+            new ReportRepository([]),
+            new EmptyRegulationAnalyzer());
+
+        var range = await service.GetAvailableRangeAsync("PL-REPORT");
+
+        Assert.False(range.HasData);
+        Assert.Equal(0, range.FromGameMinuteInclusive);
+        Assert.Equal(0, range.ToGameMinuteExclusive);
+    }
+
+    [Fact]
     public async Task Report_calculates_filtered_totals_and_exports_all_formats()
     {
         var repository = new ReportRepository(

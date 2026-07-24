@@ -88,7 +88,6 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private string _weeklyDriving = "00:00";
     private string _modesText = "Tryb zwykły · pojedyncza obsada";
     private DriverProfileDto? _selectedProfile;
-    private DriverProfileDto? _reportDriverProfile;
     private DriverProfileDto? _compensationDriverProfile;
     private string _newDriverName = string.Empty;
     private string _newCardNumber = string.Empty;
@@ -96,20 +95,6 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private int _weekOffset;
     private readonly GameCalendarResolver _gameCalendar;
     private string _operationStatus = string.Empty;
-    private ReportDto? _currentReport;
-    private string _reportFrom = string.Empty;
-    private string _reportTo = string.Empty;
-    private string _reportDriving = "00:00";
-    private string _reportWork = "00:00";
-    private string _reportAvailability = "00:00";
-    private string _reportRest = "00:00";
-    private string _reportCompensation = "—";
-    private string _reportCompensationForeground = "#8D9AAD";
-    private int _reportViolationCount;
-    private bool _reportHasUnresolvedGaps;
-    private string _reportGapWarningText = string.Empty;
-    private bool _reportHasPendingRestAllocation;
-    private string _reportRestAllocationWarningText = string.Empty;
     private int _selectedMainTabIndex;
     private bool _isCardInserted;
     private bool _isCardDialogVisible;
@@ -251,6 +236,13 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         JourneyPlanner = new JourneyPlannerViewModel(
             new DeliveryPlannerService(crew),
             cardId => FindProfileByCard(cardId)?.DisplayName ?? cardId);
+        ReportsWorkspace = new ReportsWorkspaceViewModel(
+            reports,
+            () => _crew.Current.Frame?.GameTime.TotalMinutes,
+            crew.Engine.WeekEpochOffsetDays,
+            ExportWorkspaceReportAsync,
+            ShowReportGapsAsync,
+            message => OperationStatus = message);
         foreach (var country in AvailableCountryOptions)
             CountryOptions.Add(country);
         OtherWorkCommand = new RelayCommand(() => SetActivity(DriverActivity.OtherWork));
@@ -264,16 +256,17 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         SaveSettingsCommand = new RelayCommand(async () => await SaveSettingsAsync());
         ExportCommand = new RelayCommand(async () => await ExportAsync());
         ImportCommand = new RelayCommand(async () => await ImportAsync());
-        RefreshReportCommand = new RelayCommand(async () => await RefreshReportAsync());
+        RefreshReportCommand = ReportsWorkspace.RefreshCommand;
         RefreshCompensationDetailsCommand = new RelayCommand(
             async () => await RefreshCompensationDetailsAsync());
         SelectRestAllocationCommand = new RelayCommand<RestAllocationChoiceRow>(
             async row => await SelectRestAllocationAsync(row),
             row => row is not null);
         ShowReportGapsCommand = new RelayCommand(async () => await ShowReportGapsAsync());
-        ExportCsvCommand = new RelayCommand(async () => await ExportReportAsync("csv"));
-        ExportPdfCommand = new RelayCommand(async () => await ExportReportAsync("pdf"));
-        ExportVtcCommand = new RelayCommand(async () => await ExportReportAsync("json"));
+        ExportCsvCommand = ReportsWorkspace.ExportCompensationCsvCommand;
+        ExportPdfCommand = ReportsWorkspace.ExportPdfCommand;
+        ExportVtcCommand = ReportsWorkspace.ExportVtcJsonCommand;
+        ExportRawCsvCommand = ReportsWorkspace.ExportRawCsvCommand;
         ExportDiagnosticCommand = new RelayCommand(async () => await ExportDiagnosticReportAsync());
         InsertCardCommand = new RelayCommand(OpenCardInsertion);
         InsertCard2Command = new RelayCommand(() => OpenCardInsertion(2));
@@ -329,7 +322,6 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public ObservableCollection<DriverProfileDto> Profiles { get; } = [];
     public ObservableCollection<DriverProfileDto> AvailableCardProfiles { get; } = [];
     public ObservableCollection<string> Violations { get; } = [];
-    public ObservableCollection<ActivityRecord> ReportRows { get; } = [];
     public ObservableCollection<ManualEntrySegmentRow> ManualEntrySegments { get; } = [];
     public ObservableCollection<ManualEntryDayOption> ManualEntryDayOptions { get; } = [];
     public ObservableCollection<ActivityGapListItemDto> ActivityGaps { get; } = [];
@@ -337,6 +329,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public ObservableCollection<RestAllocationChoiceRow> PendingRestAllocationChoices { get; } = [];
     public ObservableCollection<CountryOption> CountryOptions { get; } = [];
     public JourneyPlannerViewModel JourneyPlanner { get; }
+    public ReportsWorkspaceViewModel ReportsWorkspace { get; }
     public bool HasPendingRestAllocations => PendingRestAllocationChoices.Count > 0;
     public string CompensationDetailsHeader => CompensationDetails.Count == 0
         ? "Brak zobowiązań w bieżących projekcjach kart."
@@ -359,6 +352,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public ICommand ExportCsvCommand { get; }
     public ICommand ExportPdfCommand { get; }
     public ICommand ExportVtcCommand { get; }
+    public ICommand ExportRawCsvCommand { get; }
     public ICommand ExportDiagnosticCommand { get; }
     public ICommand InsertCardCommand { get; }
     public ICommand InsertCard2Command { get; }
@@ -399,11 +393,6 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             }
         }
     }
-    public DriverProfileDto? ReportDriverProfile
-    {
-        get => _reportDriverProfile;
-        set { if (Set(ref _reportDriverProfile, value)) InvalidateCurrentReport(); }
-    }
     public DriverProfileDto? CompensationDriverProfile
     {
         get => _compensationDriverProfile;
@@ -429,27 +418,6 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 _diagnostics.Info("STATUS", value);
         }
     }
-    public string ReportFrom
-    {
-        get => _reportFrom;
-        set { if (Set(ref _reportFrom, value)) InvalidateCurrentReport(); }
-    }
-    public string ReportTo
-    {
-        get => _reportTo;
-        set { if (Set(ref _reportTo, value)) InvalidateCurrentReport(); }
-    }
-    public string ReportDriving { get => _reportDriving; private set => Set(ref _reportDriving, value); }
-    public string ReportWork { get => _reportWork; private set => Set(ref _reportWork, value); }
-    public string ReportAvailability { get => _reportAvailability; private set => Set(ref _reportAvailability, value); }
-    public string ReportRest { get => _reportRest; private set => Set(ref _reportRest, value); }
-    public string ReportCompensation { get => _reportCompensation; private set => Set(ref _reportCompensation, value); }
-    public string ReportCompensationForeground { get => _reportCompensationForeground; private set => Set(ref _reportCompensationForeground, value); }
-    public int ReportViolationCount { get => _reportViolationCount; private set => Set(ref _reportViolationCount, value); }
-    public bool ReportHasUnresolvedGaps { get => _reportHasUnresolvedGaps; private set => Set(ref _reportHasUnresolvedGaps, value); }
-    public string ReportGapWarningText { get => _reportGapWarningText; private set => Set(ref _reportGapWarningText, value); }
-    public bool ReportHasPendingRestAllocation { get => _reportHasPendingRestAllocation; private set => Set(ref _reportHasPendingRestAllocation, value); }
-    public string ReportRestAllocationWarningText { get => _reportRestAllocationWarningText; private set => Set(ref _reportRestAllocationWarningText, value); }
     public int SelectedMainTabIndex { get => _selectedMainTabIndex; set => Set(ref _selectedMainTabIndex, value); }
     public string ConnectionStatus
     {
@@ -686,10 +654,13 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         foreach (var card in Profiles.SelectMany(x => x.Cards))
             await _crew.RegisterCardAsync(card.CardNumber, _cancellation.Token);
         LoadDeviceState();
-        ReportDriverProfile = FindProfileByCard(CurrentDriverCardId) ?? SelectedProfile;
-        CompensationDriverProfile = ReportDriverProfile;
+        CompensationDriverProfile =
+            FindProfileByCard(CurrentDriverCardId) ?? SelectedProfile;
         await ReloadHistoryAsync(_cancellation.Token);
-        await RefreshReportAsync();
+        await ReportsWorkspace.InitializeAsync(
+            Profiles,
+            CurrentDriverCardId,
+            _cancellation.Token);
         await RefreshCompensationDetailsAsync();
         await RefreshActivityGapsAsync(_cancellation.Token);
         _ = ReadTelemetryAsync(_cancellation.Token);
@@ -1852,8 +1823,6 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         (_deviceMenuPage == "counters-1" ? CompensationOverdue : Driver2CompensationOverdue);
 
     private string CurrentDriverCardId => _crew.Current.DriverCardId ?? _defaultDriverCardId;
-    private string CurrentReportCardId => ReportDriverProfile?.Cards.FirstOrDefault()?.CardNumber ?? CurrentDriverCardId;
-
     private static string DeviceStatePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "ETS2Tachograph", "device-state.json");
@@ -2081,48 +2050,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             var count = await _import.ImportSessionAsync(stream);
             await ReloadHistoryAsync(_cancellation.Token);
             OperationStatus = $"Zaimportowano {count} rekordów.";
-            await RefreshReportAsync();
-        }
-        catch (Exception ex) { OperationStatus = ex.Message; }
-    }
-
-    private async Task RefreshReportAsync()
-    {
-        _currentReport = null;
-        ReportHasUnresolvedGaps = false;
-        ReportGapWarningText = string.Empty;
-        ReportHasPendingRestAllocation = false;
-        ReportRestAllocationWarningText = string.Empty;
-        try
-        {
-            GameTime? from = ParseOptionalReportTime(ReportFrom, "OD");
-            GameTime? to = ParseOptionalReportTime(ReportTo, "DO");
-            var effectiveTo = to ?? _crew.Current.Frame?.GameTime;
-            _currentReport = await _reports.CreateAsync(CurrentReportCardId, from, effectiveTo);
-            ReportDriving = Format(_currentReport.DrivingMinutes);
-            ReportWork = Format(_currentReport.OtherWorkMinutes);
-            ReportAvailability = Format(_currentReport.AvailabilityMinutes);
-            ReportRest = Format(_currentReport.RestMinutes);
-            ReportCompensation = FormatCompensation(_currentReport.CompensationSummary);
-            ReportCompensationForeground = _currentReport.CompensationSummary.HasOverdue
-                ? "#FF6B6B"
-                : "#8D9AAD";
-            ReportViolationCount = _currentReport.Violations.Count;
-            ReportHasUnresolvedGaps = _currentReport.UnresolvedGapCount > 0;
-            ReportGapWarningText = ReportHasUnresolvedGaps
-                ? FormatReportGapWarning(_currentReport.UnresolvedGapCount, _currentReport.GapMinutes)
-                : string.Empty;
-            ReportHasPendingRestAllocation = _currentReport.PendingRestAllocation;
-            ReportRestAllocationWarningText = ReportHasPendingRestAllocation
-                ? "Raport nie jest rozstrzygający: co najmniej jeden odpoczynek wymaga wyboru sposobu zaliczenia."
-                : string.Empty;
-            ReportRows.Clear();
-            foreach (var record in _currentReport.Records) ReportRows.Add(record);
-            OperationStatus = ReportHasUnresolvedGaps
-                ? ReportGapWarningText
-                : ReportHasPendingRestAllocation
-                    ? ReportRestAllocationWarningText
-                    : $"Raport: {_currentReport.Records.Count} rekordów. Luki: brak — kompletność potwierdzona.";
+            await ReportsWorkspace.RefreshAsync(_cancellation.Token);
         }
         catch (Exception ex) { OperationStatus = ex.Message; }
     }
@@ -2138,44 +2066,57 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         SelectedMainTabIndex = 1;
     }
 
-    private void InvalidateCurrentReport()
+    private async Task<ReportExportResult> ExportWorkspaceReportAsync(
+        ReportDto report,
+        ReportExportFormat format,
+        CancellationToken cancellationToken)
     {
-        _currentReport = null;
-        ReportHasUnresolvedGaps = false;
-        ReportGapWarningText = string.Empty;
-        ReportHasPendingRestAllocation = false;
-        ReportRestAllocationWarningText = string.Empty;
-    }
-
-    private async Task ExportReportAsync(string format)
-    {
-        // Every export re-evaluates the selected game-time range so a newly created
-        // unresolved gap can never be hidden by an older report preview.
-        await RefreshReportAsync();
-        if (_currentReport is null) return;
+        var (filter, extension, label) = format switch
+        {
+            ReportExportFormat.Pdf =>
+                ("Raport PDF (*.pdf)|*.pdf", "pdf", "PDF"),
+            ReportExportFormat.VtcJson =>
+                ("VTC JSON (*.json)|*.json", "json", "VTC JSON"),
+            ReportExportFormat.CompensationCsv =>
+                ("CSV zobowiązań (*.csv)|*.csv", "csv", "CSV zobowiązań"),
+            ReportExportFormat.RawActivityCsv =>
+                ("Surowy CSV aktywności (*.csv)|*.csv", "csv", "surowy CSV"),
+            _ => throw new ArgumentOutOfRangeException(nameof(format))
+        };
         var dialog = new SaveFileDialog
         {
-            Filter = format switch
-            {
-                "csv" => "Raport CSV (*.csv)|*.csv",
-                "pdf" => "Raport PDF (*.pdf)|*.pdf",
-                _ => "VTC JSON (*.json)|*.json"
-            },
-            FileName = $"raport-{CurrentReportCardId}.{format}"
+            Filter = filter,
+            FileName = $"raport-{report.DriverCardId}-{format.ToString().ToLowerInvariant()}.{extension}"
         };
-        if (dialog.ShowDialog() != true) return;
+        if (dialog.ShowDialog() != true)
+            return new ReportExportResult(false);
+
         try
         {
             await using var stream = File.Create(dialog.FileName);
-            if (format == "csv") await _reports.ExportCompensationCsvAsync(_currentReport, stream);
-            else if (format == "pdf") await _pdfReports.ExportAsync(_currentReport, stream);
-            else await _reports.ExportVtcJsonAsync(_currentReport, stream);
-            OperationStatus = $"Zapisano raport {format.ToUpperInvariant()}.";
+            switch (format)
+            {
+                case ReportExportFormat.Pdf:
+                    await _pdfReports.ExportAsync(report, stream, cancellationToken);
+                    break;
+                case ReportExportFormat.VtcJson:
+                    await _reports.ExportVtcJsonAsync(report, stream, cancellationToken);
+                    break;
+                case ReportExportFormat.CompensationCsv:
+                    await _reports.ExportCompensationCsvAsync(report, stream, cancellationToken);
+                    break;
+                case ReportExportFormat.RawActivityCsv:
+                    await _reports.ExportCsvAsync(report, stream, cancellationToken);
+                    break;
+            }
+            OperationStatus = $"Zapisano {label}: {dialog.FileName}";
+            return new ReportExportResult(true, dialog.FileName);
         }
-        catch (Exception ex)
+        catch (Exception exception)
         {
-            _diagnostics.Error("REPORT_EXPORT_FAILED", ex);
-            OperationStatus = ex.Message;
+            _diagnostics.Error("REPORT_EXPORT_FAILED", exception);
+            OperationStatus = $"Nie udało się zapisać {label}: {exception.Message}";
+            return new ReportExportResult(false);
         }
     }
 
@@ -2324,7 +2265,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             var now = _crew.Current.Frame?.GameTime ??
                 new GameTime(Math.Max(
                     row.EndGameMinuteExclusive + 1,
-                    _currentReport?.ToGameMinuteExclusive ?? 0));
+                    ReportsWorkspace.CurrentReport?.ToGameMinuteExclusive ?? 0));
             await _restAllocations.DecideAsync(
                 row.DriverCardId,
                 row.RestBlockId,
@@ -2335,7 +2276,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             await _crew.RefreshRestAllocationDecisionsAsync(
                 row.DriverCardId,
                 _cancellation.Token);
-            await RefreshReportAsync();
+            await ReportsWorkspace.RefreshAsync(_cancellation.Token);
             await RefreshCompensationDetailsAsync();
             OperationStatus = "Zapisano audytowaną decyzję rozliczenia odpoczynku.";
         }
@@ -2374,16 +2315,6 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     }
 
     private static string Format(long minutes) => minutes < 0 ? $"-{Format(-minutes)}" : $"{minutes / 60:00}:{minutes % 60:00}";
-    private static string FormatReportGapWarning(int count, long minutes)
-    {
-        var noun = count == 1
-            ? "nierozliczona luka"
-            : count % 10 is >= 2 and <= 4 && count % 100 is not (>= 12 and <= 14)
-                ? "nierozliczone luki"
-                : "nierozliczonych luk";
-        var verb = count == 1 ? "jest" : "są";
-        return $"W wybranym zakresie {verb} {count} {noun} (łącznie {Format(minutes)}). Raport będzie niekompletny.";
-    }
     private static string FormatWithLimit(long minutes, long limitMinutes) => $"{Format(minutes)} / {Format(limitMinutes)}";
     private static string FormatUsage(int used, int limit) => $"{used} / {limit}";
     private static string FormatCompensation(CompensationSummary summary)
@@ -2404,13 +2335,6 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             ? 10 * 60
             : 9 * 60;
         return FormatWithLimit(state.DailyDrivingMinutes, limit);
-    }
-
-    private static GameTime? ParseOptionalReportTime(string value, string fieldName)
-    {
-        if (string.IsNullOrWhiteSpace(value)) return null;
-        if (GameClockFormatter.TryParse(value, out var time)) return time;
-        throw new FormatException($"Pole {fieldName}: wpisz np. Dzień 12, 14:30 albo pozostaw puste.");
     }
 
     private static string MaskCard(string? cardNumber)

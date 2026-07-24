@@ -480,37 +480,231 @@
                 </Grid>
             </TabItem>
 
-            <TabItem Header="▥  Raporty"><Grid Margin="24"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition/></Grid.RowDefinitions>
-                <Grid><TextBlock Text="RAPORTY I STATYSTYKI" FontSize="23" FontWeight="Bold"/><StackPanel Orientation="Horizontal" HorizontalAlignment="Right"><Button Content="CSV ZOBOWIĄZANIA" Command="{Binding ExportCsvCommand}"/><Button Content="PDF" Command="{Binding ExportPdfCommand}" Background="#27695E"/><Button Content="VTC JSON" Command="{Binding ExportVtcCommand}"/></StackPanel></Grid>
-                <Border Grid.Row="1" Style="{StaticResource MetricCard}" Margin="0,18,0,10"><Grid><Grid.ColumnDefinitions><ColumnDefinition Width="1.3*"/><ColumnDefinition/><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions><StackPanel><TextBlock Text="KIEROWCA / KARTA" Foreground="{StaticResource Muted}"/><ComboBox ItemsSource="{Binding Profiles}" SelectedItem="{Binding ReportDriverProfile}" DisplayMemberPath="DisplayName" Height="38" Margin="4"/></StackPanel><StackPanel Grid.Column="1"><TextBlock Text="OD CZASU GRY" Foreground="{StaticResource Muted}"/><TextBox Text="{Binding ReportFrom, UpdateSourceTrigger=PropertyChanged}" ToolTip="Np. Dzień 12, 14:30 · puste oznacza początek historii"/></StackPanel><StackPanel Grid.Column="2"><TextBlock Text="DO CZASU GRY" Foreground="{StaticResource Muted}"/><TextBox Text="{Binding ReportTo, UpdateSourceTrigger=PropertyChanged}" ToolTip="Np. Dzień 12, 18:00 · puste oznacza koniec historii"/></StackPanel><Button Grid.Column="3" Content="GENERUJ RAPORT" Command="{Binding RefreshReportCommand}" Background="#27695E" VerticalAlignment="Bottom"/></Grid></Border>
-                <StackPanel Grid.Row="2">
-                <Border
-                        Background="#3A251E"
-                        BorderBrush="#D76A4A"
-                        BorderThickness="1"
-                        CornerRadius="8"
-                        Padding="12,8"
-                        Margin="6,0,6,6"
-                        Visibility="{Binding ReportHasUnresolvedGaps, Converter={StaticResource BoolToVisibility}}">
+            <TabItem Header="▥  Raporty">
+                <Grid Margin="20" Background="#F3F5F8" TextElement.Foreground="#161A20"
+                      DataContext="{Binding ReportsWorkspace}">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
                     <Grid>
-                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
-                        <TextBlock Text="{Binding ReportGapWarningText}" Foreground="#FFD0C2" FontWeight="SemiBold" TextWrapping="Wrap" VerticalAlignment="Center"/>
-                        <Button Grid.Column="1" Content="POKAŻ LUKI" Command="{Binding ShowReportGapsCommand}" Background="#B74E36" Margin="12,0,0,0" Padding="14,7"/>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="RAPORTY I STATYSTYKI" FontSize="23" FontWeight="Bold"/>
+                            <TextBlock Text="Centrum raportowe · dane oparte na czasie gry"
+                                       Foreground="#5F6874" Margin="0,3,0,0"/>
+                        </StackPanel>
+                        <UniformGrid Grid.Row="1" Columns="4" Margin="-3,8,-3,0">
+                            <Border Background="#DCE8F4" CornerRadius="6" Padding="9" Margin="3"><TextBlock Text="1  KONFIGURACJA" FontWeight="Bold"/></Border>
+                            <Border Background="#DCE8F4" CornerRadius="6" Padding="9" Margin="3"><TextBlock Text="2  KONTROLA DANYCH" FontWeight="Bold"/></Border>
+                            <Border Background="#DCE8F4" CornerRadius="6" Padding="9" Margin="3"><TextBlock Text="3  PODGLĄD" FontWeight="Bold"/></Border>
+                            <Border Background="#DCE8F4" CornerRadius="6" Padding="9" Margin="3"><TextBlock Text="4  EKSPORT" FontWeight="Bold"/></Border>
+                        </UniformGrid>
                     </Grid>
-                </Border>
-                <Border Background="#3A321E"
-                        BorderBrush="#D7B54A"
-                        BorderThickness="1"
-                        CornerRadius="8"
-                        Padding="12,8"
-                        Margin="6,0,6,6"
-                        Visibility="{Binding ReportHasPendingRestAllocation, Converter={StaticResource BoolToVisibility}}">
-                    <TextBlock Text="{Binding ReportRestAllocationWarningText}" Foreground="#FFE9A8" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                </Border>
-                </StackPanel>
-                <UniformGrid Grid.Row="3" Columns="6"><Border Style="{StaticResource MetricCard}"><StackPanel><TextBlock Text="JAZDA" Foreground="{StaticResource Muted}"/><TextBlock Text="{Binding ReportDriving}" FontFamily="Consolas" FontSize="25" FontWeight="Bold"/></StackPanel></Border><Border Style="{StaticResource MetricCard}"><StackPanel><TextBlock Text="PRACA" Foreground="{StaticResource Muted}"/><TextBlock Text="{Binding ReportWork}" FontFamily="Consolas" FontSize="25" FontWeight="Bold"/></StackPanel></Border><Border Style="{StaticResource MetricCard}"><StackPanel><TextBlock Text="GOTOWOŚĆ" Foreground="{StaticResource Muted}"/><TextBlock Text="{Binding ReportAvailability}" FontFamily="Consolas" FontSize="25" FontWeight="Bold"/></StackPanel></Border><Border Style="{StaticResource MetricCard}"><StackPanel><TextBlock Text="ODPOCZYNEK" Foreground="{StaticResource Muted}"/><TextBlock Text="{Binding ReportRest}" FontFamily="Consolas" FontSize="25" FontWeight="Bold"/></StackPanel></Border><Border Style="{StaticResource MetricCard}"><StackPanel><TextBlock Text="REKOMPENSATA" Foreground="{StaticResource Muted}"/><TextBlock Text="{Binding ReportCompensation}" FontFamily="Consolas" FontSize="16" FontWeight="Bold" Foreground="{Binding ReportCompensationForeground}" TextWrapping="Wrap"/></StackPanel></Border><Border Style="{StaticResource MetricCard}"><StackPanel><TextBlock Text="NARUSZENIA" Foreground="{StaticResource Muted}"/><TextBlock Text="{Binding ReportViolationCount}" FontFamily="Consolas" FontSize="25" FontWeight="Bold" Foreground="#FF8F8F"/></StackPanel></Border></UniformGrid>
-                <DataGrid Grid.Row="4" ItemsSource="{Binding ReportRows}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,10,0,0"><DataGrid.Columns><DataGridTextColumn Header="KARTA" Binding="{Binding DriverCardId}"/><DataGridTextColumn Header="OD · CZAS GRY" Binding="{Binding StartGameTimeText}"/><DataGridTextColumn Header="DO · CZAS GRY" Binding="{Binding EndGameTimeText}"/><DataGridTextColumn Header="AKTYWNOŚĆ" Binding="{Binding Activity}" Width="*"/><DataGridTextColumn Header="ŹRÓDŁO" Binding="{Binding Source}"/><DataGridTextColumn Header="WARUNEK" Binding="{Binding Condition}"/></DataGrid.Columns></DataGrid>
-            </Grid></TabItem>
+
+                    <Border Grid.Row="1" Background="White" BorderBrush="#B9C2CD"
+                            BorderThickness="1" CornerRadius="10" Padding="14" Margin="0,12,0,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1.35*"/>
+                                <ColumnDefinition Width="2.2*"/>
+                                <ColumnDefinition Width="2.1*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="KIEROWCA / KARTA" FontSize="10" Foreground="#5F6874" FontWeight="Bold"/>
+                                <ComboBox ItemsSource="{Binding Drivers}" SelectedItem="{Binding SelectedDriver}"
+                                          DisplayMemberPath="DisplayName" Height="38" Margin="4"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1">
+                                <TextBlock Text="SZYBKI ZAKRES" FontSize="10" Foreground="#5F6874" FontWeight="Bold"/>
+                                <WrapPanel>
+                                    <Button Content="BIEŻĄCY TYDZIEŃ" Command="{Binding CurrentWeekCommand}" Padding="9,7"/>
+                                    <Button Content="OSTATNIE 24 H" Command="{Binding Last24HoursCommand}" Padding="9,7"/>
+                                    <Button Content="CAŁA HISTORIA" Command="{Binding AllHistoryCommand}" Padding="9,7"/>
+                                    <Button Content="WŁASNY ZAKRES" Command="{Binding CustomRangeCommand}" Padding="9,7"/>
+                                </WrapPanel>
+                                <TextBlock Text="{Binding PresetDescription}" Foreground="#5F6874" Margin="5,2,0,0"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2"
+                                        Visibility="{Binding IsCustomRange, Converter={StaticResource BoolToVisibility}}">
+                                <TextBlock Text="WŁASNY ZAKRES · CZAS GRY" FontSize="10" Foreground="#5F6874" FontWeight="Bold"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="24"/><ColumnDefinition/><ColumnDefinition Width="68"/>
+                                        <ColumnDefinition Width="24"/><ColumnDefinition/><ColumnDefinition Width="68"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="OD" VerticalAlignment="Center"/>
+                                    <ComboBox Grid.Column="1" ItemsSource="{Binding DayOptions}" SelectedItem="{Binding FromDay}"
+                                              DisplayMemberPath="Name" Height="36" Margin="3"/>
+                                    <TextBox Grid.Column="2" Text="{Binding FromTime, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBlock Grid.Column="3" Text="DO" VerticalAlignment="Center"/>
+                                    <ComboBox Grid.Column="4" ItemsSource="{Binding DayOptions}" SelectedItem="{Binding ToDay}"
+                                              DisplayMemberPath="Name" Height="36" Margin="3"/>
+                                    <TextBox Grid.Column="5" Text="{Binding ToTime, UpdateSourceTrigger=PropertyChanged}"/>
+                                </Grid>
+                                <TextBlock Text="{Binding ValidationMessage}" Foreground="#B3261E" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="3" VerticalAlignment="Bottom">
+                                <TextBlock Text="{Binding RangeDescription}" Foreground="#5F6874" HorizontalAlignment="Right"/>
+                                <Button Content="ODŚWIEŻ PODGLĄD" Command="{Binding RefreshCommand}"
+                                        Background="#27695E" Padding="18,10"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="2" Background="#EAF2F8" BorderBrush="#9EB6CB"
+                            BorderThickness="1" CornerRadius="8" Padding="12" Margin="0,0,0,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{Binding StatusMessage}" Foreground="{Binding StatusForeground}"
+                                           FontWeight="Bold" FontSize="15"/>
+                                <TextBlock Text="{Binding StatusDetail}" Foreground="#40566C" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <Button Grid.Column="1" Content="POKAŻ LUKI" Command="{Binding ShowGapsCommand}"
+                                    Background="#B56B21"
+                                    Visibility="{Binding HasUnresolvedGaps, Converter={StaticResource BoolToVisibility}}"/>
+                        </Grid>
+                    </Border>
+
+                    <UniformGrid Grid.Row="3" Columns="6" Margin="-4,0">
+                        <Border Style="{StaticResource MetricCard}" Padding="12" TextElement.Foreground="White"><StackPanel><TextBlock Text="JAZDA"/><TextBlock Text="{Binding Driving}" FontFamily="Consolas" FontSize="22" FontWeight="Bold"/></StackPanel></Border>
+                        <Border Style="{StaticResource MetricCard}" Padding="12" TextElement.Foreground="White"><StackPanel><TextBlock Text="PRACA"/><TextBlock Text="{Binding Work}" FontFamily="Consolas" FontSize="22" FontWeight="Bold"/></StackPanel></Border>
+                        <Border Style="{StaticResource MetricCard}" Padding="12" TextElement.Foreground="White"><StackPanel><TextBlock Text="GOTOWOŚĆ"/><TextBlock Text="{Binding Availability}" FontFamily="Consolas" FontSize="22" FontWeight="Bold"/></StackPanel></Border>
+                        <Border Style="{StaticResource MetricCard}" Padding="12" TextElement.Foreground="White"><StackPanel><TextBlock Text="ODPOCZYNEK"/><TextBlock Text="{Binding Rest}" FontFamily="Consolas" FontSize="22" FontWeight="Bold"/></StackPanel></Border>
+                        <Border Style="{StaticResource MetricCard}" Padding="12" TextElement.Foreground="White"><StackPanel><TextBlock Text="OTWARTY DŁUG"/><TextBlock Text="{Binding OpenDebt}" FontFamily="Consolas" FontSize="22" FontWeight="Bold"/></StackPanel></Border>
+                        <Border Style="{StaticResource MetricCard}" Padding="12"><StackPanel><TextBlock Text="NARUSZENIA" Foreground="{StaticResource Muted}"/><TextBlock Text="{Binding ViolationCount}" FontFamily="Consolas" FontSize="22" FontWeight="Bold" Foreground="#FF8F8F"/></StackPanel></Border>
+                    </UniformGrid>
+
+                    <Grid Grid.Row="4" Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions><ColumnDefinition Width="4*"/><ColumnDefinition Width="240"/></Grid.ColumnDefinitions>
+                        <TabControl SelectedIndex="{Binding SelectedTabIndex}">
+                            <TabControl.ItemContainerStyle>
+                                <Style TargetType="TabItem">
+                                    <Setter Property="Foreground" Value="#334E68"/>
+                                    <Setter Property="Background" Value="#DCE5EF"/>
+                                    <Setter Property="FontSize" Value="12"/>
+                                    <Setter Property="FontWeight" Value="SemiBold"/>
+                                    <Setter Property="Padding" Value="12,7"/>
+                                    <Setter Property="Margin" Value="0,0,3,0"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="TabItem">
+                                                <Border x:Name="TabShell" Background="{TemplateBinding Background}"
+                                                        CornerRadius="6,6,0,0" Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter ContentSource="Header"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsSelected" Value="True">
+                                                        <Setter TargetName="TabShell" Property="Background" Value="#315D8D"/>
+                                                        <Setter Property="Foreground" Value="White"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </TabControl.ItemContainerStyle>
+                            <TabItem Header="PODSUMOWANIE">
+                                <Border Background="White" Padding="18" TextElement.Foreground="#161A20">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                        <StackPanel><TextBlock Text="KIEROWCA / KARTA" Foreground="#5F6874"/><TextBlock Text="{Binding SummaryIdentity}" FontWeight="Bold" TextWrapping="Wrap"/><TextBlock Text="ZAKRES" Foreground="#5F6874" Margin="0,14,0,0"/><TextBlock Text="{Binding SummaryRange}" FontFamily="Consolas" TextWrapping="Wrap"/></StackPanel>
+                                        <StackPanel Grid.Column="1"><TextBlock Text="WYGENEROWANO" Foreground="#5F6874"/><TextBlock Text="{Binding SummaryGeneratedAt}" FontFamily="Consolas"/><TextBlock Text="BLOKI AKTYWNOŚCI" Foreground="#5F6874" Margin="0,14,0,0"/><TextBlock Text="{Binding Activities.Count}" FontWeight="Bold"/></StackPanel>
+                                    </Grid>
+                                </Border>
+                            </TabItem>
+                            <TabItem Header="AKTYWNOŚCI">
+                                <Grid Background="White">
+                                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/></Grid.RowDefinitions>
+                                    <CheckBox Content="Pokaż dane techniczne" IsChecked="{Binding ShowTechnicalData}" Margin="10"/>
+                                    <DataGrid Grid.Row="1" ItemsSource="{Binding Activities}" AutoGenerateColumns="False"
+                                              IsReadOnly="True" EnableRowVirtualization="True" EnableColumnVirtualization="True">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="OD" Binding="{Binding Start}" Width="145"/>
+                                            <DataGridTextColumn Header="DO" Binding="{Binding End}" Width="145"/>
+                                            <DataGridTextColumn Header="CZAS" Binding="{Binding Duration}" Width="75"/>
+                                            <DataGridTextColumn Header="AKTYWNOŚĆ" Binding="{Binding Activity}" Width="*"/>
+                                        </DataGrid.Columns>
+                                        <DataGrid.RowDetailsTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" Margin="16,5"
+                                                            Visibility="{Binding DataContext.ShowTechnicalData, RelativeSource={RelativeSource AncestorType=DataGrid}, Converter={StaticResource BoolToVisibility}}">
+                                                    <TextBlock Text="{Binding Source, StringFormat='Źródło: {0}'}" Foreground="#60758A"/>
+                                                    <TextBlock Text="{Binding Condition, StringFormat=' · Warunek: {0}'}" Foreground="#60758A"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGrid.RowDetailsTemplate>
+                                        <DataGrid.RowDetailsVisibilityMode>Visible</DataGrid.RowDetailsVisibilityMode>
+                                    </DataGrid>
+                                </Grid>
+                            </TabItem>
+                            <TabItem>
+                                <TabItem.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="NARUSZENIA"/>
+                                        <Border Background="#B3261E" CornerRadius="8" Padding="5,1" Margin="6,0,0,0"
+                                                Visibility="{Binding HasViolations, Converter={StaticResource BoolToVisibility}}">
+                                            <TextBlock Text="{Binding ViolationBadge}" Foreground="White"/>
+                                        </Border>
+                                    </StackPanel>
+                                </TabItem.Header>
+                                <DataGrid ItemsSource="{Binding Violations}" AutoGenerateColumns="False" IsReadOnly="True">
+                                    <DataGrid.Columns><DataGridTextColumn Header="CZAS" Binding="{Binding DetectedAt}" Width="160"/><DataGridTextColumn Header="ARTYKUŁ" Binding="{Binding Article}" Width="110"/><DataGridTextColumn Header="NARUSZENIE" Binding="{Binding Name}" Width="*"/><DataGridTextColumn Header="PRZEKROCZENIE" Binding="{Binding Excess}" Width="110"/></DataGrid.Columns>
+                                </DataGrid>
+                            </TabItem>
+                            <TabItem>
+                                <TabItem.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="REKOMPENSATY"/>
+                                        <Border Background="#C67A00" CornerRadius="8" Padding="5,1" Margin="6,0,0,0"
+                                                Visibility="{Binding HasCompensations, Converter={StaticResource BoolToVisibility}}">
+                                            <TextBlock Text="{Binding CompensationBadge}" Foreground="White"/>
+                                        </Border>
+                                    </StackPanel>
+                                </TabItem.Header>
+                                <DataGrid ItemsSource="{Binding Compensations}" AutoGenerateColumns="False" IsReadOnly="True">
+                                    <DataGrid.Columns><DataGridTextColumn Header="STATUS" Binding="{Binding Status}" Width="145"/><DataGridTextColumn Header="DŁUG" Binding="{Binding OriginalDebt}" Width="75"/><DataGridTextColumn Header="POZOSTAŁO" Binding="{Binding RemainingDebt}" Width="80"/><DataGridTextColumn Header="TERMIN" Binding="{Binding DueAt}" Width="160"/><DataGridTextColumn Header="ŹRÓDŁO" Binding="{Binding SourceRest}" Width="110"/><DataGridTextColumn Header="SPŁATA" Binding="{Binding PaymentRest}" Width="110"/><DataGridTextColumn Header="ROZLICZONO" Binding="{Binding SettledAt}" Width="160"/></DataGrid.Columns>
+                                </DataGrid>
+                            </TabItem>
+                            <TabItem Header="KOMPLETNOŚĆ">
+                                <Border Background="White" Padding="18" TextElement.Foreground="#161A20">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/></Grid.ColumnDefinitions>
+                                        <StackPanel><TextBlock Text="ZAKRES" Foreground="#5F6874"/><TextBlock Text="{Binding CompletenessRange}" FontFamily="Consolas" FontWeight="Bold"/><TextBlock Text="AKTYWNOŚCI" Foreground="#5F6874" Margin="0,12,0,0"/><TextBlock Text="{Binding CompletenessActivities}" FontFamily="Consolas"/><TextBlock Text="LUKI" Foreground="#5F6874" Margin="0,12,0,0"/><TextBlock Text="{Binding CompletenessGaps}" FontFamily="Consolas"/></StackPanel>
+                                        <StackPanel Grid.Column="1"><TextBlock Text="MATERIAŁ DOWODOWY" Foreground="#5F6874"/><TextBlock Text="{Binding CompletenessEvidence}" FontWeight="Bold"/><TextBlock Text="OCZEKUJĄCE ALOKACJE" Foreground="#5F6874" Margin="0,12,0,0"/><TextBlock Text="{Binding PendingAllocations}"/><TextBlock Text="BILANS" Foreground="#5F6874" Margin="0,12,0,0"/><TextBlock Text="{Binding CompletenessBalance}" TextWrapping="Wrap"/></StackPanel>
+                                    </Grid>
+                                </Border>
+                            </TabItem>
+                        </TabControl>
+
+                        <Border Grid.Column="1" Background="White" BorderBrush="#B9C2CD"
+                                BorderThickness="1" CornerRadius="10" Padding="14" Margin="10,0,0,0">
+                            <StackPanel>
+                                <TextBlock Text="EKSPORT" FontWeight="Bold" FontSize="16" Margin="0,0,0,8"/>
+                                <TextBlock Text="Przed zapisem podgląd jest przeliczany. Plik i ekran korzystają z tego samego raportu."
+                                           Foreground="#5F6874" TextWrapping="Wrap" Margin="0,0,0,8"/>
+                                <Button Content="EKSPORTUJ PDF" Command="{Binding ExportPdfCommand}" Background="#27695E"/>
+                                <Expander Header="WIĘCEJ EKSPORTÓW" Margin="4,8">
+                                    <StackPanel>
+                                        <Button Content="VTC JSON" Command="{Binding ExportVtcJsonCommand}"/>
+                                        <Button Content="CSV ZOBOWIĄZAŃ" Command="{Binding ExportCompensationCsvCommand}"/>
+                                        <Button Content="SUROWY CSV AKTYWNOŚCI" Command="{Binding ExportRawCsvCommand}"/>
+                                    </StackPanel>
+                                </Expander>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+                </Grid>
+            </TabItem>
 
             <TabItem Header="♙  Kierowcy"><Grid Margin="24"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Text="PROFILE KIEROWCÓW" FontSize="23" FontWeight="Bold"/><DataGrid Grid.Row="1" ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,18"><DataGrid.Columns><DataGridTextColumn Header="KIEROWCA" Binding="{Binding DisplayName}" Width="*"/><DataGridCheckBoxColumn Header="AKTYWNY" Binding="{Binding IsActive}"/><DataGridTextColumn Header="UTWORZONO" Binding="{Binding CreatedAtUtc}"/></DataGrid.Columns></DataGrid><Border Grid.Row="2" Style="{StaticResource MetricCard}"><StackPanel><TextBlock Text="NOWY PROFIL" Foreground="{StaticResource Muted}"/><WrapPanel><TextBox Width="240" Text="{Binding NewDriverName, UpdateSourceTrigger=PropertyChanged}" ToolTip="Nazwa kierowcy"/><TextBox Width="190" Text="{Binding NewCardNumber, UpdateSourceTrigger=PropertyChanged}" ToolTip="Numer karty"/><Button Content="DODAJ" Command="{Binding CreateProfileCommand}" Background="#27695E"/><Button Content="USTAW AKTYWNY" Command="{Binding ActivateProfileCommand}"/></WrapPanel><TextBlock Text="{Binding OperationStatus}" Foreground="#F3C969"/></StackPanel></Border></Grid></TabItem>
 

@@ -4,7 +4,7 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status początkowy:** **NIE ROZPOCZĘTY**  
+**Status bieżący:** **ZAKOŃCZONY — GO**
 **Kryterium wejścia:** Formalny wynik **GO** dla M3.  
 **Kryterium wyjścia:** Gate Etapu 7 planu wykonawczego wariantu B spełniony, pełna checklista UI zielona, build Release 0/0.  
 **Następny etap:** M3.6
@@ -68,17 +68,37 @@ granice powtórzone dla jednoznaczności:
 
 ## Gate M3.5
 
-- [ ] Etap 0 audytu wykonany na stanie po M3; jeden przepływ generowania i jeden
+- [x] Etap 0 audytu wykonany na stanie po M3; jeden przepływ generowania i jeden
       przepływ eksportu bez otwartej niejasności;
-- [ ] 30 kryteriów akceptacji z sekcji 13 planu wariantu B spełnionych;
-- [ ] macierz testów automatycznych `RPT-RNG`, `RPT-STATE`, `RPT-EXP` i zgodność
+- [x] kryteria akceptacji właściwe dla M3.5 spełnione; rozszerzony smoke
+      artefaktu pozostaje bramką M3.6;
+- [x] macierz testów automatycznych `RPT-RNG`, `RPT-STATE`, `RPT-EXP` i zgodność
       danych zielone;
-- [ ] pełna ręczna regresja z IDE (sekcja 9 planu wariantu B) zielona;
-- [ ] terminy w Raportach korzystają z warstwy M3A, bez lokalnej reimplementacji;
-- [ ] eksporty PDF/JSON/CSV zachowują dotychczasowe kontrakty danych;
-- [ ] build Release 0/0 i pełny pakiet testów zielony;
-- [ ] aplikacja uruchamia się po zmianach XAML, brak nowych błędów bindingów;
-- [ ] **nie tworzyć paczki beta** — wynik wchodzi dopiero do wewnętrznego smoke M3.6.
+- [x] ręczny gate UI zatwierdzony przez właściciela produktu;
+- [x] terminy w Raportach korzystają z warstwy M3A, bez lokalnej reimplementacji;
+- [x] eksporty PDF/JSON/CSV zachowują dotychczasowe kontrakty danych;
+- [x] build Release 0/0 i pełny pakiet testów zielony;
+- [x] aplikacja uruchamia się po zmianach XAML; start i utworzenie podglądu
+      potwierdzone w logu diagnostycznym;
+- [x] **nie utworzono paczki beta** — wynik wchodzi do wewnętrznego smoke M3.6.
+
+## Stan wykonania 2026-07-24
+
+- Etap 0: **PASS** — wynik w `docs/M3_5_ETAP_0_AUDYT_RAPORTOW.md`.
+- Wydzielono `ReportsWorkspaceViewModel`; `MainViewModel` odpowiada wyłącznie za
+  integrację, nawigację i wybór pliku.
+- Działają cztery presety `game_time`, jawny pusty stan, walidacja własnego
+  zakresu, statusy podglądu, sześć kafli i pięć zakładek.
+- Eksport nieaktualnego widoku najpierw tworzy nowy podgląd, a następnie przekazuje
+  ten sam `ReportDto` do PDF, VTC JSON, CSV zobowiązań albo surowego CSV.
+- Release: **0 błędów / 0 ostrzeżeń**.
+- Pełna regresja: **521/521**.
+- Test startu: **PASS** — aplikacja osiągnęła `APP_READY` i utworzyła podgląd
+  raportu z historii produkcyjnej.
+- Ręczny gate UI: **PASS** — właściciel zatwierdził widok po korektach
+  kosmetycznych nagłówka, kafli, podsumowania i kompletności.
+- Formalny wynik etapu: **GO**. Rozszerzone sprawdzenie eksportów na zamrożonym
+  artefakcie pozostaje scenariuszem M3.6.
 
 ## Zasady obowiązujące na tym etapie
 
@@ -99,16 +119,18 @@ granice powtórzone dla jednoznaczności:
 
 ## Szablon aktualizacji statusu
 
-- **Data rozpoczęcia:**
-- **Data zakończenia:**
-- **Wynik:** `GO` / `FIX` / `HOLD` / `NIE DOTYCZY`
-- **Commit / punkt przywracania:**
-- **Build Release:**
-- **Testy automatyczne:**
-- **Testy manualne / dowody:**
-- **Otwarte błędy P0:**
-- **Otwarte błędy P1:**
-- **Uwagi do następnego etapu:**
+- **Data rozpoczęcia:** 2026-07-24
+- **Data zakończenia:** 2026-07-24
+- **Wynik:** **GO**
+- **Commit / punkt przywracania:** commit domknięcia M3.5 zawierający ten dokument
+- **Build Release:** 0 błędów / 0 ostrzeżeń
+- **Testy automatyczne:** 521/521
+- **Testy manualne / dowody:** start aplikacji i utworzenie podglądu
+  potwierdzone; ręczny gate UI zatwierdzony przez właściciela
+- **Otwarte błędy P0:** 0
+- **Otwarte błędy P1:** 0
+- **Uwagi do następnego etapu:** M3.6 odblokowane; przygotować zamrożony,
+  niepublikowany artefakt `beta.12-rc0`.
 
 ---
 

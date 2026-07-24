@@ -19,8 +19,8 @@
 | **M2** | Planer: silnik zdarzeniowy | 🟢 rozszerzenie załogi domknięte | GO | M3A |
 | **M3A** | Game Calendar & Deadline Presentation | 🟢 ręczny gate UI zielony | GO | M3 |
 | **M3** | Planer: Application Service i UI | 🟢 M3-R3 automatycznie i ręcznie zielone | GO | M3.5 |
-| **M3.5** | Raporty i statystyki: wariant B | ⚪ nie rozpoczęty (dokumentacja domknięta) | — | M3.6 |
-| **M3.6** | Wewnętrzny smoke checkpoint `beta.12-rc0` | ⚪ nie rozpoczęty (dokumentacja domknięta) | — | M4 |
+| **M3.5** | Raporty i statystyki: wariant B | 🟢 UI, automatyka i ręczny gate zielone | GO | M3.6 |
+| **M3.6** | Wewnętrzny smoke checkpoint `beta.12-rc0` | 🟡 odblokowany; oczekuje na zamrożony artefakt | ODBLOKOWANE | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
@@ -292,27 +292,33 @@ jest ponowny test ręczny użytkownika. Naprawa rekompensaty: `af97b39`.
 
 ---
 
-## M3.5 — Raporty i statystyki: wariant B (NIE ROZPOCZĘTY)
+## M3.5 — Raporty i statystyki: wariant B (ZAMKNIĘTY — GO)
 
 **Kryterium wejścia:** formalny wynik GO dla M3 — spełnione. **Stan:** M3.5
-odblokowane, jeszcze nierozpoczęte. Etap wstawiony między M3 a M4 decyzją
-właściciela 2026-07-24 (Okno A: przed UI freeze).
+zakończone wynikiem GO po akceptacji właściciela 2026-07-24.
 
 - **Dokument etapu:** `docs/PLAN_BETA_12_M0-M8/M3_5_RAPORTY_WARIANT_B.md`
 - **Plan wykonawczy:** `docs/PLAN_WDROZENIA_RAPORTY_WARIANT_B.md`
 - **Zakres:** przebudowa ekranu Raporty do wariantu B; bez zmian `RuleEngine`,
   historii kanonicznej, migracji SQLite i kontraktów PDF/JSON/CSV.
-- **Uwaga wejściowa:** Etap 0 audytu wykonać na stanie po M3 (478/478, Planer w
-  `MainWindow.xaml`), nie na migawce `315/315` z planu wariantu B. Terminy w
-  Raportach konsumują warstwę `GameCalendar` z M3A, bez reimplementacji.
-- **Wyjście:** gate Etapu 7 wariantu B + pełna checklista UI + Release 0/0; **bez
-  tworzenia paczki beta** — wynik wchodzi do wewnętrznego smoke M3.6.
+- **Audyt Etapu 0:** PASS; zachowano półotwarty zakres `[from, toExclusive)`,
+  istniejące bloki aktywności i kontrakt zobowiązań.
+- **Implementacja:** wydzielony workspace, cztery presety `game_time`, jawne stany
+  podglądu, sześć kafli, pięć zakładek i jeden `ReportDto` dla podglądu i eksportu.
+- **Niezmienniki:** bez zmian `RuleEngine`, historii kanonicznej, SQLite i
+  kontraktów PDF/JSON/CSV; terminy konsumują warstwę M3A.
+- **Gate automatyczny:** Release 0/0, pełna regresja 521/521, start aplikacji i
+  utworzenie podglądu potwierdzone w logu.
+- **Gate ręczny:** zaakceptowany po korektach nagłówka, kafli, podsumowania i
+  kompletności.
+- **Wynik:** **GO**; nie utworzono paczki beta.
 
 ---
 
-## M3.6 — Wewnętrzny smoke checkpoint `beta.12-rc0` (NIE ROZPOCZĘTY)
+## M3.6 — Wewnętrzny smoke checkpoint `beta.12-rc0` (ODBLOKOWANY)
 
-**Kryterium wejścia:** formalny wynik GO dla M3.5. **Stan:** oczekuje.
+**Kryterium wejścia:** formalny wynik GO dla M3.5. **Stan:** spełnione; etap
+oczekuje na zamrożony, niepublikowany artefakt.
 
 - **Dokument etapu:** `docs/PLAN_BETA_12_M0-M8/M3_6_WEWNETRZNY_SMOKE_CHECKPOINT.md`
 - **Charakter:** zamrożony **wewnętrzny** artefakt `0.1.0-beta.12-rc0` do

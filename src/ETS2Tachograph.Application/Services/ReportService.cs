@@ -8,11 +8,39 @@ using ETS2Tachograph.Core.Time;
 
 namespace ETS2Tachograph.Application.Services;
 
+public sealed record ReportAvailableRange(
+    bool HasData,
+    long FromGameMinuteInclusive,
+    long ToGameMinuteExclusive);
+
 public sealed class ReportService(
     IActivityRepository activities,
     IRegulationReportAnalyzer regulationAnalyzer,
     IRestAllocationRepository? restAllocations = null)
 {
+    public async Task<ReportAvailableRange> GetAvailableRangeAsync(
+        string driverCardId,
+        CancellationToken cancellationToken = default)
+    {
+        var records = await activities.LoadDriverHistoryAsync(
+            driverCardId,
+            cancellationToken: cancellationToken);
+        var gaps = await activities.GetUnresolvedGapsAsync(
+            driverCardId,
+            cancellationToken: cancellationToken);
+        if (records.Count == 0 && gaps.Count == 0)
+            return new ReportAvailableRange(false, 0, 0);
+
+        var start = records.Select(record => record.Start.TotalMinutes)
+            .Concat(gaps.Select(gap => gap.Start.TotalMinutes))
+            .Min();
+        var end = records.Select(record => record.EndExclusive.TotalMinutes)
+            .Concat(gaps.Select(gap =>
+                gap.EndExclusive?.TotalMinutes ??
+                checked(gap.Start.TotalMinutes + 1)))
+            .Max();
+        return new ReportAvailableRange(true, start, end);
+    }
 
     public async Task<ReportDto> CreateAsync(
         string driverCardId,

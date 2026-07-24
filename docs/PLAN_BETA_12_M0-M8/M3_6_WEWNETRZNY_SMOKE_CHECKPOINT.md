@@ -4,10 +4,13 @@
 **Artefakt:** `0.1.0-beta.12-rc0` — **wewnętrzny, niepublikowany**  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status początkowy:** **NIE ROZPOCZĘTY**  
+**Status bieżący:** **ODBLOKOWANY — OCZEKUJE NA ARTEFAKT**
 **Kryterium wejścia:** Formalny wynik **GO** dla M3.5.  
 **Kryterium wyjścia:** Triaging zakończony, potwierdzone błędy naprawione **przed** M4, formalna decyzja **GO / FIX / HOLD** dla checkpointu.  
 **Następny etap:** M4
+
+**Wejście potwierdzone 2026-07-24:** M3.5 zakończone wynikiem **GO**;
+pełna regresja 521/521, build Release 0/0, ręczny gate UI zaakceptowany.
 
 > Ten dokument jest samodzielnym wydzieleniem etapu M3.6 z planu wydania beta.12.
 > Nie zmienia zakresu ani gate’ów planu nadrzędnego. Etap został wstawiony między
