@@ -20,7 +20,7 @@
 | **M3A** | Game Calendar & Deadline Presentation | 🟢 ręczny gate UI zielony | GO | M3 |
 | **M3** | Planer: Application Service i UI | 🟢 M3-R3 automatycznie i ręcznie zielone | GO | M3.5 |
 | **M3.5** | Raporty i statystyki: wariant B | 🟢 UI, automatyka i ręczny gate zielone | GO | M3.6 |
-| **M3.6** | Wewnętrzny smoke checkpoint | 🟡 Alt+Tab PASS; rc1 w przygotowaniu | W TOKU | M4 |
+| **M3.6** | Wewnętrzny smoke checkpoint | 🟡 rc1 gotowy; smoke oczekuje | W TOKU | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
@@ -321,10 +321,10 @@ zakończone wynikiem GO po akceptacji właściciela 2026-07-24.
 zbudował zamrożony, niepublikowany artefakt, który został następnie unieważniony
 przez poprawkę obsługi głównego okna po Alt+Tab.
 
-- **Artefakt:** `ETS2Tachograph-0.1.0-beta.12-rc0-win-x64.zip`
-- **Commit:** `0abe849d01cd3e01c871d812adcc7c8c6eb31830`
-- **SHA-256:** `727C51F40515EF3909E3282C553451711D665CD688F3C72ABE0DDEEB92073406`
-- **Weryfikacja paczki:** rozpakowanie, struktura, `FileVersion 0.1.12.0`,
+- **Artefakt bieżący:** `ETS2Tachograph-0.1.0-beta.12-rc1-win-x64.zip`
+- **Commit bieżący:** `eb1f02d765a7c0f2cabea57e047ff74198c12975`
+- **SHA-256 bieżący:** `25AD18A416A86A1D63D7F4B7C0B9D3400B9E3CB284CE2A54924DEB68D14078EE`
+- **Weryfikacja paczki:** rozpakowanie, struktura, `FileVersion 0.1.12.1`,
   `ProductVersion`, plugin v3 i checksumy — PASS.
 - **Powód unieważnienia:** główne okno pozostawało pod ETS po Alt+Tab; nakładki
   działały prawidłowo.
@@ -335,10 +335,10 @@ przez poprawkę obsługi głównego okna po Alt+Tab.
   start/minimalizacja/przywrócenie/zamknięcie PASS; ręczny test z ETS
   potwierdzony przez właściciela.
 - **Pełna regresja przed `rc1`:** 524/524, Release 0/0.
-- **Następny artefakt:** `rc1`; `rc0` pozostaje unieważniony.
+- **Artefakt historyczny:** `rc0` pozostaje unieważniony.
 
 - **Dokument etapu:** `docs/PLAN_BETA_12_M0-M8/M3_6_WEWNETRZNY_SMOKE_CHECKPOINT.md`
-- **Charakter:** zamrożony **wewnętrzny** artefakt `0.1.0-beta.12-rc0` do
+- **Charakter:** zamrożony **wewnętrzny** artefakt `0.1.0-beta.12-rc1` do
   wielogodzinnego smoke; **niepublikowany**, nie uruchamia bramki M8, nie tworzy
   osobnego wydania `beta.11.5`.
 - **Cel:** złapać błędy in-game przed UI freeze (M4), gdy poprawki mogą jeszcze

@@ -14,7 +14,7 @@ M0 stabilizacja
 → M3A Game Calendar & Deadline Presentation
 → M3 Application Service i UI Planera
 → M3.5 Raporty i statystyki: wariant B
-→ M3.6 wewnętrzny smoke checkpoint (beta.12-rc0)
+→ M3.6 wewnętrzny smoke checkpoint (beta.12-rc1)
 → M4 finalizacja UI i UI freeze
 → M5 lokalizacja PL/EN
 → M6 Release Candidate beta.12
@@ -32,7 +32,7 @@ M0 stabilizacja
 | M3A | GO — RĘCZNY GATE UI ZIELONY | [M3A — Game Calendar & Deadline Presentation](M3A_GAME_CALENDAR_AND_DEADLINE_PRESENTATION.md) |
 | M3 | GO — M3-R3 AUTOMATYCZNIE I RĘCZNIE ZIELONE | [M3 — Planer: Application Service i UI](M3_PLANER_APPLICATION_SERVICE_I_UI.md) |
 | M3.5 | GO — UI I REGRESJA ZIELONE | [M3.5 — Raporty i statystyki: wariant B](M3_5_RAPORTY_WARIANT_B.md) |
-| M3.6 | W TOKU — ALT+TAB PASS, RC1 W PRZYGOTOWANIU | [M3.6 — Wewnętrzny smoke checkpoint (beta.12-rc0)](M3_6_WEWNETRZNY_SMOKE_CHECKPOINT.md) |
+| M3.6 | W TOKU — RC1 GOTOWY, SMOKE OCZEKUJE | [M3.6 — Wewnętrzny smoke checkpoint (beta.12-rc1)](M3_6_WEWNETRZNY_SMOKE_CHECKPOINT.md) |
 | M4 | NIE ROZPOCZĘTY | [M4 — Finalizacja całego interfejsu i UI freeze](M4_FINALIZACJA_UI_I_UI_FREEZE.md) |
 | M5 | NIE ROZPOCZĘTY | [M5 — Lokalizacja PL/EN](M5_LOKALIZACJA_PL_EN.md) |
 | M6 | NIE ROZPOCZĘTY | [M6 — Release Candidate `0.1.0-beta.12`](M6_RELEASE_CANDIDATE_BETA_12.md) |

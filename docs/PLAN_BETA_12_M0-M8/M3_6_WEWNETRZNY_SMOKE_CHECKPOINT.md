@@ -1,10 +1,10 @@
 # M3.6 — Wewnętrzny smoke checkpoint (próba generalna RC)
 
 **Projekt:** ETS2 EU Digital Tachograph  
-**Artefakt:** `0.1.0-beta.12-rc0` — **wewnętrzny, niepublikowany**  
+**Artefakt:** `0.1.0-beta.12-rc1` — **wewnętrzny, niepublikowany**
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status bieżący:** **W TOKU — POPRAWKA ALT+TAB PASS, `rc1` W PRZYGOTOWANIU**
+**Status bieżący:** **W TOKU — `rc1` GOTOWY, SMOKE OCZEKUJE**
 **Kryterium wejścia:** Formalny wynik **GO** dla M3.5.  
 **Kryterium wyjścia:** Triaging zakończony, potwierdzone błędy naprawione **przed** M4, formalna decyzja **GO / FIX / HOLD** dla checkpointu.  
 **Następny etap:** M4
@@ -22,10 +22,10 @@ in-game do końcowego smoke M7.
 
 ## Charakter etapu
 
-- Budujemy **zamrożony wewnętrzny artefakt** `beta.12-rc0` z konkretnego commita
+- Budujemy **zamrożony wewnętrzny artefakt** `beta.12-rc1` z konkretnego commita
   (numer + commit + wewnętrzna SHA-256), jak w dyscyplinie M6.
 - **To nie jest publikacja.** Nie uruchamia bramki M8, nie tworzy publicznej
-  paczki i nie wchodzi na osobną linię wersji. Etykieta `-rc0` oznacza próbę
+  paczki i nie wchodzi na osobną linię wersji. Etykieta `-rc1` oznacza próbę
   generalną RC beta.12, nie wydanie „beta.11.5”.
 - Smoke wykonujemy wyłącznie na **rozpakowanym artefakcie**, nigdy z IDE, z
   pluginem z tej samej paczki.
@@ -38,7 +38,7 @@ pozostaje wymagany** i nie jest zastępowany przez M3.6.
 
 ## Przygotowanie
 
-- [x] Zbudować Release z zamrożonego commita i spakować `beta.12-rc0`.
+- [x] Zbudować Release z zamrożonego commita i spakować `beta.12-rc1`.
 - [x] Zapisać numer, commit i wewnętrzną SHA-256 artefaktu.
 - [x] Rozpakować ZIP do nowego katalogu; nie uruchamiać z IDE ani z ZIP-a.
 - [ ] Zainstalować DLL pluginu z tej samej paczki i uruchomić ETS2 ponownie.
@@ -73,7 +73,7 @@ pozostaje wymagany** i nie jest zastępowany przez M3.6.
 ## Reguła unieważnienia smoke
 
 Każda zmiana kodu, zasobów, konfiguracji, pluginu lub zawartości paczki po
-zbudowaniu `beta.12-rc0`:
+zbudowaniu `beta.12-rc*`:
 
 ```text
 unieważnia dotychczasowy smoke
@@ -130,18 +130,21 @@ i unieważniony.
 
 - **Data rozpoczęcia:** 2026-07-24
 - **Data zakończenia:**
-- **Wynik:** `W TOKU — ALT+TAB PASS, RC1 W PRZYGOTOWANIU`
+- **Wynik:** `W TOKU — RC1 GOTOWY, SMOKE OCZEKUJE`
+- **Artefakt bieżący:** `ETS2Tachograph-0.1.0-beta.12-rc1-win-x64.zip`
+- **Commit bieżący:** `eb1f02d765a7c0f2cabea57e047ff74198c12975`
+- **SHA-256 bieżący:** `25AD18A416A86A1D63D7F4B7C0B9D3400B9E3CB284CE2A54924DEB68D14078EE`
 - **Artefakt historyczny, unieważniony:** `ETS2Tachograph-0.1.0-beta.12-rc0-win-x64.zip`
-- **Commit:** `0abe849d01cd3e01c871d812adcc7c8c6eb31830`
-- **SHA-256:** `727C51F40515EF3909E3282C553451711D665CD688F3C72ABE0DDEEB92073406`
+- **Commit historyczny:** `0abe849d01cd3e01c871d812adcc7c8c6eb31830`
+- **SHA-256 historyczny:** `727C51F40515EF3909E3282C553451711D665CD688F3C72ABE0DDEEB92073406`
 - **Build Release:** 0 błędów / 0 ostrzeżeń; self-contained `win-x64`
 - **Testy automatyczne:** 524/524 przed zamrożeniem `rc1`
 - **Testy manualne / dowody:** ZIP rozpakowany; struktura, metadane aplikacji,
-  plugin v3 i checksumy zweryfikowane; lokalny cykl aktywacji procesu PASS
+  plugin v3 i checksumy zweryfikowane; cykl aktywacji dokładnego `rc1` PASS
 - **Otwarte błędy P0:** 0
 - **Otwarte błędy P1:** 0
-- **Uwagi do następnego etapu:** uruchomić pełną regresję i zbudować `rc1`
-  z nowym commitem oraz SHA-256.
+- **Uwagi do następnego etapu:** zainstalować plugin z `rc1`, zabezpieczyć bazę
+  i wykonać pełny smoke in-game na rozpakowanym artefakcie.
 
 ---
 
