@@ -8,6 +8,7 @@ internal sealed record ActivityRun(
     GameTime Start,
     GameTime EndExclusive,
     DriverActivity Activity,
+    SpecialCondition Condition,
     Guid? SourceGapId,
     IReadOnlyList<ActivitySourceRange> SourceRanges)
 {

@@ -446,7 +446,13 @@ public sealed class ActivityHistoryProcessor
         var previousVehicleSpeedKph = _lastVehicleSpeedKph;
         _lastVehicleSpeedKph = vehicleSpeedKph;
         var activity = SelectActivity(frame);
-        var condition = FerryModeEnabled ? SpecialCondition.FerryCrossing : SpecialCondition.None;
+        var condition = FerryModeEnabled
+            ? SpecialCondition.FerryCrossing
+            : slot == 2 &&
+              activity == DriverActivity.BreakOrRest &&
+              Math.Abs(vehicleSpeedKph) > _settings.DrivingSpeedThresholdKph
+                ? SpecialCondition.CrewBreakInMotion
+                : SpecialCondition.None;
         var cargoOperationCompleted = _lastCargoOperationGeneration is not null &&
                                       _lastCargoOperationGeneration.Value != frame.CargoOperationGeneration;
         _lastCargoOperationGeneration = frame.CargoOperationGeneration;

@@ -1000,6 +1000,9 @@ public sealed class ActivityRepository :
             if (blocks.Count > 0 &&
                 blocks[^1].Activity == record.Activity &&
                 blocks[^1].SourceGapId == record.SourceGapId &&
+                (blocks[^1].Condition == record.Condition ||
+                 (blocks[^1].Condition != SpecialCondition.CrewBreakInMotion &&
+                  record.Condition != SpecialCondition.CrewBreakInMotion)) &&
                 blocks[^1].EndGameMinuteExclusive == record.Start.TotalMinutes)
             {
                 var block = blocks[^1];

@@ -205,6 +205,7 @@ public sealed class RegulationEngine
         IReadOnlyList<ActivityRun> runs,
         GameTime? weeklyRestEnd) => runs.Count(run =>
             run.Activity == DriverActivity.BreakOrRest &&
+            run.Condition != SpecialCondition.CrewBreakInMotion &&
             run.DurationMinutes is >= 540 and < 660 &&
             (weeklyRestEnd is null || run.Start >= weeklyRestEnd.Value));
 
@@ -214,6 +215,7 @@ public sealed class RegulationEngine
         var measured = runs.Where(run =>
             run.SourceGapId is null &&
             run.Activity == DriverActivity.BreakOrRest &&
+            run.Condition != SpecialCondition.CrewBreakInMotion &&
             run.DurationMinutes >= 540);
 
         // Resolved manual rest can remain continuous with directly adjacent
@@ -223,7 +225,8 @@ public sealed class RegulationEngine
         var fromResolvedGaps = runs
             .Where(run =>
                 run.SourceGapId is not null &&
-                run.Activity == DriverActivity.BreakOrRest)
+                run.Activity == DriverActivity.BreakOrRest &&
+                run.Condition != SpecialCondition.CrewBreakInMotion)
             .GroupBy(run => run.SourceGapId!.Value)
             .Select(group => group
                 .OrderByDescending(run => run.DurationMinutes)

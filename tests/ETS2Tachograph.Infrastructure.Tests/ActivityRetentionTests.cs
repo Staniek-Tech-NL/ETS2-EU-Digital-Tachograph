@@ -167,6 +167,47 @@ public sealed class ActivityRetentionTests
     }
 
     [Fact]
+    public async Task Warm_archive_does_not_merge_stationary_rest_with_crew_break_in_motion()
+    {
+        var (connection, context) = await CreateDatabaseAsync("CARD-CREW-BREAK");
+        await using (connection)
+        await using (context)
+        {
+            var repository = new ActivityRepository(context);
+            await repository.EnsureSessionAsync("CARD-CREW-BREAK", 0, new GameTime(0));
+            await repository.AppendAsync("CARD-CREW-BREAK", 0,
+            [
+                Record(
+                    "CARD-CREW-BREAK",
+                    0,
+                    DriverActivity.BreakOrRest,
+                    condition: SpecialCondition.None),
+                Record(
+                    "CARD-CREW-BREAK",
+                    1,
+                    DriverActivity.BreakOrRest,
+                    condition: SpecialCondition.CrewBreakInMotion)
+            ]);
+            await repository.ObserveGameTimeAsync(
+                "CARD-CREW-BREAK",
+                new GameTime(2 + ActivityRetentionPolicy.HotWindowMinutes));
+
+            var result = await repository.ArchiveWarmAsync("CARD-CREW-BREAK");
+            var blocks = await context.WarmActivityBlocks.AsNoTracking()
+                .OrderBy(x => x.StartGameMinute)
+                .ToListAsync();
+
+            Assert.Equal(2, result.WarmBlockCount);
+            Assert.Collection(
+                blocks,
+                block => Assert.Equal(SpecialCondition.None, block.Condition),
+                block => Assert.Equal(
+                    SpecialCondition.CrewBreakInMotion,
+                    block.Condition));
+        }
+    }
+
+    [Fact]
     public async Task Warm_archive_preserves_manual_entry_source_gap_link()
     {
         var (connection, context) = await CreateDatabaseAsync("CARD-MANUAL-WARM");
@@ -325,7 +366,8 @@ public sealed class ActivityRetentionTests
         string cardId,
         long minute,
         DriverActivity activity,
-        ActivitySource source = ActivitySource.Telemetry) => new()
+        ActivitySource source = ActivitySource.Telemetry,
+        SpecialCondition condition = SpecialCondition.None) => new()
     {
         Id = Guid.NewGuid(),
         DriverCardId = cardId,
@@ -333,7 +375,8 @@ public sealed class ActivityRetentionTests
         Start = new GameTime(minute),
         EndExclusive = new GameTime(minute + 1),
         RecordedAtUtc = Epoch.AddMinutes(minute),
-        Source = source
+        Source = source,
+        Condition = condition
     };
 
     private static async Task<(SqliteConnection Connection, TachographDbContext Context)>

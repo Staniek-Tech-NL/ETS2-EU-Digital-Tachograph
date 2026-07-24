@@ -129,7 +129,10 @@ public sealed record CrewDriverPlanSummary(
     long WeeklyDrivingMinutes,
     long PreviousWeekDrivingMinutes,
     long CurrentContinuousBreakMinutes,
-    long MinutesUntilDailyRestDeadline);
+    long MinutesUntilDailyRestDeadline,
+    long MinutesUntilWeeklyRestDeadline,
+    int DailyDrivingExtensionsUsed,
+    int ReducedDailyRestsUsed);
 
 public sealed record CrewJourneyPlanResult(
     JourneyPlanStatus Status,

@@ -36,11 +36,13 @@ public sealed class CrewTachographEngineTests
 
         Assert.False(crew.Current.CoDriverMovingBreakActive);
         Assert.Equal(DriverActivity.Availability, crew.Current.CoDriver!.ProvisionalActivity);
-        Assert.Equal(
-            45,
-            crew.GetEngine("CARD-B")!.History.CurrentTimeline.Records
-                .Where(x => x.Activity == DriverActivity.BreakOrRest)
-                .Sum(x => x.DurationMinutes));
+        var movingBreakRecords = crew.GetEngine("CARD-B")!.History.CurrentTimeline.Records
+            .Where(x => x.Activity == DriverActivity.BreakOrRest)
+            .ToList();
+        Assert.Equal(45, movingBreakRecords.Sum(x => x.DurationMinutes));
+        Assert.All(
+            movingBreakRecords,
+            record => Assert.Equal(SpecialCondition.CrewBreakInMotion, record.Condition));
     }
 
     [Fact]

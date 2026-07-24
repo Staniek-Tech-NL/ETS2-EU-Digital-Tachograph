@@ -20,6 +20,7 @@ internal static class HistoryAnalysis
             if (result.Count > 0 &&
                 result[^1].DriverCardId == record.DriverCardId &&
                 result[^1].Activity == record.Activity &&
+                result[^1].Condition == record.Condition &&
                 result[^1].EndExclusive == record.Start &&
                 CanJoinAcrossManualEntryBoundary(result[^1], record))
             {
@@ -39,6 +40,7 @@ internal static class HistoryAnalysis
                     record.Start,
                     end,
                     record.Activity,
+                    record.Condition,
                     record.SourceGapId,
                     [new ActivitySourceRange(record.Start, end, record.SourceGapId)]));
             }
