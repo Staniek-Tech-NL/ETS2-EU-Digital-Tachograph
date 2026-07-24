@@ -43,6 +43,7 @@ public sealed class RegulationEngineTests
             300);
 
         Assert.Equal(8_440, result.State.MinutesUntilWeeklyRestDeadline);
+        Assert.Equal(1_540, result.State.DailyRestCompletionDeadlineGameMinute);
         Assert.False(Has(result, ViolationType.WeeklyRestMissing));
     }
 

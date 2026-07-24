@@ -1,17 +1,20 @@
 using ETS2Tachograph.Desktop;
+using ETS2Tachograph.Core.Time;
 
 namespace ETS2Tachograph.Desktop.Tests;
 
 public sealed class WeeklyRestWindowFormatterTests
 {
     private const long ReferenceDeadline = 202_975;
+    private static readonly GameCalendarResolver Calendar =
+        new(new GameCalendarContext(0));
 
     [Fact] // WRF-01
     public void Formats_reference_deadline()
     {
         Assert.Equal(
-            "4/6 (D141 22:55)",
-            WeeklyRestWindowFormatter.Format(5_379, ReferenceDeadline));
+            "4/6 · Rozpocznij najpóźniej: PON · D141 · 22:55",
+            WeeklyRestWindowFormatter.Format(5_379, ReferenceDeadline, Calendar));
     }
 
     [Theory] // WRF-02
@@ -20,78 +23,78 @@ public sealed class WeeklyRestWindowFormatterTests
     public void Fresh_window_stays_in_first_period(long elapsedMinutes)
     {
         Assert.Equal(
-            "1/6 (D141 22:55)",
-            WeeklyRestWindowFormatter.Format(elapsedMinutes, ReferenceDeadline));
+            "1/6 · Rozpocznij najpóźniej: PON · D141 · 22:55",
+            WeeklyRestWindowFormatter.Format(elapsedMinutes, ReferenceDeadline, Calendar));
     }
 
     [Fact] // WRF-03
     public void First_full_day_starts_second_period()
     {
         Assert.Equal(
-            "2/6 (D141 22:55)",
-            WeeklyRestWindowFormatter.Format(1_440, ReferenceDeadline));
+            "2/6 · Rozpocznij najpóźniej: PON · D141 · 22:55",
+            WeeklyRestWindowFormatter.Format(1_440, ReferenceDeadline, Calendar));
     }
 
     [Theory] // WRF-04
-    [InlineData(5_759, "4/6 (D141 22:55)")]
-    [InlineData(5_760, "5/6 (D141 22:55)")]
+    [InlineData(5_759, "4/6 · Rozpocznij najpóźniej: PON · D141 · 22:55")]
+    [InlineData(5_760, "5/6 · Rozpocznij najpóźniej: PON · D141 · 22:55")]
     public void Ninety_six_hour_boundary_does_not_round_up(
         long elapsedMinutes,
         string expected)
     {
         Assert.Equal(
             expected,
-            WeeklyRestWindowFormatter.Format(elapsedMinutes, ReferenceDeadline));
+            WeeklyRestWindowFormatter.Format(elapsedMinutes, ReferenceDeadline, Calendar));
     }
 
     [Fact] // WRF-05
     public void Last_minute_before_limit_stays_in_sixth_period()
     {
         Assert.Equal(
-            "6/6 (D141 22:55)",
-            WeeklyRestWindowFormatter.Format(8_639, ReferenceDeadline));
+            "6/6 · Rozpocznij najpóźniej: PON · D141 · 22:55",
+            WeeklyRestWindowFormatter.Format(8_639, ReferenceDeadline, Calendar));
     }
 
     [Fact] // WRF-06
     public void Exact_limit_does_not_show_overrun()
     {
         Assert.Equal(
-            "6/6 (D141 22:55)",
-            WeeklyRestWindowFormatter.Format(8_640, ReferenceDeadline));
+            "6/6 · Rozpocznij najpóźniej: PON · D141 · 22:55",
+            WeeklyRestWindowFormatter.Format(8_640, ReferenceDeadline, Calendar));
     }
 
     [Fact] // WRF-07
     public void First_minute_after_limit_shows_overrun()
     {
         Assert.Equal(
-            "6/6+ (D141 22:55)",
-            WeeklyRestWindowFormatter.Format(8_641, ReferenceDeadline));
+            "6/6+ · Rozpocznij najpóźniej: PON · D141 · 22:55",
+            WeeklyRestWindowFormatter.Format(8_641, ReferenceDeadline, Calendar));
     }
 
     [Fact] // WRF-08
     public void Game_minute_zero_is_displayed_as_day_one()
     {
         Assert.Equal(
-            "1/6 (D1 00:00)",
-            WeeklyRestWindowFormatter.Format(0, 0));
+            "1/6 · Rozpocznij najpóźniej: PON · D1 · 00:00",
+            WeeklyRestWindowFormatter.Format(0, 0, Calendar));
     }
 
     [Fact] // WRF-09
     public void Formats_deadline_after_midnight_on_next_day()
     {
         Assert.Equal(
-            "1/6 (D2 00:05)",
-            WeeklyRestWindowFormatter.Format(0, 1_445));
+            "1/6 · Rozpocznij najpóźniej: WT · D2 · 00:05",
+            WeeklyRestWindowFormatter.Format(0, 1_445, Calendar));
     }
 
     [Fact] // WRF-10
     public void Deadline_does_not_move_while_same_window_progresses()
     {
-        var first = WeeklyRestWindowFormatter.Format(5_379, ReferenceDeadline);
-        var later = WeeklyRestWindowFormatter.Format(5_384, ReferenceDeadline);
+        var first = WeeklyRestWindowFormatter.Format(5_379, ReferenceDeadline, Calendar);
+        var later = WeeklyRestWindowFormatter.Format(5_384, ReferenceDeadline, Calendar);
 
-        Assert.EndsWith("(D141 22:55)", first);
-        Assert.EndsWith("(D141 22:55)", later);
+        Assert.EndsWith("PON · D141 · 22:55", first);
+        Assert.EndsWith("PON · D141 · 22:55", later);
     }
 
     [Theory] // WRF-11
@@ -103,24 +106,33 @@ public sealed class WeeklyRestWindowFormatterTests
     {
         Assert.Equal(
             expected,
-            WeeklyRestWindowFormatter.Format(elapsedMinutes, null));
+            WeeklyRestWindowFormatter.Format(elapsedMinutes, null, Calendar));
     }
 
     [Fact] // WRF-12
     public void Formats_independent_values_for_both_slots()
     {
-        var slot1 = WeeklyRestWindowFormatter.Format(5_379, ReferenceDeadline);
-        var slot2 = WeeklyRestWindowFormatter.Format(1_440, ReferenceDeadline + 1_440);
+        var slot1 = WeeklyRestWindowFormatter.Format(5_379, ReferenceDeadline, Calendar);
+        var slot2 = WeeklyRestWindowFormatter.Format(
+            1_440,
+            ReferenceDeadline + 1_440,
+            Calendar);
 
-        Assert.Equal("4/6 (D141 22:55)", slot1);
-        Assert.Equal("2/6 (D142 22:55)", slot2);
+        Assert.Equal("4/6 · Rozpocznij najpóźniej: PON · D141 · 22:55", slot1);
+        Assert.Equal("2/6 · Rozpocznij najpóźniej: WT · D142 · 22:55", slot2);
     }
 
     [Fact] // WRF-13
     public void Same_projection_after_restart_produces_identical_text()
     {
-        var beforeRestart = WeeklyRestWindowFormatter.Format(5_379, ReferenceDeadline);
-        var afterRestart = WeeklyRestWindowFormatter.Format(5_379, ReferenceDeadline);
+        var beforeRestart = WeeklyRestWindowFormatter.Format(
+            5_379,
+            ReferenceDeadline,
+            Calendar);
+        var afterRestart = WeeklyRestWindowFormatter.Format(
+            5_379,
+            ReferenceDeadline,
+            Calendar);
 
         Assert.Equal(beforeRestart, afterRestart);
     }
@@ -128,19 +140,22 @@ public sealed class WeeklyRestWindowFormatterTests
     [Fact] // WRF-14
     public void New_canonical_branch_does_not_reuse_old_deadline()
     {
-        var oldBranch = WeeklyRestWindowFormatter.Format(5_379, ReferenceDeadline);
-        var newBranch = WeeklyRestWindowFormatter.Format(60, ReferenceDeadline + 2_880);
+        var oldBranch = WeeklyRestWindowFormatter.Format(5_379, ReferenceDeadline, Calendar);
+        var newBranch = WeeklyRestWindowFormatter.Format(
+            60,
+            ReferenceDeadline + 2_880,
+            Calendar);
 
-        Assert.Equal("4/6 (D141 22:55)", oldBranch);
-        Assert.Equal("1/6 (D143 22:55)", newBranch);
+        Assert.Equal("4/6 · Rozpocznij najpóźniej: PON · D141 · 22:55", oldBranch);
+        Assert.Equal("1/6 · Rozpocznij najpóźniej: ŚR · D143 · 22:55", newBranch);
         Assert.NotEqual(oldBranch, newBranch);
     }
 
     [Fact] // WRF-15
     public void Same_game_time_projection_is_independent_of_wall_clock()
     {
-        var first = WeeklyRestWindowFormatter.Format(5_379, ReferenceDeadline);
-        var second = WeeklyRestWindowFormatter.Format(5_379, ReferenceDeadline);
+        var first = WeeklyRestWindowFormatter.Format(5_379, ReferenceDeadline, Calendar);
+        var second = WeeklyRestWindowFormatter.Format(5_379, ReferenceDeadline, Calendar);
 
         Assert.Equal(first, second);
     }

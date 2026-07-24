@@ -61,7 +61,8 @@ public sealed record WeeklyRestCompensation
         OriginalOwedMinutes = owedMinutes;
         RemainingMinutes = owedMinutes;
         ReductionWeek = reductionWeek;
-        DueAtExclusive = new GameTime(checked((dueByEndOfWeek.Index + 1) * GameWeek.MinutesPerWeek));
+        DueAtExclusive = new GameTime(
+            dueByEndOfWeek.GetBounds().EndGameMinuteExclusive);
         Status = isOverdue
             ? WeeklyRestCompensationStatus.Overdue
             : WeeklyRestCompensationStatus.OpenOnTime;

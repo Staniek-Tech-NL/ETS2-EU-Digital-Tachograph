@@ -15,6 +15,7 @@ public sealed record RegulationState
     public int ReducedDailyRestsSinceWeeklyRest { get; init; }
     public long MinutesUntilBreak { get; init; }
     public long MinutesUntilDailyRestDeadline { get; init; }
+    public long DailyRestCompletionDeadlineGameMinute { get; init; }
     public long MinutesUntilWeeklyRestDeadline { get; init; }
     public long? WeeklyRestWindowElapsedMinutes { get; init; }
     public long? WeeklyRestStartDeadlineGameMinute { get; init; }

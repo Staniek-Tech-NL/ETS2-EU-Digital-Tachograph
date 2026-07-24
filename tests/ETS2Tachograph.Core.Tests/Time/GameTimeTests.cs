@@ -49,4 +49,108 @@ public sealed class GameTimeTests
     {
         Assert.Equal(new GameWeek(expectedWeek), GameWeek.From(new GameTime(minute), offsetDays));
     }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(6)]
+    public void Public_week_bounds_equal_the_existing_regulatory_formula(int offsetDays)
+    {
+        var week = new GameWeek(17);
+        var expectedStart =
+            (week.Index * GameWeek.MinutesPerWeek) -
+            ((long)offsetDays * GameWeek.MinutesPerDay);
+
+        var bounds = week.GetBounds(offsetDays);
+
+        Assert.Equal(expectedStart, bounds.StartGameMinute);
+        Assert.Equal(
+            expectedStart + GameWeek.MinutesPerWeek,
+            bounds.EndGameMinuteExclusive);
+    }
+
+    [Theory]
+    [InlineData(-1, 1_440)]
+    [InlineData(0, 0)]
+    [InlineData(1, 8_640)]
+    [InlineData(6, 1_440)]
+    public void Canonical_week_boundaries_cover_exact_edges(
+        int offsetDays,
+        long boundary)
+    {
+        var atBoundary = GameWeek.From(new GameTime(boundary), offsetDays);
+        var bounds = atBoundary.GetBounds(offsetDays);
+
+        Assert.Equal(boundary, bounds.StartGameMinute);
+        Assert.True(bounds.Contains(new GameTime(boundary)));
+        Assert.True(bounds.Contains(new GameTime(bounds.EndGameMinuteExclusive - 1)));
+        Assert.False(bounds.Contains(new GameTime(bounds.EndGameMinuteExclusive)));
+
+        if (boundary > 0)
+        {
+            Assert.NotEqual(
+                atBoundary,
+                GameWeek.From(new GameTime(boundary - 1), offsetDays));
+        }
+    }
+
+    [Fact]
+    public void Raw_equivalent_offsets_keep_distinct_week_indices()
+    {
+        var time = new GameTime(1_440);
+
+        var negative = GameWeek.From(time, -1);
+        var positive = GameWeek.From(time, 6);
+
+        Assert.NotEqual(negative, positive);
+        Assert.Equal(
+            negative.GetBounds(-1),
+            positive.GetBounds(6));
+    }
+
+    [Theory]
+    [InlineData(0, 0, GameWeekday.Monday)]
+    [InlineData(1_439, 0, GameWeekday.Monday)]
+    [InlineData(1_440, 0, GameWeekday.Tuesday)]
+    [InlineData(8_640, 0, GameWeekday.Sunday)]
+    [InlineData(0, 1, GameWeekday.Tuesday)]
+    [InlineData(0, -1, GameWeekday.Sunday)]
+    public void Calendar_resolver_uses_the_canonical_week_start(
+        long minute,
+        int offsetDays,
+        GameWeekday expectedWeekday)
+    {
+        var resolver = new GameCalendarResolver(new GameCalendarContext(offsetDays));
+
+        var moment = resolver.Resolve(new GameTime(minute));
+
+        Assert.Equal(expectedWeekday, moment.Weekday);
+        Assert.Equal((minute / GameWeek.MinutesPerDay) + 1, moment.DisplayedGameDay);
+        Assert.True(moment.WeekBounds.Contains(moment.GameTime));
+    }
+
+    [Fact]
+    public void Displayed_game_day_does_not_change_with_week_offset()
+    {
+        var time = new GameTime((146 * GameWeek.MinutesPerDay) + 870);
+
+        var first = new GameCalendarResolver(new GameCalendarContext(-1)).Resolve(time);
+        var second = new GameCalendarResolver(new GameCalendarContext(6)).Resolve(time);
+
+        Assert.Equal(147, first.DisplayedGameDay);
+        Assert.Equal(first.DisplayedGameDay, second.DisplayedGameDay);
+        Assert.Equal(first.Hour, second.Hour);
+        Assert.Equal(first.Minute, second.Minute);
+    }
+
+    [Theory]
+    [InlineData(-7)]
+    [InlineData(7)]
+    public void Calendar_context_rejects_offsets_outside_the_persisted_contract(
+        int offsetDays)
+    {
+        Assert.Throws<ArgumentOutOfRangeException>(
+            () => new GameCalendarContext(offsetDays));
+    }
 }

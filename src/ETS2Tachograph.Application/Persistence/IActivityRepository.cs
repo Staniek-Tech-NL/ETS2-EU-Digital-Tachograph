@@ -127,6 +127,15 @@ public interface IActivityRepository
         string driverCardId,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Loads sessions for rule-engine restoration, including the canonical warm
+    /// projection required to rebuild historical regulatory obligations.
+    /// </summary>
+    Task<IReadOnlyList<StoredActivitySession>> LoadRestorationSessionsAsync(
+        string driverCardId,
+        CancellationToken cancellationToken = default) =>
+        LoadSessionsAsync(driverCardId, cancellationToken);
+
     /// <summary>Loads all source sessions for lossless export and diagnostics.</summary>
     Task<IReadOnlyList<StoredActivitySession>> LoadRawSessionsAsync(
         string driverCardId,

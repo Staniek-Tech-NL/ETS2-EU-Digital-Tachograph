@@ -1,4 +1,5 @@
 using ETS2Tachograph.Core.Enums;
+using ETS2Tachograph.Core.Time;
 
 namespace ETS2Tachograph.RuleEngine.JourneyPlanning;
 
@@ -13,7 +14,6 @@ public sealed class JourneyPlanningEngine
     private const int ReducedDailyRest = 540;
     private const int ReducedWeeklyRest = 1_440;
     private const int RegularWeeklyRest = 2_700;
-    private const int RegulatoryWeek = 10_080;
 
     public JourneyPlanResult Plan(JourneyPlanRequest request)
     {
@@ -540,14 +540,10 @@ public sealed class JourneyPlanningEngine
 
     private static long NextWeekBoundary(long minute, int offsetDays)
     {
-        var offsetMinutes = checked((long)offsetDays * 1_440);
-        var calibrated = checked(minute + offsetMinutes);
-        var quotient = Math.DivRem(calibrated, RegulatoryWeek, out var remainder);
-        if (remainder < 0)
-        {
-            quotient--;
-        }
-        return checked(((quotient + 1) * RegulatoryWeek) - offsetMinutes);
+        var currentWeek = GameWeek.From(new GameTime(minute), offsetDays);
+        return new GameWeek(checked(currentWeek.Index + 1))
+            .GetBounds(offsetDays)
+            .StartGameMinute;
     }
 
     private static JourneyPlanResult Terminal(

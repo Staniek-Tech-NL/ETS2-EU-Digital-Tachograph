@@ -8,14 +8,16 @@ public sealed record CompensationOverview(
     int OpenCount,
     string TotalDebtText,
     string NearestDueText,
+    string NearestDueCompactText,
     string StatusText,
     string StatusForeground)
 {
     public static CompensationOverview Empty { get; } = new(
-        0, "00:00", "—", "BRAK OTWARTYCH", "#5F6874");
+        0, "00:00", "—", "—", "BRAK OTWARTYCH", "#5F6874");
 
     public static CompensationOverview From(
-        IReadOnlyList<WeeklyRestCompensationDto> obligations)
+        IReadOnlyList<WeeklyRestCompensationDto> obligations,
+        GameCalendarResolver calendar)
     {
         var open = obligations.Where(item => item.IsOpen).ToList();
         var nearest = open.MinBy(item => item.DueAtGameMinuteExclusive);
@@ -32,7 +34,13 @@ public sealed record CompensationOverview(
             FormatMinutes(open.Sum(item => item.RemainingMinutes)),
             nearest is null
                 ? "—"
-                : GameClockFormatter.Format(new GameTime(nearest.DueAtGameMinuteExclusive)),
+                : GameDeadlineFormatter.FormatFull(new DeadlinePresentation(
+                    GameDeadlineSemantic.CompleteBefore,
+                    calendar.Resolve(new GameTime(nearest.DueAtGameMinuteExclusive)))),
+            nearest is null
+                ? "—"
+                : GameCalendarFormatter.FormatCompact(
+                    calendar.Resolve(new GameTime(nearest.DueAtGameMinuteExclusive))),
             status.Item1,
             status.Item2);
     }
@@ -135,7 +143,8 @@ public sealed record CompensationDetailRow(
 {
     public static CompensationDetailRow From(
         string slotLabel,
-        WeeklyRestCompensationDto obligation) => new(
+        WeeklyRestCompensationDto obligation,
+        GameCalendarResolver calendar) => new(
             slotLabel,
             obligation.DriverCardId,
             obligation.ObligationId,
@@ -147,7 +156,9 @@ public sealed record CompensationDetailRow(
             FormatMinutes(obligation.RemainingMinutes),
             $"Tydzień {obligation.ReductionWeek}",
             obligation.DueAtGameMinuteExclusive,
-            GameClockFormatter.Format(new GameTime(obligation.DueAtGameMinuteExclusive)),
+            GameDeadlineFormatter.FormatFull(new DeadlinePresentation(
+                GameDeadlineSemantic.CompleteBefore,
+                calendar.Resolve(new GameTime(obligation.DueAtGameMinuteExclusive)))),
             StatusLabel(obligation.Status),
             StatusColor(obligation.Status),
             obligation.IsOpen,

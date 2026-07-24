@@ -94,6 +94,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private string _newCardNumber = string.Empty;
     private double _drivingThreshold;
     private int _weekOffset;
+    private readonly GameCalendarResolver _gameCalendar;
     private string _operationStatus = string.Empty;
     private ReportDto? _currentReport;
     private string _reportFrom = string.Empty;
@@ -139,7 +140,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private bool _driver2ReducedDailyRestsExceeded;
     private string _driver2WeeklyDriving = "00:00";
     private string _driver2FortnightlyDriving = "00:00";
-    private string _driver2DailyRestDeadline = "24:00";
+    private string _driver2DailyRestDeadline = "—";
     private string _driver2WeeklyRestDeadline = "—/6 (—)";
     private int _cardDialogSlot = 1;
     private double _currentSpeed;
@@ -160,7 +161,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private string _startCountryIso = "PL";
     private string _endCountryIso = "PL";
     private string _fortnightlyDriving = "00:00";
-    private string _dailyRestDeadline = "24:00";
+    private string _dailyRestDeadline = "—";
     private string _weeklyRestDeadline = "—/6 (—)";
     private string _currentActivityDuration = "00:00";
     private DriverActivity? _lastDisplayedActivity;
@@ -243,6 +244,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _defaultDriverCardId = driverCardId;
         _drivingThreshold = savedSettings.DrivingSpeedThresholdKph;
         _weekOffset = savedSettings.WeekEpochOffsetDays;
+        _gameCalendar = new GameCalendarResolver(
+            new GameCalendarContext(crew.Engine.WeekEpochOffsetDays));
         _telemetry = telemetry;
         _diagnostics = diagnostics;
         JourneyPlanner = new JourneyPlannerViewModel(new JourneyPlannerService(crew));
@@ -785,15 +788,19 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             CompensationOverdue = driverRules.CompensationSummary.HasOverdue;
             CompensationForeground = CompensationOverdue ? "#FF6B6B" : "#91A4B7";
             CompensationOverview = global::ETS2Tachograph.Desktop.CompensationOverview.From(
-                WeeklyRestCompensationDtoMapper.MapAll(driverRules.CompensationObligations));
+                WeeklyRestCompensationDtoMapper.MapAll(driverRules.CompensationObligations),
+                _gameCalendar);
             DailyExtensionsExceeded = state.DailyExtensionsUsedThisWeek > 2;
             ReducedDailyRestsExceeded = state.ReducedDailyRestsSinceWeeklyRest > 3;
             WeeklyDriving = Format(state.WeeklyDrivingMinutes);
             FortnightlyDriving = Format(state.FortnightlyDrivingMinutes);
-            DailyRestDeadline = Format(state.MinutesUntilDailyRestDeadline);
-            WeeklyRestDeadline = WeeklyRestWindowFormatter.Format(
+            DailyRestDeadline = FormatDeviceDeadline(
+                state.DailyRestCompletionDeadlineGameMinute,
+                GameDeadlineSemantic.CompleteBy);
+            WeeklyRestDeadline = WeeklyRestWindowFormatter.FormatDevice(
                 state.WeeklyRestWindowElapsedMinutes,
-                state.WeeklyRestStartDeadlineGameMinute);
+                state.WeeklyRestStartDeadlineGameMinute,
+                _gameCalendar);
         }
         else ResetDriver1Counters();
 
@@ -821,15 +828,19 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             Driver2CompensationOverdue = coRules.CompensationSummary.HasOverdue;
             Driver2CompensationForeground = Driver2CompensationOverdue ? "#FF6B6B" : "#91A4B7";
             Driver2CompensationOverview = CompensationOverview.From(
-                WeeklyRestCompensationDtoMapper.MapAll(coRules.CompensationObligations));
+                WeeklyRestCompensationDtoMapper.MapAll(coRules.CompensationObligations),
+                _gameCalendar);
             Driver2DailyExtensionsExceeded = state.DailyExtensionsUsedThisWeek > 2;
             Driver2ReducedDailyRestsExceeded = state.ReducedDailyRestsSinceWeeklyRest > 3;
             Driver2WeeklyDriving = Format(state.WeeklyDrivingMinutes);
             Driver2FortnightlyDriving = Format(state.FortnightlyDrivingMinutes);
-            Driver2DailyRestDeadline = Format(state.MinutesUntilDailyRestDeadline);
-            Driver2WeeklyRestDeadline = WeeklyRestWindowFormatter.Format(
+            Driver2DailyRestDeadline = FormatDeviceDeadline(
+                state.DailyRestCompletionDeadlineGameMinute,
+                GameDeadlineSemantic.CompleteBy);
+            Driver2WeeklyRestDeadline = WeeklyRestWindowFormatter.FormatDevice(
                 state.WeeklyRestWindowElapsedMinutes,
-                state.WeeklyRestStartDeadlineGameMinute);
+                state.WeeklyRestStartDeadlineGameMinute,
+                _gameCalendar);
         }
         else ResetDriver2Counters();
         UpdateRestCounters2(snapshot);
@@ -862,7 +873,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         CompensationOverview = global::ETS2Tachograph.Desktop.CompensationOverview.Empty;
         DailyExtensionsExceeded = false; ReducedDailyRestsExceeded = false;
         WeeklyDriving = "00:00"; FortnightlyDriving = "00:00";
-        DailyRestDeadline = "24:00"; WeeklyRestDeadline = "—/6 (—)";
+        DailyRestDeadline = "—"; WeeklyRestDeadline = "—/6 (—)";
     }
 
     private void ResetDriver2Counters()
@@ -875,7 +886,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         Driver2CompensationOverview = CompensationOverview.Empty;
         Driver2DailyExtensionsExceeded = false; Driver2ReducedDailyRestsExceeded = false;
         Driver2FortnightlyDriving = "00:00";
-        Driver2DailyRestDeadline = "24:00"; Driver2WeeklyRestDeadline = "—/6 (—)";
+        Driver2DailyRestDeadline = "—"; Driver2WeeklyRestDeadline = "—/6 (—)";
     }
 
     private void SetActivity(DriverActivity activity)
@@ -2269,7 +2280,10 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             CompensationDetails.Clear();
             PendingRestAllocationChoices.Clear();
             foreach (var row in projection.CompensationObligations
-                         .Select(item => CompensationDetailRow.From("KARTA", item))
+                         .Select(item => CompensationDetailRow.From(
+                             "KARTA",
+                             item,
+                             _gameCalendar))
                          .OrderBy(item => item.IsOpen ? 0 : 1)
                          .ThenBy(item => item.DueAtGameMinuteExclusive)
                          .ThenBy(item => item.ObligationId, StringComparer.Ordinal))
@@ -2343,6 +2357,18 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             _diagnostics.Error("CLIPBOARD_COPY_FAILED", exception);
             OperationStatus = $"Nie udało się skopiować identyfikatora: {exception.Message}";
         }
+    }
+
+    private string FormatDeviceDeadline(
+        long deadlineGameMinute,
+        GameDeadlineSemantic semantic)
+    {
+        if (deadlineGameMinute < 0)
+            return "—";
+
+        return GameDeadlineFormatter.FormatDevice(new DeadlinePresentation(
+            semantic,
+            _gameCalendar.Resolve(new GameTime(deadlineGameMinute))));
     }
 
     private static string Format(long minutes) => minutes < 0 ? $"-{Format(-minutes)}" : $"{minutes / 60:00}:{minutes % 60:00}";

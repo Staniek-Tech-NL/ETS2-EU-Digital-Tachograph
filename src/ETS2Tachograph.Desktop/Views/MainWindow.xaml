@@ -93,7 +93,7 @@
                                         <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition Width="1.7*"/><ColumnDefinition Width="1.35*"/></Grid.ColumnDefinitions>
                                         <StackPanel><TextBlock Text="OTWARTE" FontSize="9" Foreground="#5F6874"/><TextBlock Text="{Binding CompensationOverview.OpenCount}" FontFamily="Consolas" FontWeight="Bold"/></StackPanel>
                                         <StackPanel Grid.Column="1"><TextBlock Text="DŁUG" FontSize="9" Foreground="#5F6874"/><TextBlock Text="{Binding CompensationOverview.TotalDebtText}" FontFamily="Consolas" FontWeight="Bold"/></StackPanel>
-                                        <StackPanel Grid.Column="2"><TextBlock Text="NAJBLIŻSZY TERMIN" FontSize="9" Foreground="#5F6874"/><TextBlock Text="{Binding CompensationOverview.NearestDueText}" FontFamily="Consolas" FontSize="11" FontWeight="Bold" TextTrimming="CharacterEllipsis"/></StackPanel>
+                                        <StackPanel Grid.Column="2"><TextBlock Text="UKOŃCZ PRZED" FontSize="9" Foreground="#5F6874"/><TextBlock Text="{Binding CompensationOverview.NearestDueCompactText}" ToolTip="{Binding CompensationOverview.NearestDueText}" FontFamily="Consolas" FontSize="11" FontWeight="Bold" TextTrimming="CharacterEllipsis"/></StackPanel>
                                         <StackPanel Grid.Column="3"><TextBlock Text="STATUS" FontSize="9" Foreground="#5F6874"/><TextBlock Text="{Binding CompensationOverview.StatusText}" Foreground="{Binding CompensationOverview.StatusForeground}" FontSize="10" FontWeight="Bold" TextWrapping="Wrap"/></StackPanel>
                                     </Grid>
                                 </Border>
@@ -130,7 +130,7 @@
                                         <Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition/><ColumnDefinition Width="1.7*"/><ColumnDefinition Width="1.35*"/></Grid.ColumnDefinitions>
                                         <StackPanel><TextBlock Text="OTWARTE" FontSize="9" Foreground="#5F6874"/><TextBlock Text="{Binding Driver2CompensationOverview.OpenCount}" FontFamily="Consolas" FontWeight="Bold"/></StackPanel>
                                         <StackPanel Grid.Column="1"><TextBlock Text="DŁUG" FontSize="9" Foreground="#5F6874"/><TextBlock Text="{Binding Driver2CompensationOverview.TotalDebtText}" FontFamily="Consolas" FontWeight="Bold"/></StackPanel>
-                                        <StackPanel Grid.Column="2"><TextBlock Text="NAJBLIŻSZY TERMIN" FontSize="9" Foreground="#5F6874"/><TextBlock Text="{Binding Driver2CompensationOverview.NearestDueText}" FontFamily="Consolas" FontSize="11" FontWeight="Bold" TextTrimming="CharacterEllipsis"/></StackPanel>
+                                        <StackPanel Grid.Column="2"><TextBlock Text="UKOŃCZ PRZED" FontSize="9" Foreground="#5F6874"/><TextBlock Text="{Binding Driver2CompensationOverview.NearestDueCompactText}" ToolTip="{Binding Driver2CompensationOverview.NearestDueText}" FontFamily="Consolas" FontSize="11" FontWeight="Bold" TextTrimming="CharacterEllipsis"/></StackPanel>
                                         <StackPanel Grid.Column="3"><TextBlock Text="STATUS" FontSize="9" Foreground="#5F6874"/><TextBlock Text="{Binding Driver2CompensationOverview.StatusText}" Foreground="{Binding Driver2CompensationOverview.StatusForeground}" FontSize="10" FontWeight="Bold" TextWrapping="Wrap"/></StackPanel>
                                     </Grid>
                                 </Border>

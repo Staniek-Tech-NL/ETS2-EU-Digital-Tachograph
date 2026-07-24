@@ -16,8 +16,9 @@
 |---|---|---|---|---|
 | **M0** | Stabilizacja stanu wejściowego | 🟢 GO | GO | M1 |
 | **M1** | Planer: kontrakty i czerwone testy | 🟢 rozszerzony o załogę | GO | M2 |
-| **M2** | Planer: silnik zdarzeniowy | 🟢 rozszerzenie załogi domknięte | GO | M3 |
-| **M3** | Planer: Application Service i UI | 🔴 HOLD — oczekuje na integrację załogi | HOLD | M4 |
+| **M2** | Planer: silnik zdarzeniowy | 🟢 rozszerzenie załogi domknięte | GO | M3A |
+| **M3A** | Game Calendar & Deadline Presentation | 🔴 automatycznie domknięty / oczekuje na ręczny gate UI | HOLD | M3 |
+| **M3** | Planer: Application Service i UI | 🔴 HOLD — wymaga `M2-CREW GO AND M3A GO` | HOLD | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
@@ -169,10 +170,41 @@ regresja `41+3=44` zielona 2026-07-24).
 
 ---
 
-## M3 — Planer: Application Service i UI (HOLD — BRAK INTEGRACJI ZAŁOGI)
+## M3A — Game Calendar & Deadline Presentation
 
-**Kryterium wejścia:** zielony silnik M2. **Stan:** spełnione, łącznie z
-rozszerzeniem załogi domkniętym w `0178d4c`.
+**M3A-0:** **PASS Z UWAGĄ FORMALIZACYJNĄ**. Istniejąca semantyka
+`GameWeek.From` zostaje formalnie określona jako tydzień rozpoczynający się w
+poniedziałek 00:00 w kalendarzu gry przesuniętym przez surowy
+`WeekEpochOffsetDays`.
+
+- **Specyfikacja:** **ZATWIERDZONA — GO**
+- **Implementacja:** **AUTOMATYCZNIE DOMKNIĘTA — HOLD DO RĘCZNEGO GATE’U UI**
+- **Zakres pierwszej tury:** `ODP. DZIENNY`, `ODP. TYG.`, terminy rekompensat
+- **Poza pierwszą turą:** `DO PRZERWY`, Planer rynku, problem 44/45
+- **Dokument:** `docs/PLAN_BETA_12_M0-M8/M3A_GAME_CALENDAR_AND_DEADLINE_PRESENTATION.md`
+
+M3A nie dodaje nowego anchoru, nie zmienia znaczenia offsetu i nie normalizuje
+wartości `-6…6`. Core ma pozostać jednym źródłem kanonicznych granic tygodnia.
+
+Wynik automatyczny 2026-07-24:
+
+- publiczne granice Core zgodne z dotychczasową formułą dla
+  `{-1, 0, +1, +6}`;
+- RuleEngine 157/157;
+- pełna regresja Release 478/478;
+- build Release 0 błędów / 0 ostrzeżeń;
+- odtworzenie historii warm + hot oraz ponowne zastosowanie zapisanej decyzji
+  rekompensaty po restarcie mają test regresyjny;
+- brak nowych błędów P0/P1 w gate’ach automatycznych.
+
+Do formalnego M3A GO pozostają `M3A-UI-01…04` oraz pełna ręczna checklista UI.
+
+---
+
+## M3 — Planer: Application Service i UI (HOLD — M3A WYMAGANE)
+
+**Kryterium wejścia:** `M2-CREW GO AND M3A GO`. **Stan:** M2-CREW spełnione;
+specyfikacja M3A zatwierdzona, implementacja M3A pozostaje do wykonania.
 
 ### Gate M3
 

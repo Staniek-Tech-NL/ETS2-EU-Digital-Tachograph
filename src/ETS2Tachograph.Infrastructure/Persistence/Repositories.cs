@@ -696,6 +696,61 @@ public sealed class ActivityRepository :
         return MapSessions(driverCardId, sessions);
     }
 
+    public async Task<IReadOnlyList<StoredActivitySession>> LoadRestorationSessionsAsync(
+        string driverCardId,
+        CancellationToken cancellationToken = default)
+    {
+        var sessions = (await LoadSessionsAsync(driverCardId, cancellationToken)).ToList();
+        var warmRecords = (await context.WarmActivityBlocks.AsNoTracking()
+                .Where(x => x.DriverCardId == driverCardId)
+                .OrderBy(x => x.StartGameMinute)
+                .ToListAsync(cancellationToken))
+            .Select(MapWarm)
+            .ToList();
+        if (warmRecords.Count == 0)
+            return sessions;
+
+        if (sessions.Count == 0)
+        {
+            return
+            [
+                new StoredActivitySession(
+                    0,
+                    warmRecords[0].Start,
+                    warmRecords)
+            ];
+        }
+
+        var highWaterMark = await context.ActivityRetentionStates.AsNoTracking()
+            .Where(x => x.DriverCardId == driverCardId)
+            .Select(x => (long?)x.HighWaterMarkGameMinute)
+            .SingleOrDefaultAsync(cancellationToken);
+        var warmThreshold = (highWaterMark ?? 0) -
+                            ActivityRetentionPolicy.HotWindowMinutes;
+        var warmHostIndex = sessions.FindLastIndex(session =>
+            session.StartedAt.TotalMinutes <= warmThreshold);
+        if (warmHostIndex < 0)
+            warmHostIndex = 0;
+
+        for (var index = 0; index < warmHostIndex; index++)
+        {
+            sessions[index] = sessions[index] with
+            {
+                Records = []
+            };
+        }
+
+        var warmHost = sessions[warmHostIndex];
+        sessions[warmHostIndex] = warmHost with
+        {
+            Records = warmRecords
+                .Concat(warmHost.Records)
+                .OrderBy(record => record.Start)
+                .ToList()
+        };
+        return sessions;
+    }
+
     public async Task<IReadOnlyList<StoredActivitySession>> LoadRawSessionsAsync(
         string driverCardId, CancellationToken cancellationToken = default)
     {

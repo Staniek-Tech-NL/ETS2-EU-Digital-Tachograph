@@ -30,7 +30,9 @@ public sealed class CrewTachographService(
             var result = await retention.ArchiveCardAsync(cardId, cancellationToken);
             _highWaterMarks[cardId] = result.HighWaterMarkGameMinute;
         }
-        var sessions = await activities.LoadSessionsAsync(cardId, cancellationToken);
+        var sessions = await activities.LoadRestorationSessionsAsync(
+            cardId,
+            cancellationToken);
         engine.RegisterCard(cardId, sessions.Select(x => new RestoredActivitySession(
             x.SessionIndex,
             x.StartedAt,

@@ -167,10 +167,13 @@ public sealed class TachographEngine : ITachographEngine
 
     private void RefreshModeState()
     {
-        var regulation = Current.Frame is null
+        var regulationRecords = _history.RegulationRecords();
+        var ruleTime = Current.Frame?.GameTime ??
+                       regulationRecords.LastOrDefault()?.EndExclusive;
+        var regulation = ruleTime is null
             ? Current.Regulation
             : _rules.Evaluate(
-                new RuleContext(Current.Frame.GameTime, _history.RegulationRecords()),
+                new RuleContext(ruleTime.Value, regulationRecords),
                 new RegulationOptions
                 {
                     MultiManning = MultiManningEnabled,

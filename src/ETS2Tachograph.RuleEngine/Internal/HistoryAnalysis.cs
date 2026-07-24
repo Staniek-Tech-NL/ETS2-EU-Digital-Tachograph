@@ -98,8 +98,7 @@ internal static class HistoryAnalysis
 
     public static (long Start, long End) WeekBounds(GameWeek week, int offsetDays)
     {
-        var start = checked((week.Index * GameWeek.MinutesPerWeek) -
-            ((long)offsetDays * GameWeek.MinutesPerDay));
-        return (start, start + GameWeek.MinutesPerWeek);
+        var bounds = week.GetBounds(offsetDays);
+        return (bounds.StartGameMinute, bounds.EndGameMinuteExclusive);
     }
 }

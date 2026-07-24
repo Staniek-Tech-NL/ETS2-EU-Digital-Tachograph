@@ -113,6 +113,8 @@ public sealed class RegulationEngine
             ReducedDailyRestsSinceWeeklyRest = reducedDailyRests,
             MinutesUntilBreak = ContinuousDrivingLimit - continuousDriving,
             MinutesUntilDailyRestDeadline = dailyWindow - (context.Now - dailyAnchor),
+            DailyRestCompletionDeadlineGameMinute =
+                dailyAnchor.AddMinutes(dailyWindow).TotalMinutes,
             MinutesUntilWeeklyRestDeadline = 8_640 - (weeklyWindowElapsed ?? 0),
             WeeklyRestWindowElapsedMinutes = weeklyWindowElapsed,
             WeeklyRestStartDeadlineGameMinute = weeklyStartDeadline?.TotalMinutes,
@@ -496,9 +498,10 @@ public sealed class RegulationEngine
         int offsetDays)
     {
         var reductionWeek = GameWeek.From(run.Start, offsetDays);
-        var dueAtExclusive = new GameTime(checked(
-            ((reductionWeek.Index + 4) * GameWeek.MinutesPerWeek) -
-            ((long)offsetDays * GameWeek.MinutesPerDay)));
+        var dueAtExclusive = new GameTime(
+            new GameWeek(checked(reductionWeek.Index + 4))
+                .GetBounds(offsetDays)
+                .StartGameMinute);
         return new WeeklyRestCompensation
         {
             IdentitySchemeVersion = CompensationIdentity.SchemeVersion,

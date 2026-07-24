@@ -80,6 +80,68 @@ public sealed class RestAllocationDecisionSqliteRestartTests
     }
 
     [Fact]
+    public async Task Crew_registration_reapplies_persisted_payment_decision_before_showing_compensation()
+    {
+        var databasePath = TempDatabasePath();
+        var connectionString = ConnectionString(databasePath);
+        try
+        {
+            await using (var context = CreateContext(connectionString))
+            {
+                await SeedAsync(context);
+                var activityRepository = new ActivityRepository(context);
+                await SaveHistoryAsync(activityRepository);
+                var decisionRepository = new RestAllocationRepository(context);
+                var allocationService = new RestAllocationService(
+                    activityRepository,
+                    decisionRepository);
+                var pending = await allocationService.EvaluateAsync(
+                    CardId,
+                    new GameTime(3_301));
+                var allocation = Assert.Single(pending.PendingRestAllocations);
+                var repayment = Assert.Single(allocation.Candidates, item =>
+                    item.Purpose == RestAllocationPurpose.DailyRestWithCompensation);
+                await allocationService.DecideAsync(
+                    CardId,
+                    allocation.RestBlockId,
+                    repayment.CandidateId,
+                    new GameTime(3_301),
+                    DateTimeOffset.UnixEpoch.AddMinutes(3_301));
+                await activityRepository.ObserveGameTimeAsync(
+                    CardId,
+                    new GameTime(
+                        1_507 + ActivityRetentionPolicy.HotWindowMinutes));
+                await activityRepository.ArchiveWarmAsync(CardId);
+            }
+
+            await using (var context = CreateContext(connectionString))
+            {
+                var activityRepository = new ActivityRepository(context);
+                var decisionRepository = new RestAllocationRepository(context);
+                var crew = new CrewTachographService(
+                    new ETS2Tachograph.Engine.CrewTachographEngine(),
+                    activityRepository,
+                    restAllocations: decisionRepository);
+
+                await crew.RegisterCardAsync(CardId);
+
+                var regulation = crew.Engine.GetEngine(CardId)!.Current.Regulation!;
+                var obligation = Assert.Single(regulation.CompensationObligations);
+                Assert.Equal(0, obligation.RemainingMinutes);
+                Assert.Equal(
+                    WeeklyRestCompensationStatus.PaidOnTime,
+                    obligation.Status);
+                Assert.Empty(regulation.Compensations);
+            }
+        }
+        finally
+        {
+            SqliteConnection.ClearAllPools();
+            DeleteDatabase(databasePath);
+        }
+    }
+
+    [Fact]
     public async Task Saving_new_choice_supersedes_previous_active_decision()
     {
         var databasePath = TempDatabasePath();
