@@ -190,7 +190,7 @@ została prawidłowo wykonana i zapisana, natomiast zoptymalizowany odczyt histo
 usuwał jej źródłowy odpoczynek podczas ponownego stosowania granicy pustej
 starszej sesji. Odczyt warm został poprawiony bez unieważniania decyzji i bez
 wymagania ponownego wyboru; oba przypadki mają regresje automatyczne. Wymagany
-jest ponowny test ręczny użytkownika.
+jest ponowny test ręczny użytkownika. Naprawa rekompensaty: `af97b39`.
 
 ---
 

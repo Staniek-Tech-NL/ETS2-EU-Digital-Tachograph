@@ -142,6 +142,7 @@ Po potwierdzeniu tej checklisty wynik M3 można zmienić z **HOLD** na **GO** i 
 - Poprawki Planera i retencji historii mają testy regresyjne. Pełny gate po
   poprawkach: 402/402, build Release 0 błędów / 0 ostrzeżeń.
 - **Commit poprawki Planera po smoke:** `95f9777`.
+- **Commit naprawy wykonanej rekompensaty:** `af97b39`.
 
 ---
 
