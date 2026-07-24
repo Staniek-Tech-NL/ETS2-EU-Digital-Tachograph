@@ -55,7 +55,7 @@ public sealed class JourneyPlannerService(
             var gapsTask = crew.LoadDriverGapsAsync(cardId, cancellationToken);
             await Task.WhenAll(historyTask, gapsTask);
             var afterLoad = crew.Current;
-            if (!ReferenceEquals(captured, afterLoad))
+            if (!SamePlanningState(captured, afterLoad, driverSlot))
             {
                 continue;
             }
@@ -138,7 +138,7 @@ public sealed class JourneyPlannerService(
         {
             if (!_snapshotOwners.TryGetValue(identity.DriverSlot, out var owner) ||
                 owner.Identity != identity ||
-                !ReferenceEquals(owner.Owner, current))
+                !SamePlanningState(owner.Owner, current, identity.DriverSlot))
             {
                 return false;
             }
@@ -152,6 +152,39 @@ public sealed class JourneyPlannerService(
             identity.WorldGeneration == (current.Frame?.WorldGeneration ?? 0) &&
             identity.WeekEpochOffsetDays == crew.Engine.WeekEpochOffsetDays;
     }
+
+    private static bool SamePlanningState(
+        CrewTachographSnapshot left,
+        CrewTachographSnapshot right,
+        int driverSlot)
+    {
+        var leftCard = CardId(left, driverSlot);
+        var rightCard = CardId(right, driverSlot);
+        var leftTachograph = Tachograph(left, driverSlot);
+        var rightTachograph = Tachograph(right, driverSlot);
+
+        return string.Equals(leftCard, rightCard, StringComparison.OrdinalIgnoreCase) &&
+            leftTachograph is not null &&
+            rightTachograph is not null &&
+            leftTachograph.SessionIndex == rightTachograph.SessionIndex &&
+            leftTachograph.ManualActivity == rightTachograph.ManualActivity &&
+            leftTachograph.OutModeEnabled == rightTachograph.OutModeEnabled &&
+            leftTachograph.FerryModeEnabled == rightTachograph.FerryModeEnabled &&
+            leftTachograph.Regulation?.State == rightTachograph.Regulation?.State &&
+            left.MultiManning == right.MultiManning &&
+            left.Frame?.GameTime.TotalMinutes == right.Frame?.GameTime.TotalMinutes &&
+            left.Frame?.WorldGeneration == right.Frame?.WorldGeneration &&
+            SameGaps(leftTachograph.CurrentSessionGaps, rightTachograph.CurrentSessionGaps);
+    }
+
+    private static bool SameGaps(
+        IReadOnlyList<ETS2Tachograph.Core.Entities.ActivityGap> left,
+        IReadOnlyList<ETS2Tachograph.Core.Entities.ActivityGap> right) =>
+        left.Count == right.Count &&
+        left.Zip(right).All(pair =>
+            pair.First.Id == pair.Second.Id &&
+            pair.First.State == pair.Second.State &&
+            pair.First.EndExclusive == pair.Second.EndExclusive);
 
     private static string? CardId(CrewTachographSnapshot snapshot, int slot) =>
         slot == 1 ? snapshot.DriverCardId : snapshot.CoDriverCardId;

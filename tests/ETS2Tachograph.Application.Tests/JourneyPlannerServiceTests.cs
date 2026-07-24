@@ -52,6 +52,20 @@ public sealed class JourneyPlannerServiceTests
     }
 
     [Fact]
+    public async Task Same_minute_telemetry_during_snapshot_load_does_not_block_planning()
+    {
+        var repository = new RecordingRepository();
+        var crew = await CreateCrewAsync(repository, TachographSlot.Driver, "S1");
+        var planner = new JourneyPlannerService(crew);
+        repository.BeforeHistoryRead = () => crew.Engine.ProcessFrame(Frame(100));
+
+        var result = await planner.PlanAsync(new JourneyPlannerInput(1, 60, 120, 0));
+
+        Assert.Equal(JourneyPlanStatus.MeetsDeadline, result.Status);
+        Assert.True(planner.IsCurrent(result.SnapshotIdentity));
+    }
+
+    [Fact]
     public async Task Missing_card_returns_controlled_insufficient_data()
     {
         var crew = new CrewTachographService(
@@ -88,6 +102,7 @@ public sealed class JourneyPlannerServiceTests
     {
         private readonly Dictionary<(string Card, int Session), StoredActivitySession> _sessions = [];
         internal int WriteCount { get; private set; }
+        internal Action? BeforeHistoryRead { get; set; }
 
         public Task EnsureSessionAsync(
             string driverCardId,
@@ -140,11 +155,14 @@ public sealed class JourneyPlannerServiceTests
             string driverCardId,
             GameTime? from = null,
             GameTime? toExclusive = null,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult<IReadOnlyList<ActivityRecord>>(_sessions
+            CancellationToken cancellationToken = default)
+        {
+            BeforeHistoryRead?.Invoke();
+            return Task.FromResult<IReadOnlyList<ActivityRecord>>(_sessions
                 .Where(pair => pair.Key.Card == driverCardId)
                 .SelectMany(pair => pair.Value.Records)
                 .ToArray());
+        }
 
         public Task<IReadOnlyList<StoredActivitySession>> LoadSessionsAsync(
             string driverCardId,

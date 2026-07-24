@@ -107,7 +107,7 @@ Planer nie może zapisywać hipotetycznych aktywności do SQLite, modyfikować p
 - **Wynik:** **HOLD** — oczekiwanie wyłącznie na końcowy test ręczny użytkownika
 - **Commit / punkt przywracania:** `e8efc61` — implementacja Application Service i UI M3
 - **Build Release:** 0 błędów / 0 ostrzeżeń
-- **Testy automatyczne:** 400/400
+- **Testy automatyczne:** 402/402
 - **Testy manualne / dowody:** kontrolny smoke wizualny aplikacji przy 1280×800 zielony; końcowy test ręczny wykonuje użytkownik
 - **Otwarte błędy P0:** 0
 - **Otwarte błędy P1:** 0
@@ -124,6 +124,19 @@ Planer nie może zapisywać hipotetycznych aktywności do SQLite, modyfikować p
 - [ ] Ostrzeżenia oraz powody segmentów, w tym `CalendarWait`, są czytelne, gdy występują.
 
 Po potwierdzeniu tej checklisty wynik M3 można zmienić z **HOLD** na **GO** i otworzyć M4.
+
+## Poprawki po pierwszym smoke użytkownika
+
+- Planer odrzucał obliczenie przy aktywnej telemetrii, ponieważ porównywał
+  referencje kolejnych snapshotów zamiast ich istotnego stanu. Porównanie jest
+  teraz semantyczne; nowa klatka w tej samej minucie i bez zmiany stanu prawnego
+  nie unieważnia obliczenia.
+- Karta Staniek miała zapisaną decyzję rozliczenia, której kandydat przestał
+  pasować do aktualnej projekcji historii. Taki przypadek z jednym bieżącym
+  kandydatem jest teraz ponownie oznaczany jako wymagający wyboru i pojawia się
+  w panelu rozliczenia zamiast znikać z widoku.
+- Obie poprawki mają testy regresyjne. Pełny gate po poprawkach: 402/402,
+  build Release 0 błędów / 0 ostrzeżeń.
 
 ---
 

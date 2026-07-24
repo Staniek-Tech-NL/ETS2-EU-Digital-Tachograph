@@ -176,12 +176,16 @@ regresja `41+3=44` zielona 2026-07-24).
 - **Wynik:** **HOLD** — użytkownik wykona końcowy test ręczny
 - **Commit / punkt przywracania:** `e8efc61` — implementacja Application Service i UI M3
 - **Build Release:** 0 błędów / 0 ostrzeżeń
-- **Testy automatyczne:** 400/400
+- **Testy automatyczne:** 402/402 po poprawkach z pierwszego smoke
 - **Testy manualne / dowody:** kontrolny smoke wizualny aplikacji zielony; pełna
   checklista ręczna pozostaje po stronie użytkownika
 - **Otwarte błędy P0:** 0
 - **Otwarte błędy P1:** 0
 - **Uwagi do następnego etapu:** M4 pozostaje zamknięty do czasu formalnego GO M3.
+
+Pierwszy smoke użytkownika wykrył dwa blokery: stale snapshot Planera przy
+telemetrii oraz ukrytą nieważną decyzję rekompensaty karty Staniek. Oba zostały
+poprawione i pokryte regresją; wymagany jest ponowny test ręczny użytkownika.
 
 ---
 
