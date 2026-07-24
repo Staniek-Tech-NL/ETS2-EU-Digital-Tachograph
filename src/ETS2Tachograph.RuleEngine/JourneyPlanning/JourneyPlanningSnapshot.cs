@@ -11,6 +11,7 @@ public sealed record JourneyPlanningSnapshot(
     RegulationEvaluation Evaluation,
     IReadOnlyList<ActivityRecord> History,
     IReadOnlyList<ActivityGap> Gaps,
+    int WeekEpochOffsetDays,
     bool MultiManningActive,
     bool TelemetryAvailable)
 {
@@ -19,7 +20,8 @@ public sealed record JourneyPlanningSnapshot(
         StartGameMinute,
         ActivitySessionId,
         WorldGeneration,
-        HistoryHighWaterMark);
+        HistoryHighWaterMark,
+        WeekEpochOffsetDays);
 }
 
 public sealed record JourneyPlanSnapshotIdentity(
@@ -27,7 +29,8 @@ public sealed record JourneyPlanSnapshotIdentity(
     long StartGameMinute,
     Guid ActivitySessionId,
     long WorldGeneration,
-    long HistoryHighWaterMark)
+    long HistoryHighWaterMark,
+    int WeekEpochOffsetDays)
 {
     public JourneyPlanSnapshotMismatch CompareTo(JourneyPlanningSnapshot current)
     {
@@ -56,6 +59,11 @@ public sealed record JourneyPlanSnapshotIdentity(
         if (HistoryHighWaterMark != current.HistoryHighWaterMark)
         {
             return JourneyPlanSnapshotMismatch.HistoryChanged;
+        }
+
+        if (WeekEpochOffsetDays != current.WeekEpochOffsetDays)
+        {
+            return JourneyPlanSnapshotMismatch.WeekDefinitionChanged;
         }
 
         return StartGameMinute == current.StartGameMinute

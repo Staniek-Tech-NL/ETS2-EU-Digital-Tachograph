@@ -67,6 +67,7 @@ public sealed class JourneyPlanningContractTests
     [InlineData(nameof(JourneyPlanningSnapshot.ActivitySessionId), JourneyPlanSnapshotMismatch.ActivitySessionChanged)]
     [InlineData(nameof(JourneyPlanningSnapshot.WorldGeneration), JourneyPlanSnapshotMismatch.WorldGenerationChanged)]
     [InlineData(nameof(JourneyPlanningSnapshot.HistoryHighWaterMark), JourneyPlanSnapshotMismatch.HistoryChanged)]
+    [InlineData(nameof(JourneyPlanningSnapshot.WeekEpochOffsetDays), JourneyPlanSnapshotMismatch.WeekDefinitionChanged)]
     [InlineData(nameof(JourneyPlanningSnapshot.StartGameMinute), JourneyPlanSnapshotMismatch.StartGameMinuteChanged)]
     [Trait("Stage", "M1Contract")]
     public void Snapshot_identity_detects_every_change_that_invalidates_a_result(
@@ -80,6 +81,7 @@ public sealed class JourneyPlanningContractTests
             nameof(JourneyPlanningSnapshot.ActivitySessionId) => original with { ActivitySessionId = Guid.NewGuid() },
             nameof(JourneyPlanningSnapshot.WorldGeneration) => original with { WorldGeneration = 8 },
             nameof(JourneyPlanningSnapshot.HistoryHighWaterMark) => original with { HistoryHighWaterMark = 43 },
+            nameof(JourneyPlanningSnapshot.WeekEpochOffsetDays) => original with { WeekEpochOffsetDays = 1 },
             nameof(JourneyPlanningSnapshot.StartGameMinute) => original with { StartGameMinute = 1_001 },
             _ => throw new ArgumentOutOfRangeException(nameof(changedMember))
         };

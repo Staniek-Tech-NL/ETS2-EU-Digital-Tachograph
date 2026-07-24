@@ -91,7 +91,7 @@ Planer nie może zapisywać hipotetycznych aktywności do SQLite, modyfikować p
 - **Data rozpoczęcia:** 2026-07-24
 - **Data zakończenia:** 2026-07-24
 - **Wynik:** **GO**
-- **Commit / punkt przywracania:** bieżące drzewo robocze M1; commit nieutworzony
+- **Commit / punkt przywracania:** `879eda5` — kontrakty i czerwone testy M1
 - **Build Release:** 0 błędów / 0 ostrzeżeń
 - **Testy automatyczne:** regresja + kontrakty M1 355/355; pakiet `Stage=M2Red`
   13/13 prawidłowo czerwony na celowej granicy `NotImplementedException`

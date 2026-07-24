@@ -4,10 +4,10 @@
 **Funkcja:** Planer podróży — strategia „Najwcześniejsza legalna”  
 **Wersja dokumentu:** 2.2 — aktualizacja po beta.11.1 i lokalnych zmianach UI
 **Status specyfikacji:** **ZATWIERDZONA DLA BETA.12 (M1 GO 2026-07-24)**
-**Status implementacji:** **M1 ZAKOŃCZONY — ALGORYTM M2 NIEZAIMPLEMENTOWANY**
+**Status implementacji:** **M2 ZAKOŃCZONY — SILNIK ZDARZENIOWY GOTOWY**
 **Gate przed implementacją:** M0 zakończony formalnym GO; decyzja właściciela
 o rozpoczęciu Planera została wydana 2026-07-24. Kontrakty i czerwone testy M1
-są gotowe, a implementacja algorytmu pozostaje zakresem M2.
+są gotowe, a implementacja algorytmu M2 otrzymała GO 2026-07-24.
 **Dokument przeglądu:** `JOURNEY_PLANNER_MVP_REVIEW_REPORT.md`  
 **Raport terenowy:** `FIELD_TEST_REPORT_2026-07-21.md`
 
@@ -27,7 +27,9 @@ beta.12. Przy materializacji kontraktów doprecyzowano dwie niespójności:
 - pole `RegulatoryActivity` używa istniejącego domenowego typu `DriverActivity`
   zamiast nieistniejącego `ActivityType`;
 - snapshot zawiera jawne `MultiManningActive`, ponieważ wybór S1/S2 nie może
-  sam aktywować okna 30 h.
+  sam aktywować okna 30 h;
+- snapshot i jego tożsamość zawierają `WeekEpochOffsetDays`, aby granice 56/90 h
+  były identyczne z granicami używanymi przez RuleEngine.
 
 Po przeglądzie pierwotnego planu zaktualizowano specyfikację w zakresie:
 
@@ -342,6 +344,7 @@ public sealed record JourneyPlanningSnapshot(
     RegulationEvaluation Evaluation,
     IReadOnlyList<ActivityRecord> History,
     IReadOnlyList<ActivityGap> Gaps,
+    int WeekEpochOffsetDays,
     bool MultiManningActive,
     bool TelemetryAvailable);
 ```
@@ -750,7 +753,8 @@ public sealed record JourneyPlanSnapshotIdentity(
     long StartGameMinute,
     Guid ActivitySessionId,
     long WorldGeneration,
-    long HistoryHighWaterMark);
+    long HistoryHighWaterMark,
+    int WeekEpochOffsetDays);
 ```
 
 ### 15.3 `JourneyPlanUsageSummary`

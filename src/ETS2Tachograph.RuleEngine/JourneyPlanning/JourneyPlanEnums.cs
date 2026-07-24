@@ -76,5 +76,6 @@ public enum JourneyPlanSnapshotMismatch
     ActivitySessionChanged,
     WorldGenerationChanged,
     HistoryChanged,
+    WeekDefinitionChanged,
     StartGameMinuteChanged
 }

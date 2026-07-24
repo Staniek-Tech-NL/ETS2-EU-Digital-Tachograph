@@ -4,7 +4,7 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status początkowy:** **NIE ROZPOCZĘTY**  
+**Status:** **ZAKOŃCZONY — GO (2026-07-24)**
 **Kryterium wejścia:** Kontrakty M1 zaakceptowane; testy blokujące istnieją i prawidłowo zawodzą bez implementacji.  
 **Kryterium wyjścia:** Testy P0 i algorytmu zielone; deterministyczny wynik; kontrolowane zakończenie każdej kalkulacji.  
 **Następny etap:** M3
@@ -15,18 +15,18 @@
 
 ### Zadania
 
-- [ ] Zaimplementować stan roboczy i zdarzenia regulacyjne.
-- [ ] Zaimplementować jazdę ciągłą i przerwy.
-- [ ] Zaimplementować limity dzienne 9/10 h.
-- [ ] Zaimplementować odpoczynek dobowy 9/11 h z terminem ukończenia.
-- [ ] Zaimplementować limity 56 h i 90 h.
-- [ ] Zaimplementować `CalendarWait` bez podwójnego naliczania czasu.
-- [ ] Zaimplementować odpoczynki tygodniowe zgodnie z obecnym modelem.
-- [ ] Zaimplementować bufor jako `OtherWorkAfterArrival`.
-- [ ] Zaimplementować ograniczone rozgałęzienie i ranking wariantów.
-- [ ] Zaimplementować deduplikację stanów.
-- [ ] Zaimplementować gwarancję postępu i kontrolowane zakończenie.
-- [ ] Potwierdzić brak zapisu do bazy i brak modyfikacji prawdziwego stanu kierowcy.
+- [x] Zaimplementować stan roboczy i zdarzenia regulacyjne.
+- [x] Zaimplementować jazdę ciągłą i przerwy.
+- [x] Zaimplementować limity dzienne 9/10 h.
+- [x] Zaimplementować odpoczynek dobowy 9/11 h z terminem ukończenia.
+- [x] Zaimplementować limity 56 h i 90 h.
+- [x] Zaimplementować `CalendarWait` bez podwójnego naliczania czasu.
+- [x] Zaimplementować odpoczynki tygodniowe zgodnie z obecnym modelem.
+- [x] Zaimplementować bufor jako `OtherWorkAfterArrival`.
+- [x] Zaimplementować ograniczone rozgałęzienie i ranking wariantów.
+- [x] Zaimplementować deduplikację stanów.
+- [x] Zaimplementować gwarancję postępu i kontrolowane zakończenie.
+- [x] Potwierdzić brak zapisu do bazy i brak modyfikacji prawdziwego stanu kierowcy.
 
 ### Gate M2
 
@@ -95,16 +95,17 @@ Planer nie może zapisywać hipotetycznych aktywności do SQLite, modyfikować p
 
 ## Szablon aktualizacji statusu
 
-- **Data rozpoczęcia:**
-- **Data zakończenia:**
-- **Wynik:** `GO` / `FIX` / `HOLD` / `NIE DOTYCZY`
-- **Commit / punkt przywracania:**
-- **Build Release:**
-- **Testy automatyczne:**
-- **Testy manualne / dowody:**
-- **Otwarte błędy P0:**
-- **Otwarte błędy P1:**
-- **Uwagi do następnego etapu:**
+- **Data rozpoczęcia:** 2026-07-24
+- **Data zakończenia:** 2026-07-24
+- **Wynik:** **GO**
+- **Commit / punkt przywracania:** bieżące drzewo robocze M2; commit do utworzenia
+- **Build Release:** 0 błędów / 0 ostrzeżeń
+- **Testy automatyczne:** 385/385
+- **Testy manualne / dowody:** nie dotyczy — brak zmian UI
+- **Otwarte błędy P0:** 0
+- **Otwarte błędy P1:** 0
+- **Uwagi do następnego etapu:** M3 może zbudować atomowy snapshot w warstwie
+  Application, uruchomić silnik oraz obsłużyć stale snapshot i UI.
 
 ---
 

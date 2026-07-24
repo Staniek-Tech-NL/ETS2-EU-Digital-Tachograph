@@ -8,16 +8,27 @@ internal static class JourneyPlanningTestData
         long startGameMinute = 10_000,
         long weeklyDrivingMinutes = 0,
         long previousWeekDrivingMinutes = 0,
+        long continuousDrivingMinutes = 0,
+        long currentContinuousBreakMinutes = 0,
+        long dailyDrivingMinutes = 0,
         long minutesUntilDailyRestDeadline = 24 * 60,
+        long minutesUntilWeeklyRestDeadline = 6 * 24 * 60,
+        int dailyExtensionsUsed = 0,
         int reducedDailyRestsUsed = 0,
         bool pendingRestAllocation = false,
-        bool multiManningActive = false)
+        bool multiManningActive = false,
+        int weekEpochOffsetDays = 0)
     {
         var state = new RegulationState
         {
             WeeklyDrivingMinutes = weeklyDrivingMinutes,
             PreviousWeekDrivingMinutes = previousWeekDrivingMinutes,
+            ContinuousDrivingMinutes = continuousDrivingMinutes,
+            CurrentContinuousBreakMinutes = currentContinuousBreakMinutes,
+            DailyDrivingMinutes = dailyDrivingMinutes,
             MinutesUntilDailyRestDeadline = minutesUntilDailyRestDeadline,
+            MinutesUntilWeeklyRestDeadline = minutesUntilWeeklyRestDeadline,
+            DailyExtensionsUsedThisWeek = dailyExtensionsUsed,
             ReducedDailyRestsSinceWeeklyRest = reducedDailyRestsUsed,
             PendingRestAllocation = pendingRestAllocation,
             MinutesUntilBreak = 270
@@ -33,6 +44,7 @@ internal static class JourneyPlanningTestData
             Evaluation: evaluation,
             History: [],
             Gaps: [],
+            WeekEpochOffsetDays: weekEpochOffsetDays,
             MultiManningActive: multiManningActive,
             TelemetryAvailable: true);
     }

@@ -59,6 +59,16 @@ public sealed class JourneyPlanningSafetyRedTests
         var first = _engine.Plan(request);
         var second = _engine.Plan(request);
 
-        Assert.Equal(first, second);
+        Assert.Equal(first.Status, second.Status);
+        Assert.Equal(first.Confidence, second.Confidence);
+        Assert.Equal(first.StartGameMinute, second.StartGameMinute);
+        Assert.Equal(first.EarliestArrivalGameMinute, second.EarliestArrivalGameMinute);
+        Assert.Equal(first.EarliestCompletionGameMinute, second.EarliestCompletionGameMinute);
+        Assert.Equal(first.RequiredElapsedMinutes, second.RequiredElapsedMinutes);
+        Assert.Equal(first.MarginMinutes, second.MarginMinutes);
+        Assert.Equal(first.Segments, second.Segments);
+        Assert.Equal(first.Warnings, second.Warnings);
+        Assert.Equal(first.Usage, second.Usage);
+        Assert.Equal(first.SnapshotIdentity, second.SnapshotIdentity);
     }
 }

@@ -28,7 +28,8 @@ public sealed class JourneyPlanningP0RedTests
         var request = JourneyPlanningTestData.Request(
             JourneyPlanningTestData.Snapshot(
                 startGameMinute: 3 * 24 * 60,
-                weeklyDrivingMinutes: 56 * 60));
+                weeklyDrivingMinutes: 56 * 60,
+                minutesUntilWeeklyRestDeadline: 0));
 
         var result = _engine.Plan(request);
 
@@ -83,7 +84,7 @@ public sealed class JourneyPlanningP0RedTests
     {
         var snapshot = JourneyPlanningTestData.Snapshot(
             startGameMinute: 10_000,
-            minutesUntilDailyRestDeadline: 10 * 60,
+            minutesUntilDailyRestDeadline: 12 * 60,
             reducedDailyRestsUsed: 3);
         var result = _engine.Plan(JourneyPlanningTestData.Request(
             snapshot,
@@ -91,7 +92,7 @@ public sealed class JourneyPlanningP0RedTests
 
         var rest = Assert.Single(result.Segments, segment =>
             segment.Type == JourneyPlanSegmentType.DailyRest);
-        Assert.True(rest.EndGameMinute <= snapshot.StartGameMinute + (10 * 60));
+        Assert.True(rest.EndGameMinute <= snapshot.StartGameMinute + (12 * 60));
         Assert.Equal(11 * 60, rest.DurationMinutes);
     }
 
@@ -138,7 +139,9 @@ public sealed class JourneyPlanningP0RedTests
     public void JP_P0_08()
     {
         var request = JourneyPlanningTestData.Request(
-            JourneyPlanningTestData.Snapshot(pendingRestAllocation: true),
+            JourneyPlanningTestData.Snapshot(
+                minutesUntilWeeklyRestDeadline: 0,
+                pendingRestAllocation: true),
             remainingDriveMinutes: 10 * 60);
 
         var result = _engine.Plan(request);

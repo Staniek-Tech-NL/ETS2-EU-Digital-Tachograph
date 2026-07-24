@@ -16,7 +16,7 @@
 |---|---|---|---|---|
 | **M0** | Stabilizacja stanu wejściowego | 🟢 GO | GO | M1 |
 | **M1** | Planer: kontrakty i czerwone testy | 🟢 GO | GO | M2 |
-| M2 | Planer: silnik zdarzeniowy | ⚪ nie rozpoczęty | — | M3 |
+| **M2** | Planer: silnik zdarzeniowy | 🟢 GO | GO | M3 |
 | M3 | Planer: Application Service i UI | ⚪ nie rozpoczęty | — | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
@@ -112,7 +112,7 @@ regresja `41+3=44` zielona 2026-07-24).
 - **Data rozpoczęcia:** 2026-07-24
 - **Data zakończenia:** 2026-07-24
 - **Wynik:** **GO**
-- **Commit / punkt przywracania:** bieżące drzewo robocze M1; commit nieutworzony
+- **Commit / punkt przywracania:** `879eda5` — kontrakty i czerwone testy M1
 - **Build Release:** 0 błędów / 0 ostrzeżeń
 - **Testy automatyczne:** 355/355 regresji i kontraktów; 13/13 testów
   `Stage=M2Red` prawidłowo czerwonych na celowej granicy M2
@@ -124,15 +124,42 @@ regresja `41+3=44` zielona 2026-07-24).
 
 ---
 
-## M2–M8 — do rozpoczęcia
+## M2 — Planer: silnik zdarzeniowy (ZAMKNIĘTY — GO)
+
+**Kryterium wejścia:** zaakceptowane kontrakty i czerwone testy M1.
+**Stan:** spełnione przez commit `879eda5`.
+
+### Gate M2
+
+- [x] wszystkie testy `JP-P0-01–08` zielone
+- [x] testy algorytmu, statusów, snapshotu i limitów zielone
+- [x] deterministyczny wynik dla identycznego requestu
+- [x] kontrolowane `NoLegalContinuation` i `CalculationLimitReached`
+- [x] deduplikacja stanu i dodatni postęp każdego segmentu
+- [x] brak zapisu do SQLite i brak mutacji wejściowego `RegulationState`
+
+### Zamknięcie M2
+
+- **Data rozpoczęcia:** 2026-07-24
+- **Data zakończenia:** 2026-07-24
+- **Wynik:** **GO**
+- **Commit / punkt przywracania:** bieżące drzewo robocze M2; commit do utworzenia
+- **Build Release:** 0 błędów / 0 ostrzeżeń
+- **Testy automatyczne:** 385/385
+- **Testy manualne / dowody:** nie dotyczy — brak zmian UI
+- **Otwarte błędy P0:** 0
+- **Otwarte błędy P1:** 0
+- **Uwagi do następnego etapu:** M3 może rozpocząć warstwę Application i UI.
+
+---
+
+## M3–M8 — do rozpoczęcia
 
 Każdy etap otwieramy dopiero po **GO** poprzedniego. Szczegółowe zadania i gate'y
 w `docs/PLAN_BETA_12_M0-M8/`. Poniżej rejestr decyzji wypełniany przy zamykaniu
 kolejnych etapów (szablon: data start/koniec, wynik, commit, build, testy auto,
 dowody manualne, P0, P1, uwagi).
 
-- **M2** — deterministyczny silnik „Najwcześniejsza legalna", niezmienniki,
-  kontrolowane zakończenie. — *nie rozpoczęty*
 - **M3** — `JourneyPlannerService` + ViewModel + zakładka PLANER, unieważnianie
   wyniku. — *nie rozpoczęty*
 - **M4** — walidacja gotowej inwentaryzacji UI + formalny **UI freeze**. — *nie rozpoczęty*
