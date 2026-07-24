@@ -4,7 +4,7 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status:** **WYMAGA ROZSZERZENIA — PLANOWANIE ZAŁOGI**
+**Status:** **ZAMKNIĘTY — GO (W TYM PLANOWANIE ZAŁOGI)**
 **Kryterium wejścia:** Kontrakty M1 zaakceptowane; testy blokujące istnieją i prawidłowo zawodzą bez implementacji.  
 **Kryterium wyjścia:** Testy P0 i algorytmu zielone; deterministyczny wynik; kontrolowane zakończenie każdej kalkulacji.  
 **Następny etap:** M3
@@ -31,8 +31,11 @@
 - [x] Dodać przyszłe zmiany prowadzącego bez postoju pojazdu.
 - [x] Dodać kwalifikowaną 45-minutową przerwę zmiennika w ruchu.
 - [x] Pilnować osobno jazdy ciągłej, dziennej oraz limitów 56/90 h obu kart.
-- [ ] Dodać pełną macierz granic 9/10 h, 56/90 h i 30 h osobno dla obu kart.
-- [ ] Potwierdzić zgodność projekcji załogi z bieżącym silnikiem tachografu.
+- [x] Dodać pełną macierz granic 9/10 h, 56/90 h i 30 h osobno dla obu kart.
+- [x] Potwierdzić zgodność projekcji załogi z bieżącym silnikiem tachografu.
+- [x] Pilnować osobnych terminów odpoczynku tygodniowego i przejść granicy tygodnia.
+- [x] Obsłużyć luki kart, skoki czasu i brak bieżącej telemetrii.
+- [x] Zachować rozróżnienie przerwy zmiennika w ruchu po archiwizacji historii.
 
 ### Gate M2
 
@@ -113,13 +116,14 @@ dokładnie zero albo jednego prowadzącego oraz równoległe aktywności S1/S2.
 - **Wynik:** **GO**
 - **Commit / punkt przywracania:** `751cd07` — deterministyczny silnik zdarzeniowy M2
 - **Punkt przywracania rozszerzenia załogi:** `db34de2`
+- **Domknięcie granic i zgodności załogi:** `0178d4c`
 - **Build Release:** 0 błędów / 0 ostrzeżeń
-- **Testy automatyczne:** 385/385
+- **Testy automatyczne:** 443/443; pakiet M2 załogi 40/40
 - **Testy manualne / dowody:** nie dotyczy — brak zmian UI
 - **Otwarte błędy P0:** 0
 - **Otwarte błędy P1:** 0
-- **Uwagi do następnego etapu:** M3 może zbudować atomowy snapshot w warstwie
-  Application, uruchomić silnik oraz obsłużyć stale snapshot i UI.
+- **Uwagi do następnego etapu:** M3 ma zintegrować atomowy snapshot obu kart,
+  uruchomić silnik załogi oraz pokazać wspólną oś czasu S1/S2 w UI.
 
 ---
 

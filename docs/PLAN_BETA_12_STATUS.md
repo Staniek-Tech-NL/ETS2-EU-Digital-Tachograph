@@ -16,8 +16,8 @@
 |---|---|---|---|---|
 | **M0** | Stabilizacja stanu wejściowego | 🟢 GO | GO | M1 |
 | **M1** | Planer: kontrakty i czerwone testy | 🟢 rozszerzony o załogę | GO | M2 |
-| **M2** | Planer: silnik zdarzeniowy | 🟡 wymaga rozszerzenia — załoga | W TOKU | M3 |
-| **M3** | Planer: Application Service i UI | 🔴 HOLD — brak integracji załogi | HOLD | M4 |
+| **M2** | Planer: silnik zdarzeniowy | 🟢 rozszerzenie załogi domknięte | GO | M3 |
+| **M3** | Planer: Application Service i UI | 🔴 HOLD — oczekuje na integrację załogi | HOLD | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
@@ -126,7 +126,7 @@ regresja `41+3=44` zielona 2026-07-24).
 
 ---
 
-## M2 — Planer: silnik zdarzeniowy (WYMAGA ROZSZERZENIA — PLANOWANIE ZAŁOGI)
+## M2 — Planer: silnik zdarzeniowy (ZAMKNIĘTY — GO)
 
 **Kryterium wejścia:** zaakceptowane kontrakty i czerwone testy M1.
 **Stan:** spełnione przez commit `879eda5`.
@@ -143,32 +143,36 @@ regresja `41+3=44` zielona 2026-07-24).
 - [x] przyszłe zmiany prowadzącego bez postoju pojazdu
 - [x] przerwa 45 min zmiennika w ruchu zeruje tylko jazdę ciągłą
 - [x] testy `JP-CREW-P0-01–06` zielone
-- [ ] pełna macierz granic 9/10 h, 56/90 h i 30 h dla obu kart
-- [ ] potwierdzenie zgodności projekcji z bieżącym silnikiem tachografu
+- [x] pełna macierz granic 9/10 h, 56/90 h i 30 h dla obu kart
+- [x] zgodność projekcji z bieżącym `RegulationEngine`
+- [x] osobne terminy odpoczynku tygodniowego obu kart i przejścia granicy tygodnia
+- [x] kontrolowana obsługa luk, braku telemetrii i skoku czasu
+- [x] przerwa zmiennika w ruchu zachowana jako osobny warunek także po retencji historii
 
 ### Zamknięcie M2
 
 - **Data rozpoczęcia:** 2026-07-24
 - **Data zakończenia:** 2026-07-24
 - **Wynik historyczny:** **GO** dla modelu jednej karty
-- **Wynik bieżący:** **W TOKU — wymagane rozszerzenie planowania załogi**
+- **Wynik bieżący:** **GO — rozszerzenie planowania załogi domknięte**
 - **Commit / punkt przywracania:** `751cd07` — deterministyczny silnik zdarzeniowy M2
 - **Punkt przywracania rozszerzenia załogi:** `db34de2`
+- **Domknięcie granic i zgodności załogi:** `0178d4c`
 - **Build Release:** 0 błędów / 0 ostrzeżeń
-- **Testy automatyczne:** historycznie 385/385; obecnie 408/408, w tym
-  `JP-CREW-P0-01–06` 6/6
+- **Testy automatyczne:** 443/443; pakiet M2 załogi 40/40, w tym
+  `JP-CREW-P0-01–06`, macierz granic i zgodność z `RegulationEngine`
 - **Testy manualne / dowody:** nie dotyczy — brak zmian UI
 - **Otwarte błędy P0:** 0
 - **Otwarte błędy P1:** 0
-- **Uwagi do następnego etapu:** M3 pozostaje na HOLD do czasu zintegrowania
-  snapshotu obu kart i wspólnej osi czasu.
+- **Uwagi do następnego etapu:** M3 może wznowić implementację integracji
+  snapshotu obu kart, wspólnej osi czasu i prezentacji zmian prowadzącego.
 
 ---
 
 ## M3 — Planer: Application Service i UI (HOLD — BRAK INTEGRACJI ZAŁOGI)
 
-**Kryterium wejścia:** zielony silnik M2. **Stan:** spełnione przez commit
-`751cd07`.
+**Kryterium wejścia:** zielony silnik M2. **Stan:** spełnione, łącznie z
+rozszerzeniem załogi domkniętym w `0178d4c`.
 
 ### Gate M3
 
@@ -194,7 +198,8 @@ regresja `41+3=44` zielona 2026-07-24).
 - **Testy automatyczne:** 402/402 po poprawkach z pierwszego smoke
 - **Testy manualne / dowody:** kontrolny smoke wizualny aplikacji zielony; pełna
   checklista ręczna pozostaje po stronie użytkownika
-- **Otwarte błędy P0:** 1 — brak pełnego planowania aktywnej podwójnej obsady
+- **Otwarte błędy P0:** 1 — warstwa Application/UI nie korzysta jeszcze z
+  kompletnego silnika aktywnej podwójnej obsady
 - **Otwarte błędy P1:** 0
 - **Uwagi do następnego etapu:** M4 pozostaje zamknięty do czasu integracji
   `MultiManningCrew` i formalnego GO M3.
