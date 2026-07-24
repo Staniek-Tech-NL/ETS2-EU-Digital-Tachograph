@@ -4,7 +4,7 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status bieżący:** **REDESIGN — M3-R2 APPLICATION SERVICE GOTOWY, UI DO WYKONANIA**
+**Status bieżący:** **REDESIGN — M3-R3 AUTOMATYCZNIE GOTOWE / HOLD DO RĘCZNEGO UI**
 **Kryterium wejścia:** `M2-CREW GO AND M3A GO` — spełnione.
 **Kryterium wyjścia:** Kompletny przepływ użytkownika Planera, zgodność z RuleEngine i poprawne unieważnianie wyniku.  
 **Następny etap:** M4
@@ -121,6 +121,28 @@ M2-CREW ze znakiem offsetu przeciwnym do M3A. Obliczenie granicy i indeksu
 zostało zastąpione delegacją do kanonicznego `GameWeek` w Core.
 
 **Następny krok:** M3-R3 — ViewModel i UI według zatwierdzonej makiety.
+
+## M3-R3 — ViewModel i UI
+
+Stan 2026-07-24:
+
+- [x] Desktop korzysta z `DeliveryPlannerService`, nie ze starego serwisu;
+- [x] użytkownik wybiera `Oferta z rynku` albo `Aktywna dostawa`;
+- [x] czasy względne rynku są przeliczane na absolutne terminy wewnątrz
+  atomowego snapshotu Application Service;
+- [x] formularz rozdziela dojazd, wygaśnięcie oferty, odbiór, trasę z
+  ładunkiem, okno dostawy, rozładunek i pracę po dostawie;
+- [x] pas wyniku pokazuje kalendarz M3A, okno, przyjazd, koniec dostawy,
+  werdykt i margines;
+- [x] tabela pokazuje fazy oraz równoległe aktywności S1/S2;
+- [x] prawy panel pokazuje ostrzeżenia i podsumowanie;
+- [x] ViewModel unieważnia wynik po zmianie snapshotu załogi;
+- [x] testy Desktop są zielone 71/71;
+- [x] pełna regresja Release jest zielona 487/487;
+- [x] kontrolny smoke układu przy 1280×800 jest zielony;
+- [ ] końcowy ręczny smoke użytkownika jest zielony.
+
+**Wynik bieżący M3:** HOLD wyłącznie do ręcznego zatwierdzenia nowego UI.
 
 ---
 

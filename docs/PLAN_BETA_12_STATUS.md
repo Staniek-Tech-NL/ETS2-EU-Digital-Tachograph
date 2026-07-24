@@ -18,7 +18,9 @@
 | **M1** | Planer: kontrakty i czerwone testy | 🟢 rozszerzony o załogę | GO | M2 |
 | **M2** | Planer: silnik zdarzeniowy | 🟢 rozszerzenie załogi domknięte | GO | M3A |
 | **M3A** | Game Calendar & Deadline Presentation | 🟢 ręczny gate UI zielony | GO | M3 |
-| **M3** | Planer: Application Service i UI | 🟡 M3-R2 silnik i Application Service gotowe / UI do wykonania | HOLD | M4 |
+| **M3** | Planer: Application Service i UI | 🟡 M3-R3 automatycznie gotowe / ręczny smoke UI | HOLD | M3.5 |
+| **M3.5** | Raporty i statystyki: wariant B | ⚪ nie rozpoczęty (dokumentacja domknięta) | — | M3.6 |
+| **M3.6** | Wewnętrzny smoke checkpoint `beta.12-rc0` | ⚪ nie rozpoczęty (dokumentacja domknięta) | — | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
@@ -229,6 +231,11 @@ UI ma być wzorowane na makiecie
 `docs/images/ChatGPT Image 24 lip 2026, 17_15_10.png`, z polami wynikającymi
 z nowego kontraktu, a nie ze starego formularza. Następny krok: M3-R3 UI.
 
+M3-R3 jest automatycznie gotowe: nowy ViewModel i XAML obsługują oba przypadki
+użycia, prezentują kalendarz M3A, wspólne segmenty S1/S2, werdykt i margines.
+Testy Desktop: 71/71; pełna regresja Release: 487/487; kontrolny smoke przy
+1280×800 jest zielony. Do formalnego GO M3 pozostaje ręczny smoke użytkownika.
+
 ### Gate M3
 
 - [x] przepływ formularz → `JourneyPlannerService` → harmonogram działa
@@ -267,6 +274,41 @@ usuwał jej źródłowy odpoczynek podczas ponownego stosowania granicy pustej
 starszej sesji. Odczyt warm został poprawiony bez unieważniania decyzji i bez
 wymagania ponownego wyboru; oba przypadki mają regresje automatyczne. Wymagany
 jest ponowny test ręczny użytkownika. Naprawa rekompensaty: `af97b39`.
+
+---
+
+## M3.5 — Raporty i statystyki: wariant B (NIE ROZPOCZĘTY)
+
+**Kryterium wejścia:** formalny wynik GO dla M3. **Stan:** M3 pozostaje HOLD —
+M3.5 nie startuje przed jego domknięciem. Etap wstawiony między M3 a M4 decyzją
+właściciela 2026-07-24 (Okno A: przed UI freeze).
+
+- **Dokument etapu:** `docs/PLAN_BETA_12_M0-M8/M3_5_RAPORTY_WARIANT_B.md`
+- **Plan wykonawczy:** `docs/PLAN_WDROZENIA_RAPORTY_WARIANT_B.md`
+- **Zakres:** przebudowa ekranu Raporty do wariantu B; bez zmian `RuleEngine`,
+  historii kanonicznej, migracji SQLite i kontraktów PDF/JSON/CSV.
+- **Uwaga wejściowa:** Etap 0 audytu wykonać na stanie po M3 (478/478, Planer w
+  `MainWindow.xaml`), nie na migawce `315/315` z planu wariantu B. Terminy w
+  Raportach konsumują warstwę `GameCalendar` z M3A, bez reimplementacji.
+- **Wyjście:** gate Etapu 7 wariantu B + pełna checklista UI + Release 0/0; **bez
+  tworzenia paczki beta** — wynik wchodzi do wewnętrznego smoke M3.6.
+
+---
+
+## M3.6 — Wewnętrzny smoke checkpoint `beta.12-rc0` (NIE ROZPOCZĘTY)
+
+**Kryterium wejścia:** formalny wynik GO dla M3.5. **Stan:** oczekuje.
+
+- **Dokument etapu:** `docs/PLAN_BETA_12_M0-M8/M3_6_WEWNETRZNY_SMOKE_CHECKPOINT.md`
+- **Charakter:** zamrożony **wewnętrzny** artefakt `0.1.0-beta.12-rc0` do
+  wielogodzinnego smoke; **niepublikowany**, nie uruchamia bramki M8, nie tworzy
+  osobnego wydania `beta.11.5`.
+- **Cel:** złapać błędy in-game przed UI freeze (M4), gdy poprawki mogą jeszcze
+  lądować swobodnie; de-ryzykuje końcowy smoke M7.
+- **Granica pokrycia:** przed M5 (lokalizacja) — testuje funkcję, nie
+  zlokalizowane stringi; **M7 na zlokalizowanym RC pozostaje wymagany**.
+- **Wyjście:** triaging zakończony, potwierdzone błędy naprawione przed M4,
+  decyzja GO/FIX/HOLD dla checkpointu.
 
 ---
 
