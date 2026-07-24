@@ -47,8 +47,6 @@ public sealed record RestAllocationProjection(
     RestAllocationDecision? Decision,
     RestAllocationCandidate? SelectedCandidate)
 {
-    public bool IsPending =>
-        SelectedCandidate is null &&
-        (Candidates.Count > 1 || Decision is not null);
+    public bool IsPending => Candidates.Count > 1 && SelectedCandidate is null;
     public bool HasInvalidDecision => Decision is not null && SelectedCandidate is null;
 }

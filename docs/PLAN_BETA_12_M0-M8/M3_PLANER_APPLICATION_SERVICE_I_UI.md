@@ -131,13 +131,17 @@ Po potwierdzeniu tej checklisty wynik M3 można zmienić z **HOLD** na **GO** i 
   referencje kolejnych snapshotów zamiast ich istotnego stanu. Porównanie jest
   teraz semantyczne; nowa klatka w tej samej minucie i bez zmiany stanu prawnego
   nie unieważnia obliczenia.
-- Karta Staniek miała zapisaną decyzję rozliczenia, której kandydat przestał
-  pasować do aktualnej projekcji historii. Taki przypadek z jednym bieżącym
-  kandydatem jest teraz ponownie oznaczany jako wymagający wyboru i pojawia się
-  w panelu rozliczenia zamiast znikać z widoku.
-- Obie poprawki mają testy regresyjne. Pełny gate po poprawkach: 402/402,
-  build Release 0 błędów / 0 ostrzeżeń.
-- **Commit poprawek po smoke:** `95f9777`.
+- Pierwsza diagnoza karty Staniek była błędna: rekompensata `20:53` została
+  wykonana, a zapisana decyzja wskazuje prawidłowego kandydata pełnej spłaty.
+  Problem powodował zoptymalizowany odczyt historii, który ponownie stosował
+  granicę pustej starszej sesji i usuwał źródłowy skrócony odpoczynek tygodniowy
+  z projekcji warm.
+- Odczyt historii stosuje teraz historyczne granice sesji wyłącznie do gorącego
+  ogona od granicy retencji. Wykonana rekompensata pozostaje rozliczona i nie
+  wymaga ponownego wyboru.
+- Poprawki Planera i retencji historii mają testy regresyjne. Pełny gate po
+  poprawkach: 402/402, build Release 0 błędów / 0 ostrzeżeń.
+- **Commit poprawki Planera po smoke:** `95f9777`.
 
 ---
 

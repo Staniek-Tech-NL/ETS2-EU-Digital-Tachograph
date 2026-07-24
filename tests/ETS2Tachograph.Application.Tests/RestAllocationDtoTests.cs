@@ -81,37 +81,6 @@ public sealed class RestAllocationDtoTests
         Assert.Equal(2, result.Candidates.Count);
     }
 
-    [Fact]
-    public void Invalid_decision_with_one_current_candidate_requires_new_selection()
-    {
-        var candidate = Candidate(
-            "current-candidate",
-            RestAllocationPurpose.ReducedWeeklyRestOnly);
-        var invalidDecision = new RestAllocationDecision(
-            Guid.NewGuid(),
-            "CARD",
-            "rest",
-            "obsolete-candidate",
-            EffectiveAtGameMinute: 2_000,
-            DateTimeOffset.UnixEpoch,
-            DecisionSchemeVersion: 1);
-        var projection = new RestAllocationProjection(
-            "rest",
-            "CARD",
-            new GameTime(100),
-            new GameTime(2_000),
-            [candidate],
-            invalidDecision,
-            SelectedCandidate: null);
-
-        var result = RestAllocationDtoMapper.Map(projection);
-
-        Assert.True(result.IsPending);
-        Assert.True(result.HasInvalidDecision);
-        Assert.Single(result.Candidates);
-        Assert.Null(result.SelectedCandidate);
-    }
-
     private static RestAllocationCandidate Candidate(
         string id,
         RestAllocationPurpose purpose) => new(

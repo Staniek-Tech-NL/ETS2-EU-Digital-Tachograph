@@ -88,6 +88,52 @@ public sealed class ActivityRetentionTests
     }
 
     [Fact]
+    public async Task Empty_archived_session_does_not_remove_history_restored_by_later_session()
+    {
+        const string cardId = "CARD-EMPTY-ARCHIVED-BRANCH";
+        var (connection, context) = await CreateDatabaseAsync(cardId);
+        await using (connection)
+        await using (context)
+        {
+            var repository = new ActivityRepository(context);
+            await repository.EnsureSessionAsync(cardId, 0, new GameTime(0));
+            await repository.AppendAsync(cardId, 0, Enumerable.Range(0, 10)
+                .Select(minute => Record(cardId, minute, DriverActivity.Driving))
+                .ToList());
+            await repository.EnsureSessionAsync(cardId, 1, new GameTime(3));
+            await repository.EnsureSessionAsync(cardId, 2, new GameTime(5));
+            await repository.AppendAsync(cardId, 2, Enumerable.Range(5, 5)
+                .Select(minute => Record(cardId, minute, DriverActivity.BreakOrRest))
+                .ToList());
+            await repository.ObserveGameTimeAsync(
+                cardId,
+                new GameTime(10 + ActivityRetentionPolicy.HotWindowMinutes));
+
+            await repository.ArchiveWarmAsync(cardId);
+            context.ChangeTracker.Clear();
+
+            var logical = await repository.LoadDriverHistoryAsync(cardId);
+            var raw = await repository.LoadRawDriverHistoryAsync(cardId);
+            var logicalMinutes = logical
+                .SelectMany(x => Enumerable
+                    .Range((int)x.Start.TotalMinutes, (int)x.DurationMinutes)
+                    .Select(minute => (minute, x.Activity)))
+                .ToList();
+            var rawMinutes = raw
+                .Select(x => ((int)x.Start.TotalMinutes, x.Activity))
+                .ToList();
+
+            Assert.Equal(rawMinutes, logicalMinutes);
+            Assert.Equal(
+                [
+                    (new GameTime(0), new GameTime(3), DriverActivity.Driving),
+                    (new GameTime(5), new GameTime(10), DriverActivity.BreakOrRest)
+                ],
+                logical.Select(x => (x.Start, x.EndExclusive, x.Activity)).ToList());
+        }
+    }
+
+    [Fact]
     public async Task Warm_blocks_split_only_on_activity_and_mark_changed_source_as_mixed()
     {
         var (connection, context) = await CreateDatabaseAsync("CARD-MIXED");

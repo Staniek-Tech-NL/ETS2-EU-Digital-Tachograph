@@ -2288,11 +2288,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             }
             OnPropertyChanged(nameof(CompensationDetailsHeader));
             OnPropertyChanged(nameof(HasPendingRestAllocations));
-            OperationStatus = PendingRestAllocationChoices.Count > 0
-                ? "Historia odpoczynków zmieniła wcześniejszą decyzję. Wybierz ponownie sposób rozliczenia."
-                : CompensationDetails.Count == 0
-                    ? "Wybrana karta nie ma zobowiązań rekompensaty."
-                    : $"Wczytano pełny ślad {CompensationDetails.Count} zobowiązań rekompensaty.";
+            OperationStatus = CompensationDetails.Count == 0
+                ? "Wybrana karta nie ma zobowiązań rekompensaty."
+                : $"Wczytano pełny ślad {CompensationDetails.Count} zobowiązań rekompensaty.";
         }
         catch (Exception exception)
         {

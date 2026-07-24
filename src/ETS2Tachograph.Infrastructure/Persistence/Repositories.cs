@@ -573,9 +573,7 @@ public sealed class ActivityRepository :
             .Select(x => new SessionInfo(
                 x.Id,
                 x.SessionIndex,
-                x.StartedAtGameMinute,
-                x.Records.Any(record => record.IsArchivedToWarm),
-                x.Records.Select(record => (long?)record.StartGameMinute).Min()))
+                x.StartedAtGameMinute))
             .ToListAsync(cancellationToken);
         var hotRows = await context.ActivityRecords.AsNoTracking()
             .Where(x => x.ActivitySession.DriverCardId == driverCardId &&
@@ -594,13 +592,12 @@ public sealed class ActivityRepository :
 
             if (index > 0)
             {
-                var branchStart = session.StartedAtGameMinute;
-                // The archived prefix already contains the branch operation. Reapply it
-                // only from the hot boundary so an earlier session's hot tail is removed
-                // without cutting the correctly composed warm projection a second time.
-                var truncateAt = session.HasArchivedRows
-                    ? Math.Max(branchStart, warmThreshold)
-                    : branchStart;
+                // The canonical warm projection already contains every historical
+                // branch operation. Replay the branch only against the hot tail;
+                // otherwise an empty historical session can delete valid warm blocks.
+                var truncateAt = Math.Max(
+                    session.StartedAtGameMinute,
+                    warmThreshold);
                 TruncateAfter(combined, new GameTime(truncateAt));
             }
 
@@ -1090,9 +1087,7 @@ public sealed class ActivityRepository :
     private sealed record SessionInfo(
         Guid Id,
         int SessionIndex,
-        long StartedAtGameMinute,
-        bool HasArchivedRows,
-        long? FirstRecordStartGameMinute);
+        long StartedAtGameMinute);
 
     private sealed record MaterializedSession(
         int SessionIndex,
