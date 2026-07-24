@@ -1,10 +1,10 @@
 # M3.6 — Wewnętrzny smoke checkpoint (próba generalna RC)
 
 **Projekt:** ETS2 EU Digital Tachograph  
-**Artefakt:** brak bieżącego — `0.1.0-beta.12-rc1` **unieważniony**
+**Artefakt:** `0.1.0-beta.12-rc2` — gotowy do pełnego smoke
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status bieżący:** **FIX — REGRESJA USUNIĘTA, TEST MANUALNY PASS**
+**Status bieżący:** **FIX — RC2 GOTOWY, PEŁNY SMOKE OCZEKUJE**
 **Kryterium wejścia:** Formalny wynik **GO** dla M3.5.  
 **Kryterium wyjścia:** Triaging zakończony, potwierdzone błędy naprawione **przed** M4, formalna decyzja **GO / FIX / HOLD** dla checkpointu.  
 **Następny etap:** M4
@@ -161,10 +161,10 @@ do commita i zbudowania kolejnego artefaktu.
 
 - **Data rozpoczęcia:** 2026-07-24
 - **Data zakończenia:**
-- **Wynik:** `FIX — REGRESJA USUNIĘTA, TEST MANUALNY PASS`
-- **Artefakt bieżący:** brak
-- **Commit bieżący:** zmiana lokalna, przed commitem
-- **SHA-256 bieżący:** brak
+- **Wynik:** `FIX — RC2 GOTOWY, PEŁNY SMOKE OCZEKUJE`
+- **Artefakt bieżący:** `ETS2Tachograph-0.1.0-beta.12-rc2-win-x64.zip`
+- **Commit bieżący:** `1c87e004b629e0b691db1eb18e0952fa5641d8fe`
+- **SHA-256 bieżący:** `30CD7BD2B65D2C59DD7F2306FF6D3A129D4AA5BCC61C78F5E7381B8C9A8E5ECA`
 - **Artefakt historyczny, unieważniony:** `ETS2Tachograph-0.1.0-beta.12-rc1-win-x64.zip`
 - **Commit historyczny:** `eb1f02d765a7c0f2cabea57e047ff74198c12975`
 - **SHA-256 historyczny:** `25AD18A416A86A1D63D7F4B7C0B9D3400B9E3CB284CE2A54924DEB68D14078EE`
@@ -174,10 +174,12 @@ do commita i zbudowania kolejnego artefaktu.
 - **Build Release:** 0 błędów / 0 ostrzeżeń
 - **Testy automatyczne:** 522/522 sekwencyjnie po eliminacji regresji
 - **Testy manualne / dowody:** Alt+Tab w menu i po wczytaniu zapisu — PASS
+- **Weryfikacja paczki:** rozpakowanie, struktura, `FileVersion 0.1.12.2`,
+  `ProductVersion`, plugin v3 i checksumy — PASS
 - **Otwarte błędy P0:** 0
 - **Otwarte błędy P1:** 0
-- **Uwagi do następnego etapu:** zbudować nowy artefakt i wykonać pełny smoke
-  in-game.
+- **Uwagi do następnego etapu:** wykonać pełny smoke in-game na rozpakowanym
+  artefakcie `rc2`.
 
 ---
 

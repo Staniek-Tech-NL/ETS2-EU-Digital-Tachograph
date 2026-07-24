@@ -20,7 +20,7 @@
 | **M3A** | Game Calendar & Deadline Presentation | 🟢 ręczny gate UI zielony | GO | M3 |
 | **M3** | Planer: Application Service i UI | 🟢 M3-R3 automatycznie i ręcznie zielone | GO | M3.5 |
 | **M3.5** | Raporty i statystyki: wariant B | 🟢 UI, automatyka i ręczny gate zielone | GO | M3.6 |
-| **M3.6** | Wewnętrzny smoke checkpoint | 🟡 rc1 unieważniony; korekta i test manualny zielone | FIX | M4 |
+| **M3.6** | Wewnętrzny smoke checkpoint | 🟡 rc2 gotowy; pełny smoke oczekuje | FIX | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
@@ -320,7 +320,11 @@ zakończone wynikiem GO po akceptacji właściciela 2026-07-24.
 **Kryterium wejścia:** formalny wynik GO dla M3.5. **Stan:** spełnione; artefakt
 `rc1` został unieważniony po potwierdzeniu regresji Alt+Tab po wczytaniu zapisu.
 
-- **Artefakt bieżący:** brak; korekta jest gotowa do commita i nowego artefaktu.
+- **Artefakt bieżący:** `ETS2Tachograph-0.1.0-beta.12-rc2-win-x64.zip`
+- **Commit źródłowy:** `1c87e004b629e0b691db1eb18e0952fa5641d8fe`
+- **SHA-256:** `30CD7BD2B65D2C59DD7F2306FF6D3A129D4AA5BCC61C78F5E7381B8C9A8E5ECA`
+- **Weryfikacja paczki `rc2`:** rozpakowanie, struktura, `FileVersion 0.1.12.2`,
+  `ProductVersion`, plugin v3 i checksumy — PASS.
 - **Artefakt historyczny, unieważniony:** `ETS2Tachograph-0.1.0-beta.12-rc1-win-x64.zip`
 - **Commit historyczny:** `eb1f02d765a7c0f2cabea57e047ff74198c12975`
 - **SHA-256 historyczny:** `25AD18A416A86A1D63D7F4B7C0B9D3400B9E3CB284CE2A54924DEB68D14078EE`
@@ -344,6 +348,7 @@ zakończone wynikiem GO po akceptacji właściciela 2026-07-24.
 - **Gate automatyczny korekty:** 522/522 sekwencyjnie, Release 0/0.
 - **Gate manualny korekty:** Alt+Tab w menu i po wczytaniu zapisu — PASS,
   potwierdzony przez właściciela 2026-07-24.
+- **Pełny smoke `rc2`:** oczekuje.
 - **Artefakty historyczne:** `rc0` i `rc1` pozostają unieważnione.
 
 - **Dokument etapu:** `docs/PLAN_BETA_12_M0-M8/M3_6_WEWNETRZNY_SMOKE_CHECKPOINT.md`
