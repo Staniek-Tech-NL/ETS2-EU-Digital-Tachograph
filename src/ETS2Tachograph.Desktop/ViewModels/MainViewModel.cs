@@ -24,6 +24,7 @@ public sealed record RestTargetOption(string Name, string DeviceLabel, int Minut
 
 public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 {
+    private const int PlannerTabIndex = 3;
     private static readonly ManualEntryActivityOption[] AvailableManualEntryActivities =
     [
         new(DriverActivity.BreakOrRest, "Przerwa / Odpoczynek"),
@@ -418,7 +419,17 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 _diagnostics.Info("STATUS", value);
         }
     }
-    public int SelectedMainTabIndex { get => _selectedMainTabIndex; set => Set(ref _selectedMainTabIndex, value); }
+    public int SelectedMainTabIndex
+    {
+        get => _selectedMainTabIndex;
+        set
+        {
+            if (!Set(ref _selectedMainTabIndex, value))
+                return;
+            if (value == PlannerTabIndex)
+                _ = JourneyPlanner.RefreshReadinessAsync();
+        }
+    }
     public string ConnectionStatus
     {
         get => _connectionStatus;

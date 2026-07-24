@@ -37,6 +37,7 @@ public sealed class DeliveryPlannerServiceTests
         Assert.Equal(2, result.SnapshotIdentity.Slot2.DriverSlot);
         Assert.Contains(result.Segments, segment => segment.DrivingSlot == 1);
         Assert.Contains(result.Segments, segment => segment.DrivingSlot == 2);
+        Assert.Equal(1, repository.MaxConcurrentReads);
     }
 
     [Fact]
@@ -164,6 +165,8 @@ public sealed class DeliveryPlannerServiceTests
             _sessions = [];
 
         internal int WriteCount { get; private set; }
+        internal int MaxConcurrentReads { get; private set; }
+        private int _activeReads;
 
         public Task EnsureSessionAsync(
             string driverCardId,
@@ -215,15 +218,44 @@ public sealed class DeliveryPlannerServiceTests
             }
         }
 
-        public Task<IReadOnlyList<ActivityRecord>> LoadDriverHistoryAsync(
+        public async Task<IReadOnlyList<ActivityRecord>> LoadDriverHistoryAsync(
             string driverCardId,
             GameTime? from = null,
             GameTime? toExclusive = null,
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult<IReadOnlyList<ActivityRecord>>(_sessions
-                .Where(pair => pair.Key.Card == driverCardId)
-                .SelectMany(pair => pair.Value.Records)
-                .ToArray());
+            CancellationToken cancellationToken = default)
+        {
+            EnterRead();
+            try
+            {
+                await Task.Delay(10, cancellationToken);
+                return _sessions
+                    .Where(pair => pair.Key.Card == driverCardId)
+                    .SelectMany(pair => pair.Value.Records)
+                    .ToArray();
+            }
+            finally
+            {
+                Interlocked.Decrement(ref _activeReads);
+            }
+        }
+
+        public async Task<IReadOnlyList<ActivityGap>> LoadDriverGapsAsync(
+            string driverCardId,
+            GameTime? from = null,
+            GameTime? toExclusive = null,
+            CancellationToken cancellationToken = default)
+        {
+            EnterRead();
+            try
+            {
+                await Task.Delay(10, cancellationToken);
+                return [];
+            }
+            finally
+            {
+                Interlocked.Decrement(ref _activeReads);
+            }
+        }
 
         public Task<IReadOnlyList<StoredActivitySession>> LoadSessionsAsync(
             string driverCardId,
@@ -233,5 +265,11 @@ public sealed class DeliveryPlannerServiceTests
                 .Select(pair => pair.Value)
                 .OrderBy(session => session.SessionIndex)
                 .ToArray());
+
+        private void EnterRead()
+        {
+            var active = Interlocked.Increment(ref _activeReads);
+            MaxConcurrentReads = Math.Max(MaxConcurrentReads, active);
+        }
     }
 }

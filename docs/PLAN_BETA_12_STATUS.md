@@ -20,7 +20,7 @@
 | **M3A** | Game Calendar & Deadline Presentation | 🟢 ręczny gate UI zielony | GO | M3 |
 | **M3** | Planer: Application Service i UI | 🟢 M3-R3 automatycznie i ręcznie zielone | GO | M3.5 |
 | **M3.5** | Raporty i statystyki: wariant B | 🟢 UI, automatyka i ręczny gate zielone | GO | M3.6 |
-| **M3.6** | Wewnętrzny smoke checkpoint | 🟡 rc1 gotowy; smoke oczekuje | W TOKU | M4 |
+| **M3.6** | Wewnętrzny smoke checkpoint | 🟡 rc1 unieważniony; korekta i test manualny zielone | FIX | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
@@ -317,30 +317,39 @@ zakończone wynikiem GO po akceptacji właściciela 2026-07-24.
 
 ## M3.6 — Wewnętrzny smoke checkpoint (W TOKU)
 
-**Kryterium wejścia:** formalny wynik GO dla M3.5. **Stan:** spełnione; etap
-zbudował zamrożony, niepublikowany artefakt, który został następnie unieważniony
-przez poprawkę obsługi głównego okna po Alt+Tab.
+**Kryterium wejścia:** formalny wynik GO dla M3.5. **Stan:** spełnione; artefakt
+`rc1` został unieważniony po potwierdzeniu regresji Alt+Tab po wczytaniu zapisu.
 
-- **Artefakt bieżący:** `ETS2Tachograph-0.1.0-beta.12-rc1-win-x64.zip`
-- **Commit bieżący:** `eb1f02d765a7c0f2cabea57e047ff74198c12975`
-- **SHA-256 bieżący:** `25AD18A416A86A1D63D7F4B7C0B9D3400B9E3CB284CE2A54924DEB68D14078EE`
+- **Artefakt bieżący:** brak; korekta jest gotowa do commita i nowego artefaktu.
+- **Artefakt historyczny, unieważniony:** `ETS2Tachograph-0.1.0-beta.12-rc1-win-x64.zip`
+- **Commit historyczny:** `eb1f02d765a7c0f2cabea57e047ff74198c12975`
+- **SHA-256 historyczny:** `25AD18A416A86A1D63D7F4B7C0B9D3400B9E3CB284CE2A54924DEB68D14078EE`
 - **Weryfikacja paczki:** rozpakowanie, struktura, `FileVersion 0.1.12.1`,
   `ProductVersion`, plugin v3 i checksumy — PASS.
 - **Powód unieważnienia:** główne okno pozostawało pod ETS po Alt+Tab; nakładki
   działały prawidłowo.
 - **Odrzucona próba:** zmiana właściwości WPF `Topmost` powodowała `AppHangB1`.
-- **Poprawka docelowa:** niereentrantny `SetWindowPos` z `SWP_NOACTIVATE`
-  podnosi aktywne główne okno i przywraca normalny poziom po oddaniu fokusu.
-- **Gate poprawki:** Desktop 97/97, build 0/0; rzeczywisty cykl procesu
-  start/minimalizacja/przywrócenie/zamknięcie PASS; ręczny test z ETS
-  potwierdzony przez właściciela.
-- **Pełna regresja przed `rc1`:** 524/524, Release 0/0.
-- **Artefakt historyczny:** `rc0` pozostaje unieważniony.
+- **Odrzucona poprawka `rc1`:** `SetWindowPos` z `SWP_NOACTIVATE`; ręczne
+  sterowanie Z-orderem nie usuwało objawu i zostało wycofane.
+- **Przyczyna potwierdzona pomiarem procesu:** po wczytaniu świata telemetria
+  uruchamiała około 10 razy na sekundę pełne odświeżenie gotowości Planera,
+  obejmujące historię i luki obu kart. Piętrzące się zadania nasycały dispatcher
+  UI, dlatego wybrane przez Alt+Tab okno nie przetwarzało aktywacji i odmalowania.
+- **Korekta:** obserwacja każdej ramki wykonuje tylko tanią walidację istniejącego
+  wyniku; gotowość jest ładowana przy wejściu do Planera i przed obliczeniem,
+  a odczyty obu kart są sekwencyjne na współdzielonym kontekście bazy.
+  Model głównego okna pozostaje zgodny z beta.11, nakładki są nietknięte.
+- **Dowód regresyjny:** przed poprawką 101 zamiast 1 odświeżeń gotowości oraz
+  4 zamiast 1 równoległych odczytów; po poprawce oba testy są zielone.
+- **Gate automatyczny korekty:** 522/522 sekwencyjnie, Release 0/0.
+- **Gate manualny korekty:** Alt+Tab w menu i po wczytaniu zapisu — PASS,
+  potwierdzony przez właściciela 2026-07-24.
+- **Artefakty historyczne:** `rc0` i `rc1` pozostają unieważnione.
 
 - **Dokument etapu:** `docs/PLAN_BETA_12_M0-M8/M3_6_WEWNETRZNY_SMOKE_CHECKPOINT.md`
-- **Charakter:** zamrożony **wewnętrzny** artefakt `0.1.0-beta.12-rc1` do
-  wielogodzinnego smoke; **niepublikowany**, nie uruchamia bramki M8, nie tworzy
-  osobnego wydania `beta.11.5`.
+- **Charakter:** korekta przed kolejnym zamrożonym artefaktem wewnętrznym;
+  **niepublikowana**, nie uruchamia bramki M8 i nie tworzy osobnego wydania
+  `beta.11.5`.
 - **Cel:** złapać błędy in-game przed UI freeze (M4), gdy poprawki mogą jeszcze
   lądować swobodnie; de-ryzykuje końcowy smoke M7.
 - **Granica pokrycia:** przed M5 (lokalizacja) — testuje funkcję, nie

@@ -1,10 +1,10 @@
 # M3.6 — Wewnętrzny smoke checkpoint (próba generalna RC)
 
 **Projekt:** ETS2 EU Digital Tachograph  
-**Artefakt:** `0.1.0-beta.12-rc1` — **wewnętrzny, niepublikowany**
+**Artefakt:** brak bieżącego — `0.1.0-beta.12-rc1` **unieważniony**
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status bieżący:** **W TOKU — `rc1` GOTOWY, SMOKE OCZEKUJE**
+**Status bieżący:** **FIX — REGRESJA USUNIĘTA, TEST MANUALNY PASS**
 **Kryterium wejścia:** Formalny wynik **GO** dla M3.5.  
 **Kryterium wyjścia:** Triaging zakończony, potwierdzone błędy naprawione **przed** M4, formalna decyzja **GO / FIX / HOLD** dla checkpointu.  
 **Następny etap:** M4
@@ -100,6 +100,37 @@ z kodem `0` — **PASS**. Ręczny test z ETS został potwierdzony przez właści
 wynikiem **PASS**. Następnym artefaktem jest `rc1`; `rc0` pozostaje historyczny
 i unieważniony.
 
+### Unieważnienie `rc1` — 2026-07-24
+
+Test po wczytaniu zapisu wykazał, że mechanizm `SetWindowPos` wprowadzony w
+`eb1f02d` nie rozwiązuje problemu również przy ETS uruchomionym w oknie.
+Artefakt `rc1` został unieważniony. Ręczne sterowanie Z-orderem oraz testy tej
+odrzuconej polityki usunięto, przywracając model okna identyczny z beta.11.
+Nakładki S1/S2 pozostały nietknięte.
+
+Ponowny test po tej eliminacji nadal odtwarzał objaw, dlatego wcześniejsze
+przypisanie przyczyny do Z-orderu uznano za niepełne. Audyt działającego procesu
+po wczytaniu świata wykazał nasycenie głównego wątku UI. Ścieżka dodana w M3
+wywoływała `RefreshReadinessAsync()` przy każdej ramce telemetrii (około 10 Hz).
+Każde wywołanie ładowało pełną historię i luki obu kart, a cztery odczyty były
+uruchamiane równolegle na współdzielonym kontekście bazy. Zadania piętrzyły się,
+więc po Alt+Tab system wybierał aplikację, ale jej dispatcher nie przetwarzał
+aktywacji i odmalowania okna.
+
+Chirurgiczna korekta zachowuje na ścieżce każdej ramki wyłącznie tanią
+walidację tożsamości istniejącego wyniku. Gotowość Planera jest odświeżana przy
+wejściu do zakładki oraz przed obliczeniem planu, a odczyty historii obu kart są
+wykonywane sekwencyjnie na współdzielonym kontekście. Dwa testy regresyjne
+przypinają brak odświeżania gotowości przez telemetrię oraz maksymalnie jeden
+aktywny odczyt repozytorium. Testy wykazały przed poprawką odpowiednio
+**101 zamiast 1** wywołań oraz **4 zamiast 1** równoległych odczytów; po
+poprawce są zielone.
+
+Pełna regresja sekwencyjna: **522/522**, build Release:
+**0 błędów / 0 ostrzeżeń**. Ręczny test Alt+Tab po wczytaniu zapisu został
+potwierdzony przez właściciela wynikiem **PASS** 2026-07-24. Korekta jest gotowa
+do commita i zbudowania kolejnego artefaktu.
+
 ## Decyzja M3.6
 
 - **GO** — scenariusze spełnione, brak P0/P1; można wejść w M4 (UI freeze).
@@ -130,21 +161,23 @@ i unieważniony.
 
 - **Data rozpoczęcia:** 2026-07-24
 - **Data zakończenia:**
-- **Wynik:** `W TOKU — RC1 GOTOWY, SMOKE OCZEKUJE`
-- **Artefakt bieżący:** `ETS2Tachograph-0.1.0-beta.12-rc1-win-x64.zip`
-- **Commit bieżący:** `eb1f02d765a7c0f2cabea57e047ff74198c12975`
-- **SHA-256 bieżący:** `25AD18A416A86A1D63D7F4B7C0B9D3400B9E3CB284CE2A54924DEB68D14078EE`
+- **Wynik:** `FIX — REGRESJA USUNIĘTA, TEST MANUALNY PASS`
+- **Artefakt bieżący:** brak
+- **Commit bieżący:** zmiana lokalna, przed commitem
+- **SHA-256 bieżący:** brak
+- **Artefakt historyczny, unieważniony:** `ETS2Tachograph-0.1.0-beta.12-rc1-win-x64.zip`
+- **Commit historyczny:** `eb1f02d765a7c0f2cabea57e047ff74198c12975`
+- **SHA-256 historyczny:** `25AD18A416A86A1D63D7F4B7C0B9D3400B9E3CB284CE2A54924DEB68D14078EE`
 - **Artefakt historyczny, unieważniony:** `ETS2Tachograph-0.1.0-beta.12-rc0-win-x64.zip`
 - **Commit historyczny:** `0abe849d01cd3e01c871d812adcc7c8c6eb31830`
 - **SHA-256 historyczny:** `727C51F40515EF3909E3282C553451711D665CD688F3C72ABE0DDEEB92073406`
-- **Build Release:** 0 błędów / 0 ostrzeżeń; self-contained `win-x64`
-- **Testy automatyczne:** 524/524 przed zamrożeniem `rc1`
-- **Testy manualne / dowody:** ZIP rozpakowany; struktura, metadane aplikacji,
-  plugin v3 i checksumy zweryfikowane; cykl aktywacji dokładnego `rc1` PASS
+- **Build Release:** 0 błędów / 0 ostrzeżeń
+- **Testy automatyczne:** 522/522 sekwencyjnie po eliminacji regresji
+- **Testy manualne / dowody:** Alt+Tab w menu i po wczytaniu zapisu — PASS
 - **Otwarte błędy P0:** 0
 - **Otwarte błędy P1:** 0
-- **Uwagi do następnego etapu:** zainstalować plugin z `rc1`, zabezpieczyć bazę
-  i wykonać pełny smoke in-game na rozpakowanym artefakcie.
+- **Uwagi do następnego etapu:** zbudować nowy artefakt i wykonać pełny smoke
+  in-game.
 
 ---
 

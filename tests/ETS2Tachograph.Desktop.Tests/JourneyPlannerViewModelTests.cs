@@ -70,6 +70,19 @@ public sealed class JourneyPlannerViewModelTests
     }
 
     [Fact]
+    public void Telemetry_state_observation_does_not_reload_planner_readiness()
+    {
+        var service = new FakeService(Result(DeliveryPlanningUseCase.MarketOffer));
+        var viewModel = new JourneyPlannerViewModel(service);
+        var initialReadinessCalls = service.ReadinessCalls;
+
+        for (var frame = 0; frame < 100; frame++)
+            viewModel.ObserveStateChange();
+
+        Assert.Equal(initialReadinessCalls, service.ReadinessCalls);
+    }
+
+    [Fact]
     public async Task Invalid_market_input_does_not_call_service()
     {
         var service = new FakeService(Result(DeliveryPlanningUseCase.MarketOffer));
@@ -144,11 +157,14 @@ public sealed class JourneyPlannerViewModelTests
         internal bool Current { get; set; } = true;
         internal int MarketCalls { get; private set; }
         internal int ActiveCalls { get; private set; }
+        internal int ReadinessCalls { get; private set; }
         internal MarketOfferPlannerInput? LastMarketInput { get; private set; }
 
         public Task<DeliveryPlannerReadiness> GetReadinessAsync(
-            CancellationToken cancellationToken = default) =>
-            Task.FromResult(new DeliveryPlannerReadiness(
+            CancellationToken cancellationToken = default)
+        {
+            ReadinessCalls++;
+            return Task.FromResult(new DeliveryPlannerReadiness(
                 true,
                 100,
                 0,
@@ -158,6 +174,7 @@ public sealed class JourneyPlannerViewModelTests
                 true,
                 false,
                 []));
+        }
 
         public Task<DeliveryPlanResult> PlanMarketOfferAsync(
             MarketOfferPlannerInput input,

@@ -230,7 +230,6 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged
     {
         if (_resultIdentity is not null && !_service.IsCurrent(_resultIdentity))
             InvalidateResult("Stan załogi zmienił się. Oblicz plan ponownie.");
-        _ = RefreshReadinessAsync();
     }
 
     public static bool TryParseDuration(string? text, out int minutes)

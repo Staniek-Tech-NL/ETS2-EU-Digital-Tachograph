@@ -181,23 +181,18 @@ public sealed class DeliveryPlannerService(
                 return null;
             }
 
-            var slot1HistoryTask = crew.LoadDriverHistoryAsync(
+            var slot1History = await crew.LoadDriverHistoryAsync(
                 captured.DriverCardId,
                 cancellationToken: cancellationToken);
-            var slot1GapsTask = crew.LoadDriverGapsAsync(
+            var slot1Gaps = await crew.LoadDriverGapsAsync(
                 captured.DriverCardId,
                 cancellationToken);
-            var slot2HistoryTask = crew.LoadDriverHistoryAsync(
+            var slot2History = await crew.LoadDriverHistoryAsync(
                 captured.CoDriverCardId,
                 cancellationToken: cancellationToken);
-            var slot2GapsTask = crew.LoadDriverGapsAsync(
+            var slot2Gaps = await crew.LoadDriverGapsAsync(
                 captured.CoDriverCardId,
                 cancellationToken);
-            await Task.WhenAll(
-                slot1HistoryTask,
-                slot1GapsTask,
-                slot2HistoryTask,
-                slot2GapsTask);
 
             var afterLoad = crew.Current;
             if (!SamePlanningState(captured, afterLoad))
@@ -207,14 +202,14 @@ public sealed class DeliveryPlannerService(
                 1,
                 captured.DriverCardId,
                 captured.Driver,
-                await slot1HistoryTask,
-                await slot1GapsTask);
+                slot1History,
+                slot1Gaps);
             var slot2 = DriverSnapshot(
                 2,
                 captured.CoDriverCardId,
                 captured.CoDriver,
-                await slot2HistoryTask,
-                await slot2GapsTask);
+                slot2History,
+                slot2Gaps);
             var start = captured.Frame?.GameTime.TotalMinutes ??
                         Math.Max(slot1.HistoryHighWaterMark, slot2.HistoryHighWaterMark);
             var snapshot = new CrewJourneyPlanningSnapshot(

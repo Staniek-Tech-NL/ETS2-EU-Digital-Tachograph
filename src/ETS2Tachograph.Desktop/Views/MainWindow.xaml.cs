@@ -17,17 +17,10 @@ public partial class MainWindow : Window
     private const uint KeyQ = 0x51;
     private const uint Key1 = 0x31;
     private const uint Key2 = 0x32;
-    private const uint SwpNoSize = 0x0001;
-    private const uint SwpNoMove = 0x0002;
-    private const uint SwpNoActivate = 0x0010;
-    private static readonly IntPtr HwndTopmost = new(-1);
-    private static readonly IntPtr HwndNoTopmost = new(-2);
-
     private readonly OverlayViewModel _overlayViewModel1;
     private readonly OverlayViewModel _overlayViewModel2;
     private readonly OverlayWindow _overlay1;
     private readonly OverlayWindow _overlay2;
-    private readonly MainWindowLevelController _windowLevelController;
     private DateTime _driver1PressedAt;
     private DateTime _driver2PressedAt;
     private string _countrySearchText = string.Empty;
@@ -42,40 +35,8 @@ public partial class MainWindow : Window
         _overlayViewModel2 = new OverlayViewModel(viewModel, 2);
         _overlay1 = new OverlayWindow(1) { DataContext = _overlayViewModel1 };
         _overlay2 = new OverlayWindow(2) { DataContext = _overlayViewModel2 };
-        _windowLevelController = new MainWindowLevelController(SetMainWindowLevel);
         SourceInitialized += RegisterOverlayHotkey;
-        Activated += KeepActiveWindowAboveGame;
-        Deactivated += RestoreNormalWindowLevel;
         Closed += (_, _) => CleanupOverlay();
-    }
-
-    private void KeepActiveWindowAboveGame(object? sender, EventArgs e)
-    {
-        // Borderless and exclusive-fullscreen games can keep a normal desktop
-        // window behind their swap chain even after Alt+Tab. Promote the main
-        // window only while the user is actively working with it.
-        _windowLevelController.Update(isActive: true);
-    }
-
-    private void RestoreNormalWindowLevel(object? sender, EventArgs e)
-    {
-        // Do not cover ETS after focus returns to the game. The two dedicated
-        // overlays retain their independent always-on-top behavior.
-        _windowLevelController.Update(isActive: false);
-    }
-
-    private bool SetMainWindowLevel(bool topmost)
-    {
-        var handle = new WindowInteropHelper(this).Handle;
-        return handle != IntPtr.Zero &&
-               SetWindowPos(
-                   handle,
-                   topmost ? HwndTopmost : HwndNoTopmost,
-                   0,
-                   0,
-                   0,
-                   0,
-                   SwpNoMove | SwpNoSize | SwpNoActivate);
     }
 
     private void Driver1Button_Down(object sender, MouseButtonEventArgs e) => _driver1PressedAt = DateTime.UtcNow;
@@ -209,28 +170,4 @@ public partial class MainWindow : Window
     [DllImport("user32.dll")]
     private static extern bool UnregisterHotKey(IntPtr window, int id);
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool SetWindowPos(
-        IntPtr window,
-        IntPtr insertAfter,
-        int x,
-        int y,
-        int width,
-        int height,
-        uint flags);
-}
-
-internal sealed class MainWindowLevelController(Func<bool, bool> apply)
-{
-    private bool? _isTopmost;
-
-    internal bool Update(bool isActive)
-    {
-        if (_isTopmost == isActive)
-            return true;
-        if (!apply(isActive))
-            return false;
-        _isTopmost = isActive;
-        return true;
-    }
 }
