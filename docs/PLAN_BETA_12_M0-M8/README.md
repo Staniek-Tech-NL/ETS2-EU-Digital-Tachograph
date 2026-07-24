@@ -28,7 +28,7 @@ M0 stabilizacja
 | M1 | NIE ROZPOCZĘTY | [M1 — Planer: kontrakty i czerwone testy](M1_PLANER_KONTRAKTY_I_CZERWONE_TESTY.md) |
 | M2 | NIE ROZPOCZĘTY | [M2 — Planer: silnik zdarzeniowy](M2_PLANER_SILNIK_ZDARZENIOWY.md) |
 | M3A | GO — RĘCZNY GATE UI ZIELONY | [M3A — Game Calendar & Deadline Presentation](M3A_GAME_CALENDAR_AND_DEADLINE_PRESENTATION.md) |
-| M3 | NIE ROZPOCZĘTY | [M3 — Planer: Application Service i UI](M3_PLANER_APPLICATION_SERVICE_I_UI.md) |
+| M3 | REDESIGN — M3-R0 ZATWIERDZONE / M3-R1 DO WYKONANIA | [M3 — Planer: Application Service i UI](M3_PLANER_APPLICATION_SERVICE_I_UI.md) |
 | M4 | NIE ROZPOCZĘTY | [M4 — Finalizacja całego interfejsu i UI freeze](M4_FINALIZACJA_UI_I_UI_FREEZE.md) |
 | M5 | NIE ROZPOCZĘTY | [M5 — Lokalizacja PL/EN](M5_LOKALIZACJA_PL_EN.md) |
 | M6 | NIE ROZPOCZĘTY | [M6 — Release Candidate `0.1.0-beta.12`](M6_RELEASE_CANDIDATE_BETA_12.md) |

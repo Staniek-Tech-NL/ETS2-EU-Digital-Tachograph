@@ -4,14 +4,94 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status bieżący:** **HOLD — WYMAGANA INTEGRACJA PLANOWANIA ZAŁOGI**
-**Kryterium wejścia:** Rozszerzony silnik M2 i jego testy załogi są zielone.
+**Status bieżący:** **REDESIGN — M3-R0 ZATWIERDZONE, M3-R1 DO WYKONANIA**
+**Kryterium wejścia:** `M2-CREW GO AND M3A GO` — spełnione.
 **Kryterium wyjścia:** Kompletny przepływ użytkownika Planera, zgodność z RuleEngine i poprawne unieważnianie wyniku.  
 **Następny etap:** M4
 
 > Ten dokument jest samodzielnym wydzieleniem etapu M3 z planu wydania beta.12. Nie zmienia zakresu ani gate’ów planu nadrzędnego.
 
-**Cel:** udostępnić Planer jako kompletny przepływ użytkownika.
+## Decyzja produktowa M3-R0
+
+**M3-R0 zatwierdzone przez użytkownika 2026-07-24.**
+
+Stary prototyp M3 zostaje odrzucony produktowo. Nie wolno go dalej rozwijać
+przez dokładanie kolejnych pól lub łatek do modelu opartego na jednym
+`RemainingDriveMinutes`. Poniższa historyczna implementacja może być użyta
+wyłącznie jako źródło elementów technicznych nadających się do ponownego użycia.
+
+Nowe M3 obsługuje dwa jawne przypadki użycia:
+
+```text
+MarketOffer
+ActiveDelivery
+```
+
+`MarketOffer` przyjmuje dane rynku ETS2:
+
+- czas dojazdu po ładunek;
+- osobny termin wygaśnięcia oferty;
+- czas trasy z ładunkiem;
+- początek i koniec okna dostawy;
+- czas odbioru;
+- czas rozładunku;
+- aktywną obsadę.
+
+`ActiveDelivery` zachowuje uproszczony scenariusz przyjętego zlecenia, bez
+udawania danych oferty rynkowej.
+
+Wynik odpowiada na pytanie, czy ofertę można legalnie odebrać i dostarczyć,
+kiedy nastąpi odbiór i dostawa oraz jaki pozostaje zapas. Klasyfikacja
+produktowa wyniku:
+
+```text
+BIERZ
+NA STYK
+NIE BIERZ
+```
+
+### Wzorzec UI nowego M3
+
+Normatywną referencją wizualną jest:
+
+[`ChatGPT Image 24 lip 2026, 17_15_10.png`](../images/ChatGPT%20Image%2024%20lip%202026%2C%2017_15_10.png)
+
+Z makiety przyjmujemy:
+
+- układ strony `PLANER PODRÓŻY` z formularzem u góry;
+- pas podsumowania z czasem gry, wygaśnięciem oferty, oknem dostawy,
+  najwcześniejszym przyjazdem, końcem dostawy i marginesem;
+- tabelę segmentów planu z czasami, powodem i aktywnością;
+- prawy panel ostrzeżeń, ograniczeń i podsumowania;
+- czytelne rozróżnienie jazdy, innej pracy, oczekiwania i odpoczynku;
+- prezentację terminów przez kalendarz M3A;
+- wspólny harmonogram pojazdu oraz aktywności S1/S2 z M2-CREW.
+
+Makieta jest wzorcem hierarchii informacji i wyglądu, nie kontraktem starego
+formularza. Pola wejściowe muszą wynikać z `MarketOffer` albo `ActiveDelivery`.
+UI powstaje po kontraktach, czerwonych testach M3-R1 i nowym Application Service.
+
+## M3-R1 — blokujące testy przed implementacją
+
+```text
+M3-P0-01  brak ręcznego liczenia czasu do dostawy
+M3-P0-02  osobny deadline wygaśnięcia oferty
+M3-P0-03  osobne okno dostawy od/do
+M3-P0-04  dojazd po ładunek uwzględniony przed odbiorem
+M3-P0-05  harmonogram S1/S2 wykorzystuje M2-CREW
+M3-P0-06  przerwa 45 min w ruchu nie zatrzymuje pojazdu
+M3-P0-07  wynik rozróżnia: BIERZ / NA STYK / NIE BIERZ
+M3-P0-08  kalendarz korzysta z M3A i offsetu snapshotu
+```
+
+**Implementacja nowego M3 pozostaje HOLD do utworzenia i zatwierdzenia
+czerwonego pakietu M3-R1.**
+
+---
+
+## Historyczny, odrzucony wariant M3
+
+**Cel historyczny:** udostępnić Planer jako kompletny przepływ użytkownika.
 
 ### Zadania
 
