@@ -17,8 +17,8 @@
 | **M0** | Stabilizacja stanu wejściowego | 🟢 GO | GO | M1 |
 | **M1** | Planer: kontrakty i czerwone testy | 🟢 rozszerzony o załogę | GO | M2 |
 | **M2** | Planer: silnik zdarzeniowy | 🟢 rozszerzenie załogi domknięte | GO | M3A |
-| **M3A** | Game Calendar & Deadline Presentation | 🔴 automatycznie domknięty / oczekuje na ręczny gate UI | HOLD | M3 |
-| **M3** | Planer: Application Service i UI | 🔴 HOLD — wymaga `M2-CREW GO AND M3A GO` | HOLD | M4 |
+| **M3A** | Game Calendar & Deadline Presentation | 🟢 ręczny gate UI zielony | GO | M3 |
+| **M3** | Planer: Application Service i UI | 🟡 kryterium wejścia spełnione / gate M3 w toku | HOLD | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
@@ -178,7 +178,7 @@ poniedziałek 00:00 w kalendarzu gry przesuniętym przez surowy
 `WeekEpochOffsetDays`.
 
 - **Specyfikacja:** **ZATWIERDZONA — GO**
-- **Implementacja:** **AUTOMATYCZNIE DOMKNIĘTA — HOLD DO RĘCZNEGO GATE’U UI**
+- **Implementacja:** **ZAKOŃCZONA — GO**
 - **Zakres pierwszej tury:** `ODP. DZIENNY`, `ODP. TYG.`, terminy rekompensat
 - **Poza pierwszą turą:** `DO PRZERWY`, Planer rynku, problem 44/45
 - **Dokument:** `docs/PLAN_BETA_12_M0-M8/M3A_GAME_CALENDAR_AND_DEADLINE_PRESENTATION.md`
@@ -197,14 +197,15 @@ Wynik automatyczny 2026-07-24:
   rekompensaty po restarcie mają test regresyjny;
 - brak nowych błędów P0/P1 w gate’ach automatycznych.
 
-Do formalnego M3A GO pozostają `M3A-UI-01…04` oraz pełna ręczna checklista UI.
+Ręczny gate `M3A-UI-01…04` oraz pełna checklista UI zostały potwierdzone przez
+użytkownika 2026-07-24 wynikiem zielonym. **Formalny wynik M3A: GO.**
 
 ---
 
-## M3 — Planer: Application Service i UI (HOLD — M3A WYMAGANE)
+## M3 — Planer: Application Service i UI (KRYTERIUM WEJŚCIA SPEŁNIONE)
 
-**Kryterium wejścia:** `M2-CREW GO AND M3A GO`. **Stan:** M2-CREW spełnione;
-specyfikacja M3A zatwierdzona, implementacja M3A pozostaje do wykonania.
+**Kryterium wejścia:** `M2-CREW GO AND M3A GO`. **Stan:** spełnione;
+M2-CREW i M3A mają formalny wynik GO.
 
 ### Gate M3
 

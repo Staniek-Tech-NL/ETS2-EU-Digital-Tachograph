@@ -387,7 +387,7 @@ regresji UI.
 - [x] pierwsza tura UI otrzymuje właściwe absolutne terminy;
 - [x] semantyka dokładnej granicy jest poprawna dla każdego rodzaju terminu;
 - [x] testy automatyczne M3A są zielone;
-- [ ] testy ręczne M3A i pełna checklista UI są zielone;
+- [x] testy ręczne M3A i pełna checklista UI są zielone;
 - [x] brak nowych błędów P0/P1 w gate’ach automatycznych.
 
 ### 12.3 Wynik implementacji automatycznej
@@ -401,12 +401,12 @@ regresji UI.
 - **Regresja restartu rekompensaty:** zapisany wybór
   `DailyRestWithCompensation` jest ponownie stosowany po odtworzeniu historii
   warm + hot; odpoczynek spłacający nie tworzy nowego długu.
-- **Gate ręczny:** oczekuje na `M3A-UI-01…04` i pełną checklistę UI
-- **Wynik bieżący:** **HOLD DO RĘCZNEGO GATE’U UI**
+- **Gate ręczny:** `M3A-UI-01…04` i pełna checklista UI potwierdzone przez
+  użytkownika 2026-07-24
+- **Wynik bieżący:** **GO**
 
-Automatyczna część implementacji M3A została zakończona. M3 pozostaje HOLD do
-zielonego ręcznego gate’u UI i zamknięcia M3A wynikiem GO. Wejście do M3 wymaga
-łącznie:
+Automatyczna część implementacji M3A oraz ręczny gate UI zostały zakończone.
+M3A uzyskuje formalny wynik GO. Kryterium wejścia do M3 jest spełnione łącznie:
 
 ```text
 M2-CREW GO
