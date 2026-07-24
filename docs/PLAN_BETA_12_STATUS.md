@@ -204,7 +204,7 @@ użytkownika 2026-07-24 wynikiem zielonym. **Formalny wynik M3A: GO.**
 
 ---
 
-## M3 — Planer: Application Service i UI (REDESIGN — M3-R0 ZATWIERDZONE)
+## M3 — Planer: Application Service i UI (ZAMKNIĘTY — GO)
 
 **Kryterium wejścia:** `M2-CREW GO AND M3A GO`. **Stan:** spełnione;
 M2-CREW i M3A mają formalny wynik GO.
@@ -252,6 +252,19 @@ jest zielony; UI działa zgodnie z zatwierdzonym kontraktem. M3 otrzymuje GO.
 - [x] snapshot obu kart aktywnej załogi
 - [x] wspólna oś pojazdu i równoległe aktywności S1/S2 w UI
 - [x] przyszłe zmiany prowadzącego oraz przerwy zmiennika w ruchu
+
+### Zamknięcie M3 (GO)
+
+- **Data rozpoczęcia:** 2026-07-24
+- **Data zakończenia:** 2026-07-24
+- **Wynik:** **GO**
+- **Commit / punkt przywracania:** `bd76999` — complete M3 market offer UI (integracja załogi w UI)
+- **Build Release:** 0 błędów / 0 ostrzeżeń
+- **Testy automatyczne:** 501/501; Desktop 76/76, w tym unieważnianie wyniku przy zmianie snapshotu załogi
+- **Testy manualne / dowody:** integracja aktywnej podwójnej obsady w UI potwierdzona przez użytkownika 2026-07-24; końcowy smoke UI zielony
+- **Otwarte błędy P0:** 0 — P0 integracji załogi zamknięty w `bd76999`
+- **Otwarte błędy P1:** 0
+- **Uwagi do następnego etapu:** M3.5 (Wariant B Raporty) może wystartować. Etap 0 audytu na stanie po M3 (501/501); terminy w Raportach konsumują warstwę M3A. Residualny 44/45 in-game należy do M3.6/M7, nie do M3.
 
 ### Historyczny stan pierwszego wariantu M3
 
