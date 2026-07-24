@@ -112,6 +112,7 @@ dokładnie zero albo jednego prowadzącego oraz równoległe aktywności S1/S2.
 - **Data zakończenia:** 2026-07-24
 - **Wynik:** **GO**
 - **Commit / punkt przywracania:** `751cd07` — deterministyczny silnik zdarzeniowy M2
+- **Punkt przywracania rozszerzenia załogi:** `db34de2`
 - **Build Release:** 0 błędów / 0 ostrzeżeń
 - **Testy automatyczne:** 385/385
 - **Testy manualne / dowody:** nie dotyczy — brak zmian UI

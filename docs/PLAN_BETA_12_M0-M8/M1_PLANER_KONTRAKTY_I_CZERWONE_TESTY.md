@@ -101,6 +101,7 @@ załogi, snapshotu obu różnych kart i planuje przyszłe zmiany prowadzącego.
 - **Data zakończenia:** 2026-07-24
 - **Wynik:** **GO**
 - **Commit / punkt przywracania:** `879eda5` — kontrakty i czerwone testy M1
+- **Rozszerzenie kontraktów załogi:** `db34de2`
 - **Build Release:** 0 błędów / 0 ostrzeżeń
 - **Testy automatyczne:** regresja + kontrakty M1 355/355; pakiet `Stage=M2Red`
   13/13 prawidłowo czerwony na celowej granicy `NotImplementedException`

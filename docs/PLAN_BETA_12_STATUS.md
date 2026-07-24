@@ -153,6 +153,7 @@ regresja `41+3=44` zielona 2026-07-24).
 - **Wynik historyczny:** **GO** dla modelu jednej karty
 - **Wynik bieżący:** **W TOKU — wymagane rozszerzenie planowania załogi**
 - **Commit / punkt przywracania:** `751cd07` — deterministyczny silnik zdarzeniowy M2
+- **Punkt przywracania rozszerzenia załogi:** `db34de2`
 - **Build Release:** 0 błędów / 0 ostrzeżeń
 - **Testy automatyczne:** historycznie 385/385; obecnie 408/408, w tym
   `JP-CREW-P0-01–06` 6/6
