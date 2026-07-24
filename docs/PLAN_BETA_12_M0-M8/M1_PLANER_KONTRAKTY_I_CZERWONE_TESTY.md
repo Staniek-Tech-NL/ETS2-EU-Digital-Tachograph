@@ -4,7 +4,7 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status:** **ZAKOŃCZONY — GO (2026-07-24)**
+**Status:** **ROZSZERZONY — KONTRAKTY PLANOWANIA ZAŁOGI (2026-07-24)**
 **Kryterium wejścia:** Formalny wynik **GO** dla M0.  
 **Kryterium wyjścia:** Kontrakty zatwierdzone, czerwone testy kompletne, brak zależności od WPF i zapisu do SQLite.  
 **Następny etap:** M2
@@ -23,6 +23,9 @@
 - [x] Dodać testy statusów `JP-ST-01–08`.
 - [x] Dodać testy snapshotu i unieważniania wyniku.
 - [x] Dodać testy zakończenia algorytmu i limitów bezpieczeństwa.
+- [x] Dodać tryb `MultiManningCrew`, snapshot obu kart i wspólną oś czasu pojazdu.
+- [x] Dodać segment równoległych aktywności S1/S2 z jednym prowadzącym.
+- [x] Dodać testy `JP-CREW-P0-01–06`.
 - [x] Nie tworzyć jeszcze UI Planera.
 
 ### Gate M1
@@ -51,7 +54,10 @@ Wymagane elementy modelu:
 - ograniczone rozgałęzienie, deduplikacja stanów, gwarancja postępu i limity obliczeń;
 - obsługa luk, braku telemetrii i unieważnienia snapshotu.
 
-Planer nie może zapisywać hipotetycznych aktywności do SQLite, modyfikować prawdziwego `RegulationState`, planować przyszłych zmian kierowcy ani aktywować podwójnej obsady samym wyborem S1/S2.
+Planer nie może zapisywać hipotetycznych aktywności do SQLite ani modyfikować
+prawdziwego `RegulationState`. Tryb jednej karty nie aktywuje podwójnej obsady
+samym wyborem S1/S2. Tryb `MultiManningCrew` wymaga potwierdzonej aktywnej
+załogi, snapshotu obu różnych kart i planuje przyszłe zmiany prowadzącego.
 
 ## Minimalne klasy czerwonych testów
 
@@ -61,6 +67,9 @@ Planer nie może zapisywać hipotetycznych aktywności do SQLite, modyfikować p
 - testy deterministyczności;
 - testy limitów segmentów, czasu i odwiedzonych stanów;
 - test potwierdzający brak operacji zapisu do SQLite.
+- `JP-CREW-P0-01–06` — przejęcie jazdy bez postoju, niepełna przerwa,
+  rozdzielenie przerwy od odpoczynku dobowego, krótszy przyjazd, warunek
+  aktywnej załogi i zakaz jednoczesnej jazdy obu kart.
 
 ## Poza zakresem M1
 

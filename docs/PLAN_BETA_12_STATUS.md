@@ -15,9 +15,9 @@
 | Etap | Zakres | Status | Wynik | Blokuje |
 |---|---|---|---|---|
 | **M0** | Stabilizacja stanu wejściowego | 🟢 GO | GO | M1 |
-| **M1** | Planer: kontrakty i czerwone testy | 🟢 GO | GO | M2 |
-| **M2** | Planer: silnik zdarzeniowy | 🟢 GO | GO | M3 |
-| **M3** | Planer: Application Service i UI | 🔴 HOLD — test ręczny | HOLD | M4 |
+| **M1** | Planer: kontrakty i czerwone testy | 🟢 rozszerzony o załogę | GO | M2 |
+| **M2** | Planer: silnik zdarzeniowy | 🟡 wymaga rozszerzenia — załoga | W TOKU | M3 |
+| **M3** | Planer: Application Service i UI | 🔴 HOLD — brak integracji załogi | HOLD | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
@@ -83,7 +83,7 @@ regresja `41+3=44` zielona 2026-07-24).
 
 ---
 
-## M1 — Planer: kontrakty i czerwone testy (ZAMKNIĘTY — GO)
+## M1 — Planer: kontrakty i czerwone testy (ROZSZERZONY O ZAŁOGĘ)
 
 **Kryterium wejścia:** formalny wynik GO dla M0. **Stan:** spełnione.
 
@@ -99,6 +99,8 @@ regresja `41+3=44` zielona 2026-07-24).
 | `JP-ST-01–08` | ✅ zrobione | Pełny kontrakt ośmiu statusów terminalnych |
 | Determinizm i limity bezpieczeństwa | ✅ zrobione | Czerwone testy postępu, determinizmu i trzech limitów |
 | Izolacja od UI i persistence | ✅ zrobione | Brak referencji WPF, EF Core, SQLite i Infrastructure |
+| `MultiManningCrew` i oś S1/S2 | ✅ zrobione | Snapshot obu kart i segment równoległych aktywności |
+| `JP-CREW-P0-01–06` | ✅ zrobione | Sześć blokujących przypadków planowania załogi |
 
 ### Gate M1
 
@@ -124,7 +126,7 @@ regresja `41+3=44` zielona 2026-07-24).
 
 ---
 
-## M2 — Planer: silnik zdarzeniowy (ZAMKNIĘTY — GO)
+## M2 — Planer: silnik zdarzeniowy (WYMAGA ROZSZERZENIA — PLANOWANIE ZAŁOGI)
 
 **Kryterium wejścia:** zaakceptowane kontrakty i czerwone testy M1.
 **Stan:** spełnione przez commit `879eda5`.
@@ -137,23 +139,32 @@ regresja `41+3=44` zielona 2026-07-24).
 - [x] kontrolowane `NoLegalContinuation` i `CalculationLimitReached`
 - [x] deduplikacja stanu i dodatni postęp każdego segmentu
 - [x] brak zapisu do SQLite i brak mutacji wejściowego `RegulationState`
+- [x] wspólna oś czasu pojazdu z równoległymi aktywnościami S1/S2
+- [x] przyszłe zmiany prowadzącego bez postoju pojazdu
+- [x] przerwa 45 min zmiennika w ruchu zeruje tylko jazdę ciągłą
+- [x] testy `JP-CREW-P0-01–06` zielone
+- [ ] pełna macierz granic 9/10 h, 56/90 h i 30 h dla obu kart
+- [ ] potwierdzenie zgodności projekcji z bieżącym silnikiem tachografu
 
 ### Zamknięcie M2
 
 - **Data rozpoczęcia:** 2026-07-24
 - **Data zakończenia:** 2026-07-24
-- **Wynik:** **GO**
+- **Wynik historyczny:** **GO** dla modelu jednej karty
+- **Wynik bieżący:** **W TOKU — wymagane rozszerzenie planowania załogi**
 - **Commit / punkt przywracania:** `751cd07` — deterministyczny silnik zdarzeniowy M2
 - **Build Release:** 0 błędów / 0 ostrzeżeń
-- **Testy automatyczne:** 385/385
+- **Testy automatyczne:** historycznie 385/385; obecnie 408/408, w tym
+  `JP-CREW-P0-01–06` 6/6
 - **Testy manualne / dowody:** nie dotyczy — brak zmian UI
 - **Otwarte błędy P0:** 0
 - **Otwarte błędy P1:** 0
-- **Uwagi do następnego etapu:** M3 może rozpocząć warstwę Application i UI.
+- **Uwagi do następnego etapu:** M3 pozostaje na HOLD do czasu zintegrowania
+  snapshotu obu kart i wspólnej osi czasu.
 
 ---
 
-## M3 — Planer: Application Service i UI (IMPLEMENTACJA ZAKOŃCZONA — HOLD)
+## M3 — Planer: Application Service i UI (HOLD — BRAK INTEGRACJI ZAŁOGI)
 
 **Kryterium wejścia:** zielony silnik M2. **Stan:** spełnione przez commit
 `751cd07`.
@@ -168,20 +179,24 @@ regresja `41+3=44` zielona 2026-07-24).
 - [x] build Release i pełna regresja automatyczna są zielone
 - [x] kontrolny smoke wizualny zakładki przy 1280×800 jest zielony
 - [ ] końcowy test ręczny użytkownika
+- [ ] snapshot obu kart aktywnej załogi
+- [ ] wspólna oś pojazdu i równoległe aktywności S1/S2 w UI
+- [ ] przyszłe zmiany prowadzącego oraz przerwy zmiennika w ruchu
 
 ### Stan zamknięcia M3
 
 - **Data rozpoczęcia:** 2026-07-24
 - **Data zakończenia implementacji:** 2026-07-24
-- **Wynik:** **HOLD** — użytkownik wykona końcowy test ręczny
+- **Wynik:** **HOLD** — najpierw integracja planowania załogi, potem test ręczny
 - **Commit / punkt przywracania:** `e8efc61` — implementacja Application Service i UI M3
 - **Build Release:** 0 błędów / 0 ostrzeżeń
 - **Testy automatyczne:** 402/402 po poprawkach z pierwszego smoke
 - **Testy manualne / dowody:** kontrolny smoke wizualny aplikacji zielony; pełna
   checklista ręczna pozostaje po stronie użytkownika
-- **Otwarte błędy P0:** 0
+- **Otwarte błędy P0:** 1 — brak pełnego planowania aktywnej podwójnej obsady
 - **Otwarte błędy P1:** 0
-- **Uwagi do następnego etapu:** M4 pozostaje zamknięty do czasu formalnego GO M3.
+- **Uwagi do następnego etapu:** M4 pozostaje zamknięty do czasu integracji
+  `MultiManningCrew` i formalnego GO M3.
 
 Pierwszy smoke użytkownika wykrył dwa blokery: stale snapshot Planera przy
 telemetrii oraz brak wykonanej rekompensaty karty Staniek w widoku. Planer

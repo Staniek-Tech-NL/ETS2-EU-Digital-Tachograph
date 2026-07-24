@@ -4,8 +4,8 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status bieżący:** **IMPLEMENTACJA ZAKOŃCZONA — HOLD DO TESTU RĘCZNEGO UŻYTKOWNIKA**
-**Kryterium wejścia:** Silnik M2 i jego testy są zielone.  
+**Status bieżący:** **HOLD — WYMAGANA INTEGRACJA PLANOWANIA ZAŁOGI**
+**Kryterium wejścia:** Rozszerzony silnik M2 i jego testy załogi są zielone.
 **Kryterium wyjścia:** Kompletny przepływ użytkownika Planera, zgodność z RuleEngine i poprawne unieważnianie wyniku.  
 **Następny etap:** M4
 
@@ -43,6 +43,9 @@ Stan gate'u:
 - [x] Planer nie zapisuje hipotetycznych aktywności;
 - [x] automatyczne testy ViewModelu i kontrolny smoke wizualny zakładki są zielone;
 - [ ] końcowy test ręczny użytkownika.
+- [ ] atomowy snapshot zawiera obie karty aktywnej załogi;
+- [ ] UI prezentuje wspólną oś pojazdu i równoległe aktywności S1/S2;
+- [ ] Planer wykorzystuje przyszłe zmiany prowadzącego i przerwy w ruchu.
 
 ---
 
@@ -63,7 +66,9 @@ Wymagane elementy modelu:
 - ograniczone rozgałęzienie, deduplikacja stanów, gwarancja postępu i limity obliczeń;
 - obsługa luk, braku telemetrii i unieważnienia snapshotu.
 
-Planer nie może zapisywać hipotetycznych aktywności do SQLite, modyfikować prawdziwego `RegulationState`, planować przyszłych zmian kierowcy ani aktywować podwójnej obsady samym wyborem S1/S2.
+Planer nie może zapisywać hipotetycznych aktywności do SQLite ani modyfikować
+prawdziwego `RegulationState`. Dla aktywnej załogi musi planować wspólną trasę
+obu kart, przyszłe zmiany prowadzącego i kwalifikowane przerwy w ruchu.
 
 ## Wymagany przepływ użytkownika
 
@@ -79,7 +84,9 @@ Planer nie może zapisywać hipotetycznych aktywności do SQLite, modyfikować p
 - pełna lokalizacja zasobów;
 - zapisywanie planów;
 - dynamiczne przeliczanie planu w ruchu;
-- przyszłe zmiany kierowców.
+
+Przyszłe zmiany kierowców nie są już poza zakresem — są warunkiem ponownego
+otwarcia gate’u M3.
 
 ## Zasady obowiązujące na tym etapie
 

@@ -1,5 +1,11 @@
 namespace ETS2Tachograph.RuleEngine.JourneyPlanning;
 
+public enum JourneyPlanningMode
+{
+    SingleDriver,
+    MultiManningCrew
+}
+
 public enum JourneyOperationalBufferPolicy
 {
     OtherWorkAfterArrival
@@ -48,7 +54,8 @@ public enum JourneyPlanSegmentReason
     BiweeklyDrivingLimitReached,
     WaitForNewRegulatoryWeek,
     WaitForBiweeklyCapacity,
-    OperationalBufferAfterArrival
+    OperationalBufferAfterArrival,
+    CrewDriverChange
 }
 
 public enum JourneyPlanWarningCode

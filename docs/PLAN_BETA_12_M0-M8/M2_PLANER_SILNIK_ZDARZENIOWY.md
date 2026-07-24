@@ -4,7 +4,7 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status:** **ZAKOŃCZONY — GO (2026-07-24)**
+**Status:** **WYMAGA ROZSZERZENIA — PLANOWANIE ZAŁOGI**
 **Kryterium wejścia:** Kontrakty M1 zaakceptowane; testy blokujące istnieją i prawidłowo zawodzą bez implementacji.  
 **Kryterium wyjścia:** Testy P0 i algorytmu zielone; deterministyczny wynik; kontrolowane zakończenie każdej kalkulacji.  
 **Następny etap:** M3
@@ -27,6 +27,12 @@
 - [x] Zaimplementować deduplikację stanów.
 - [x] Zaimplementować gwarancję postępu i kontrolowane zakończenie.
 - [x] Potwierdzić brak zapisu do bazy i brak modyfikacji prawdziwego stanu kierowcy.
+- [x] Dodać równoległy stan regulacyjny S1/S2 i wspólną oś czasu pojazdu.
+- [x] Dodać przyszłe zmiany prowadzącego bez postoju pojazdu.
+- [x] Dodać kwalifikowaną 45-minutową przerwę zmiennika w ruchu.
+- [x] Pilnować osobno jazdy ciągłej, dziennej oraz limitów 56/90 h obu kart.
+- [ ] Dodać pełną macierz granic 9/10 h, 56/90 h i 30 h osobno dla obu kart.
+- [ ] Potwierdzić zgodność projekcji załogi z bieżącym silnikiem tachografu.
 
 ### Gate M2
 
@@ -56,7 +62,10 @@ Wymagane elementy modelu:
 - ograniczone rozgałęzienie, deduplikacja stanów, gwarancja postępu i limity obliczeń;
 - obsługa luk, braku telemetrii i unieważnienia snapshotu.
 
-Planer nie może zapisywać hipotetycznych aktywności do SQLite, modyfikować prawdziwego `RegulationState`, planować przyszłych zmian kierowcy ani aktywować podwójnej obsady samym wyborem S1/S2.
+Planer nie może zapisywać hipotetycznych aktywności do SQLite ani modyfikować
+prawdziwego `RegulationState`. W `MultiManningCrew` planuje wspólną trasę,
+przyszłe zmiany prowadzącego i przerwy zmiennika w ruchu. Każdy segment ma
+dokładnie zero albo jednego prowadzącego oraz równoległe aktywności S1/S2.
 
 ## Niezmienniki silnika
 
@@ -66,6 +75,10 @@ Planer nie może zapisywać hipotetycznych aktywności do SQLite, modyfikować p
 - wariant o ograniczonej wiarygodności nie wygrywa bezwarunkowo z wariantem w pełni zweryfikowanym;
 - każda kalkulacja kończy się wynikiem, `NoLegalContinuation` albo `CalculationLimitReached`;
 - żadna hipotetyczna aktywność nie trafia do historii ani SQLite.
+- kwalifikowana przerwa w ruchu zeruje jazdę ciągłą zmiennika, ale nie jego
+  jazdę dzienną ani termin odpoczynku dobowego;
+- okno 30 h jest dostępne wyłącznie dla potwierdzonej aktywnej załogi;
+- segment nigdy nie przypisuje `Driving` obu kartom jednocześnie.
 
 ## Poza zakresem M2
 

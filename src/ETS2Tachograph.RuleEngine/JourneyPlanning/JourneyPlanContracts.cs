@@ -1,3 +1,4 @@
+using ETS2Tachograph.Core.Entities;
 using ETS2Tachograph.Core.Enums;
 
 namespace ETS2Tachograph.RuleEngine.JourneyPlanning;
@@ -79,3 +80,66 @@ public sealed record JourneyPlanResult(
     IReadOnlyList<JourneyPlanWarning> Warnings,
     JourneyPlanUsageSummary Usage,
     JourneyPlanSnapshotIdentity SnapshotIdentity);
+
+public sealed record CrewDriverPlanningSnapshot(
+    int DriverSlot,
+    string DriverCardId,
+    Guid ActivitySessionId,
+    long HistoryHighWaterMark,
+    RegulationEvaluation Evaluation,
+    IReadOnlyList<ActivityRecord> History,
+    IReadOnlyList<ActivityGap> Gaps);
+
+public sealed record CrewJourneyPlanningSnapshot(
+    long StartGameMinute,
+    long WorldGeneration,
+    int WeekEpochOffsetDays,
+    bool MultiManningActive,
+    bool TelemetryAvailable,
+    CrewDriverPlanningSnapshot Slot1,
+    CrewDriverPlanningSnapshot Slot2);
+
+public sealed record CrewJourneyPlanRequest(
+    JourneyPlanningMode Mode,
+    CrewJourneyPlanningSnapshot Snapshot,
+    int InitialDrivingSlot,
+    int RemainingDriveMinutes,
+    int DeliveryWindowMinutes,
+    int OperationalBufferMinutes,
+    JourneyOperationalBufferPolicy BufferPolicy,
+    JourneyPlanningLimits Limits);
+
+public sealed record CrewJourneyPlanSegment(
+    long StartGameMinute,
+    long EndGameMinute,
+    int? DrivingSlot,
+    DriverActivity Slot1Activity,
+    DriverActivity Slot2Activity,
+    bool Slot1BreakQualifiedInMotion,
+    bool Slot2BreakQualifiedInMotion,
+    JourneyPlanSegmentReason Reason)
+{
+    public int DurationMinutes => checked((int)(EndGameMinute - StartGameMinute));
+}
+
+public sealed record CrewDriverPlanSummary(
+    int DriverSlot,
+    long ContinuousDrivingMinutes,
+    long DailyDrivingMinutes,
+    long WeeklyDrivingMinutes,
+    long PreviousWeekDrivingMinutes,
+    long CurrentContinuousBreakMinutes,
+    long MinutesUntilDailyRestDeadline);
+
+public sealed record CrewJourneyPlanResult(
+    JourneyPlanStatus Status,
+    JourneyPlanConfidence Confidence,
+    long StartGameMinute,
+    long? EarliestArrivalGameMinute,
+    long? EarliestCompletionGameMinute,
+    int RequiredElapsedMinutes,
+    int MarginMinutes,
+    IReadOnlyList<CrewJourneyPlanSegment> Segments,
+    IReadOnlyList<JourneyPlanWarning> Warnings,
+    CrewDriverPlanSummary Slot1,
+    CrewDriverPlanSummary Slot2);
