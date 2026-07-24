@@ -171,7 +171,7 @@ public sealed class DeliveryPlanningM3P0RedTests
     private static MarketOffer Offer(
         CrewJourneyPlanningSnapshot? snapshot = null,
         int driveToPickup = 0,
-        long offerExpiresAt = 10_000,
+        long offerExpiresAt = 100_000,
         int loadedDrive = 0,
         long windowStart = 1_000,
         long windowEnd = 10_000,

@@ -18,7 +18,7 @@
 | **M1** | Planer: kontrakty i czerwone testy | 🟢 rozszerzony o załogę | GO | M2 |
 | **M2** | Planer: silnik zdarzeniowy | 🟢 rozszerzenie załogi domknięte | GO | M3A |
 | **M3A** | Game Calendar & Deadline Presentation | 🟢 ręczny gate UI zielony | GO | M3 |
-| **M3** | Planer: Application Service i UI | 🟡 M3-R1 czerwony gate gotowy / M3-R2 odblokowane | HOLD | M4 |
+| **M3** | Planer: Application Service i UI | 🟡 M3-R2 silnik i Application Service gotowe / UI do wykonania | HOLD | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
@@ -218,13 +218,16 @@ MarketOffer
 ActiveDelivery
 ```
 
-M3-R0 jest zatwierdzone. Czerwone testy `M3-P0-01…08` w ramach M3-R1 są
-gotowe: 9/9 wykonań kontrolowanie czerwonych, ponieważ `M3-P0-08` sprawdza dwa
-offsety. Dotychczasowy RuleEngine pozostaje zielony 157/157, a pełna regresja
-bez celowo czerwonego pakietu pozostaje zielona 478/478. M3-R2 jest odblokowane.
+M3-R0 jest zatwierdzone. Pakiet `M3-P0-01…08` przeszedł od kontrolowanej
+czerwieni do zielonego wyniku 9/9. M3-R2 dostarcza silnik obu przypadków użycia
+oraz nowy Application Service z atomowym snapshotem S1/S2 i unieważnianiem
+wyniku. Testy Application: 59/59; pełna regresja Release: 491/491.
+
+`M3-P0-08` wykrył i zamknął rozjazd offsetu tygodnia w ścieżce M2-CREW:
+lokalne obliczenie zostało zastąpione kanonicznym `GameWeek` z M3A.
 UI ma być wzorowane na makiecie
 `docs/images/ChatGPT Image 24 lip 2026, 17_15_10.png`, z polami wynikającymi
-z nowego kontraktu, a nie ze starego formularza.
+z nowego kontraktu, a nie ze starego formularza. Następny krok: M3-R3 UI.
 
 ### Gate M3
 

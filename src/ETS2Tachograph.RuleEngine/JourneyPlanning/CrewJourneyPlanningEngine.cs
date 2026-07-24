@@ -1,5 +1,6 @@
 using ETS2Tachograph.Core.Entities;
 using ETS2Tachograph.Core.Enums;
+using ETS2Tachograph.Core.Time;
 
 namespace ETS2Tachograph.RuleEngine.JourneyPlanning;
 
@@ -725,25 +726,15 @@ public sealed class CrewJourneyPlanningEngine
 
     private static int CalendarWaitDuration(long now, int offsetDays)
     {
-        const int weekMinutes = 7 * 24 * 60;
-        var offset = offsetDays * 24L * 60;
-        var relative = now - offset;
-        var weekIndex = Math.DivRem(relative, weekMinutes, out var remainder);
-        if (remainder < 0)
-            weekIndex--;
-        var boundary = checked(offset + ((weekIndex + 1) * weekMinutes));
-        if (boundary <= now)
-            boundary = checked(now + weekMinutes);
+        var boundary = GameWeek
+            .From(new GameTime(now), offsetDays)
+            .GetBounds()
+            .EndGameMinuteExclusive;
         return checked((int)(boundary - now));
     }
 
-    private static long WeekIndex(long minute, int offsetDays)
-    {
-        const int weekMinutes = 7 * 24 * 60;
-        var relative = minute - (offsetDays * 24L * 60);
-        var index = Math.DivRem(relative, weekMinutes, out var remainder);
-        return remainder < 0 ? index - 1 : index;
-    }
+    private static long WeekIndex(long minute, int offsetDays) =>
+        GameWeek.From(new GameTime(minute), offsetDays).Index;
 
     private static void AdvanceWeeks(
         ref long currentWeekIndex,

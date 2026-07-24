@@ -75,6 +75,34 @@ public sealed record DeliveryPlanSegment(
     public int DurationMinutes => checked((int)(EndGameMinute - StartGameMinute));
 }
 
+public sealed record CrewDeliveryPlanSnapshotIdentity(
+    long StartGameMinute,
+    long WorldGeneration,
+    int WeekEpochOffsetDays,
+    bool MultiManningActive,
+    JourneyPlanSnapshotIdentity Slot1,
+    JourneyPlanSnapshotIdentity Slot2)
+{
+    public static CrewDeliveryPlanSnapshotIdentity From(
+        CrewJourneyPlanningSnapshot snapshot) => new(
+        snapshot.StartGameMinute,
+        snapshot.WorldGeneration,
+        snapshot.WeekEpochOffsetDays,
+        snapshot.MultiManningActive,
+        Driver(snapshot, snapshot.Slot1),
+        Driver(snapshot, snapshot.Slot2));
+
+    private static JourneyPlanSnapshotIdentity Driver(
+        CrewJourneyPlanningSnapshot owner,
+        CrewDriverPlanningSnapshot driver) => new(
+        driver.DriverSlot,
+        owner.StartGameMinute,
+        driver.ActivitySessionId,
+        owner.WorldGeneration,
+        driver.HistoryHighWaterMark,
+        owner.WeekEpochOffsetDays);
+}
+
 public sealed record DeliveryPlanResult(
     DeliveryPlanningUseCase UseCase,
     DeliveryPlanVerdict Verdict,
@@ -90,4 +118,5 @@ public sealed record DeliveryPlanResult(
     int MarginMinutes,
     int WeekEpochOffsetDays,
     IReadOnlyList<DeliveryPlanSegment> Segments,
-    IReadOnlyList<JourneyPlanWarning> Warnings);
+    IReadOnlyList<JourneyPlanWarning> Warnings,
+    CrewDeliveryPlanSnapshotIdentity SnapshotIdentity);

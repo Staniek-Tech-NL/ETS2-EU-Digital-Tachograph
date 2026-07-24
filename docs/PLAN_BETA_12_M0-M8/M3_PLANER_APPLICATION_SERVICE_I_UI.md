@@ -4,7 +4,7 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status bieżący:** **REDESIGN — M3-R1 CZERWONY GATE GOTOWY, M3-R2 ODBLOKOWANE**
+**Status bieżący:** **REDESIGN — M3-R2 APPLICATION SERVICE GOTOWY, UI DO WYKONANIA**
 **Kryterium wejścia:** `M2-CREW GO AND M3A GO` — spełnione.
 **Kryterium wyjścia:** Kompletny przepływ użytkownika Planera, zgodność z RuleEngine i poprawne unieważnianie wyniku.  
 **Następny etap:** M4
@@ -97,6 +97,30 @@ Stan M3-R1:
 
 **M3-R2 jest odblokowane. Następny krok: zazielenienie M3-P0-01…08, następnie
 nowy Application Service.**
+
+## M3-R2 — silnik i Application Service
+
+Stan 2026-07-24:
+
+- [x] `DeliveryPlanningEngine` obsługuje `MarketOffer` i `ActiveDelivery`;
+- [x] dojazd po ładunek, odbiór, trasa z ładunkiem, oczekiwanie na okno,
+  rozładunek i praca po dostawie są osobnymi fazami;
+- [x] wygaśnięcie oferty pozostaje niezależne od okna dostawy;
+- [x] wynik rozróżnia `Take`, `Tight` i `Reject`;
+- [x] jazda deleguje do istniejącego `CrewJourneyPlanningEngine`;
+- [x] przerwa S2 kwalifikowana w ruchu nie zatrzymuje osi pojazdu;
+- [x] nowy `DeliveryPlannerService` pobiera atomowy snapshot obu kart;
+- [x] wynik ma tożsamość snapshotu i jest unieważniany po zmianie telemetrii;
+- [x] planowanie pozostaje wyłącznie do odczytu;
+- [x] `M3-P0-01…08` są zielone 9/9;
+- [x] testy Application są zielone 59/59;
+- [x] pełna regresja Release jest zielona 491/491.
+
+Gate `M3-P0-08` wykrył pozostałe lokalne obliczenie tygodnia w ścieżce
+M2-CREW ze znakiem offsetu przeciwnym do M3A. Obliczenie granicy i indeksu
+zostało zastąpione delegacją do kanonicznego `GameWeek` w Core.
+
+**Następny krok:** M3-R3 — ViewModel i UI według zatwierdzonej makiety.
 
 ---
 
