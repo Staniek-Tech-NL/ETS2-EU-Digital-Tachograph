@@ -21,10 +21,10 @@ public sealed class DeliveryPlannerServiceTests
         var result = await service.PlanMarketOfferAsync(new MarketOfferPlannerInput(
             InitialDrivingSlot: 1,
             DriveToPickupMinutes: 0,
-            OfferExpiresAtGameMinuteExclusive: 10_000,
+            OfferExpiresInMinutes: 9_900,
             LoadedRouteDriveMinutes: 540,
-            DeliveryWindowStartGameMinute: 100,
-            DeliveryWindowEndGameMinuteExclusive: 20_000,
+            DeliveryWindowStart: At(GameWeekday.Monday, 1, 40),
+            DeliveryWindowEnd: At(GameWeekday.Sunday, 23, 0),
             PickupWorkMinutes: 0,
             UnloadingWorkMinutes: 0,
             PostDeliveryWorkMinutes: 0,
@@ -50,8 +50,8 @@ public sealed class DeliveryPlannerServiceTests
             new ActiveDeliveryPlannerInput(
                 InitialDrivingSlot: 1,
                 RemainingLoadedRouteDriveMinutes: 60,
-                DeliveryWindowStartGameMinute: 100,
-                DeliveryWindowEndGameMinuteExclusive: 1_000,
+                DeliveryWindowStart: At(GameWeekday.Monday, 1, 40),
+                DeliveryWindowEnd: At(GameWeekday.Monday, 16, 40),
                 UnloadingWorkMinutes: 15,
                 PostDeliveryWorkMinutes: 0,
                 TightMarginThresholdMinutes: 60));
@@ -59,6 +59,27 @@ public sealed class DeliveryPlannerServiceTests
         Assert.Equal(DeliveryPlanningUseCase.ActiveDelivery, result.UseCase);
         Assert.Null(result.OfferExpiresAtGameMinuteExclusive);
         Assert.Equal(175, result.DeliveryCompletedAtGameMinute);
+    }
+
+    [Fact]
+    public async Task Delivery_window_resolves_to_nearest_occurrences_from_snapshot()
+    {
+        var repository = new RecordingRepository();
+        var crew = await CreateCrewAsync(repository, includeCoDriver: true);
+        var service = new DeliveryPlannerService(crew);
+
+        var result = await service.PlanActiveDeliveryAsync(
+            new ActiveDeliveryPlannerInput(
+                InitialDrivingSlot: 1,
+                RemainingLoadedRouteDriveMinutes: 0,
+                DeliveryWindowStart: At(GameWeekday.Saturday, 1, 16),
+                DeliveryWindowEnd: At(GameWeekday.Thursday, 21, 54),
+                UnloadingWorkMinutes: 0,
+                PostDeliveryWorkMinutes: 0,
+                TightMarginThresholdMinutes: 60));
+
+        Assert.Equal(7_276, result.DeliveryWindowStartGameMinute);
+        Assert.Equal(15_714, result.DeliveryWindowEndGameMinuteExclusive);
     }
 
     [Fact]
@@ -71,8 +92,8 @@ public sealed class DeliveryPlannerServiceTests
             new ActiveDeliveryPlannerInput(
                 1,
                 60,
-                100,
-                1_000,
+                At(GameWeekday.Monday, 1, 40),
+                At(GameWeekday.Monday, 16, 40),
                 0,
                 0,
                 60));
@@ -94,8 +115,8 @@ public sealed class DeliveryPlannerServiceTests
             60,
             10_000,
             60,
-            100,
-            1_000,
+            At(GameWeekday.Monday, 1, 40),
+            At(GameWeekday.Monday, 16, 40),
             15,
             15,
             0,
@@ -131,6 +152,11 @@ public sealed class DeliveryPlannerServiceTests
         SpeedKph: 0,
         GamePaused: false,
         WorldGeneration: 7);
+
+    private static GameWeekdayTime At(
+        GameWeekday weekday,
+        int hour,
+        int minute) => new(weekday, hour, minute);
 
     private sealed class RecordingRepository : IActivityRepository
     {

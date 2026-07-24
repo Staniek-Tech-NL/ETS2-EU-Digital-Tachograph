@@ -43,6 +43,20 @@ public sealed class DeliveryPlanningM3P0RedTests
         Assert.Equal(3_000, result.DeliveryWindowEndGameMinuteExclusive);
     }
 
+    [Fact(DisplayName = "M3-P0-02B: pickup must complete before offer expiry")]
+    [Trait("Stage", "M3Red")]
+    public void M3_P0_02B()
+    {
+        var result = _engine.Plan(Offer(
+            driveToPickup: 60,
+            pickup: 15,
+            offerExpiresAt: 1_075));
+
+        Assert.Equal(DeliveryPlanVerdict.Reject, result.Verdict);
+        Assert.Equal(DeliveryPlanFailureReason.OfferExpired, result.FailureReason);
+        Assert.Equal(1_075, result.PickupCompletedAtGameMinute);
+    }
+
     [Fact(DisplayName = "M3-P0-03: delivery window keeps separate start and exclusive end")]
     [Trait("Stage", "M3Red")]
     public void M3_P0_03()

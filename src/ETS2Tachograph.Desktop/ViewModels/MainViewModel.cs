@@ -248,7 +248,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             new GameCalendarContext(crew.Engine.WeekEpochOffsetDays));
         _telemetry = telemetry;
         _diagnostics = diagnostics;
-        JourneyPlanner = new JourneyPlannerViewModel(new JourneyPlannerService(crew));
+        JourneyPlanner = new JourneyPlannerViewModel(
+            new DeliveryPlannerService(crew),
+            cardId => FindProfileByCard(cardId)?.DisplayName ?? cardId);
         foreach (var country in AvailableCountryOptions)
             CountryOptions.Add(country);
         OtherWorkCommand = new RelayCommand(() => SetActivity(DriverActivity.OtherWork));

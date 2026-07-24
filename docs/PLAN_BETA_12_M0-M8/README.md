@@ -30,7 +30,7 @@ M0 stabilizacja
 | M1 | NIE ROZPOCZĘTY | [M1 — Planer: kontrakty i czerwone testy](M1_PLANER_KONTRAKTY_I_CZERWONE_TESTY.md) |
 | M2 | NIE ROZPOCZĘTY | [M2 — Planer: silnik zdarzeniowy](M2_PLANER_SILNIK_ZDARZENIOWY.md) |
 | M3A | GO — RĘCZNY GATE UI ZIELONY | [M3A — Game Calendar & Deadline Presentation](M3A_GAME_CALENDAR_AND_DEADLINE_PRESENTATION.md) |
-| M3 | REDESIGN — M3-R3 AUTOMATYCZNIE GOTOWE / RĘCZNY SMOKE UI | [M3 — Planer: Application Service i UI](M3_PLANER_APPLICATION_SERVICE_I_UI.md) |
+| M3 | GO — M3-R3 AUTOMATYCZNIE I RĘCZNIE ZIELONE | [M3 — Planer: Application Service i UI](M3_PLANER_APPLICATION_SERVICE_I_UI.md) |
 | M3.5 | NIE ROZPOCZĘTY | [M3.5 — Raporty i statystyki: wariant B](M3_5_RAPORTY_WARIANT_B.md) |
 | M3.6 | NIE ROZPOCZĘTY | [M3.6 — Wewnętrzny smoke checkpoint (beta.12-rc0)](M3_6_WEWNETRZNY_SMOKE_CHECKPOINT.md) |
 | M4 | NIE ROZPOCZĘTY | [M4 — Finalizacja całego interfejsu i UI freeze](M4_FINALIZACJA_UI_I_UI_FREEZE.md) |

@@ -19,6 +19,26 @@ public enum GameDeadlineSemantic
     AvailableFrom
 }
 
+public readonly record struct GameWeekdayTime
+{
+    public GameWeekdayTime(GameWeekday weekday, int hour, int minute)
+    {
+        if (!Enum.IsDefined(weekday))
+            throw new ArgumentOutOfRangeException(nameof(weekday));
+        if (hour is < 0 or > 23)
+            throw new ArgumentOutOfRangeException(nameof(hour));
+        if (minute is < 0 or > 59)
+            throw new ArgumentOutOfRangeException(nameof(minute));
+        Weekday = weekday;
+        Hour = hour;
+        Minute = minute;
+    }
+
+    public GameWeekday Weekday { get; }
+    public int Hour { get; }
+    public int Minute { get; }
+}
+
 public readonly record struct GameCalendarContext
 {
     public GameCalendarContext(int weekEpochOffsetDays)
@@ -71,4 +91,27 @@ public sealed class GameCalendarResolver(GameCalendarContext context)
             (int)(minuteOfDay / 60),
             (int)(minuteOfDay % 60));
     }
+
+    public GameCalendarMoment ResolveNext(
+        GameWeekdayTime target,
+        GameTime notBefore)
+    {
+        var week = GameWeek.From(notBefore, Context.WeekEpochOffsetDays);
+        var bounds = week.GetBounds(Context.WeekEpochOffsetDays);
+        var candidate = checked(
+            bounds.StartGameMinute +
+            ((long)target.Weekday * GameWeek.MinutesPerDay) +
+            (target.Hour * 60L) +
+            target.Minute);
+        if (candidate < notBefore.TotalMinutes)
+            candidate = checked(candidate + GameWeek.MinutesPerWeek);
+        return Resolve(new GameTime(candidate));
+    }
+
+    public GameCalendarMoment ResolveNext(
+        GameWeekday weekday,
+        int hour,
+        int minute,
+        GameTime notBefore) =>
+        ResolveNext(new GameWeekdayTime(weekday, hour, minute), notBefore);
 }

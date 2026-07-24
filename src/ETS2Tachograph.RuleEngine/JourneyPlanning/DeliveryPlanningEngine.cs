@@ -67,6 +67,19 @@ public sealed class DeliveryPlanningEngine
             DriverActivity.OtherWork,
             segments);
         var pickupCompletedAt = state.StartGameMinute;
+        if (pickupCompletedAt >= offer.OfferExpiresAtGameMinuteExclusive)
+        {
+            return Failure(
+                DeliveryPlanningUseCase.MarketOffer,
+                DeliveryPlanFailureReason.OfferExpired,
+                offer.Snapshot,
+                offer.OfferExpiresAtGameMinuteExclusive,
+                offer.DeliveryWindowStartGameMinute,
+                offer.DeliveryWindowEndGameMinuteExclusive,
+                segments,
+                pickupStartedAt,
+                pickupCompletedAt);
+        }
 
         if (!TryAddDriving(
                 ref state,

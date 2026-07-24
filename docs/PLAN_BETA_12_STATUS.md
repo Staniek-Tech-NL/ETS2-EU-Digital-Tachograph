@@ -18,7 +18,7 @@
 | **M1** | Planer: kontrakty i czerwone testy | 🟢 rozszerzony o załogę | GO | M2 |
 | **M2** | Planer: silnik zdarzeniowy | 🟢 rozszerzenie załogi domknięte | GO | M3A |
 | **M3A** | Game Calendar & Deadline Presentation | 🟢 ręczny gate UI zielony | GO | M3 |
-| **M3** | Planer: Application Service i UI | 🟡 M3-R3 automatycznie gotowe / ręczny smoke UI | HOLD | M3.5 |
+| **M3** | Planer: Application Service i UI | 🟢 M3-R3 automatycznie i ręcznie zielone | GO | M3.5 |
 | **M3.5** | Raporty i statystyki: wariant B | ⚪ nie rozpoczęty (dokumentacja domknięta) | — | M3.6 |
 | **M3.6** | Wewnętrzny smoke checkpoint `beta.12-rc0` | ⚪ nie rozpoczęty (dokumentacja domknięta) | — | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
@@ -231,10 +231,13 @@ UI ma być wzorowane na makiecie
 `docs/images/ChatGPT Image 24 lip 2026, 17_15_10.png`, z polami wynikającymi
 z nowego kontraktu, a nie ze starego formularza. Następny krok: M3-R3 UI.
 
-M3-R3 jest automatycznie gotowe: nowy ViewModel i XAML obsługują oba przypadki
-użycia, prezentują kalendarz M3A, wspólne segmenty S1/S2, werdykt i margines.
-Testy Desktop: 71/71; pełna regresja Release: 487/487; kontrolny smoke przy
-1280×800 jest zielony. Do formalnego GO M3 pozostaje ręczny smoke użytkownika.
+M3-R3 jest automatycznie zielone: nowy ViewModel i XAML obsługują oba przypadki
+użycia. Wygaśnięcie oferty pozostaje czasem względnym, natomiast granice okna
+dostawy użytkownik podaje jako dzień tygodnia + godzinę; Application Service
+rozstrzyga najbliższe wystąpienia przez M3A względem atomowego snapshotu.
+Tabela pokazuje wspólną oś pojazdu i równoległe aktywności S1/S2. Testy Desktop:
+76/76; pełna regresja Release: 501/501. Końcowy smoke użytkownika z 2026-07-24
+jest zielony; UI działa zgodnie z zatwierdzonym kontraktem. M3 otrzymuje GO.
 
 ### Gate M3
 
@@ -245,12 +248,12 @@ Testy Desktop: 71/71; pełna regresja Release: 487/487; kontrolny smoke przy
 - [x] brak zapisu hipotetycznego planu do historii
 - [x] build Release i pełna regresja automatyczna są zielone
 - [x] kontrolny smoke wizualny zakładki przy 1280×800 jest zielony
-- [ ] końcowy test ręczny użytkownika
-- [ ] snapshot obu kart aktywnej załogi
-- [ ] wspólna oś pojazdu i równoległe aktywności S1/S2 w UI
-- [ ] przyszłe zmiany prowadzącego oraz przerwy zmiennika w ruchu
+- [x] końcowy test ręczny użytkownika
+- [x] snapshot obu kart aktywnej załogi
+- [x] wspólna oś pojazdu i równoległe aktywności S1/S2 w UI
+- [x] przyszłe zmiany prowadzącego oraz przerwy zmiennika w ruchu
 
-### Stan zamknięcia M3
+### Historyczny stan pierwszego wariantu M3
 
 - **Data rozpoczęcia:** 2026-07-24
 - **Data zakończenia implementacji:** 2026-07-24
@@ -258,8 +261,7 @@ Testy Desktop: 71/71; pełna regresja Release: 487/487; kontrolny smoke przy
 - **Commit / punkt przywracania:** `e8efc61` — implementacja Application Service i UI M3
 - **Build Release:** 0 błędów / 0 ostrzeżeń
 - **Testy automatyczne:** 402/402 po poprawkach z pierwszego smoke
-- **Testy manualne / dowody:** kontrolny smoke wizualny aplikacji zielony; pełna
-  checklista ręczna pozostaje po stronie użytkownika
+- **Testy manualne / dowody:** wynik historyczny, unieważniony przez redesign
 - **Otwarte błędy P0:** 1 — warstwa Application/UI nie korzysta jeszcze z
   kompletnego silnika aktywnej podwójnej obsady
 - **Otwarte błędy P1:** 0
@@ -279,8 +281,8 @@ jest ponowny test ręczny użytkownika. Naprawa rekompensaty: `af97b39`.
 
 ## M3.5 — Raporty i statystyki: wariant B (NIE ROZPOCZĘTY)
 
-**Kryterium wejścia:** formalny wynik GO dla M3. **Stan:** M3 pozostaje HOLD —
-M3.5 nie startuje przed jego domknięciem. Etap wstawiony między M3 a M4 decyzją
+**Kryterium wejścia:** formalny wynik GO dla M3 — spełnione. **Stan:** M3.5
+odblokowane, jeszcze nierozpoczęte. Etap wstawiony między M3 a M4 decyzją
 właściciela 2026-07-24 (Okno A: przed UI freeze).
 
 - **Dokument etapu:** `docs/PLAN_BETA_12_M0-M8/M3_5_RAPORTY_WARIANT_B.md`

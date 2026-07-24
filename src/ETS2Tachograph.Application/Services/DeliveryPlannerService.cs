@@ -1,6 +1,8 @@
 using System.Security.Cryptography;
 using System.Text;
 using ETS2Tachograph.Core.Entities;
+using ETS2Tachograph.Core.Enums;
+using ETS2Tachograph.Core.Time;
 using ETS2Tachograph.Engine;
 using ETS2Tachograph.RuleEngine.JourneyPlanning;
 
@@ -9,10 +11,10 @@ namespace ETS2Tachograph.Application.Services;
 public sealed record MarketOfferPlannerInput(
     int InitialDrivingSlot,
     int DriveToPickupMinutes,
-    long OfferExpiresAtGameMinuteExclusive,
+    int OfferExpiresInMinutes,
     int LoadedRouteDriveMinutes,
-    long DeliveryWindowStartGameMinute,
-    long DeliveryWindowEndGameMinuteExclusive,
+    GameWeekdayTime DeliveryWindowStart,
+    GameWeekdayTime DeliveryWindowEnd,
     int PickupWorkMinutes,
     int UnloadingWorkMinutes,
     int PostDeliveryWorkMinutes,
@@ -21,14 +23,28 @@ public sealed record MarketOfferPlannerInput(
 public sealed record ActiveDeliveryPlannerInput(
     int InitialDrivingSlot,
     int RemainingLoadedRouteDriveMinutes,
-    long DeliveryWindowStartGameMinute,
-    long DeliveryWindowEndGameMinuteExclusive,
+    GameWeekdayTime DeliveryWindowStart,
+    GameWeekdayTime DeliveryWindowEnd,
     int UnloadingWorkMinutes,
     int PostDeliveryWorkMinutes,
     int TightMarginThresholdMinutes);
 
+public sealed record DeliveryPlannerReadiness(
+    bool IsReady,
+    long? CurrentGameMinute,
+    int WeekEpochOffsetDays,
+    string? Slot1CardId,
+    string? Slot2CardId,
+    bool MultiManningActive,
+    bool TelemetryAvailable,
+    bool HasBlockingCardRemovedGap,
+    IReadOnlyList<string> Issues);
+
 public interface IDeliveryPlannerService
 {
+    Task<DeliveryPlannerReadiness> GetReadinessAsync(
+        CancellationToken cancellationToken = default);
+
     Task<DeliveryPlanResult> PlanMarketOfferAsync(
         MarketOfferPlannerInput input,
         CancellationToken cancellationToken = default);
@@ -51,6 +67,44 @@ public sealed class DeliveryPlannerService(
         CrewDeliveryPlanSnapshotIdentity Identity,
         CrewTachographSnapshot Owner)? _snapshotOwner;
 
+    public async Task<DeliveryPlannerReadiness> GetReadinessAsync(
+        CancellationToken cancellationToken = default)
+    {
+        var snapshot = await GetSnapshotAsync(cancellationToken);
+        if (snapshot is null)
+        {
+            return new DeliveryPlannerReadiness(
+                false,
+                crew.Current.Frame?.GameTime.TotalMinutes,
+                crew.Engine.WeekEpochOffsetDays,
+                crew.Current.DriverCardId,
+                crew.Current.CoDriverCardId,
+                crew.Current.MultiManning,
+                crew.Current.Frame is not null,
+                crew.Current.ManualEntryRequired,
+                ["Wymagany jest aktualny snapshot telemetryczny obu kart w podwójnej obsadzie."]);
+        }
+
+        var blockingGap = new[] { snapshot.Slot1, snapshot.Slot2 }
+            .SelectMany(driver => driver.Gaps)
+            .Any(gap =>
+                gap.Reason == ActivityGapReason.CardRemoved &&
+                gap.State == ActivityGapState.Unresolved);
+        var issues = blockingGap
+            ? new[] { "Rozlicz lukę po wyjęciu karty przed obliczeniem planu." }
+            : [];
+        return new DeliveryPlannerReadiness(
+            !blockingGap,
+            snapshot.StartGameMinute,
+            snapshot.WeekEpochOffsetDays,
+            snapshot.Slot1.DriverCardId,
+            snapshot.Slot2.DriverCardId,
+            snapshot.MultiManningActive,
+            snapshot.TelemetryAvailable,
+            blockingGap,
+            issues);
+    }
+
     public async Task<DeliveryPlanResult> PlanMarketOfferAsync(
         MarketOfferPlannerInput input,
         CancellationToken cancellationToken = default)
@@ -58,15 +112,23 @@ public sealed class DeliveryPlannerService(
         var snapshot = await GetSnapshotAsync(cancellationToken);
         if (snapshot is null)
             return Unavailable(DeliveryPlanningUseCase.MarketOffer);
+        var calendar = new GameCalendarResolver(
+            new GameCalendarContext(snapshot.WeekEpochOffsetDays));
+        var windowStart = calendar.ResolveNext(
+            input.DeliveryWindowStart,
+            new GameTime(snapshot.StartGameMinute));
+        var windowEnd = calendar.ResolveNext(
+            input.DeliveryWindowEnd,
+            windowStart.GameTime.AddMinutes(1));
 
         var result = _planningEngine.Plan(new MarketOffer(
             snapshot,
             input.InitialDrivingSlot,
             input.DriveToPickupMinutes,
-            input.OfferExpiresAtGameMinuteExclusive,
+            checked(snapshot.StartGameMinute + input.OfferExpiresInMinutes),
             input.LoadedRouteDriveMinutes,
-            input.DeliveryWindowStartGameMinute,
-            input.DeliveryWindowEndGameMinuteExclusive,
+            windowStart.GameTime.TotalMinutes,
+            windowEnd.GameTime.TotalMinutes,
             input.PickupWorkMinutes,
             input.UnloadingWorkMinutes,
             input.PostDeliveryWorkMinutes,
@@ -82,13 +144,21 @@ public sealed class DeliveryPlannerService(
         var snapshot = await GetSnapshotAsync(cancellationToken);
         if (snapshot is null)
             return Unavailable(DeliveryPlanningUseCase.ActiveDelivery);
+        var calendar = new GameCalendarResolver(
+            new GameCalendarContext(snapshot.WeekEpochOffsetDays));
+        var windowStart = calendar.ResolveNext(
+            input.DeliveryWindowStart,
+            new GameTime(snapshot.StartGameMinute));
+        var windowEnd = calendar.ResolveNext(
+            input.DeliveryWindowEnd,
+            windowStart.GameTime.AddMinutes(1));
 
         var result = _planningEngine.Plan(new ActiveDelivery(
             snapshot,
             input.InitialDrivingSlot,
             input.RemainingLoadedRouteDriveMinutes,
-            input.DeliveryWindowStartGameMinute,
-            input.DeliveryWindowEndGameMinuteExclusive,
+            windowStart.GameTime.TotalMinutes,
+            windowEnd.GameTime.TotalMinutes,
             input.UnloadingWorkMinutes,
             input.PostDeliveryWorkMinutes,
             input.TightMarginThresholdMinutes,

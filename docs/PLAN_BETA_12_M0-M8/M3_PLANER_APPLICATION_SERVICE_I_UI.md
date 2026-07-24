@@ -4,10 +4,10 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status bieżący:** **REDESIGN — M3-R3 AUTOMATYCZNIE GOTOWE / HOLD DO RĘCZNEGO UI**
+**Status bieżący:** **GO — M3-R3 AUTOMATYCZNIE I RĘCZNIE ZIELONE**
 **Kryterium wejścia:** `M2-CREW GO AND M3A GO` — spełnione.
 **Kryterium wyjścia:** Kompletny przepływ użytkownika Planera, zgodność z RuleEngine i poprawne unieważnianie wyniku.  
-**Następny etap:** M4
+**Następny etap:** M3.5
 
 > Ten dokument jest samodzielnym wydzieleniem etapu M3 z planu wydania beta.12. Nie zmienia zakresu ani gate’ów planu nadrzędnego.
 
@@ -45,9 +45,12 @@ kiedy nastąpi odbiór i dostawa oraz jaki pozostaje zapas. Klasyfikacja
 produktowa wyniku:
 
 ```text
-BIERZ
+MOŻNA PRZYJĄĆ
 NA STYK
-NIE BIERZ
+NIE ZDĄŻYSZ ODEBRAĆ
+NIE ZDĄŻYSZ DOSTARCZYĆ
+BRAK LEGALNEJ KONTYNUACJI
+BRAK WIARYGODNYCH DANYCH
 ```
 
 ### Wzorzec UI nowego M3
@@ -80,14 +83,14 @@ M3-P0-03  osobne okno dostawy od/do
 M3-P0-04  dojazd po ładunek uwzględniony przed odbiorem
 M3-P0-05  harmonogram S1/S2 wykorzystuje M2-CREW
 M3-P0-06  przerwa 45 min w ruchu nie zatrzymuje pojazdu
-M3-P0-07  wynik rozróżnia: BIERZ / NA STYK / NIE BIERZ
+M3-P0-07  wynik rozróżnia jawne werdykty produktowe
 M3-P0-08  kalendarz korzysta z M3A i offsetu snapshotu
 ```
 
 Stan M3-R1:
 
 - [x] kontrakty `MarketOffer` i `ActiveDelivery`;
-- [x] jawne fazy planu i klasyfikacja `BIERZ / NA STYK / NIE BIERZ`;
+- [x] jawne fazy planu i klasyfikacja sześciu werdyktów produktowych;
 - [x] testy `M3-P0-01…08` istnieją i kompilują się;
 - [x] 9/9 wykonań testów jest kontrolowanie czerwonych
   (`M3-P0-08` obejmuje offsety `-1` i `+1`);
@@ -128,21 +131,25 @@ Stan 2026-07-24:
 
 - [x] Desktop korzysta z `DeliveryPlannerService`, nie ze starego serwisu;
 - [x] użytkownik wybiera `Oferta z rynku` albo `Aktywna dostawa`;
-- [x] czasy względne rynku są przeliczane na absolutne terminy wewnątrz
-  atomowego snapshotu Application Service;
+- [x] czas wygaśnięcia oferty pozostaje względnym `HH:MM`;
+- [x] granice okna dostawy są podawane jako dzień tygodnia + godzina,
+  a Application Service rozstrzyga najbliższe wystąpienia względem atomowego
+  snapshotu przez kalendarz M3A;
 - [x] formularz rozdziela dojazd, wygaśnięcie oferty, odbiór, trasę z
   ładunkiem, okno dostawy, rozładunek i pracę po dostawie;
-- [x] pas wyniku pokazuje kalendarz M3A, okno, przyjazd, koniec dostawy,
-  werdykt i margines;
-- [x] tabela pokazuje fazy oraz równoległe aktywności S1/S2;
+- [x] przycisk obliczenia wymaga wiarygodnego snapshotu obu kart i braku
+  blokującej luki `CardRemoved`;
+- [x] pas wyniku pokazuje kalendarz M3A, wygaśnięcie, odbiór, okno, przyjazd,
+  koniec dostawy, werdykt i margines;
+- [x] tabela pokazuje `# / OD / DO / POJAZD / S1 / S2 / CZAS / POWÓD`;
 - [x] prawy panel pokazuje ostrzeżenia i podsumowanie;
 - [x] ViewModel unieważnia wynik po zmianie snapshotu załogi;
-- [x] testy Desktop są zielone 71/71;
-- [x] pełna regresja Release jest zielona 487/487;
+- [x] testy Desktop są zielone 76/76;
+- [x] pełna regresja Release jest zielona 501/501;
 - [x] kontrolny smoke układu przy 1280×800 jest zielony;
-- [ ] końcowy ręczny smoke użytkownika jest zielony.
+- [x] końcowy ręczny smoke użytkownika jest zielony.
 
-**Wynik bieżący M3:** HOLD wyłącznie do ręcznego zatwierdzenia nowego UI.
+**Wynik bieżący M3:** **GO** — UI zatwierdzone przez użytkownika 2026-07-24.
 
 ---
 
@@ -248,26 +255,28 @@ otwarcia gate’u M3.
 
 - **Data rozpoczęcia:** 2026-07-24
 - **Data zakończenia implementacji:** 2026-07-24
-- **Wynik:** **HOLD** — oczekiwanie wyłącznie na końcowy test ręczny użytkownika
+- **Wynik:** **GO** — implementacja oraz ręczny test UI zatwierdzone
 - **Commit / punkt przywracania:** `e8efc61` — implementacja Application Service i UI M3
 - **Build Release:** 0 błędów / 0 ostrzeżeń
-- **Testy automatyczne:** 402/402
-- **Testy manualne / dowody:** kontrolny smoke wizualny aplikacji przy 1280×800 zielony; końcowy test ręczny wykonuje użytkownik
+- **Testy automatyczne:** 501/501
+- **Testy manualne / dowody:** końcowy smoke użytkownika zielony; zrzut ekranu
+  z 2026-07-24 potwierdza kompletny formularz, pas wyniku i harmonogram S1/S2
 - **Otwarte błędy P0:** 0
 - **Otwarte błędy P1:** 0
-- **Uwagi do następnego etapu:** M4 pozostaje zamknięty do czasu ręcznego potwierdzenia M3.
+- **Uwagi do następnego etapu:** M3.5 jest odblokowane.
 
 ## Końcowa checklista ręczna użytkownika
 
-- [ ] Zakładka `PLANER` otwiera się poprawnie i nie ma obciętych elementów.
-- [ ] `01:60` jest odrzucane, a czas powyżej 23 godzin (np. `28:00`) jest akceptowany.
-- [ ] Dla aktywnej karty S1 plan pokazuje status, wiarygodność, przyjazd, zakończenie, margines i segmenty.
-- [ ] Bufor wpływa na czas zakończenia dostawy, ale nie na czas przyjazdu.
-- [ ] Przełączenie S1/S2 nie aktywuje samoistnie podwójnej obsady i unieważnia poprzedni wynik.
-- [ ] Nowa telemetria lub zmiana stanu karty unieważnia poprzedni wynik.
-- [ ] Ostrzeżenia oraz powody segmentów, w tym `CalendarWait`, są czytelne, gdy występują.
+- [x] Zakładka `PLANER` otwiera się poprawnie i nie ma obciętych elementów.
+- [x] Tryby `Oferta z rynku` i `Aktywna dostawa` są jawnie rozdzielone.
+- [x] Czas wygaśnięcia jest względny, a okno dostawy używa dnia tygodnia i godziny.
+- [x] Terminy są pokazane w kalendarzu M3A bez surowego `gameMinute`.
+- [x] Wynik pokazuje odbiór, przyjazd, zakończenie, margines i właściwy werdykt.
+- [x] Harmonogram pokazuje wspólną oś pojazdu oraz osobne aktywności S1/S2.
+- [x] Ostrzeżenia i podsumowanie są czytelne, a pusty panel nie pokazuje stałego
+  opisu `CalendarWait`.
 
-Po potwierdzeniu tej checklisty wynik M3 można zmienić z **HOLD** na **GO** i otworzyć M4.
+Checklista potwierdzona. M3 ma wynik **GO**, a M3.5 jest odblokowane.
 
 ## Poprawki po pierwszym smoke użytkownika
 

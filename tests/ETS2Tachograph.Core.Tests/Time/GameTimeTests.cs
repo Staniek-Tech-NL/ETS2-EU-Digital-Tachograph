@@ -145,6 +145,54 @@ public sealed class GameTimeTests
     }
 
     [Theory]
+    [InlineData(GameWeekday.Thursday, 21, 54, 3_000, 5_634)]
+    [InlineData(GameWeekday.Monday, 0, 0, 1, 10_080)]
+    [InlineData(GameWeekday.Monday, 0, 0, 0, 0)]
+    public void Calendar_resolves_the_nearest_matching_weekday_and_time(
+        GameWeekday weekday,
+        int hour,
+        int minute,
+        long notBefore,
+        long expected)
+    {
+        var resolver = new GameCalendarResolver(new GameCalendarContext(0));
+
+        var resolved = resolver.ResolveNext(
+            weekday,
+            hour,
+            minute,
+            new GameTime(notBefore));
+
+        Assert.Equal(expected, resolved.GameTime.TotalMinutes);
+        Assert.Equal(weekday, resolved.Weekday);
+        Assert.Equal(hour, resolved.Hour);
+        Assert.Equal(minute, resolved.Minute);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(6)]
+    public void Calendar_weekday_resolution_preserves_raw_snapshot_offset(
+        int offsetDays)
+    {
+        var resolver = new GameCalendarResolver(
+            new GameCalendarContext(offsetDays));
+        var now = new GameTime(20_000);
+
+        var resolved = resolver.ResolveNext(
+            GameWeekday.Saturday,
+            1,
+            16,
+            now);
+
+        Assert.True(resolved.GameTime >= now);
+        Assert.Equal(GameWeekday.Saturday, resolved.Weekday);
+        Assert.Equal(offsetDays, resolver.Context.WeekEpochOffsetDays);
+    }
+
+    [Theory]
     [InlineData(-7)]
     [InlineData(7)]
     public void Calendar_context_rejects_offsets_outside_the_persisted_contract(
