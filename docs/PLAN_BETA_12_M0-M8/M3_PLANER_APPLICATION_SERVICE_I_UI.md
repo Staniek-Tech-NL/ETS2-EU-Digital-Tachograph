@@ -4,7 +4,7 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status bieżący:** **REDESIGN — M3-R0 ZATWIERDZONE, M3-R1 DO WYKONANIA**
+**Status bieżący:** **REDESIGN — M3-R1 CZERWONY GATE GOTOWY, M3-R2 ODBLOKOWANE**
 **Kryterium wejścia:** `M2-CREW GO AND M3A GO` — spełnione.
 **Kryterium wyjścia:** Kompletny przepływ użytkownika Planera, zgodność z RuleEngine i poprawne unieważnianie wyniku.  
 **Następny etap:** M4
@@ -84,8 +84,19 @@ M3-P0-07  wynik rozróżnia: BIERZ / NA STYK / NIE BIERZ
 M3-P0-08  kalendarz korzysta z M3A i offsetu snapshotu
 ```
 
-**Implementacja nowego M3 pozostaje HOLD do utworzenia i zatwierdzenia
-czerwonego pakietu M3-R1.**
+Stan M3-R1:
+
+- [x] kontrakty `MarketOffer` i `ActiveDelivery`;
+- [x] jawne fazy planu i klasyfikacja `BIERZ / NA STYK / NIE BIERZ`;
+- [x] testy `M3-P0-01…08` istnieją i kompilują się;
+- [x] 9/9 wykonań testów jest kontrolowanie czerwonych
+  (`M3-P0-08` obejmuje offsety `-1` i `+1`);
+- [x] dotychczasowy pakiet RuleEngine pozostaje zielony 157/157;
+- [x] pełna dotychczasowa regresja, z wyłączeniem celowo czerwonego pakietu,
+  pozostaje zielona 478/478.
+
+**M3-R2 jest odblokowane. Następny krok: zazielenienie M3-P0-01…08, następnie
+nowy Application Service.**
 
 ---
 

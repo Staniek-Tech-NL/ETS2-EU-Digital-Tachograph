@@ -18,7 +18,7 @@
 | **M1** | Planer: kontrakty i czerwone testy | 🟢 rozszerzony o załogę | GO | M2 |
 | **M2** | Planer: silnik zdarzeniowy | 🟢 rozszerzenie załogi domknięte | GO | M3A |
 | **M3A** | Game Calendar & Deadline Presentation | 🟢 ręczny gate UI zielony | GO | M3 |
-| **M3** | Planer: Application Service i UI | 🟡 M3-R0 zatwierdzone / redesign / M3-R1 przed implementacją | HOLD | M4 |
+| **M3** | Planer: Application Service i UI | 🟡 M3-R1 czerwony gate gotowy / M3-R2 odblokowane | HOLD | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
@@ -218,8 +218,10 @@ MarketOffer
 ActiveDelivery
 ```
 
-M3-R0 jest zatwierdzone. Następny gate to czerwone testy `M3-P0-01…08`
-w ramach M3-R1. Dopiero po nich może rozpocząć się nowy Application Service.
+M3-R0 jest zatwierdzone. Czerwone testy `M3-P0-01…08` w ramach M3-R1 są
+gotowe: 9/9 wykonań kontrolowanie czerwonych, ponieważ `M3-P0-08` sprawdza dwa
+offsety. Dotychczasowy RuleEngine pozostaje zielony 157/157, a pełna regresja
+bez celowo czerwonego pakietu pozostaje zielona 478/478. M3-R2 jest odblokowane.
 UI ma być wzorowane na makiecie
 `docs/images/ChatGPT Image 24 lip 2026, 17_15_10.png`, z polami wynikającymi
 z nowego kontraktu, a nie ze starego formularza.
