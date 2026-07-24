@@ -14,7 +14,7 @@
 
 | Etap | Zakres | Status | Wynik | Blokuje |
 |---|---|---|---|---|
-| **M0** | Stabilizacja stanu wejściowego | 🟡 W TOKU | — | M1 |
+| **M0** | Stabilizacja stanu wejściowego | 🟢 GO | GO | M1 |
 | M1 | Planer: kontrakty i czerwone testy | ⚪ nie rozpoczęty | — | M2 |
 | M2 | Planer: silnik zdarzeniowy | ⚪ nie rozpoczęty | — | M3 |
 | M3 | Planer: Application Service i UI | ⚪ nie rozpoczęty | — | M4 |
@@ -28,7 +28,7 @@ Legenda: ⚪ nie rozpoczęty · 🟡 w toku · 🟢 GO · 🔴 FIX/HOLD
 
 ---
 
-## M0 — Stabilizacja stanu wejściowego (AKTYWNY)
+## M0 — Stabilizacja stanu wejściowego (ZAMKNIĘTY — GO)
 
 **Kryterium wejścia:** baza beta.11.1, lokalny gate zielony, zielona regresja
 granicy pauzy 44/45. **Stan:** spełnione (gate 338/338, build Release 0/0,
@@ -47,7 +47,7 @@ regresja `41+3=44` zielona 2026-07-24).
 | Oba sloty, nakładki, OUT, Prom, restart, logi | ✅ zrobione | Ujęte w ręcznym wyniku 10/10 |
 | Aktywna telemetria, auto-Jazda, blokady od ruchu | ✅ zrobione | Ujęte w ręcznym wyniku 10/10 |
 | Eksporty i zachowanie danych po restarcie | ✅ zrobione | Ujęte w ręcznym wyniku 10/10 |
-| Inwentaryzacja pozostałych elementów UI (`beta.12` / `poza zakresem`) | ⚪ do wykonania | Wejście do M4 |
+| Inwentaryzacja pozostałych elementów UI (`beta.12` / `poza zakresem`) | ✅ zrobione | Wynik ręczny użytkownika zielony, 2026-07-24; wejście do M4 gotowe |
 
 ### Gate M0 (do zamknięcia)
 
@@ -71,15 +71,15 @@ regresja `41+3=44` zielona 2026-07-24).
 ### Szablon zamknięcia M0
 
 - **Data rozpoczęcia:** 2026-07-24
-- **Data zakończenia:** —
-- **Wynik:** — (`GO` / `FIX` / `HOLD`)
-- **Commit / punkt przywracania:** bieżący commit hotfixu ODP.TYG.
+- **Data zakończenia:** 2026-07-24
+- **Wynik:** **GO**
+- **Commit / punkt przywracania:** `50ee50a` — hotfix ODP.TYG.
 - **Build Release:** 0 błędów / 0 ostrzeżeń
 - **Testy automatyczne:** 338/338
-- **Testy manualne / dowody:** checklista UI 10/10 zielona; smoke LCD S1/S2 po hotfixie zielony
+- **Testy manualne / dowody:** checklista UI 10/10 zielona; smoke LCD S1/S2 po hotfixie zielony; inwentaryzacja UI zielona
 - **Otwarte błędy P0:** 0
 - **Otwarte błędy P1:** 0
-- **Uwagi do następnego etapu:** —
+- **Uwagi do następnego etapu:** M1 może wystartować; inwentaryzacja UI jest gotowa jako wejście do M4.
 
 ---
 
@@ -96,7 +96,7 @@ dowody manualne, P0, P1, uwagi).
   kontrolowane zakończenie. — *nie rozpoczęty*
 - **M3** — `JourneyPlannerService` + ViewModel + zakładka PLANER, unieważnianie
   wyniku. — *nie rozpoczęty*
-- **M4** — domknięcie inwentaryzacji UI + formalny **UI freeze**. — *nie rozpoczęty*
+- **M4** — walidacja gotowej inwentaryzacji UI + formalny **UI freeze**. — *nie rozpoczęty*
 - **M5** — pełne `pl-PL` i `en-GB`, zielone regresje obu języków. — *nie rozpoczęty*
 - **M6** — niezmienny RC beta.12: numer + commit + SHA-256, ZIP zamrożony. — *nie rozpoczęty*
 - **M7** — smoke na rozpakowanym ZIP-ie (istniejąca + czysta baza) → GO/FIX/HOLD. — *nie rozpoczęty*
