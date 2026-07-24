@@ -4,7 +4,7 @@
 **Artefakt:** `0.1.0-beta.12-rc0` — **wewnętrzny, niepublikowany**  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status bieżący:** **ODBLOKOWANY — OCZEKUJE NA ARTEFAKT**
+**Status bieżący:** **W TOKU — ARTEFAKT `rc0` GOTOWY, SMOKE OCZEKUJE**
 **Kryterium wejścia:** Formalny wynik **GO** dla M3.5.  
 **Kryterium wyjścia:** Triaging zakończony, potwierdzone błędy naprawione **przed** M4, formalna decyzja **GO / FIX / HOLD** dla checkpointu.  
 **Następny etap:** M4
@@ -38,9 +38,9 @@ pozostaje wymagany** i nie jest zastępowany przez M3.6.
 
 ## Przygotowanie
 
-- [ ] Zbudować Release z zamrożonego commita i spakować `beta.12-rc0`.
-- [ ] Zapisać numer, commit i wewnętrzną SHA-256 artefaktu.
-- [ ] Rozpakować ZIP do nowego katalogu; nie uruchamiać z IDE ani z ZIP-a.
+- [x] Zbudować Release z zamrożonego commita i spakować `beta.12-rc0`.
+- [x] Zapisać numer, commit i wewnętrzną SHA-256 artefaktu.
+- [x] Rozpakować ZIP do nowego katalogu; nie uruchamiać z IDE ani z ZIP-a.
 - [ ] Zainstalować DLL pluginu z tej samej paczki i uruchomić ETS2 ponownie.
 - [ ] Zachować kopię istniejącej bazy oraz przygotować wariant czystej bazy.
 
@@ -110,16 +110,20 @@ unieważnia dotychczasowy smoke
 
 ## Szablon aktualizacji statusu
 
-- **Data rozpoczęcia:**
+- **Data rozpoczęcia:** 2026-07-24
 - **Data zakończenia:**
-- **Wynik:** `GO` / `FIX` / `HOLD` / `NIE DOTYCZY`
-- **Artefakt / commit / SHA-256:**
-- **Build Release:**
-- **Testy automatyczne:**
-- **Testy manualne / dowody:**
-- **Otwarte błędy P0:**
-- **Otwarte błędy P1:**
-- **Uwagi do następnego etapu:**
+- **Wynik:** `W TOKU — SMOKE OCZEKUJE`
+- **Artefakt:** `ETS2Tachograph-0.1.0-beta.12-rc0-win-x64.zip`
+- **Commit:** `0abe849d01cd3e01c871d812adcc7c8c6eb31830`
+- **SHA-256:** `727C51F40515EF3909E3282C553451711D665CD688F3C72ABE0DDEEB92073406`
+- **Build Release:** 0 błędów / 0 ostrzeżeń; self-contained `win-x64`
+- **Testy automatyczne:** 521/521 przed zamrożeniem artefaktu
+- **Testy manualne / dowody:** ZIP rozpakowany; struktura, metadane aplikacji,
+  plugin v3 i checksumy zweryfikowane
+- **Otwarte błędy P0:** 0
+- **Otwarte błędy P1:** 0
+- **Uwagi do następnego etapu:** zainstalować plugin z paczki, zachować kopię
+  istniejącej bazy i wykonać scenariusze smoke na rozpakowanym artefakcie.
 
 ---
 

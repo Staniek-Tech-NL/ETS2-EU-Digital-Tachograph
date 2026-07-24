@@ -20,7 +20,7 @@
 | **M3A** | Game Calendar & Deadline Presentation | 🟢 ręczny gate UI zielony | GO | M3 |
 | **M3** | Planer: Application Service i UI | 🟢 M3-R3 automatycznie i ręcznie zielone | GO | M3.5 |
 | **M3.5** | Raporty i statystyki: wariant B | 🟢 UI, automatyka i ręczny gate zielone | GO | M3.6 |
-| **M3.6** | Wewnętrzny smoke checkpoint `beta.12-rc0` | 🟡 odblokowany; oczekuje na zamrożony artefakt | ODBLOKOWANE | M4 |
+| **M3.6** | Wewnętrzny smoke checkpoint `beta.12-rc0` | 🟡 artefakt gotowy; smoke oczekuje | W TOKU | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
@@ -315,10 +315,16 @@ zakończone wynikiem GO po akceptacji właściciela 2026-07-24.
 
 ---
 
-## M3.6 — Wewnętrzny smoke checkpoint `beta.12-rc0` (ODBLOKOWANY)
+## M3.6 — Wewnętrzny smoke checkpoint `beta.12-rc0` (W TOKU)
 
 **Kryterium wejścia:** formalny wynik GO dla M3.5. **Stan:** spełnione; etap
-oczekuje na zamrożony, niepublikowany artefakt.
+ma zamrożony, niepublikowany artefakt i oczekuje na smoke.
+
+- **Artefakt:** `ETS2Tachograph-0.1.0-beta.12-rc0-win-x64.zip`
+- **Commit:** `0abe849d01cd3e01c871d812adcc7c8c6eb31830`
+- **SHA-256:** `727C51F40515EF3909E3282C553451711D665CD688F3C72ABE0DDEEB92073406`
+- **Weryfikacja paczki:** rozpakowanie, struktura, `FileVersion 0.1.12.0`,
+  `ProductVersion`, plugin v3 i checksumy — PASS.
 
 - **Dokument etapu:** `docs/PLAN_BETA_12_M0-M8/M3_6_WEWNETRZNY_SMOKE_CHECKPOINT.md`
 - **Charakter:** zamrożony **wewnętrzny** artefakt `0.1.0-beta.12-rc0` do
