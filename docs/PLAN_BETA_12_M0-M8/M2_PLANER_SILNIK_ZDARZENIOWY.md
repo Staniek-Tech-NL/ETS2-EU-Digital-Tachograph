@@ -98,7 +98,7 @@ Planer nie może zapisywać hipotetycznych aktywności do SQLite, modyfikować p
 - **Data rozpoczęcia:** 2026-07-24
 - **Data zakończenia:** 2026-07-24
 - **Wynik:** **GO**
-- **Commit / punkt przywracania:** bieżące drzewo robocze M2; commit do utworzenia
+- **Commit / punkt przywracania:** `751cd07` — deterministyczny silnik zdarzeniowy M2
 - **Build Release:** 0 błędów / 0 ostrzeżeń
 - **Testy automatyczne:** 385/385
 - **Testy manualne / dowody:** nie dotyczy — brak zmian UI
