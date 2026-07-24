@@ -174,7 +174,7 @@ regresja `41+3=44` zielona 2026-07-24).
 - **Data rozpoczęcia:** 2026-07-24
 - **Data zakończenia implementacji:** 2026-07-24
 - **Wynik:** **HOLD** — użytkownik wykona końcowy test ręczny
-- **Commit / punkt przywracania:** do wpisania po utworzeniu commita M3
+- **Commit / punkt przywracania:** `e8efc61` — implementacja Application Service i UI M3
 - **Build Release:** 0 błędów / 0 ostrzeżeń
 - **Testy automatyczne:** 400/400
 - **Testy manualne / dowody:** kontrolny smoke wizualny aplikacji zielony; pełna

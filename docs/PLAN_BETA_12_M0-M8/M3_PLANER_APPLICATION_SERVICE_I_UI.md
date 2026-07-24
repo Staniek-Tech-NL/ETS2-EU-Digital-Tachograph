@@ -105,7 +105,7 @@ Planer nie może zapisywać hipotetycznych aktywności do SQLite, modyfikować p
 - **Data rozpoczęcia:** 2026-07-24
 - **Data zakończenia implementacji:** 2026-07-24
 - **Wynik:** **HOLD** — oczekiwanie wyłącznie na końcowy test ręczny użytkownika
-- **Commit / punkt przywracania:** do wpisania po utworzeniu commita M3
+- **Commit / punkt przywracania:** `e8efc61` — implementacja Application Service i UI M3
 - **Build Release:** 0 błędów / 0 ostrzeżeń
 - **Testy automatyczne:** 400/400
 - **Testy manualne / dowody:** kontrolny smoke wizualny aplikacji przy 1280×800 zielony; końcowy test ręczny wykonuje użytkownik
