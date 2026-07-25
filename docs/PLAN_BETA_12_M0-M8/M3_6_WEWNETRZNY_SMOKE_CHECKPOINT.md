@@ -1,10 +1,10 @@
 # M3.6 — Wewnętrzny smoke checkpoint (próba generalna RC)
 
 **Projekt:** ETS2 EU Digital Tachograph  
-**Artefakt:** `0.1.0-beta.12-rc2` — gotowy do pełnego smoke
+**Artefakt:** brak bieżącego — `0.1.0-beta.12-rc2` **unieważniony**
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status bieżący:** **FIX — RC2 GOTOWY, PEŁNY SMOKE OCZEKUJE**
+**Status bieżący:** **FIX — POPRAWKA SLOTU 2 POTWIERDZONA, RC3 DO ZBUDOWANIA**
 **Kryterium wejścia:** Formalny wynik **GO** dla M3.5.  
 **Kryterium wyjścia:** Triaging zakończony, potwierdzone błędy naprawione **przed** M4, formalna decyzja **GO / FIX / HOLD** dla checkpointu.  
 **Następny etap:** M4
@@ -131,6 +131,41 @@ Pełna regresja sekwencyjna: **522/522**, build Release:
 potwierdzony przez właściciela wynikiem **PASS** 2026-07-24. Korekta jest gotowa
 do commita i zbudowania kolejnego artefaktu.
 
+### Unieważnienie `rc2` — 2026-07-25
+
+Pełny smoke na świeżych danych wykazał regresję kwalifikacji przerwy karty
+w slocie 2. Kanoniczna historia karty `Staniek` prawidłowo zapisała jeden
+ciągły blok `BreakOrRest`:
+
+```text
+1 min  — postój, Condition=None
+44 min — jazda pojazdu, Condition=CrewBreakInMotion
+razem  — 45 min ciągłej przerwy
+```
+
+Licznik załogi kończył przerwę po 45 minutach, ale RuleEngine analizował oba
+warunki jako dwa osobne biegi `1 + 44`. Żaden bieg samodzielnie nie osiągał
+45 minut, dlatego jazda ciągła karty nie była zerowana. Test regresyjny przed
+poprawką odtworzył stan **62 min zamiast 0**.
+
+Korekta scala sąsiadujące biegi `BreakOrRest` wyłącznie na potrzeby art. 7:
+kwalifikacji przerwy 45 minut oraz licznika bieżącej przerwy. Warunek
+`CrewBreakInMotion` nadal wyklucza te minuty z odpoczynku dobowego i
+tygodniowego. Historia, źródła, warunki i zapisane rekordy nie są zmieniane;
+świeże dane smoke zostaną prawidłowo przeliczone po uruchomieniu poprawionego
+RuleEngine.
+
+Dwa testy test-first pokrywają bezpośrednio RuleEngine oraz pełny przepływ
+`CrewTachographEngine`. Gate po poprawce: RuleEngine **168/168**, Engine
+**70/70**, pełna regresja **524/524**, build Release
+**0 błędów / 0 ostrzeżeń**. Artefakt `rc2` pozostaje unieważniony.
+
+Ręczny retest na świeżych danych i aktywnej telemetrii został potwierdzony przez
+właściciela 2026-07-25: karta w slocie 2 prawidłowo zaliczyła ciągłą przerwę
+`1 min postój + 44 min ruch = 45 min`. Ponowne uruchomienie wyłącznie poprawionej
+aplikacji podpięło istniejącą telemetrię bez restartu ETS2. Zakres poprawki jest
+zielony; następnym krokiem jest commit i nowy artefakt `rc3`.
+
 ## Decyzja M3.6
 
 - **GO** — scenariusze spełnione, brak P0/P1; można wejść w M4 (UI freeze).
@@ -161,10 +196,13 @@ do commita i zbudowania kolejnego artefaktu.
 
 - **Data rozpoczęcia:** 2026-07-24
 - **Data zakończenia:**
-- **Wynik:** `FIX — RC2 GOTOWY, PEŁNY SMOKE OCZEKUJE`
-- **Artefakt bieżący:** `ETS2Tachograph-0.1.0-beta.12-rc2-win-x64.zip`
-- **Commit bieżący:** `1c87e004b629e0b691db1eb18e0952fa5641d8fe`
-- **SHA-256 bieżący:** `30CD7BD2B65D2C59DD7F2306FF6D3A129D4AA5BCC61C78F5E7381B8C9A8E5ECA`
+- **Wynik:** `FIX — POPRAWKA SLOTU 2 POTWIERDZONA, RC3 DO ZBUDOWANIA`
+- **Artefakt bieżący:** brak
+- **Commit bieżący:** zmiana lokalna, przed commitem
+- **SHA-256 bieżący:** brak
+- **Artefakt historyczny, unieważniony:** `ETS2Tachograph-0.1.0-beta.12-rc2-win-x64.zip`
+- **Commit historyczny:** `1c87e004b629e0b691db1eb18e0952fa5641d8fe`
+- **SHA-256 historyczny:** `30CD7BD2B65D2C59DD7F2306FF6D3A129D4AA5BCC61C78F5E7381B8C9A8E5ECA`
 - **Artefakt historyczny, unieważniony:** `ETS2Tachograph-0.1.0-beta.12-rc1-win-x64.zip`
 - **Commit historyczny:** `eb1f02d765a7c0f2cabea57e047ff74198c12975`
 - **SHA-256 historyczny:** `25AD18A416A86A1D63D7F4B7C0B9D3400B9E3CB284CE2A54924DEB68D14078EE`
@@ -172,14 +210,15 @@ do commita i zbudowania kolejnego artefaktu.
 - **Commit historyczny:** `0abe849d01cd3e01c871d812adcc7c8c6eb31830`
 - **SHA-256 historyczny:** `727C51F40515EF3909E3282C553451711D665CD688F3C72ABE0DDEEB92073406`
 - **Build Release:** 0 błędów / 0 ostrzeżeń
-- **Testy automatyczne:** 522/522 sekwencyjnie po eliminacji regresji
-- **Testy manualne / dowody:** Alt+Tab w menu i po wczytaniu zapisu — PASS
-- **Weryfikacja paczki:** rozpakowanie, struktura, `FileVersion 0.1.12.2`,
-  `ProductVersion`, plugin v3 i checksumy — PASS
+- **Testy automatyczne:** 524/524 sekwencyjnie po poprawce przerwy slotu 2
+- **Testy manualne / dowody:** Alt+Tab — PASS; przerwa slotu 2 `1 + 44 = 45`
+  — PASS na świeżych danych i aktywnej telemetrii
+- **Weryfikacja paczki `rc2`:** struktura i checksumy — PASS, funkcjonalny smoke
+  — FAIL
 - **Otwarte błędy P0:** 0
 - **Otwarte błędy P1:** 0
-- **Uwagi do następnego etapu:** wykonać pełny smoke in-game na rozpakowanym
-  artefakcie `rc2`.
+- **Uwagi do następnego etapu:** zbudować `rc3`, zapisać commit i SHA-256,
+  następnie wznowić pozostały zakres smoke na rozpakowanym artefakcie.
 
 ---
 

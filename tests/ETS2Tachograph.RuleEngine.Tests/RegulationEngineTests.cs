@@ -118,6 +118,24 @@ public sealed class RegulationEngineTests
     }
 
     [Fact]
+    public void Stationary_minute_and_44_moving_minutes_form_one_qualified_break()
+    {
+        var result = Evaluate(
+        [
+            Record(0, 270, DriverActivity.Driving),
+            Record(270, 271, DriverActivity.BreakOrRest),
+            Record(271, 315, DriverActivity.BreakOrRest) with
+            {
+                Condition = SpecialCondition.CrewBreakInMotion
+            }
+        ], 315);
+
+        Assert.Equal(45, result.State.CurrentContinuousBreakMinutes);
+        Assert.Equal(0, result.State.ContinuousDrivingMinutes);
+        Assert.Equal(270, result.State.MinutesUntilBreak);
+    }
+
+    [Fact]
     public void Current_continuous_break_matches_qualified_block_not_wall_clock()
     {
         var gapId = Guid.NewGuid().ToString();

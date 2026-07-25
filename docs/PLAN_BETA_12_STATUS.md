@@ -20,7 +20,7 @@
 | **M3A** | Game Calendar & Deadline Presentation | 🟢 ręczny gate UI zielony | GO | M3 |
 | **M3** | Planer: Application Service i UI | 🟢 M3-R3 automatycznie i ręcznie zielone | GO | M3.5 |
 | **M3.5** | Raporty i statystyki: wariant B | 🟢 UI, automatyka i ręczny gate zielone | GO | M3.6 |
-| **M3.6** | Wewnętrzny smoke checkpoint | 🟡 rc2 gotowy; pełny smoke oczekuje | FIX | M4 |
+| **M3.6** | Wewnętrzny smoke checkpoint | 🟡 poprawka slotu 2 potwierdzona; rc3 do zbudowania | FIX | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
@@ -317,12 +317,13 @@ zakończone wynikiem GO po akceptacji właściciela 2026-07-24.
 
 ## M3.6 — Wewnętrzny smoke checkpoint (W TOKU)
 
-**Kryterium wejścia:** formalny wynik GO dla M3.5. **Stan:** spełnione; artefakt
-`rc1` został unieważniony po potwierdzeniu regresji Alt+Tab po wczytaniu zapisu.
+**Kryterium wejścia:** formalny wynik GO dla M3.5. **Stan:** spełnione; artefakty
+`rc0`, `rc1` i `rc2` zostały unieważnione przez błędy wykryte w smoke.
 
-- **Artefakt bieżący:** `ETS2Tachograph-0.1.0-beta.12-rc2-win-x64.zip`
-- **Commit źródłowy:** `1c87e004b629e0b691db1eb18e0952fa5641d8fe`
-- **SHA-256:** `30CD7BD2B65D2C59DD7F2306FF6D3A129D4AA5BCC61C78F5E7381B8C9A8E5ECA`
+- **Artefakt bieżący:** brak; poprawka slotu 2 potwierdzona, `rc3` do zbudowania.
+- **Artefakt historyczny, unieważniony:** `ETS2Tachograph-0.1.0-beta.12-rc2-win-x64.zip`
+- **Commit historyczny:** `1c87e004b629e0b691db1eb18e0952fa5641d8fe`
+- **SHA-256 historyczny:** `30CD7BD2B65D2C59DD7F2306FF6D3A129D4AA5BCC61C78F5E7381B8C9A8E5ECA`
 - **Weryfikacja paczki `rc2`:** rozpakowanie, struktura, `FileVersion 0.1.12.2`,
   `ProductVersion`, plugin v3 i checksumy — PASS.
 - **Artefakt historyczny, unieważniony:** `ETS2Tachograph-0.1.0-beta.12-rc1-win-x64.zip`
@@ -348,8 +349,20 @@ zakończone wynikiem GO po akceptacji właściciela 2026-07-24.
 - **Gate automatyczny korekty:** 522/522 sekwencyjnie, Release 0/0.
 - **Gate manualny korekty:** Alt+Tab w menu i po wczytaniu zapisu — PASS,
   potwierdzony przez właściciela 2026-07-24.
-- **Pełny smoke `rc2`:** oczekuje.
-- **Artefakty historyczne:** `rc0` i `rc1` pozostają unieważnione.
+- **Błąd `rc2`:** ciągła przerwa slotu 2 zapisana jako `1 min None + 44 min
+  CrewBreakInMotion` nie zerowała jazdy ciągłej, ponieważ RuleEngine rozdzielał
+  blok po zmianie warunku.
+- **Korekta `rc2`:** sąsiadujące `BreakOrRest` są łączone dla kwalifikacji
+  przerwy 45 min i jej licznika, ale nie dla odpoczynku dobowego/tygodniowego.
+- **Dowód:** świeża baza smoke oraz dwa czerwone testy; przed poprawką
+  62 min zamiast 0, po poprawce RuleEngine 168/168 i Engine 70/70.
+- **Gate automatyczny:** pełna regresja 524/524, Release 0/0.
+- **Gate manualny slotu 2:** PASS — `1 min postój + 44 min ruch = 45 min`,
+  świeże dane i aktywna telemetria, potwierdzone przez właściciela 2026-07-25.
+- **Restart aplikacji:** PASS — poprawiona aplikacja podpięła istniejącą
+  telemetrię bez restartu ETS2.
+- **Pełny smoke `rc2`:** FAIL; `rc2` unieważniony.
+- **Artefakty historyczne:** `rc0`, `rc1` i `rc2` pozostają unieważnione.
 
 - **Dokument etapu:** `docs/PLAN_BETA_12_M0-M8/M3_6_WEWNETRZNY_SMOKE_CHECKPOINT.md`
 - **Charakter:** korekta przed kolejnym zamrożonym artefaktem wewnętrznym;

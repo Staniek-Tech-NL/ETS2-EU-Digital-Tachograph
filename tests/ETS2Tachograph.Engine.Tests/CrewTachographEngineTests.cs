@@ -117,6 +117,41 @@ public sealed class CrewTachographEngineTests
     }
 
     [Fact]
+    public void Moving_break_keeps_credit_when_first_minute_was_taken_while_stopped()
+    {
+        var crew = new CrewTachographEngine();
+        crew.RegisterCard("CARD-A");
+        crew.RegisterCard("CARD-B");
+        crew.InsertCard(TachographSlot.Driver, "CARD-B");
+        crew.InsertCard(TachographSlot.CoDriver, "CARD-A");
+        for (var minute = 0; minute <= 61; minute++)
+            crew.ProcessFrame(Frame(minute, 30));
+
+        crew.ProcessFrame(Frame(62, 0));
+        crew.EjectCard(TachographSlot.Driver, Epoch.AddMinutes(62));
+        crew.EjectCard(TachographSlot.CoDriver, Epoch.AddMinutes(62));
+        crew.InsertCard(TachographSlot.Driver, "CARD-A");
+        crew.InsertCard(TachographSlot.CoDriver, "CARD-B");
+        crew.ProcessFrame(Frame(63, 0));
+        crew.SetManualActivity(TachographSlot.CoDriver, DriverActivity.BreakOrRest);
+        crew.ProcessFrame(Frame(64, 0));
+
+        for (var minute = 65; minute <= 110; minute++)
+            crew.ProcessFrame(Frame(minute, 30));
+
+        var restRecords = crew.GetEngine("CARD-B")!.History.CurrentTimeline.Records
+            .Where(record => record.Activity == DriverActivity.BreakOrRest)
+            .ToList();
+        Assert.Equal(1, restRecords.Sum(record =>
+            record.Condition == SpecialCondition.None ? record.DurationMinutes : 0));
+        Assert.Equal(44, restRecords.Sum(record =>
+            record.Condition == SpecialCondition.CrewBreakInMotion ? record.DurationMinutes : 0));
+        Assert.True(crew.Current.CoDriverMovingBreakCompleted);
+        Assert.Equal(0, crew.Current.CoDriver!.Regulation!.State.ContinuousDrivingMinutes);
+        Assert.Equal(270, crew.Current.CoDriver.Regulation.State.MinutesUntilBreak);
+    }
+
+    [Fact]
     public void Game_time_jump_does_not_credit_full_break_before_45_minutes()
     {
         var engine = new TachographEngine("CARD-A");

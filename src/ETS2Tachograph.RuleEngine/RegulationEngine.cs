@@ -50,12 +50,7 @@ public sealed class RegulationEngine
         var previousBounds = HistoryAnalysis.WeekBounds(previousWeek, options.WeekEpochOffsetDays);
 
         var continuousDriving = ContinuousDriving(runs);
-        var currentBreak =
-            runs.Count > 0 &&
-            runs[^1].Activity == DriverActivity.BreakOrRest &&
-            runs[^1].EndExclusive == context.Now
-                ? runs[^1].DurationMinutes
-                : 0;
+        var currentBreak = CurrentContinuousBreak(runs, context.Now);
         var qualifiedRestRuns = QualifiedDailyRestRuns(runs);
         var qualifiedRestSet = qualifiedRestRuns.ToHashSet();
         var compensationProjection = ProjectCompensations(
@@ -144,8 +139,9 @@ public sealed class RegulationEngine
         long driving = 0;
         var firstSplitBreakTaken = false;
 
-        foreach (var run in runs)
+        for (var index = 0; index < runs.Count; index++)
         {
+            var run = runs[index];
             if (run.Activity == DriverActivity.Driving)
             {
                 driving += run.DurationMinutes;
@@ -157,19 +153,59 @@ public sealed class RegulationEngine
                 continue;
             }
 
-            if (run.DurationMinutes >= 45 ||
-                (firstSplitBreakTaken && run.DurationMinutes >= 30))
+            var breakDuration = run.DurationMinutes;
+            var breakEnd = run.EndExclusive;
+            while (index + 1 < runs.Count &&
+                   runs[index + 1].Activity == DriverActivity.BreakOrRest &&
+                   runs[index + 1].Start == breakEnd)
+            {
+                index++;
+                breakDuration += runs[index].DurationMinutes;
+                breakEnd = runs[index].EndExclusive;
+            }
+
+            if (breakDuration >= 45 ||
+                (firstSplitBreakTaken && breakDuration >= 30))
             {
                 driving = 0;
                 firstSplitBreakTaken = false;
             }
-            else if (run.DurationMinutes >= 15)
+            else if (breakDuration >= 15)
             {
                 firstSplitBreakTaken = true;
             }
         }
 
         return driving;
+    }
+
+    private static long CurrentContinuousBreak(
+        IReadOnlyList<ActivityRun> runs,
+        GameTime now)
+    {
+        if (runs.Count == 0 ||
+            runs[^1].Activity != DriverActivity.BreakOrRest ||
+            runs[^1].EndExclusive != now)
+        {
+            return 0;
+        }
+
+        long duration = 0;
+        var expectedEnd = now;
+        for (var index = runs.Count - 1; index >= 0; index--)
+        {
+            var run = runs[index];
+            if (run.Activity != DriverActivity.BreakOrRest ||
+                run.EndExclusive != expectedEnd)
+            {
+                break;
+            }
+
+            duration += run.DurationMinutes;
+            expectedEnd = run.Start;
+        }
+
+        return duration;
     }
 
     private static IReadOnlyList<DailyDrivingPeriod> DailyDrivingPeriods(
