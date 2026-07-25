@@ -1,10 +1,10 @@
 # M3.6 — Wewnętrzny smoke checkpoint (próba generalna RC)
 
 **Projekt:** ETS2 EU Digital Tachograph  
-**Artefakt:** brak bieżącego — `0.1.0-beta.12-rc2` **unieważniony**
+**Artefakt:** `0.1.0-beta.12-rc3` — gotowy do dalszego smoke
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status bieżący:** **FIX — POPRAWKA SLOTU 2 POTWIERDZONA, RC3 DO ZBUDOWANIA**
+**Status bieżący:** **FIX — RC3 GOTOWY, POZOSTAŁY SMOKE OCZEKUJE**
 **Kryterium wejścia:** Formalny wynik **GO** dla M3.5.  
 **Kryterium wyjścia:** Triaging zakończony, potwierdzone błędy naprawione **przed** M4, formalna decyzja **GO / FIX / HOLD** dla checkpointu.  
 **Następny etap:** M4
@@ -196,10 +196,10 @@ zielony; następnym krokiem jest commit i nowy artefakt `rc3`.
 
 - **Data rozpoczęcia:** 2026-07-24
 - **Data zakończenia:**
-- **Wynik:** `FIX — POPRAWKA SLOTU 2 POTWIERDZONA, RC3 DO ZBUDOWANIA`
-- **Artefakt bieżący:** brak
-- **Commit bieżący:** zmiana lokalna, przed commitem
-- **SHA-256 bieżący:** brak
+- **Wynik:** `FIX — RC3 GOTOWY, POZOSTAŁY SMOKE OCZEKUJE`
+- **Artefakt bieżący:** `ETS2Tachograph-0.1.0-beta.12-rc3-win-x64.zip`
+- **Commit bieżący:** `7e90a3620e68b7dc8598d733bc17eac4f5e488e6`
+- **SHA-256 bieżący:** `F9E85D58E37EF381D5DD435222A7594A34430B99F1E69DDD669CF608899D026E`
 - **Artefakt historyczny, unieważniony:** `ETS2Tachograph-0.1.0-beta.12-rc2-win-x64.zip`
 - **Commit historyczny:** `1c87e004b629e0b691db1eb18e0952fa5641d8fe`
 - **SHA-256 historyczny:** `30CD7BD2B65D2C59DD7F2306FF6D3A129D4AA5BCC61C78F5E7381B8C9A8E5ECA`
@@ -213,12 +213,14 @@ zielony; następnym krokiem jest commit i nowy artefakt `rc3`.
 - **Testy automatyczne:** 524/524 sekwencyjnie po poprawce przerwy slotu 2
 - **Testy manualne / dowody:** Alt+Tab — PASS; przerwa slotu 2 `1 + 44 = 45`
   — PASS na świeżych danych i aktywnej telemetrii
+- **Weryfikacja paczki `rc3`:** świeże rozpakowanie, 454 pliki zgodne bajtowo,
+  `FileVersion 0.1.12.3`, dokładny `ProductVersion`, plugin v3 i checksumy — PASS
 - **Weryfikacja paczki `rc2`:** struktura i checksumy — PASS, funkcjonalny smoke
   — FAIL
 - **Otwarte błędy P0:** 0
 - **Otwarte błędy P1:** 0
-- **Uwagi do następnego etapu:** zbudować `rc3`, zapisać commit i SHA-256,
-  następnie wznowić pozostały zakres smoke na rozpakowanym artefakcie.
+- **Uwagi do następnego etapu:** wznowić pozostały zakres smoke na rozpakowanym
+  artefakcie `rc3`.
 
 ---
 
