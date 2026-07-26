@@ -23,10 +23,11 @@ public sealed record JourneyPlanSegmentRow(
     string Duration,
     string Reason);
 
-public sealed class JourneyPlannerViewModel : INotifyPropertyChanged
+public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataErrorInfo
 {
     private readonly IDeliveryPlannerService _service;
     private readonly Func<string, string> _driverName;
+    private readonly IJourneyPlannerInputStateStore? _inputStateStore;
     private readonly AsyncCommand _calculateCommand;
     private JourneyPlannerModeOption _selectedMode;
     private JourneyPlannerSlotOption _selectedSlot;
@@ -35,8 +36,10 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged
     private string _driveToPickup = "01:00";
     private string _offerExpiresIn = "09:22";
     private string _loadedDrive = "03:11";
-    private string _windowStartTime = "21:54";
-    private string _windowEndTime = "01:16";
+    private int _windowStartHour = 21;
+    private int _windowStartMinute = 54;
+    private int _windowEndHour = 1;
+    private int _windowEndMinute = 16;
     private string _pickupWork = "00:15";
     private string _unloadingWork = "00:30";
     private string _postDeliveryWork = "00:00";
@@ -52,6 +55,7 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged
     private string _completionText = "—";
     private string _marginText = "—";
     private string _statusForeground = "#5F6874";
+    private string _inputOriginText = "Wartości domyślne · zapis automatyczny";
     private bool _hasResult;
     private bool _snapshotReady;
     private bool _requiresRecalculation;
@@ -61,10 +65,12 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged
 
     public JourneyPlannerViewModel(
         IDeliveryPlannerService service,
-        Func<string, string>? driverName = null)
+        Func<string, string>? driverName = null,
+        IJourneyPlannerInputStateStore? inputStateStore = null)
     {
         _service = service;
         _driverName = driverName ?? (cardId => cardId);
+        _inputStateStore = inputStateStore;
         Modes =
         [
             new(true, "Oferta z rynku"),
@@ -89,19 +95,28 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged
         _selectedSlot = Slots[0];
         _windowStartDay = Weekdays[3];
         _windowEndDay = Weekdays[5];
+        Hours = Enumerable.Range(0, 24).ToArray();
+        Minutes = Enumerable.Range(0, 60).ToArray();
+        RestoreInputState();
         _calculateCommand = new AsyncCommand(CalculateAsync, () => CanCalculate);
         CalculateCommand = _calculateCommand;
+        SetDurationPresetCommand = new RelayCommand<string>(SetDurationPreset);
+        AdjustDurationCommand = new RelayCommand<string>(AdjustDuration);
         _ = RefreshReadinessAsync();
     }
 
     public IReadOnlyList<JourneyPlannerModeOption> Modes { get; }
     public IReadOnlyList<JourneyPlannerSlotOption> Slots { get; }
     public IReadOnlyList<GameWeekdayOption> Weekdays { get; }
+    public IReadOnlyList<int> Hours { get; }
+    public IReadOnlyList<int> Minutes { get; }
     public ObservableCollection<JourneyPlanSegmentRow> Segments { get; } = [];
     public ObservableCollection<string> Warnings { get; } = [];
     public ObservableCollection<string> Summary { get; } = [];
     public ObservableCollection<string> ReadinessIssues { get; } = [];
     public ICommand CalculateCommand { get; }
+    public ICommand SetDurationPresetCommand { get; }
+    public ICommand AdjustDurationCommand { get; }
 
     public JourneyPlannerModeOption SelectedMode
     {
@@ -150,8 +165,10 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged
     public string LoadedDrive { get => _loadedDrive; set => SetInput(ref _loadedDrive, value); }
     public GameWeekdayOption WindowStartDay { get => _windowStartDay; set => SetInput(ref _windowStartDay, value); }
     public GameWeekdayOption WindowEndDay { get => _windowEndDay; set => SetInput(ref _windowEndDay, value); }
-    public string WindowStartTime { get => _windowStartTime; set => SetInput(ref _windowStartTime, value); }
-    public string WindowEndTime { get => _windowEndTime; set => SetInput(ref _windowEndTime, value); }
+    public int WindowStartHour { get => _windowStartHour; set => SetInput(ref _windowStartHour, value); }
+    public int WindowStartMinute { get => _windowStartMinute; set => SetInput(ref _windowStartMinute, value); }
+    public int WindowEndHour { get => _windowEndHour; set => SetInput(ref _windowEndHour, value); }
+    public int WindowEndMinute { get => _windowEndMinute; set => SetInput(ref _windowEndMinute, value); }
     public string PickupWork { get => _pickupWork; set => SetInput(ref _pickupWork, value); }
     public string UnloadingWork { get => _unloadingWork; set => SetInput(ref _unloadingWork, value); }
     public string PostDeliveryWork { get => _postDeliveryWork; set => SetInput(ref _postDeliveryWork, value); }
@@ -167,6 +184,7 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged
     public string CompletionText { get => _completionText; private set => Set(ref _completionText, value); }
     public string MarginText { get => _marginText; private set => Set(ref _marginText, value); }
     public string StatusForeground { get => _statusForeground; private set => Set(ref _statusForeground, value); }
+    public string InputOriginText { get => _inputOriginText; private set => Set(ref _inputOriginText, value); }
     public bool HasResult { get => _hasResult; private set => Set(ref _hasResult, value); }
     public bool SnapshotReady
     {
@@ -235,19 +253,62 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged
     public static bool TryParseDuration(string? text, out int minutes)
     {
         minutes = 0;
-        var parts = text?.Split(':');
-        if (parts is not { Length: 2 } ||
-            !int.TryParse(parts[0], NumberStyles.None, CultureInfo.InvariantCulture, out var hours) ||
-            !int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out var minutePart) ||
-            hours < 0 || minutePart is < 0 or > 59)
+        if (string.IsNullOrWhiteSpace(text))
             return false;
+
+        var normalized = string.Concat(text.Where(character => !char.IsWhiteSpace(character)))
+            .ToLowerInvariant();
         try
         {
-            minutes = checked((hours * 60) + minutePart);
-            return true;
+            if (normalized.Contains(':'))
+            {
+                var parts = normalized.Split(':');
+                if (parts.Length != 2 ||
+                    !int.TryParse(parts[0], NumberStyles.None, CultureInfo.InvariantCulture, out var hours) ||
+                    !int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out var minutePart) ||
+                    hours < 0 || minutePart is < 0 or > 59)
+                    return false;
+                minutes = checked((hours * 60) + minutePart);
+                return true;
+            }
+
+            var hourMarker = normalized.IndexOf('h');
+            if (hourMarker >= 0)
+            {
+                if (normalized.LastIndexOf('h') != hourMarker ||
+                    !int.TryParse(normalized[..hourMarker], NumberStyles.None, CultureInfo.InvariantCulture, out var hours) ||
+                    hours < 0)
+                    return false;
+                var minuteText = normalized[(hourMarker + 1)..];
+                var minutePart = 0;
+                if (minuteText.Length > 0 &&
+                    (!int.TryParse(minuteText, NumberStyles.None, CultureInfo.InvariantCulture, out minutePart) ||
+                     minutePart is < 0 or > 59))
+                    return false;
+                minutes = checked((hours * 60) + minutePart);
+                return true;
+            }
+
+            if (normalized.Contains('.') || normalized.Contains(','))
+            {
+                var invariant = normalized.Replace(',', '.');
+                if (!decimal.TryParse(invariant, NumberStyles.AllowDecimalPoint,
+                        CultureInfo.InvariantCulture, out var fractionalHours) ||
+                    fractionalHours < 0)
+                    return false;
+                var totalMinutes = fractionalHours * 60;
+                if (totalMinutes != decimal.Truncate(totalMinutes) || totalMinutes > int.MaxValue)
+                    return false;
+                minutes = decimal.ToInt32(totalMinutes);
+                return true;
+            }
+
+            return int.TryParse(normalized, NumberStyles.None, CultureInfo.InvariantCulture, out minutes) &&
+                   minutes >= 0;
         }
         catch (OverflowException)
         {
+            minutes = 0;
             return false;
         }
     }
@@ -259,17 +320,16 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged
         if (!CanCalculate)
         {
             ValidationMessage = SnapshotReady
-                ? "Popraw pola oznaczone jako czas. Czas trwania ma format HH:MM, a godzina okna 00:00–23:59."
+                ? FirstValidationError()
                 : ReadinessIssues.FirstOrDefault() ?? "Brak aktualnego snapshotu obu kart.";
             return;
         }
 
-        ParseCommon(out var loaded, out var startClock, out var endClock,
-            out var unloading, out var post, out var tight);
+        ParseCommon(out var loaded, out var unloading, out var post, out var tight);
         var windowStart = new GameWeekdayTime(
-            WindowStartDay.Value, startClock.Hour, startClock.Minute);
+            WindowStartDay.Value, WindowStartHour, WindowStartMinute);
         var windowEnd = new GameWeekdayTime(
-            WindowEndDay.Value, endClock.Hour, endClock.Minute);
+            WindowEndDay.Value, WindowEndHour, WindowEndMinute);
         try
         {
             DeliveryPlanResult result;
@@ -298,37 +358,20 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged
     }
 
     private bool InputsAreValid() =>
-        ParseCommon(out _, out _, out _, out _, out _, out _) &&
+        ParseCommon(out _, out _, out _, out _) &&
         (!IsMarketOffer ||
          TryParseDuration(DriveToPickup, out _) &&
          TryParseDuration(OfferExpiresIn, out _) &&
          TryParseDuration(PickupWork, out _));
 
     private bool ParseCommon(
-        out int loaded, out TimeOnly starts, out TimeOnly ends,
-        out int unloading, out int post, out int tight)
+        out int loaded, out int unloading, out int post, out int tight)
     {
         var loadedValid = TryParseDuration(LoadedDrive, out loaded);
-        var startsValid = TryParseClock(WindowStartTime, out starts);
-        var endsValid = TryParseClock(WindowEndTime, out ends);
         var unloadingValid = TryParseDuration(UnloadingWork, out unloading);
         var postValid = TryParseDuration(PostDeliveryWork, out post);
         var tightValid = TryParseDuration(TightMargin, out tight);
-        return loadedValid && startsValid && endsValid &&
-               unloadingValid && postValid && tightValid;
-    }
-
-    private static bool TryParseClock(string? text, out TimeOnly clock)
-    {
-        clock = default;
-        var parts = text?.Split(':');
-        if (parts is not { Length: 2 } ||
-            !int.TryParse(parts[0], NumberStyles.None, CultureInfo.InvariantCulture, out var hour) ||
-            !int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out var minute) ||
-            hour is < 0 or > 23 || minute is < 0 or > 59)
-            return false;
-        clock = new TimeOnly(hour, minute);
-        return true;
+        return loadedValid && unloadingValid && postValid && tightValid;
     }
 
     private void Present(DeliveryPlanResult result)
@@ -405,7 +448,12 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged
     {
         InvalidateResult("Zmieniono dane. Oblicz plan ponownie.");
         RefreshInputPreviews();
+        ValidationMessage = string.Empty;
+        InputOriginText = "Wartości użytkownika · zapis automatyczny";
+        SaveInputState();
         OnPropertyChanged(nameof(CanCalculate));
+        foreach (var property in DurationPropertyNames)
+            OnPropertyChanged(property);
         _calculateCommand.RaiseCanExecuteChanged();
     }
 
@@ -417,17 +465,13 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged
             OfferExpiryText = "Nie dotyczy";
         else if (TryParseDuration(OfferExpiresIn, out var expires))
             OfferExpiryText = Format(_previewCalendar, checked(_previewNow.Value + expires));
-        if (TryParseClock(WindowStartTime, out var start) &&
-            TryParseClock(WindowEndTime, out var end))
-        {
-            var resolvedStart = _previewCalendar.ResolveNext(
-                WindowStartDay.Value, start.Hour, start.Minute, new GameTime(_previewNow.Value));
-            var resolvedEnd = _previewCalendar.ResolveNext(
-                WindowEndDay.Value, end.Hour, end.Minute, resolvedStart.GameTime.AddMinutes(1));
-            DeliveryWindowText =
-                $"Od: {GameCalendarFormatter.FormatCompact(resolvedStart)}\n" +
-                $"Do: {GameCalendarFormatter.FormatCompact(resolvedEnd)}";
-        }
+        var resolvedStart = _previewCalendar.ResolveNext(
+            WindowStartDay.Value, WindowStartHour, WindowStartMinute, new GameTime(_previewNow.Value));
+        var resolvedEnd = _previewCalendar.ResolveNext(
+            WindowEndDay.Value, WindowEndHour, WindowEndMinute, resolvedStart.GameTime.AddMinutes(1));
+        DeliveryWindowText =
+            $"Od: {GameCalendarFormatter.FormatCompact(resolvedStart)}\n" +
+            $"Do: {GameCalendarFormatter.FormatCompact(resolvedEnd)}";
     }
 
     private void InvalidateResult(string message)
@@ -449,6 +493,158 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged
     {
         if (Set(ref field, value, name))
             InputChanged();
+    }
+
+    public string Error => string.Empty;
+
+    public string this[string columnName] =>
+        IsDurationProperty(columnName) &&
+        !TryParseDuration(GetDurationValue(columnName), out _)
+            ? $"{DurationLabel(columnName)}: wpisz czas jako HH:MM, minuty, 1h30 albo 1,5."
+            : string.Empty;
+
+    private static readonly string[] DurationPropertyNames =
+    [
+        nameof(DriveToPickup), nameof(OfferExpiresIn), nameof(PickupWork),
+        nameof(LoadedDrive), nameof(UnloadingWork), nameof(PostDeliveryWork),
+        nameof(TightMargin)
+    ];
+
+    private static bool IsDurationProperty(string propertyName) =>
+        DurationPropertyNames.Contains(propertyName, StringComparer.Ordinal);
+
+    private string GetDurationValue(string propertyName) => propertyName switch
+    {
+        nameof(DriveToPickup) => DriveToPickup,
+        nameof(OfferExpiresIn) => OfferExpiresIn,
+        nameof(PickupWork) => PickupWork,
+        nameof(LoadedDrive) => LoadedDrive,
+        nameof(UnloadingWork) => UnloadingWork,
+        nameof(PostDeliveryWork) => PostDeliveryWork,
+        nameof(TightMargin) => TightMargin,
+        _ => string.Empty
+    };
+
+    private static string DurationLabel(string propertyName) => propertyName switch
+    {
+        nameof(DriveToPickup) => "Dojazd po ładunek",
+        nameof(OfferExpiresIn) => "Oferta wygasa za",
+        nameof(PickupWork) => "Odbiór",
+        nameof(LoadedDrive) => "Trasa z ładunkiem",
+        nameof(UnloadingWork) => "Rozładunek",
+        nameof(PostDeliveryWork) => "Praca po dostawie",
+        nameof(TightMargin) => "Próg „na styk”",
+        _ => "Czas"
+    };
+
+    private string FirstValidationError()
+    {
+        foreach (var propertyName in DurationPropertyNames)
+        {
+            if (!IsMarketOffer &&
+                propertyName is nameof(DriveToPickup) or nameof(OfferExpiresIn) or nameof(PickupWork))
+                continue;
+            var error = this[propertyName];
+            if (error.Length > 0)
+                return error;
+        }
+        return "Popraw oznaczone pole czasu.";
+    }
+
+    private void SetDurationPreset(string? parameter)
+    {
+        if (!TrySplitCommandParameter(parameter, out var propertyName, out var minutes))
+            return;
+        SetDurationValue(propertyName, FormatDuration(minutes));
+    }
+
+    private void AdjustDuration(string? parameter)
+    {
+        if (!TrySplitCommandParameter(parameter, out var propertyName, out var delta) ||
+            !TryParseDuration(GetDurationValue(propertyName), out var current))
+            return;
+        var adjusted = Math.Max(0, (long)current + delta);
+        if (adjusted > int.MaxValue)
+            return;
+        SetDurationValue(propertyName, FormatDuration((int)adjusted));
+    }
+
+    private static bool TrySplitCommandParameter(
+        string? parameter, out string propertyName, out int minutes)
+    {
+        propertyName = string.Empty;
+        minutes = 0;
+        var parts = parameter?.Split('|');
+        if (parts is not { Length: 2 } || !IsDurationProperty(parts[0]) ||
+            !int.TryParse(parts[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out minutes))
+            return false;
+        propertyName = parts[0];
+        return true;
+    }
+
+    private void SetDurationValue(string propertyName, string value)
+    {
+        switch (propertyName)
+        {
+            case nameof(DriveToPickup): DriveToPickup = value; break;
+            case nameof(OfferExpiresIn): OfferExpiresIn = value; break;
+            case nameof(PickupWork): PickupWork = value; break;
+            case nameof(LoadedDrive): LoadedDrive = value; break;
+            case nameof(UnloadingWork): UnloadingWork = value; break;
+            case nameof(PostDeliveryWork): PostDeliveryWork = value; break;
+            case nameof(TightMargin): TightMargin = value; break;
+        }
+    }
+
+    private void RestoreInputState()
+    {
+        if (_inputStateStore is null)
+            return;
+        try
+        {
+            var state = _inputStateStore.Load();
+            if (state is null)
+                return;
+            _selectedMode = state.IsMarketOffer ? Modes[0] : Modes[1];
+            _selectedSlot = Slots.FirstOrDefault(option => option.Slot == state.SelectedSlot) ?? Slots[0];
+            _driveToPickup = state.DriveToPickup;
+            _offerExpiresIn = state.OfferExpiresIn;
+            _pickupWork = state.PickupWork;
+            _loadedDrive = state.LoadedDrive;
+            _windowStartDay = Weekdays.FirstOrDefault(option => option.Value == state.WindowStartDay) ?? Weekdays[3];
+            _windowStartHour = Math.Clamp(state.WindowStartHour, 0, 23);
+            _windowStartMinute = Math.Clamp(state.WindowStartMinute, 0, 59);
+            _windowEndDay = Weekdays.FirstOrDefault(option => option.Value == state.WindowEndDay) ?? Weekdays[5];
+            _windowEndHour = Math.Clamp(state.WindowEndHour, 0, 23);
+            _windowEndMinute = Math.Clamp(state.WindowEndMinute, 0, 59);
+            _unloadingWork = state.UnloadingWork;
+            _postDeliveryWork = state.PostDeliveryWork;
+            _tightMargin = state.TightMargin;
+            _inputOriginText = "Przywrócono wartości z poprzedniej sesji";
+        }
+        catch (Exception exception)
+        {
+            _inputOriginText = $"Nie odtworzono zapisanych wartości: {exception.Message}";
+        }
+    }
+
+    public void SaveInputState()
+    {
+        if (_inputStateStore is null)
+            return;
+        try
+        {
+            _inputStateStore.Save(new(
+                IsMarketOffer, SelectedSlot.Slot,
+                DriveToPickup, OfferExpiresIn, PickupWork, LoadedDrive,
+                WindowStartDay.Value, WindowStartHour, WindowStartMinute,
+                WindowEndDay.Value, WindowEndHour, WindowEndMinute,
+                UnloadingWork, PostDeliveryWork, TightMargin));
+        }
+        catch (Exception exception)
+        {
+            InputOriginText = $"Nie zapisano wartości: {exception.Message}";
+        }
     }
 
     private static string FailureText(DeliveryPlanFailureReason reason) => reason switch
@@ -517,5 +713,12 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged
         public void RaiseCanExecuteChanged() =>
             CanExecuteChanged?.Invoke(this, EventArgs.Empty);
         public event EventHandler? CanExecuteChanged;
+    }
+
+    private sealed class RelayCommand<T>(Action<T?> execute) : ICommand
+    {
+        public bool CanExecute(object? parameter) => true;
+        public void Execute(object? parameter) => execute(parameter is T typed ? typed : default);
+        public event EventHandler? CanExecuteChanged { add { } remove { } }
     }
 }

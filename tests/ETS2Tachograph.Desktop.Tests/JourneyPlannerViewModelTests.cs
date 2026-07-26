@@ -12,10 +12,27 @@ public sealed class JourneyPlannerViewModelTests
     [InlineData("00:00", 0)]
     [InlineData("12:35", 755)]
     [InlineData("28:00", 1_680)]
-    public void Duration_parser_accepts_hours_above_23(string text, int expected)
+    [InlineData("90", 90)]
+    [InlineData("1h30", 90)]
+    [InlineData(" 1 h 30 ", 90)]
+    [InlineData("1,5", 90)]
+    [InlineData(" 1.5 ", 90)]
+    public void Duration_parser_accepts_supported_formats(string text, int expected)
     {
         Assert.True(JourneyPlannerViewModel.TryParseDuration(text, out var minutes));
         Assert.Equal(expected, minutes);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("1:60")]
+    [InlineData("1h60")]
+    [InlineData("1.333")]
+    [InlineData("-15")]
+    [InlineData("999999999999999999999h")]
+    public void Duration_parser_rejects_invalid_or_overflowing_values(string text)
+    {
+        Assert.False(JourneyPlannerViewModel.TryParseDuration(text, out _));
     }
 
     [Fact]
@@ -35,8 +52,67 @@ public sealed class JourneyPlannerViewModelTests
         Assert.Equal(1, service.MarketCalls);
         Assert.Equal(GameWeekday.Thursday, service.LastMarketInput!.DeliveryWindowStart.Weekday);
         Assert.Equal(21, service.LastMarketInput.DeliveryWindowStart.Hour);
+        Assert.Equal(54, service.LastMarketInput.DeliveryWindowStart.Minute);
         Assert.Equal(GameWeekday.Saturday, service.LastMarketInput.DeliveryWindowEnd.Weekday);
         Assert.Equal(1, service.LastMarketInput.DeliveryWindowEnd.Hour);
+        Assert.Equal(16, service.LastMarketInput.DeliveryWindowEnd.Minute);
+    }
+
+    [Fact]
+    public void Preset_and_stepper_commands_change_duration_in_expected_steps()
+    {
+        var viewModel = new JourneyPlannerViewModel(
+            new FakeService(Result(DeliveryPlanningUseCase.MarketOffer)));
+
+        viewModel.SetDurationPresetCommand.Execute("PickupWork|30");
+        Assert.Equal("00:30", viewModel.PickupWork);
+
+        viewModel.AdjustDurationCommand.Execute("PickupWork|5");
+        Assert.Equal("00:35", viewModel.PickupWork);
+
+        viewModel.AdjustDurationCommand.Execute("PickupWork|-60");
+        Assert.Equal("00:00", viewModel.PickupWork);
+    }
+
+    [Fact]
+    public async Task Invalid_input_reports_field_name()
+    {
+        var viewModel = new JourneyPlannerViewModel(
+            new FakeService(Result(DeliveryPlanningUseCase.MarketOffer)))
+        {
+            UnloadingWork = "wrong"
+        };
+
+        await viewModel.CalculateAsync();
+
+        Assert.Contains("Rozładunek", viewModel.ValidationMessage);
+        Assert.NotEmpty(viewModel[nameof(JourneyPlannerViewModel.UnloadingWork)]);
+    }
+
+    [Fact]
+    public void Planner_inputs_are_restored_and_saved_with_origin()
+    {
+        var saved = new JourneyPlannerInputState(
+            false, 2, "00:45", "02:00", "00:20", "04:00",
+            GameWeekday.Friday, 8, 7,
+            GameWeekday.Sunday, 22, 59,
+            "00:25", "00:10", "00:40", "user");
+        var store = new MemoryStore(saved);
+        var viewModel = new JourneyPlannerViewModel(
+            new FakeService(Result(DeliveryPlanningUseCase.ActiveDelivery)),
+            inputStateStore: store);
+
+        Assert.False(viewModel.IsMarketOffer);
+        Assert.Equal(2, viewModel.SelectedSlot.Slot);
+        Assert.Equal(8, viewModel.WindowStartHour);
+        Assert.Equal(7, viewModel.WindowStartMinute);
+        Assert.Contains("poprzedniej sesji", viewModel.InputOriginText);
+
+        viewModel.WindowStartMinute = 11;
+
+        Assert.Equal(11, store.Saved!.WindowStartMinute);
+        Assert.Equal("user", store.Saved.Origin);
+        Assert.Contains("zapis automatyczny", viewModel.InputOriginText);
     }
 
     [Fact]
@@ -201,5 +277,12 @@ public sealed class JourneyPlannerViewModelTests
         }
 
         public bool IsCurrent(CrewDeliveryPlanSnapshotIdentity identity) => Current;
+    }
+
+    private sealed class MemoryStore(JourneyPlannerInputState? loaded) : IJourneyPlannerInputStateStore
+    {
+        internal JourneyPlannerInputState? Saved { get; private set; }
+        public JourneyPlannerInputState? Load() => loaded;
+        public void Save(JourneyPlannerInputState state) => Saved = state;
     }
 }

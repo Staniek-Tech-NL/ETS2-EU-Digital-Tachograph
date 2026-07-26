@@ -236,7 +236,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _diagnostics = diagnostics;
         JourneyPlanner = new JourneyPlannerViewModel(
             new DeliveryPlannerService(crew),
-            cardId => FindProfileByCard(cardId)?.DisplayName ?? cardId);
+            cardId => FindProfileByCard(cardId)?.DisplayName ?? cardId,
+            JsonJourneyPlannerInputStateStore.CreateDefault());
         ReportsWorkspace = new ReportsWorkspaceViewModel(
             reports,
             () => _crew.Current.Frame?.GameTime.TotalMinutes,
@@ -2358,7 +2359,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     { if (EqualityComparer<T>.Default.Equals(field, value)) return false; field = value; OnPropertyChanged(name); return true; }
     private void OnPropertyChanged([CallerMemberName] string? name = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     public event PropertyChangedEventHandler? PropertyChanged;
-    public void Dispose() { SaveDeviceState(); _clockTimer.Stop(); _cancellation.Cancel(); _cancellation.Dispose(); }
+    public void Dispose() { SaveDeviceState(); JourneyPlanner.SaveInputState(); _clockTimer.Stop(); _cancellation.Cancel(); _cancellation.Dispose(); }
 
     private sealed class RelayCommand(Action execute, Func<bool>? canExecute = null) : ICommand
     {

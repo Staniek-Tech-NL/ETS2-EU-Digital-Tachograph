@@ -70,6 +70,12 @@ public partial class MainWindow : Window
             viewModel.EditManualEntrySegmentCommand.Execute(segment);
     }
 
+    private void PlannerDuration_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter && sender is TextBox textBox)
+            textBox.GetBindingExpression(TextBox.TextProperty)?.UpdateSource();
+    }
+
     private void CountryComboBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
     {
         if (sender is not ComboBox comboBox || string.IsNullOrWhiteSpace(e.Text)) return;
