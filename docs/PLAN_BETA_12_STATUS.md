@@ -394,6 +394,13 @@ pozostały smoke `rc3` oczekuje.
 niezamkniętego formalnie wejścia. Zakres kroków 1–4 został zaimplementowany;
 nie nadaje to M3.7 wyniku GO i nie otwiera M4.
 
+- **Artefakt bieżący:** `ETS2Tachograph-0.1.0-beta.12-rc4-win-x64.zip`
+- **Commit źródłowy:** `a1b8a486b52ee244984016efe268562690d4fbc4`
+- **SHA-256:** `8ED073DBEF0ADEA4B589BD257A6D2DEC6A390C11F5242D97D188838F9F0F56DE`
+- **Weryfikacja paczki `rc4`:** świeże rozpakowanie, 455 plików zgodnych
+  bajtowo, `FileVersion 0.1.12.4`, dokładny `ProductVersion`, plugin v3
+  i plik checksumy — PASS.
+
 - [x] parser czasu: `HH:MM`, minuty, `1h30`, `1,5` / `1.5`, białe znaki
 - [x] okno dostawy: dzień + godzina `00`–`23` + minuta `00`–`59`
 - [x] presety, kroki klawiatury, walidacja per pole i `PRÓG „NA STYK"`
