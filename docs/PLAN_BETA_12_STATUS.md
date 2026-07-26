@@ -4,7 +4,7 @@
 **Baza wydaniowa:** `0.1.0-beta.11.1` (GO 2026-07-23)
 **Cel:** `0.1.0-beta.12` — ostatnia beta przed pierwszą szeroką publikacją.
 **Źródło etapów:** `docs/PLAN_BETA_12_M0-M8/` (integralność SHA-256 potwierdzona z `MANIFEST_SHA256.md`).
-**Ostatnia aktualizacja tablicy:** 2026-07-24
+**Ostatnia aktualizacja tablicy:** 2026-07-26
 
 > Ten plik jest żywym pulpitem postępu. Nie zmienia zakresu ani gate'ów planu
 > nadrzędnego — odzwierciedla tylko stan realizacji. Reguła przejścia: następny
@@ -20,7 +20,8 @@
 | **M3A** | Game Calendar & Deadline Presentation | 🟢 ręczny gate UI zielony | GO | M3 |
 | **M3** | Planer: Application Service i UI | 🟢 M3-R3 automatycznie i ręcznie zielone | GO | M3.5 |
 | **M3.5** | Raporty i statystyki: wariant B | 🟢 UI, automatyka i ręczny gate zielone | GO | M3.6 |
-| **M3.6** | Wewnętrzny smoke checkpoint | 🟡 rc3 gotowy; pozostały smoke oczekuje | FIX | M4 |
+| **M3.6** | Wewnętrzny smoke checkpoint | 🟡 rc3 gotowy; pozostały smoke oczekuje | FIX | M3.7 |
+| M3.7 | Planer: ergonomia wprowadzania danych | ⚪ nie rozpoczęty | — | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
@@ -378,6 +379,32 @@ zakończone wynikiem GO po akceptacji właściciela 2026-07-24.
   zlokalizowane stringi; **M7 na zlokalizowanym RC pozostaje wymagany**.
 - **Wyjście:** triaging zakończony, potwierdzone błędy naprawione przed M4,
   decyzja GO/FIX/HOLD dla checkpointu.
+
+---
+
+## M3.7 — Planer: ergonomia wprowadzania danych (NIE ROZPOCZĘTY)
+
+Etap wstawiony między M3.6 a M4 decyzją właściciela z 2026-07-26. Szczegóły
+w `docs/PLAN_BETA_12_M0-M8/M3_7_PLANER_ERGONOMIA_WEJSCIA.md`.
+
+**Kryterium wejścia:** formalny wynik GO dla M3.6. **Stan:** niespełnione —
+pozostały smoke `rc3` oczekuje.
+
+- **Powód:** ocena jednej oferty wymaga dziś wypełnienia ośmiu pól `HH:MM`,
+  co przy grze na klawiaturze czyni Planer praktycznie nieużywalnym.
+- **Gałąź robocza:** `feature/planner-input-ergonomics`.
+- **Zakres:** wyłącznie warstwa wejściowa — `JourneyPlannerViewModel` oraz
+  sekcja PLANER w `MainWindow.xaml`. Silnik planowania i prezentacja wyniku
+  pozostają nietknięte.
+- **Dlaczego przed M4:** M4 wprowadza UI freeze i obejmuje inwentaryzacją
+  Planer. Wykonanie zmian po M4 oznaczałoby złamanie polityki freeze'u albo
+  podwójną inwentaryzację. W chwili decyzji M4 nie był rozpoczęty.
+- **Decyzje:** makieta zaakceptowana; minuty jako pełna lista `00`–`59`;
+  `TightMargin` wystawiony w UI jako `PRÓG „NA STYK"`; wejście względne
+  odrzucone, bo ETS2 pokazuje okno dostawy jako dni tygodnia; autouzupełnianie
+  z telemetrii odłożone po publikacji (wymaga protokołu v4).
+- **Wpływ na M7:** zmiany dotykają XAML i modelu widoku, więc smoke M3.6
+  na artefakcie `rc3` nie pokrywa tego etapu. Pełny M7 pozostaje wymagany.
 
 ---
 
