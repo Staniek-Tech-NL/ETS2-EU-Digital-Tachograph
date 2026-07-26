@@ -21,7 +21,7 @@
 | **M3** | Planer: Application Service i UI | 🟢 M3-R3 automatycznie i ręcznie zielone | GO | M3.5 |
 | **M3.5** | Raporty i statystyki: wariant B | 🟢 UI, automatyka i ręczny gate zielone | GO | M3.6 |
 | **M3.6** | Wewnętrzny smoke checkpoint | 🟡 rc3 gotowy; pozostały smoke oczekuje | FIX | M3.7 |
-| **M3.7** | Planer: ergonomia wprowadzania danych | 🟡 implementacja i automatyka zielone; gate ręczny oczekuje | FIX | M4 |
+| **M3.7** | Planer: ergonomia wprowadzania danych | 🟢 automatyka i ręczny gate zielone | GO | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
@@ -382,7 +382,7 @@ zakończone wynikiem GO po akceptacji właściciela 2026-07-24.
 
 ---
 
-## M3.7 — Planer: ergonomia wprowadzania danych (IMPLEMENTACJA GOTOWA — GATE RĘCZNY OCZEKUJE)
+## M3.7 — Planer: ergonomia wprowadzania danych (ZAMKNIĘTY — GO)
 
 Etap wstawiony między M3.6 a M4 decyzją właściciela z 2026-07-26. Szczegóły
 w `docs/PLAN_BETA_12_M0-M8/M3_7_PLANER_ERGONOMIA_WEJSCIA.md`.
@@ -392,7 +392,8 @@ pozostały smoke `rc3` oczekuje.
 
 **Stan wdrożenia 2026-07-26:** właściciel polecił wprowadzić plan mimo
 niezamkniętego formalnie wejścia. Zakres kroków 1–4 został zaimplementowany;
-nie nadaje to M3.7 wyniku GO i nie otwiera M4.
+pełny ręczny gate został następnie potwierdzony przez właściciela jako zielony.
+M3.7 ma wynik **GO**. M4 pozostaje formalnie zablokowane do zamknięcia M3.6.
 
 - **Artefakt bieżący:** `ETS2Tachograph-0.1.0-beta.12-rc4-win-x64.zip`
 - **Commit źródłowy:** `a1b8a486b52ee244984016efe268562690d4fbc4`
@@ -409,8 +410,8 @@ nie nadaje to M3.7 wyniku GO i nie otwiera M4.
 - [x] pełna regresja automatyczna: **538/538**
 - [x] build Release: **0 błędów / 0 ostrzeżeń**
 - [x] kontrola wizualna układu i kompletu pól w uruchomionej aplikacji
-- [ ] pełny ręczny gate klawiatury, obu trybów/slotów, restartu i logu bindingów
-      (kontrola aplikacji przerwana fizycznym Escape)
+- [x] pełny ręczny gate klawiatury, obu trybów/slotów, restartu i logu bindingów
+      — zielony, potwierdzenie właściciela 2026-07-26
 
 - **Powód:** ocena jednej oferty wymaga dziś wypełnienia ośmiu pól `HH:MM`,
   co przy grze na klawiaturze czyni Planer praktycznie nieużywalnym.

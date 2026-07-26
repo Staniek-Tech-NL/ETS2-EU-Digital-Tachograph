@@ -4,7 +4,7 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 26 lipca 2026  
-**Status początkowy:** **NIE ROZPOCZĘTY**  
+**Status bieżący:** **GO — RĘCZNY GATE ZIELONY**
 **Kryterium wejścia:** Zamknięty smoke M3.6 (wynik **GO**).  
 **Kryterium wyjścia:** Wszystkie zadania zamknięte, pełna regresja zielona, ręczny gate wizualny zaakceptowany.  
 **Następny etap:** M4  
@@ -55,54 +55,66 @@ podsumowanie, werdykt). Żadna zmiana nie modyfikuje sposobu liczenia planu.
 
 ### Krok 1 — poprawki tanie (jeden commit)
 
-- [ ] Zastąpić domyślne wartości resztkowe okrągłymi i realistycznymi:
+- [x] Zastąpić domyślne wartości resztkowe okrągłymi i realistycznymi:
       dojazd po ładunek `01:00`, odbiór `00:15`, rozładunek `00:30`,
       praca po dostawie `00:00`.
-- [ ] Ustawić `IsDefault="True"` na przycisku `OBLICZ PLAN` — Enter uruchamia
+- [x] Ustawić `IsDefault="True"` na przycisku `OBLICZ PLAN` — Enter uruchamia
       obliczenie.
-- [ ] Nadać `TabIndex` zgodny z kolejnością czytania panelu.
-- [ ] Rozszerzyć `TryParseDuration` o zapis bez dwukropka (`90`), zapis
+- [x] Nadać `TabIndex` zgodny z kolejnością czytania panelu.
+- [x] Rozszerzyć `TryParseDuration` o zapis bez dwukropka (`90`), zapis
       godzinowy (`1h30`) i ułamkowy (`1,5` / `1.5`); tolerować białe znaki.
-- [ ] Testy jednostkowe nowych formatów w `JourneyPlannerViewModelTests`.
+- [x] Testy jednostkowe nowych formatów w `JourneyPlannerViewModelTests`.
 
 ### Krok 2 — okno dostawy z list rozwijanych
 
-- [ ] Zamienić `WindowStartTime` i `WindowEndTime` ze `string` na godzinę i
+- [x] Zamienić `WindowStartTime` i `WindowEndTime` ze `string` na godzinę i
       minutę jako `int`.
-- [ ] Wystawić w XAML trzy listy w rzędzie: dzień, godzina `00`–`23`,
+- [x] Wystawić w XAML trzy listy w rzędzie: dzień, godzina `00`–`23`,
       minuta `00`–`59`, dla obu krańców okna.
-- [ ] Usunąć `TryParseClock` i odwołania do niego w `ParseCommon`
+- [x] Usunąć `TryParseClock` i odwołania do niego w `ParseCommon`
       oraz `RefreshInputPreviews`.
-- [ ] Skorygować komunikat walidacji — fragment o zakresie `00:00–23:59`
+- [x] Skorygować komunikat walidacji — fragment o zakresie `00:00–23:59`
       przestaje mieć zastosowanie.
 
 ### Krok 3 — presety, steppery i walidacja per pole
 
-- [ ] Presety pod polami czasu trwania: `15m`, `30m`, `1h`, `2h`
+- [x] Presety pod polami czasu trwania: `15m`, `30m`, `1h`, `2h`
       (zestaw dobrany do pola), wzorem „SZYBKI ZAKRES" z zakładki Raporty.
-- [ ] Strzałki ↑↓ zmieniają wartość o 5 minut, PgUp/PgDn o 60.
-- [ ] Czerwona ramka na polu z niepoprawnym czasem trwania oraz nazwa pola
+- [x] Strzałki ↑↓ zmieniają wartość o 5 minut, PgUp/PgDn o 60.
+- [x] Czerwona ramka na polu z niepoprawnym czasem trwania oraz nazwa pola
       w komunikacie walidacji zamiast komunikatu zbiorczego.
-- [ ] Wystawić `PRÓG „NA STYK"` jako pole edytowalne.
+- [x] Wystawić `PRÓG „NA STYK"` jako pole edytowalne.
 
 ### Krok 4 — trwałość i stabilność wpisywania
 
-- [ ] Zapamiętywać wejścia planera między sesjami wraz ze znacznikiem
+- [x] Zapamiętywać wejścia planera między sesjami wraz ze znacznikiem
       pochodzenia wartości; wzorzec jak `SaveDeviceState`.
-- [ ] Usunąć wymazywanie wyniku i migotanie przycisku przy każdym znaku:
+- [x] Usunąć wymazywanie wyniku i migotanie przycisku przy każdym znaku:
       `UpdateSourceTrigger=LostFocus` albo debounce w `InputChanged`.
-- [ ] Sprawdzić, czy zmiana nie przywraca zachowania naprawionego
+- [x] Sprawdzić, czy zmiana nie przywraca zachowania naprawionego
       w `1c87e00` (refresh storm planera).
 
 ## Gate M3.7
 
-- wszystkie zadania kroków 1–4 zamknięte;
-- pełna regresja automatyczna zielona, build Release 0 błędów i 0 ostrzeżeń;
-- brak otwartych P0/P1;
-- ręczny gate wizualny: oba tryby planera, oba sloty, komplet pól, walidacja
+- [x] wszystkie zadania kroków 1–4 zamknięte;
+- [x] pełna regresja automatyczna zielona, build Release 0 błędów i 0 ostrzeżeń;
+- [x] brak otwartych P0/P1;
+- [x] ręczny gate wizualny: oba tryby planera, oba sloty, komplet pól, walidacja
   błędnego czasu trwania, Enter, tabulacja przez cały panel, restart aplikacji
   z odtworzeniem zapamiętanych wejść;
-- brak błędów bindingów w logu diagnostycznym.
+- [x] brak błędów bindingów w logu diagnostycznym.
+
+## Zamknięcie M3.7
+
+- **Data zakończenia:** 2026-07-26
+- **Wynik:** **GO**
+- **Artefakt:** `ETS2Tachograph-0.1.0-beta.12-rc4-win-x64.zip`
+- **Commit źródłowy:** `a1b8a486b52ee244984016efe268562690d4fbc4`
+- **SHA-256:** `8ED073DBEF0ADEA4B589BD257A6D2DEC6A390C11F5242D97D188838F9F0F56DE`
+- **Build Release:** 0 błędów / 0 ostrzeżeń
+- **Testy automatyczne:** 538/538
+- **Gate ręczny:** zielony — potwierdzenie właściciela 2026-07-26
+- **Otwarte błędy P0/P1:** 0 / 0
 
 ## Wpływ na dalsze etapy
 
