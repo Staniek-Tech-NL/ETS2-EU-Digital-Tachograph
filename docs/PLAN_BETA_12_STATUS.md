@@ -393,3 +393,58 @@ dowody manualne, P0, P1, uwagi).
 - **M6** — niezmienny RC beta.12: numer + commit + SHA-256, ZIP zamrożony. — *nie rozpoczęty*
 - **M7** — smoke na rozpakowanym ZIP-ie (istniejąca + czysta baza) → GO/FIX/HOLD. — *nie rozpoczęty*
 - **M8** — publikacja dokładnie artefaktu z GO + checksuma + dokumentacja PL/EN. — *nie rozpoczęty*
+
+---
+
+## Po publikacji beta.12 — backlog
+
+Pozycje świadomie odłożone poza łańcuch M0–M8. Nie mają gate'ów, nie blokują
+publikacji i **nie wchodzą do beta.12**. Otwieramy je dopiero po zamknięciu M8.
+
+### PROM — pełne odstępstwo promowe z art. 9
+
+Decyzja z 2026-07-26: odłożone po publikacji. Powód — scalanie przerwanego
+odpoczynku promowego dotyka tej samej maszynerii granic warunku, którą naprawiał
+hotfix `7e90a36` („preserve moving break across condition boundary"), a M4 zamyka
+UI freeze. To nie jest zmiana kosmetyczna, lecz nowa ścieżka w silniku liczników.
+
+**Stan wejściowy.** Scaffolding istnieje w trzech warstwach i wymaga spięcia:
+
+- Core: `FerryRestDerogation.Evaluate` sprawdza maks. dwie przerwy, łącznie do
+  60 minut, dostęp do miejsca do spania, odpoczynek 11 h / 24 h / 45 h oraz
+  przeprawę min. 8 h dla regularnego tygodniowego. **Zero wywołań
+  produkcyjnych** — jedynym wywołującym jest
+  `tests/ETS2Tachograph.Core.Tests/Ferry/FerryRestDerogationTests.cs`.
+- Infrastructure: tabela `FerryRestRecords` i `FerryRestRecordEntity` istnieją od
+  migracji `InitialPersistence`, ale **nic do nich nie pisze ani z nich nie
+  czyta**.
+- Engine/UI: `ActivityHistoryProcessor` przypina `SpecialCondition.FerryCrossing`,
+  raporty prezentują odcinek jako `- prom`, `MainViewModel` pokazuje `Tryb: Prom`.
+  Ta część działa i nie jest przedmiotem zadania.
+
+**Zakres prac (kolejność obowiązująca).**
+
+1. Spięcie Core z silnikiem: złożenie `FerryRestRequest` z realnej historii —
+   bloki `BreakOrRest` z warunkiem `FerryCrossing`, przerwy między nimi jako
+   `Interruptions`, `RestExcludingInterruptions` z sumy bloków. Największy zakres
+   i największe ryzyko regresji.
+2. Decyzja produktowa **przed kodowaniem UI**: `RestType`, `HasSleepingFacility`
+   i `ScheduledCrossingDuration` nie są dostępne w telemetrii. Rekomendacja —
+   deklaracja kierowcy w dialogu, wzorem wyboru roli bloku przy rekompensatach;
+   zgadywanie przez silnik odrzucone.
+3. Persystencja: weryfikacja, czy schemat `FerryRestRecords` odpowiada temu, co
+   faktycznie ma być zapisywane. Możliwa nowa migracja — nie zakładać zgodności.
+4. UI i raporty: prezentacja scalonego odpoczynku promowego oraz powodu odrzucenia
+   z `FerryRestAssessment.Reason`. Komunikaty są dziś po angielsku — po M5 wymagają
+   kluczy `.resx` w `pl-PL` i `en-GB`.
+
+**Warunek zamknięcia.** Testy jednostkowe `FerryRestDerogation` już są zielone,
+więc gate musi wymagać testów **integracyjnych**. Scenariusz odniesienia:
+odpoczynek 11 h przerwany dwukrotnie — wjazdem i zjazdem z promu, łącznie 40 min
+przerw — daje jeden zaliczony odpoczynek regularny dobowy, a nie trzy osobne bloki.
+
+**Obserwacja P2 do rozstrzygnięcia w kroku 1.** `condition` jest jednowartościowy
+i `FerryModeEnabled` wygrywa przed `CrewBreakInMotion`
+(`ActivityHistoryProcessor.cs:449`). Podczas przeprawy w podwójnej obsadzie minuty
+slotu 2 tracą oznaczenie przerwy w ruchu. Nie ustalono, czy to celowe. Nie ruszać
+przed publikacją.

@@ -18,7 +18,10 @@ freight-transport baseline of Regulation (EC) 561/2006:
 - Article 8: daily rest within 24 hours (30 hours for multi-manning), no more than three
   reduced daily rests between weekly rests, weekly rest by the end of six 24-hour
   periods, the two-week weekly-rest pattern and reduced-weekly-rest compensation;
-- Article 9 ferry handling remains in Core and feeds valid rest segments to the engine.
+- Article 9 ferry handling exists in Core as `FerryRestDerogation`, but it is not wired
+  into the engine and has no production caller. Ferry mode only tags records with the
+  `FerryCrossing` special condition; an interrupted ferry rest is not merged into a single
+  valid rest. Scheduled for after the beta.12 release.
 
 Not included in v1: occasional passenger-service derogations, Article 12 emergency
 departures, and the international-goods derogation allowing two consecutive reduced

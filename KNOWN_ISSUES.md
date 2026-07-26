@@ -74,6 +74,14 @@ wydanej paczki i raportem diagnostycznym.
   JSON i `.tacho` nie są urzędowymi plikami z rzeczywistego tachografu.
 - Tryb promu jest włączany ręcznie. Telemetria ETS2 nie daje wiarygodnego zdarzenia,
   które pozwalałoby automatycznie rozpoznać cały przebieg odpoczynku promowego.
+- Tryb promu oznacza przebieg przeprawy w danych i raportach, ale nie realizuje
+  odstępstwa z art. 9. Odpoczynek przerwany jazdą przy wjeździe lub zjeździe z promu
+  pozostaje rozdzielony na osobne bloki i nie jest scalany automatycznie. Warunki
+  art. 9 są zaimplementowane w `FerryRestDerogation`, lecz nie są podłączone ani do
+  UI, ani do silnika liczników. Włączenie trybu nie rozpoczyna odpoczynku i nie
+  zmienia aktywności: jeśli aktywnością pozostanie „Jazda", „Inna praca" albo
+  „Dyspozycyjność", czas nie będzie odpoczynkiem. Pozycja zaplanowana do realizacji
+  po publikacji beta.12.
 - Pociągi nie są modelowane, ponieważ ETS2 praktycznie nie udostępnia użytecznego
   scenariusza kolejowego dla tego projektu.
 - Kraj rozpoczęcia i zakończenia jest wybierany przez użytkownika z
