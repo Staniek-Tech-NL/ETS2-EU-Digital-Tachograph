@@ -4,7 +4,7 @@
 
 **Data rozpoczęcia:** 2026-07-27
 
-**Status:** **W TOKU — PACZKI 1–6 GO**
+**Status:** **W TOKU — PACZKI 1–7 GO**
 
 **Języki:** `pl-PL`, `en-GB`
 
@@ -55,7 +55,7 @@ presentera; nie obejmuje kluczy tworzonych wyłącznie dla hipotetycznej funkcji
 | UI-02 | Dashboard i wirtualny tachograf | `MainWindow.xaml`, `MainViewModel.cs` | U/P | zasoby + presentery aktywności, trybów i stanu kart | GO — Dashboard w paczce 2, urządzenie w paczce 3, terminy domknięte przez paczkę 5 |
 | UI-03 | Historia, luki i wpis manualny | `MainWindow.xaml`, `MainViewModel.cs`, `ManualEntryPlanEditor.cs` | U/P | zasoby + presentery aktywności, źródeł, warunków, przyczyn, stanów luk i walidacji | GO w paczce 4 |
 | UI-04 | Kraje i kody tachografowe | `CountryCatalog.cs`, JSON | U/T | osobne nazwy PL/EN; zapis nadal przez ISO | GO w paczce 6 |
-| UI-05 | Rekompensaty | `MainWindow.xaml`, `CompensationPresentation.cs` | U/P/T | zasoby + presenter statusu; identyfikatory bez zmian | do rozpisania |
+| UI-05 | Rekompensaty | `MainWindow.xaml`, `CompensationPresentation.cs` | U/P/T | zasoby + presenter statusu; identyfikatory bez zmian | GO w paczce 7 |
 | UI-06 | Raporty w Desktop | `MainWindow.xaml`, `ReportsWorkspaceViewModel.cs` | U/P/T | zasoby + presentery; formaty eksportu bez zmian | do rozpisania |
 | UI-07 | Kierowcy i Ustawienia | `MainWindow.xaml`, `MainViewModel.cs`, `SettingsService.cs` | U/O/T | zasoby; nazwy i numery kart bez tłumaczenia | do rozpisania |
 | UI-08 | Planer | `MainWindow.xaml`, `JourneyPlannerViewModel.cs` | U/P/T | zasoby + presentery faz, powodów, statusów i ostrzeżeń | do rozpisania |
@@ -1751,6 +1751,226 @@ rozróżnienie nazw.
 wiążący katalog paczek 1–6 zawiera 529 unikalnych nazw i 12 jawnie dozwolonych
 par powtórzonych wartości.
 
+## Paczka 7 — UI-05: Rekompensaty
+
+**Zakres:** ekran pełnego śladu rekompensat, wybór sposobu alokacji odpoczynku,
+szczegóły zobowiązań oraz presentery `RestAllocationPurpose`
+i `WeeklyRestCompensationStatusDto`.
+
+**Stan:** **ZAMKNIĘTA — GO**
+
+**Data zatwierdzenia:** 2026-07-27
+
+**Pozycje otwarte:** 0
+
+**Katalog:** 32 nowe klucze — 14 etykiet ekranu, 2 warianty nagłówka,
+11 wartości karty wyboru alokacji oraz 5 wartości szczegółów zobowiązania.
+Łączny katalog paczek 1–7 zawiera 561 unikalnych nazw.
+
+Paczka dodaje jedną dozwoloną parę powtórzonej wartości EN (`PAID LATE`).
+Globalna lista rośnie z 12 do 13 pozycji.
+
+### Granica paczki
+
+Paczka obejmuje zakładkę `MainWindow.xaml:246-351`,
+`CompensationPresentation.cs` i nagłówek szczegółów w `MainViewModel`.
+Nie obejmuje:
+
+- skrótu rekompensat na Dashboardzie i nakładkach — klucze paczki 2;
+- skrótu LCD — klucze paczki 3;
+- wspólnych terminów i czasu gry — paczka 5 (`X-01`);
+- tabel rekompensat w obszarze Raporty — UI-06;
+- eksportu technicznego CSV — kontrakt bez lokalizacji;
+- komunikatów `OperationStatus` i treści wyjątków — UI-09;
+- raportu PDF — PDF-01.
+
+Identyfikatory zobowiązania, bloku źródłowego, bloku spłacającego i kandydata
+są techniczne. Mogą być skracane wyłącznie wizualnie; kopiowanie zawsze zwraca
+pełną wartość. Lokalizacja nie zmienia decyzji alokacji ani jej audytowego śladu.
+
+### Etykiety ekranu
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Compensation_Title` | REKOMPENSATY ODPOCZYNKU TYGODNIOWEGO | WEEKLY REST COMPENSATION | U |
+| `Compensation_Description` | Pełny ślad z historii wybranej karty. Identyfikatory są skrócone wyłącznie na ekranie. | Full trace from the selected card's history. Identifiers are shortened on screen only. | U |
+| `Compensation_RefreshDetailsAction` | ODŚWIEŻ SZCZEGÓŁY | REFRESH DETAILS | U |
+| `RestAllocation_Title` | WYBIERZ SPOSÓB ROZLICZENIA ODPOCZYNKU | CHOOSE HOW TO ALLOCATE THE REST PERIOD | U |
+| `RestAllocation_Warning` | Do czasu wyboru Planer i pełna ocena raportowa pozostają niewiarygodne. | Until a choice is made, the Journey Planner and the full report assessment remain unreliable. | U |
+| `RestAllocation_SelectVariantAction` | WYBIERZ TEN WARIANT | SELECT THIS OPTION | U |
+| `Compensation_ObligationIdHeader` | IDENTYFIKATOR ZOBOWIĄZANIA | OBLIGATION IDENTIFIER | U |
+| `Compensation_SourceRestEndHeader` | ŹRÓDŁOWY ODPOCZYNEK · KONIEC | SOURCE REST PERIOD · END | U |
+| `Compensation_OriginalDebtHeader` | PEŁNY DŁUG | ORIGINAL DEBT | U |
+| `Compensation_ReductionWeekHeader` | TYDZIEŃ SKRÓCENIA | REDUCTION WEEK | U |
+| `Compensation_ExclusiveDeadlineHeader` | TERMIN WYŁĄCZNY | EXCLUSIVE DEADLINE | U |
+| `Compensation_PaymentBlockHeader` | BLOK SPŁACAJĄCY | PAYMENT BLOCK | U |
+| `Compensation_PaymentRangeHeader` | ZAKRES MINUT SPŁATY | PAYMENT MINUTE RANGE | U |
+| `Compensation_SettledAtLabel` | Moment spłaty (SettledAt) | Settlement time (SettledAt) | U/T |
+
+Nawigacja ponownie używa `Navigation_Compensations`, trzy przyciski kopiowania
+używają `Common_CopyAction`, a `POZOSTAŁO` używa
+`Dashboard_RemainingLabel`. Badge `KARTA` ponownie używa
+`History_CardHeader`: mimo historycznego prefiksu wartość i semantyka karty są
+te same, a reguła paczki 1 nakazuje sprawdzanie całego katalogu, nie tylko
+`Common_*`. Nie powstają duplikaty tych etykiet.
+
+### Nagłówek szczegółów
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Compensation_NoObligations` | Brak zobowiązań w bieżących projekcjach kart. | No obligations in the current card projections. | U |
+| `Compensation_DetailsHeaderFormat` | Zobowiązania: {0} · otwarte: {1} | Obligations: {0} · open: {1} | U/T |
+
+`{0}` oznacza liczbę wszystkich zobowiązań, a `{1}` liczbę otwartych.
+Oba języki mają identyczny zbiór placeholderów. Format używa etykiet liczników,
+więc nie wymaga odmiany rzeczownika zależnej od liczby.
+
+### Karta wyboru alokacji odpoczynku
+
+#### Cel alokacji
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `RestAllocationPurpose_DailyRestWithCompensation` | DOBOWY + REKOMPENSATA | DAILY REST + COMPENSATION | P |
+| `RestAllocationPurpose_ReducedWeeklyRestOnly` | SKRÓCONY TYGODNIOWY | REDUCED WEEKLY REST | P |
+| `RestAllocationPurpose_ReducedWeeklyRestWithCompensation` | SKRÓCONY TYGODNIOWY + REKOMPENSATA | REDUCED WEEKLY REST + COMPENSATION | P |
+| `RestAllocationPurpose_RegularWeeklyRestOnly` | REGULARNY TYGODNIOWY | REGULAR WEEKLY REST | P |
+| `RestAllocationPurpose_RegularWeeklyRestWithCompensation` | REGULARNY TYGODNIOWY + REKOMPENSATA | REGULAR WEEKLY REST + COMPENSATION | P |
+
+Wszystkie pięć wartości `RestAllocationPurpose` ma mapowanie 1:1.
+`PurposeLabel` nie może kończyć się fallbackiem
+`purpose.ToString().ToUpperInvariant()`. Nieznana wartość jest błędem
+programistycznym i nie trafia do UI.
+
+#### Wynik alokacji
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `RestAllocation_OldDebtPaymentFormat` | Stary dług: spłata {0} | Old debt: payment {0} | U/T |
+| `RestAllocation_OldDebtNoPayment` | Stary dług: bez spłaty | Old debt: no payment | U |
+| `RestAllocation_NewDebtNone` | Nowy dług: brak | New debt: none | U |
+| `RestAllocation_NewDebtFormat` | Nowy dług: {0} | New debt: {0} | U/T |
+| `RestAllocation_WeeklyQualified` | Odpoczynek tygodniowy: zaliczony | Weekly rest period: qualified | U |
+| `RestAllocation_WeeklyNotQualified` | Odpoczynek tygodniowy: niezaliczony | Weekly rest period: not qualified | U |
+
+`{0}` jest czasem trwania `HH:MM`. `RangeText` używa presentera czasu z `X-01`,
+a `AllocationText` pozostaje technicznym zestawieniem czasów
+`HH:MM + HH:MM`. Tekst nie jest parsowany z powrotem do decyzji.
+
+`RestAllocationDecisionStatus` (`Active`, `Superseded`, `Invalidated`),
+`IsPending` i `HasInvalidDecision` sterują danymi i przepływem, lecz na tym
+ekranie nie są prezentowane jako tekst. Nie otrzymują kluczy w UI-05.
+
+### Szczegóły zobowiązania
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Compensation_ReductionWeekFormat` | Tydzień {0} | Week {0} | U/T |
+| `CompensationStatus_OpenOnTime` | OTWARTE · W TERMINIE | OPEN · ON TIME | P |
+| `CompensationStatus_Overdue` | OTWARTE · ZALEGŁE | OPEN · OVERDUE | P |
+| `CompensationStatus_PaidOnTime` | SPŁACONE W TERMINIE | PAID ON TIME | P |
+| `CompensationStatus_PaidLate` | SPŁACONE PO TERMINIE | PAID LATE | P |
+
+Wszystkie cztery wartości `WeeklyRestCompensationStatusDto` mają jawne
+mapowanie bez `ToString()`. Kolory pozostają techniczne i nadal wynikają
+z enuma, nie z przetłumaczonego tekstu.
+
+`CompensationOverview` na Dashboardzie nadal używa czterech zatwierdzonych
+`CompensationSummary_*`. Nie należy sklejać statusów szczegółowych z ich
+fragmentów ani ponownie używać tekstu mieszanego wielkością liter z UI-06.
+
+Źródłowy koniec odpoczynku, zakres spłaty, moment spłaty i termin wyłączny
+korzystają z presentera `X-01`. `HH:MM`, `—`, separator `–`, nawiasy i numery
+tygodni są strukturą techniczną. `DueAtExclusive` zachowuje semantykę
+`CompleteBefore`; lokalizacja nie odejmuje minuty od granicy.
+
+### Oczekiwane duplikaty wartości
+
+Paczka dodaje jedną parę:
+
+| Wartość EN | Klucze | Decyzja |
+|---|---|---|
+| `PAID LATE` | `CompensationSummary_PaidLate`, `CompensationStatus_PaidLate` | wspólny termin EN, lecz PL zachowuje zatwierdzone różne role i formy `SPŁACONO PO TERMINIE` / `SPŁACONE PO TERMINIE` |
+
+Pozostałe 12 par zatwierdzonych po paczce 4 pozostaje bez zmian. Żaden nowy
+klucz paczki 7 nie ma identycznej wartości PL/EN.
+
+### Mapowanie źródeł
+
+| Źródło | Obecna wartość / rodzina | Decyzja |
+|---|---|---|
+| `MainWindow.xaml:246-351` | 19 literałów | 14 nowych kluczy + `Navigation_Compensations`, `Common_CopyAction` i `Dashboard_RemainingLabel` |
+| `MainViewModel.cs:336-338` | pusty stan i licznik zobowiązań | 2 klucze nagłówka |
+| `MainViewModel.cs:2228-2298` | budowa szczegółów, wybór decyzji, `OperationStatus` | tekst wierszy → UI-05; komunikaty operacyjne → UI-09 |
+| `CompensationPresentation.cs:8-45` | cztery statusy skrótu Dashboardu | ponowne użycie `CompensationSummary_*` i `X-01` |
+| `CompensationPresentation.cs:52-119` | 5 celów i 6 wyników alokacji | 11 kluczy `RestAllocation*` |
+| `CompensationPresentation.cs:122-198` | status, tydzień, czasy i identyfikatory | 5 nowych kluczy + `History_CardHeader` + `X-01` |
+| `WeeklyRestCompensationDto.cs:6-12` | 4 wartości statusu | wyczerpujący presenter szczegółów |
+| `RestAllocation.cs:5-12` | 5 wartości celu | wyczerpujący presenter karty wyboru |
+
+Trzy wystąpienia `KOPIUJ` korzystają z jednego `Common_CopyAction`; dlatego
+19 literałów XAML składa się na 14 nowych kluczy oraz pięć rozstrzygniętych
+wystąpień ponownego użycia.
+
+### Elementy świadomie bez lokalizacji
+
+| Element | Kategoria | Uzasadnienie |
+|---|---|---|
+| identyfikatory zobowiązania, bloków, kandydata i decyzji | T | audyt i kopiowanie pełnej wartości |
+| numer karty i nazwa profilu | O/T | dane użytkownika i identyfikator |
+| `HH:MM`, `—`, `·`, `–`, `+`, nawiasy | T | struktura czasu i układu |
+| `SettledAt`, `DueAtExclusive` | T | jawne nazwy techniczne/semantyka granicy |
+| `RestAllocationDecisionStatus`, `IsPending`, `HasInvalidDecision` | T | sterowanie przepływem |
+| kolory statusów | T | presenter wizualny oparty na enumie |
+| CSV rekompensat | T | chroniony kontrakt eksportu |
+
+### Ryzyka i kontrola wizualna
+
+Największe ryzyko EN występuje w kartach alokacji o szerokości 330 px:
+
+- `REDUCED WEEKLY REST + COMPENSATION`;
+- `REGULAR WEEKLY REST + COMPENSATION`;
+- `Weekly rest period: not qualified`;
+- ostrzeżenie o niewiarygodnym Planerze i raporcie.
+
+Test obejmuje co najmniej jeden wariant bez rekompensaty, jeden z rekompensatą,
+status otwarty, zaległy, spłacony w terminie i spłacony po terminie oraz pełne
+identyfikatory w tooltipach i schowku. Dopuszczalne jest zawijanie tekstu,
+jeśli nie zmienia kolejności ani znaczenia decyzji.
+
+### Kontrola paczki
+
+- [x] wszystkie 19 literałów XAML ma nowy klucz albo jawne ponowne użycie;
+- [x] wszystkie 5 wartości `RestAllocationPurpose` ma jawny presenter;
+- [x] wszystkie 4 wartości `WeeklyRestCompensationStatusDto` ma jawny presenter;
+- [x] statusy skrótu Dashboardu pozostają w zatwierdzonych `CompensationSummary_*`;
+- [x] wspólne daty i terminy korzystają z `X-01`;
+- [x] wszystkie formaty mają zgodne placeholdery PL/EN;
+- [x] 32 nowe nazwy nie kolidują z katalogiem paczek 1–6;
+- [x] nowa para `PAID LATE` jest jawnie dozwolona;
+- [x] identyfikatory, enumy, DTO, SQLite, CSV i decyzje audytowe pozostają bez zmian;
+- [x] tekst zasobu nie steruje kolorem, wyborem kandydata ani statusem decyzji;
+- [x] `OperationStatus` i wyjątki pozostają przypisane do UI-09;
+- [x] brak zmian w kodzie i XAML.
+
+### Punkt kontrolny przed GO
+
+- 14 kluczy etykiet ekranu;
+- 2 klucze nagłówka;
+- 11 kluczy alokacji;
+- 5 kluczy szczegółów;
+- 32 nowe klucze;
+- 561 unikalnych nazw globalnie;
+- 1 nowa para powtórzonej wartości;
+- 13 dozwolonych par globalnie;
+- 0 zmian wykonawczych.
+
+### Werdykt
+
+**GO — paczka 7 zatwierdzona.** Zamknięta bez pozycji otwartych. Łączny,
+wiążący katalog paczek 1–7 zawiera 561 unikalnych nazw i 13 jawnie dozwolonych
+par powtórzonych wartości.
+
 ## Słownik domenowy PL/EN — część 1
 
 Terminologia angielska opiera się na oficjalnym brzmieniu rozporządzenia
@@ -1806,24 +2026,46 @@ i ich role prezentacyjne są wiążące wyłącznie w zatwierdzonych katalogach 
 ## Wartości domenowe wymagające presenterów
 
 Nie wolno lokalizować przez zmianę nazw enumów ani przez zapisywanie
-przetłumaczonych wartości. Presentery muszą objąć co najmniej:
+przetłumaczonych wartości. Rejestr obejmuje 30 typów: 14 rozstrzygniętych,
+3 świadomie wykluczone z prezentacji tekstowej i 13 pozostałych.
 
-- `DriverActivity`, `ActivitySource`, `ActivityGapReason`, `ActivityGapState`;
-- `SpecialCondition`, `GameWeekday`, `GameDeadlineSemantic`;
-- `WeeklyRestCompensationStatus`, `WeeklyRestCompensationStatusDto`;
-- `DailyRestClassification`, `WeeklyRestClassification`;
-- `RestAllocationPurpose`, `RestAllocationDecisionStatus`;
-- `ViolationType`, `RuleFindingLevel`;
-- `ResolveGapStatus`, `ManualEntryError`, `ManualEntryPersistenceStatus`;
-- `DeliveryPlanningUseCase`, `DeliveryPlanVerdict`,
-  `DeliveryPlanFailureReason`, `DeliveryPlanPhase`;
-- `JourneyPlanningMode`, `JourneyPlanStatus`, `JourneyPlanConfidence`,
-  `JourneyPlanSegmentType`, `JourneyPlanSegmentReason`,
-  `JourneyPlanWarningCode`, `JourneyPlanWarningSeverity`,
-  `JourneyPlanSnapshotMismatch`.
+| Typ | Status | Paczka / decyzja |
+|---|---|---|
+| `DriverActivity` | rozstrzygnięty | paczki 2 i 3 — presentery Dashboardu i LCD |
+| `ActivitySource` | rozstrzygnięty | paczka 4 |
+| `ActivityGapReason` | rozstrzygnięty | paczka 4 |
+| `ActivityGapState` | rozstrzygnięty | paczka 4 |
+| `SpecialCondition` | rozstrzygnięty | paczka 4 |
+| `GameWeekday` | rozstrzygnięty | paczki 3 i 5 |
+| `GameDeadlineSemantic` | rozstrzygnięty | paczki 3 i 5 |
+| `WeeklyRestCompensationStatus` | rozstrzygnięty | paczka 7 — wyczerpujące mapowanie do DTO |
+| `WeeklyRestCompensationStatusDto` | rozstrzygnięty | paczki 2, 3 i 7 |
+| `DailyRestClassification` | rozstrzygnięty | paczka 4 |
+| `WeeklyRestClassification` | rozstrzygnięty | paczka 4 |
+| `RestAllocationPurpose` | rozstrzygnięty | paczka 7 |
+| `ViolationType` | rozstrzygnięty | paczka 2 |
+| `ManualEntryError` | rozstrzygnięty | paczka 4 |
+| `RestAllocationDecisionStatus` | świadomie wykluczony | paczka 7 — sterowanie audytem, bez tekstu UI |
+| `ResolveGapStatus` | świadomie wykluczony | paczka 4 — sterowanie przepływem |
+| `ManualEntryPersistenceStatus` | świadomie wykluczony | paczka 4 — sterowanie przepływem |
+| `RuleFindingLevel` | pozostały | właściciel UI-06 |
+| `DeliveryPlanningUseCase` | pozostały | właściciel UI-08 |
+| `DeliveryPlanVerdict` | pozostały | właściciel UI-08 |
+| `DeliveryPlanFailureReason` | pozostały | właściciel UI-08 |
+| `DeliveryPlanPhase` | pozostały | właściciel UI-08 |
+| `JourneyPlanningMode` | pozostały | właściciel UI-08 |
+| `JourneyPlanStatus` | pozostały | właściciel UI-08 |
+| `JourneyPlanConfidence` | pozostały | właściciel UI-08 |
+| `JourneyPlanSegmentType` | pozostały | właściciel UI-08 |
+| `JourneyPlanSegmentReason` | pozostały | właściciel UI-08 |
+| `JourneyPlanWarningCode` | pozostały | właściciel UI-08 |
+| `JourneyPlanWarningSeverity` | pozostały | właściciel UI-08 |
+| `JourneyPlanSnapshotMismatch` | pozostały | właściciel UI-08 |
 
 Miejsca fallbacku oparte na `ToString()` istnieją obecnie w Desktop i Reports.
 W M5 muszą zostać zastąpione jawnym presenterem dla tekstu użytkowego.
+Po każdej paczce rozstrzygającej typ należy zaktualizować jego status i numer
+paczki; zamknięcie M5.1 wymaga zera pozycji `pozostały`.
 
 ## Kontrakty bez lokalizacji
 
