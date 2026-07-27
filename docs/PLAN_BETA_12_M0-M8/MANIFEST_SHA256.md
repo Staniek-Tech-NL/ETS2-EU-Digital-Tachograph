@@ -14,8 +14,19 @@ z indeksu (`git show :docs/PLAN_BETA_12_M0-M8/NAZWA_PLIKU.md`). Po commicie
 wynik musi być ponownie potwierdzony względem `HEAD`.
 
 Repozytorium wymusza dla dokumentów Markdown zakończenia linii LF przez
-`.gitattributes` (`*.md text eol=lf`). Pełną tabelę odtworzono 2026-07-27
-z blobów zapisanych w indeksie i zweryfikowano w komplecie 16/16.
+`.gitattributes` (`*.md text eol=lf`). Tabelę odtworzono 2026-07-27
+z blobów zapisanych w indeksie.
+
+**Historia weryfikacji.** Kontrola z 2026-07-27 po commicie `400b019` została
+zapisana jako pełna, ale w rzeczywistości dawała 15/16: wpis `README.md`
+pozostawał nieaktualny od zmian w `25f1358`, `0c722ea` i `29bcf25`, ponieważ
+plik był edytowany bez przeliczenia sumy. Rozbieżność dotyczyła wyłącznie
+wpisu kontrolnego, nie treści dokumentu. Obie wartości — `README.md`
+i `M5_2_CHECKPOINT_WYDAJNOSCI_STARTU.md` — zostały przeliczone przy commicie
+wprowadzającym HOLD poprawnościowy dla M6.
+
+Weryfikacja jest wiążąca dopiero po commicie, względem `HEAD`. Każda edycja
+pliku z tabeli wymaga przeliczenia jego wiersza w tym samym commicie.
 
 | Plik | SHA-256 |
 |---|---|
@@ -34,4 +45,4 @@ z blobów zapisanych w indeksie i zweryfikowano w komplecie 16/16.
 | `M6_RELEASE_CANDIDATE_BETA_12.md` | `AAE0234E4FF55542848427511A8DCEF71AADBA909186E0986C81B06257EF905D` |
 | `M7_SMOKE_TEST_BETA_12.md` | `0489FA6200005CF98177482B842197802845BB9F000DA3C99C5856F557179BC3` |
 | `M8_PUBLIKACJA.md` | `B4707F901818AFB1210F8F32601F4FB0BC0CC8DA7FF06BADF663F387068B9337` |
-| `README.md` | `1F0849D1A893C4CBC6822D5A63CDCD9344C1E79E553DC48CD8E9C52A36047A1C` |
+| `README.md` | `EBE4A3DBD0C1D91160B15BB0DA0C9203B86A4482CB89489F34D2042902F9119C` |
