@@ -19,6 +19,7 @@ M0 stabilizacja
 → M4-0 inwentaryzacja UI i osobista weryfikacja rc4
 → M4 finalizacja UI i UI freeze
 → M5 lokalizacja PL/EN
+  ↳ M5.2-P checkpoint wydajności uruchamiania
 → M6 Release Candidate beta.12
 → M7 końcowy smoke beta.12
 → M8 publikacja
@@ -38,7 +39,8 @@ M0 stabilizacja
 | M3.7 | GO — AUTOMATYKA I RĘCZNY GATE ZIELONE | [M3.7 — Planer: ergonomia wprowadzania danych](M3_7_PLANER_ERGONOMIA_WEJSCIA.md) |
 | M4-0 | GO — 62/62 POZYCJI BETA.12 PASS | [M4-0 — Inwentaryzacja UI](M4_0_INWENTARYZACJA_UI.md) |
 | M4 | GO — UI FREEZE | [M4 — Finalizacja całego interfejsu i UI freeze](M4_FINALIZACJA_UI_I_UI_FREEZE.md) |
-| M5 | W TOKU — M5.1 / PACZKA 1 GO | [M5 — Lokalizacja PL/EN](M5_LOKALIZACJA_PL_EN.md) |
+| M5 | W TOKU — M5.2 FUNDAMENT DO WERYFIKACJI | [M5 — Lokalizacja PL/EN](M5_LOKALIZACJA_PL_EN.md) |
+| M5.2-P | GO WARUNKOWE — KONTROLA WZROSTU PRZED M6 | [M5.2-P — Checkpoint wydajności uruchamiania](M5_2_CHECKPOINT_WYDAJNOSCI_STARTU.md) |
 | M6 | NIE ROZPOCZĘTY | [M6 — Release Candidate `0.1.0-beta.12`](M6_RELEASE_CANDIDATE_BETA_12.md) |
 | M7 | NIE ROZPOCZĘTY | [M7 — Końcowy smoke test beta.12](M7_SMOKE_TEST_BETA_12.md) |
 | M8 | NIE ROZPOCZĘTY | [M8 — Publikacja](M8_PUBLIKACJA.md) |

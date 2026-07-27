@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Activity_BreakOrRest" xml:space="preserve">
+    <value>Break / rest</value>
+  </data>
+  <data name="Activity_Driving" xml:space="preserve">
+    <value>Driving</value>
+  </data>
+  <data name="Activity_OtherWork" xml:space="preserve">
+    <value>Other work</value>
+  </data>
+  <data name="Activity_Rest" xml:space="preserve">
+    <value>Rest</value>
+  </data>
+  <data name="Activity_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="ActivitySource_ManualEntry" xml:space="preserve">
+    <value>Manual entry</value>
+  </data>
+  <data name="ActivitySource_Mixed" xml:space="preserve">
+    <value>Mixed</value>
+  </data>
+  <data name="ActivitySource_Telemetry" xml:space="preserve">
+    <value>Telemetry</value>
+  </data>
+  <data name="Common_NoData" xml:space="preserve">
+    <value>No data</value>
+  </data>
+  <data name="Compensation_Title" xml:space="preserve">
+    <value>WEEKLY REST COMPENSATION</value>
+  </data>
+  <data name="Pdf_ActivitySummaryFormat" xml:space="preserve">
+    <value>{0} + {1} -&gt; {2}</value>
+  </data>
+  <data name="Pdf_CompensationSummaryFormat" xml:space="preserve">
+    <value>Compensation: {0}</value>
+  </data>
+  <data name="Pdf_ContinuationCardFormat" xml:space="preserve">
+    <value>Card {0}</value>
+  </data>
+  <data name="Pdf_CoverageBalanceFormat" xml:space="preserve">
+    <value>BALANCE: {0} + {1} = {2} / range {3}</value>
+  </data>
+  <data name="Pdf_DocumentTitleFormat" xml:space="preserve">
+    <value>Tachograph report {0}</value>
+  </data>
+  <data name="Pdf_DriverReportFormat" xml:space="preserve">
+    <value>Driver report - card {0}</value>
+  </data>
+  <data name="Pdf_GameTimeRangeFormat" xml:space="preserve">
+    <value>Game time: {0} - {1}</value>
+  </data>
+  <data name="Pdf_GapCountFewFormat" xml:space="preserve">
+    <value>{0} gaps</value>
+  </data>
+  <data name="Pdf_GapCountManyFormat" xml:space="preserve">
+    <value>{0} gaps</value>
+  </data>
+  <data name="Pdf_GapCountOneFormat" xml:space="preserve">
+    <value>{0} gap</value>
+  </data>
+  <data name="Pdf_GapsNone" xml:space="preserve">
+    <value>GAPS: none</value>
+  </data>
+  <data name="Pdf_No" xml:space="preserve">
+    <value>NO</value>
+  </data>
+  <data name="Pdf_PageFormat" xml:space="preserve">
+    <value>Page {0}/{1}</value>
+  </data>
+  <data name="Pdf_ProductName" xml:space="preserve">
+    <value>ETS2 DIGITAL TACHOGRAPH</value>
+  </data>
+  <data name="Pdf_RecordCountFewFormat" xml:space="preserve">
+    <value>{0} minute records</value>
+  </data>
+  <data name="Pdf_RecordCountManyFormat" xml:space="preserve">
+    <value>{0} minute records</value>
+  </data>
+  <data name="Pdf_RecordCountOneFormat" xml:space="preserve">
+    <value>{0} minute record</value>
+  </data>
+  <data name="Pdf_SummaryViolations" xml:space="preserve">
+    <value>Violations</value>
+  </data>
+  <data name="Pdf_TimelineBlockCountFewFormat" xml:space="preserve">
+    <value>{0} timeline blocks</value>
+  </data>
+  <data name="Pdf_TimelineBlockCountManyFormat" xml:space="preserve">
+    <value>{0} timeline blocks</value>
+  </data>
+  <data name="Pdf_TimelineBlockCountOneFormat" xml:space="preserve">
+    <value>{0} timeline block</value>
+  </data>
+  <data name="Pdf_UnresolvedGapsFormat" xml:space="preserve">
+    <value>UNRESOLVED GAPS: {0} · {1}</value>
+  </data>
+  <data name="Pdf_Yes" xml:space="preserve">
+    <value>YES</value>
+  </data>
+  <data name="PdfActivity_Availability" xml:space="preserve">
+    <value>Availability</value>
+  </data>
+  <data name="PdfActivity_OutOfScope" xml:space="preserve">
+    <value>Out of scope (OUT)</value>
+  </data>
+  <data name="PdfAllocation_CandidateFormat" xml:space="preserve">
+    <value>CANDIDATE · {0} · base {1} · new debt {2} · weekly rest: {3}</value>
+  </data>
+  <data name="PdfAllocation_ObligationsFormat" xml:space="preserve">
+    <value>Obligations: {0}</value>
+  </data>
+  <data name="PdfAllocation_SelectedFormat" xml:space="preserve">
+    <value>SELECTED · {0} · base {1} · new debt {2} · weekly rest: {3}</value>
+  </data>
+  <data name="PdfCompensation_DueWeekCountFormat" xml:space="preserve">
+    <value>{0} ({1}) · DUE WK {2}</value>
+  </data>
+  <data name="PdfCompensation_DueWeekFormat" xml:space="preserve">
+    <value>{0} · DUE WK {1}</value>
+  </data>
+  <data name="PdfCompensation_ObligationFormat" xml:space="preserve">
+    <value>Obligation (scheme v{0}): {1}</value>
+  </data>
+  <data name="PdfCompensation_OverdueCountFormat" xml:space="preserve">
+    <value>{0} ({1}) · OVERDUE</value>
+  </data>
+  <data name="PdfCompensation_OverdueFormat" xml:space="preserve">
+    <value>{0} · OVERDUE</value>
+  </data>
+  <data name="PdfCompensation_PayingBlockFormat" xml:space="preserve">
+    <value>Paying block: {0}</value>
+  </data>
+  <data name="PdfCompensation_PaymentRangeFormat" xml:space="preserve">
+    <value>Payment range: [{0}, {1}) = {2}</value>
+  </data>
+  <data name="PdfCompensation_PaymentRangeNone" xml:space="preserve">
+    <value>Payment range: -</value>
+  </data>
+  <data name="PdfCompensation_SourceEndFormat" xml:space="preserve">
+    <value>Source end: {0} (min {1})</value>
+  </data>
+  <data name="PdfDecision_Format" xml:space="preserve">
+    <value>Decision: {0}</value>
+  </data>
+  <data name="PdfDecision_WithTimestampFormat" xml:space="preserve">
+    <value>Decision: {0} · {1}</value>
+  </data>
+  <data name="PdfDecisionStatus_Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="PdfDecisionStatus_Invalidated" xml:space="preserve">
+    <value>Invalidated</value>
+  </data>
+  <data name="PdfDecisionStatus_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="PdfDecisionStatus_Pending" xml:space="preserve">
+    <value>Pending</value>
+  </data>
+  <data name="PdfDecisionStatus_Superseded" xml:space="preserve">
+    <value>Superseded</value>
+  </data>
+  <data name="PdfEmpty_NoActivities" xml:space="preserve">
+    <value>No activity in the selected range.</value>
+  </data>
+  <data name="PdfEmpty_NoCheckpoints" xml:space="preserve">
+    <value>No breaks of at least 15 min in the report range.</value>
+  </data>
+  <data name="PdfEmpty_NoCompensations" xml:space="preserve">
+    <value>No compensation obligations in the report history.</value>
+  </data>
+  <data name="PdfEmpty_NoRestAllocations" xml:space="preserve">
+    <value>No blocks require an allocation decision.</value>
+  </data>
+  <data name="PdfGap_ActivitySource" xml:space="preserve">
+    <value>Activity gap</value>
+  </data>
+  <data name="PdfGap_CardRemoved" xml:space="preserve">
+    <value>No data - card withdrawn</value>
+  </data>
+  <data name="PdfGap_ForwardTimeJump" xml:space="preserve">
+    <value>No data - time jump</value>
+  </data>
+  <data name="PdfGap_TelemetryUnavailable" xml:space="preserve">
+    <value>No data - telemetry unavailable</value>
+  </data>
+  <data name="PdfHeader_Activity" xml:space="preserve">
+    <value>Activity</value>
+  </data>
+  <data name="PdfHeader_Break" xml:space="preserve">
+    <value>Break</value>
+  </data>
+  <data name="PdfHeader_ContinuousBeforeAfter" xml:space="preserve">
+    <value>Continuous before / after</value>
+  </data>
+  <data name="PdfHeader_DailyBeforeAfter" xml:space="preserve">
+    <value>Daily before / after</value>
+  </data>
+  <data name="PdfHeader_DailyReset" xml:space="preserve">
+    <value>Daily reset</value>
+  </data>
+  <data name="PdfHeader_DebtRemaining" xml:space="preserve">
+    <value>Debt / remaining</value>
+  </data>
+  <data name="PdfHeader_PaymentTime" xml:space="preserve">
+    <value>Payment time</value>
+  </data>
+  <data name="PdfHeader_Source" xml:space="preserve">
+    <value>Source</value>
+  </data>
+  <data name="PdfHeader_Status" xml:space="preserve">
+    <value>Status</value>
+  </data>
+  <data name="PdfHeader_Time" xml:space="preserve">
+    <value>Duration</value>
+  </data>
+  <data name="PdfHeader_WeekExclusiveDeadline" xml:space="preserve">
+    <value>Week / exclusive deadline</value>
+  </data>
+  <data name="PdfSection_ActivityBlocks" xml:space="preserve">
+    <value>COLLAPSED ACTIVITY BLOCKS</value>
+  </data>
+  <data name="PdfSection_ActivityBlocksContinued" xml:space="preserve">
+    <value>COLLAPSED ACTIVITY BLOCKS - continued</value>
+  </data>
+  <data name="PdfSection_Checkpoints" xml:space="preserve">
+    <value>CHECKPOINTS</value>
+  </data>
+  <data name="PdfSection_CheckpointsContinued" xml:space="preserve">
+    <value>CHECKPOINTS - continued</value>
+  </data>
+  <data name="PdfSection_RestAllocation" xml:space="preserve">
+    <value>REST AND COMPENSATION ALLOCATION</value>
+  </data>
+  <data name="PdfSection_RestAllocationContinued" xml:space="preserve">
+    <value>REST ALLOCATION - continued</value>
+  </data>
+  <data name="PdfSection_WeeklyRestCompensationContinued" xml:space="preserve">
+    <value>WEEKLY REST COMPENSATION - continued</value>
+  </data>
+  <data name="PdfSource_AutomaticCrewReconstruction" xml:space="preserve">
+    <value>Automatic crew reconstruction</value>
+  </data>
+  <data name="PdfSource_FerryFormat" xml:space="preserve">
+    <value>{0} - ferry</value>
+  </data>
+  <data name="PdfSource_Manual" xml:space="preserve">
+    <value>Manual</value>
+  </data>
+  <data name="PdfSource_MixedModeFormat" xml:space="preserve">
+    <value>{0} - mixed mode</value>
+  </data>
+  <data name="PdfSource_MixedPartiallyReconstructed" xml:space="preserve">
+    <value>Mixed / partially reconstructed</value>
+  </data>
+  <data name="PdfSource_Reconstructed" xml:space="preserve">
+    <value>Reconstructed</value>
+  </data>
+  <data name="PdfSource_TelemetryPartiallyReconstructed" xml:space="preserve">
+    <value>Telemetry / partially reconstructed</value>
+  </data>
+  <data name="PlannerTime_FromPrefix" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="PlannerTime_ToPrefix" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="ReportActivity_SourceFormat" xml:space="preserve">
+    <value>Source: {0}</value>
+  </data>
+  <data name="ReportCompensationStatus_OpenOnTime" xml:space="preserve">
+    <value>Open · on time</value>
+  </data>
+  <data name="ReportCompensationStatus_Overdue" xml:space="preserve">
+    <value>Overdue</value>
+  </data>
+  <data name="ReportCompensationStatus_PaidLate" xml:space="preserve">
+    <value>Paid late</value>
+  </data>
+  <data name="ReportCompensationStatus_PaidOnTime" xml:space="preserve">
+    <value>Paid on time</value>
+  </data>
+  <data name="RestAllocationPurpose_DailyRestWithCompensation" xml:space="preserve">
+    <value>DAILY REST + COMPENSATION</value>
+  </data>
+  <data name="RestAllocationPurpose_ReducedWeeklyRestOnly" xml:space="preserve">
+    <value>REDUCED WEEKLY REST</value>
+  </data>
+  <data name="RestAllocationPurpose_ReducedWeeklyRestWithCompensation" xml:space="preserve">
+    <value>REDUCED WEEKLY REST + COMPENSATION</value>
+  </data>
+  <data name="RestAllocationPurpose_RegularWeeklyRestOnly" xml:space="preserve">
+    <value>REGULAR WEEKLY REST</value>
+  </data>
+  <data name="RestAllocationPurpose_RegularWeeklyRestWithCompensation" xml:space="preserve">
+    <value>REGULAR WEEKLY REST + COMPENSATION</value>
+  </data>
+</root>

@@ -484,8 +484,8 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
 - **Wejście:** GO M4 i aktywny UI freeze.
 - **Punkt wejściowy:** `2d8a760`.
 - **Gałąź:** `codex/m5-localization-pl-en`.
-- **Stan:** M5.1 zamknięte wynikiem GO — wszystkie obszary mają wiążące
-  katalogi; paczki 1–13 zatwierdzone.
+- **Stan:** M5.1 zamknięte wynikiem GO; M5.2 fundament zaimplementowany
+  i przekazany do weryfikacji manualnej.
 - **Artefakt:** `docs/LOCALIZATION_STRING_INVENTORY.md`.
 - **Paczka 1:** elementy wspólne, powłoka i nawigacja — 33 wiążące klucze,
   0 pozycji otwartych.
@@ -531,15 +531,39 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
   Zysk semantyczny i brak piątej rodziny kosztują prawdopodobną zmianę
   szerokości kolumny `95 pt` w M5.3; jest ona z góry autoryzowana wyłącznie
   jako korekta przepełnienia, bez zmiany kolejności, danych i semantyki.
-- **Następny krok:** M5.2 — implementacja zatwierdzonych katalogów i presenterów.
+- **M5.2 — zasoby:** `UiStrings` ma po 626 wpisów, `ReportStrings` po 99,
+  a oba magazyny nazw krajów po 249; parzystość nazw, brak pustych wartości,
+  placeholdery i 22 klucze mostu UI/PDF są objęte testami.
+- **M5.2 — kultura:** `%LocalAppData%\ETS2Tachograph\ui-culture.json`
+  przechowuje wyłącznie `pl-PL` albo `en-GB` w schemacie 1. Brak pliku zachowuje
+  polski, a uszkodzona lub nieobsługiwana wartość bezpiecznie wybiera `en-GB`
+  i trafia do diagnostyki.
+- **M5.2 — start:** kultura procesu, domyślna kultura wątków i język bindingów
+  WPF są ustawiane przed utworzeniem ViewModelu, okna i eksportera PDF.
+- **M5.2 — testy:** build 0 błędów / 0 ostrzeżeń; pełna regresja 558/558.
+- **M5.2 — granica kontroli języka:** przed M5.3 tylko fundament i Ustawienia
+  przełączają się na EN. Pozostałe widoki zachowują polskie literały zgodnie
+  z kolejnością etapów; mieszany interfejs jest oczekiwanym stanem przejściowym.
+- **Checkpoint wydajnościowy M5.2-P:** wydzielony jako osobna bramka.
+  Na świeżej kopii bieżącej bazy automatyczna korekta luk spadła z 30,84 s
+  do 1,31 s, archiwizacja trzech kart z około 16,35 s do 4,01 s, a łączna
+  praca repozytorium z około 49 s do 5,36 s. Automat nadal pozostawił te same
+  4 nierozliczone luki. Pełna regresja: 558/558. Status: **GO warunkowe**,
+  ponieważ archiwizacja nadal czyta całą surową historię, a cold retention
+  nie jest zaimplementowane. Osobisty pomiar tworzy bazę odniesienia; przed
+  M6 pomiar jest powtarzany i musi pozostać poniżej 10 s pracy repozytorium
+  oraz bez wzrostu `APP_START` → `APP_READY` większego niż 50%. Szczegóły:
+  `docs/PLAN_BETA_12_M0-M8/M5_2_CHECKPOINT_WYDAJNOSCI_STARTU.md`.
+- **Następny krok:** osobista weryfikacja restartu i fallbacku M5.2 oraz
+  czasu startu M5.2-P, następnie decyzje GO przed rozpoczęciem M5.3.
 - **Jawny wyjątek od UI freeze:** M5.2 dodaje dokładnie jedną nową kontrolkę
   do zamrożonego interfejsu — wybór `pl-PL` / `en-GB` w Ustawieniach.
   Jest wymagana planem M5, nie wprowadza dynamicznej zmiany bez restartu
   i stanowi jedyną autoryzowaną różnicę względem inwentaryzacji UI z M4.
   Smoke M7 porównuje ekran z bazą M4 powiększoną o ten jeden element;
   każda inna nowa kontrolka nadal narusza UI freeze.
-- **Zmiany wykonawcze:** brak zmian w kodzie i XAML; dotychczasowe paczki M5.1
-  są wyłącznie kontraktem dokumentacyjnym przed M5.2.
+- **Zmiany wykonawcze:** fundament zasobów i kultury, magazyn preferencji,
+  lokalizowana sekcja Ustawień oraz jedna autoryzowana kontrolka języka.
 - **Zakres językowy:** `pl-PL` i `en-GB`.
 - **Kontrakty chronione:** JSON, techniczny CSV, `.tacho`, SQLite, protokół v3,
   identyfikatory i kody techniczne.

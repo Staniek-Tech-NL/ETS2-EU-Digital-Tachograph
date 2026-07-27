@@ -1,0 +1,1907 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Activity_Availability" xml:space="preserve">
+    <value>Availability</value>
+  </data>
+  <data name="Activity_BreakOrRest" xml:space="preserve">
+    <value>Break / rest</value>
+  </data>
+  <data name="Activity_Driving" xml:space="preserve">
+    <value>Driving</value>
+  </data>
+  <data name="Activity_OtherWork" xml:space="preserve">
+    <value>Other work</value>
+  </data>
+  <data name="Activity_Rest" xml:space="preserve">
+    <value>Rest</value>
+  </data>
+  <data name="Activity_Unknown" xml:space="preserve">
+    <value>Unknown</value>
+  </data>
+  <data name="ActivitySource_AutomaticCrewReconstruction" xml:space="preserve">
+    <value>Automatic crew reconstruction</value>
+  </data>
+  <data name="ActivitySource_Manual" xml:space="preserve">
+    <value>Manual</value>
+  </data>
+  <data name="ActivitySource_ManualEntry" xml:space="preserve">
+    <value>Manual entry</value>
+  </data>
+  <data name="ActivitySource_Mixed" xml:space="preserve">
+    <value>Mixed</value>
+  </data>
+  <data name="ActivitySource_Reconstructed" xml:space="preserve">
+    <value>Reconstructed</value>
+  </data>
+  <data name="ActivitySource_Telemetry" xml:space="preserve">
+    <value>Telemetry</value>
+  </data>
+  <data name="ActivityUpper_Availability" xml:space="preserve">
+    <value>AVAILABILITY</value>
+  </data>
+  <data name="ActivityUpper_OtherWork" xml:space="preserve">
+    <value>OTHER WORK</value>
+  </data>
+  <data name="ActivityUpper_Rest" xml:space="preserve">
+    <value>REST</value>
+  </data>
+  <data name="Card_NoCard" xml:space="preserve">
+    <value>NO CARD</value>
+  </data>
+  <data name="CardDialog_AvailableCardLabel" xml:space="preserve">
+    <value>Available card</value>
+  </data>
+  <data name="CardDialog_ConfirmAction" xml:space="preserve">
+    <value>CONFIRM</value>
+  </data>
+  <data name="CardDialog_CountryPlaceholder" xml:space="preserve">
+    <value>Select a country...</value>
+  </data>
+  <data name="CardDialog_DriverCardLabel" xml:space="preserve">
+    <value>DRIVER CARD</value>
+  </data>
+  <data name="CardDialog_EjectMessage" xml:space="preserve">
+    <value>Select the country where the shift ends. The data will be saved before the card is ejected.</value>
+  </data>
+  <data name="CardDialog_EjectTitleFormat" xml:space="preserve">
+    <value>CARD EJECTION - READER {0}</value>
+  </data>
+  <data name="CardDialog_EndCountryLabel" xml:space="preserve">
+    <value>End country</value>
+  </data>
+  <data name="CardDialog_InsertMessage" xml:space="preserve">
+    <value>Confirm the driver and the country where the shift starts. The card will be assigned to the active driver.</value>
+  </data>
+  <data name="CardDialog_InsertTitleFormat" xml:space="preserve">
+    <value>CARD INSERTION - READER {0}</value>
+  </data>
+  <data name="CardDialog_SelectCountryPrompt" xml:space="preserve">
+    <value>SELECT COUNTRY</value>
+  </data>
+  <data name="CardDialog_StartCountryLabel" xml:space="preserve">
+    <value>Start country</value>
+  </data>
+  <data name="Common_ActionHeader" xml:space="preserve">
+    <value>ACTION</value>
+  </data>
+  <data name="Common_ActionsHeader" xml:space="preserve">
+    <value>ACTIONS</value>
+  </data>
+  <data name="Common_ActivityHeader" xml:space="preserve">
+    <value>ACTIVITY</value>
+  </data>
+  <data name="Common_AddAction" xml:space="preserve">
+    <value>ADD</value>
+  </data>
+  <data name="Common_CancelAction" xml:space="preserve">
+    <value>CANCEL</value>
+  </data>
+  <data name="Common_CopyAction" xml:space="preserve">
+    <value>COPY</value>
+  </data>
+  <data name="Common_EditAction" xml:space="preserve">
+    <value>EDIT</value>
+  </data>
+  <data name="Common_From" xml:space="preserve">
+    <value>FROM</value>
+  </data>
+  <data name="Common_NoData" xml:space="preserve">
+    <value>No data</value>
+  </data>
+  <data name="Common_ReasonHeader" xml:space="preserve">
+    <value>REASON</value>
+  </data>
+  <data name="Common_RemoveAction" xml:space="preserve">
+    <value>REMOVE</value>
+  </data>
+  <data name="Common_SourceHeader" xml:space="preserve">
+    <value>SOURCE</value>
+  </data>
+  <data name="Common_StatusHeader" xml:space="preserve">
+    <value>STATUS</value>
+  </data>
+  <data name="Common_To" xml:space="preserve">
+    <value>TO</value>
+  </data>
+  <data name="Compensation_Description" xml:space="preserve">
+    <value>Full trace from the selected card's history. Identifiers are shortened on screen only.</value>
+  </data>
+  <data name="Compensation_DetailsHeaderFormat" xml:space="preserve">
+    <value>Obligations: {0} · open: {1}</value>
+  </data>
+  <data name="Compensation_ExclusiveDeadlineHeader" xml:space="preserve">
+    <value>EXCLUSIVE DEADLINE</value>
+  </data>
+  <data name="Compensation_NoObligations" xml:space="preserve">
+    <value>No obligations in the current card projections.</value>
+  </data>
+  <data name="Compensation_ObligationIdHeader" xml:space="preserve">
+    <value>OBLIGATION IDENTIFIER</value>
+  </data>
+  <data name="Compensation_OriginalDebtHeader" xml:space="preserve">
+    <value>ORIGINAL DEBT</value>
+  </data>
+  <data name="Compensation_PaymentBlockHeader" xml:space="preserve">
+    <value>PAYMENT BLOCK</value>
+  </data>
+  <data name="Compensation_PaymentRangeHeader" xml:space="preserve">
+    <value>PAYMENT MINUTE RANGE</value>
+  </data>
+  <data name="Compensation_ReductionWeekFormat" xml:space="preserve">
+    <value>Week {0}</value>
+  </data>
+  <data name="Compensation_ReductionWeekHeader" xml:space="preserve">
+    <value>REDUCTION WEEK</value>
+  </data>
+  <data name="Compensation_RefreshDetailsAction" xml:space="preserve">
+    <value>REFRESH DETAILS</value>
+  </data>
+  <data name="Compensation_SettledAtLabel" xml:space="preserve">
+    <value>Settlement time (SettledAt)</value>
+  </data>
+  <data name="Compensation_SourceRestEndHeader" xml:space="preserve">
+    <value>SOURCE REST PERIOD · END</value>
+  </data>
+  <data name="Compensation_Title" xml:space="preserve">
+    <value>WEEKLY REST COMPENSATION</value>
+  </data>
+  <data name="CompensationStatus_OpenOnTime" xml:space="preserve">
+    <value>OPEN · ON TIME</value>
+  </data>
+  <data name="CompensationStatus_Overdue" xml:space="preserve">
+    <value>OPEN · OVERDUE</value>
+  </data>
+  <data name="CompensationStatus_PaidLate" xml:space="preserve">
+    <value>PAID LATE</value>
+  </data>
+  <data name="CompensationStatus_PaidOnTime" xml:space="preserve">
+    <value>PAID ON TIME</value>
+  </data>
+  <data name="CompensationSummary_CompleteBeforeHeader" xml:space="preserve">
+    <value>COMPLETE BEFORE</value>
+  </data>
+  <data name="CompensationSummary_DebtHeader" xml:space="preserve">
+    <value>DEBT</value>
+  </data>
+  <data name="CompensationSummary_NoOpen" xml:space="preserve">
+    <value>NO OPEN ITEMS</value>
+  </data>
+  <data name="CompensationSummary_OnTime" xml:space="preserve">
+    <value>ON TIME</value>
+  </data>
+  <data name="CompensationSummary_OpenHeader" xml:space="preserve">
+    <value>OPEN</value>
+  </data>
+  <data name="CompensationSummary_Overdue" xml:space="preserve">
+    <value>OVERDUE</value>
+  </data>
+  <data name="CompensationSummary_PaidLate" xml:space="preserve">
+    <value>PAID LATE</value>
+  </data>
+  <data name="Dashboard_ActivityStatusLabel" xml:space="preserve">
+    <value>Activity:</value>
+  </data>
+  <data name="Dashboard_AlertsTitle" xml:space="preserve">
+    <value>ALERTS</value>
+  </data>
+  <data name="Dashboard_DailyDrivingLabel" xml:space="preserve">
+    <value>Daily driving:</value>
+  </data>
+  <data name="Dashboard_DailyDutyLabel" xml:space="preserve">
+    <value>Daily duty:</value>
+  </data>
+  <data name="Dashboard_DiagnosticReportAction" xml:space="preserve">
+    <value>Diagnostic report</value>
+  </data>
+  <data name="Dashboard_DriverNameLabel" xml:space="preserve">
+    <value>Driver name:</value>
+  </data>
+  <data name="Dashboard_DrivingAndTimeUntilBreakLabel" xml:space="preserve">
+    <value>Driving / time to break:</value>
+  </data>
+  <data name="Dashboard_ElapsedLabel" xml:space="preserve">
+    <value>ELAPSED</value>
+  </data>
+  <data name="Dashboard_ExportObligationsCsvAction" xml:space="preserve">
+    <value>Export obligations CSV</value>
+  </data>
+  <data name="Dashboard_GeneratePdfAction" xml:space="preserve">
+    <value>Generate PDF report</value>
+  </data>
+  <data name="Dashboard_ManualEntryRequiredAlert" xml:space="preserve">
+    <value>MANUAL ENTRY REQUIRED · driving is blocked until the gap after card withdrawal is resolved.</value>
+  </data>
+  <data name="Dashboard_QuickActionsTitle" xml:space="preserve">
+    <value>QUICK ACTIONS</value>
+  </data>
+  <data name="Dashboard_RefreshReportAction" xml:space="preserve">
+    <value>Refresh report</value>
+  </data>
+  <data name="Dashboard_RemainingLabel" xml:space="preserve">
+    <value>REMAINING</value>
+  </data>
+  <data name="Dashboard_ResolveOptionalGapAction" xml:space="preserve">
+    <value>RESOLVE OPTIONAL GAP</value>
+  </data>
+  <data name="Dashboard_SelectedBreakLabel" xml:space="preserve">
+    <value>SELECTED BREAK</value>
+  </data>
+  <data name="Dashboard_Slot1Title" xml:space="preserve">
+    <value>SLOT 1 - ACTIVE DRIVER</value>
+  </data>
+  <data name="Dashboard_Slot2Title" xml:space="preserve">
+    <value>SLOT 2 - CO-DRIVER</value>
+  </data>
+  <data name="Dashboard_StartBreakAction" xml:space="preserve">
+    <value>START BREAK</value>
+  </data>
+  <data name="Dashboard_StartCoDriverBreakAction" xml:space="preserve">
+    <value>CO-DRIVER BREAK</value>
+  </data>
+  <data name="Dashboard_TimeUntilBreakLabel" xml:space="preserve">
+    <value>Time to break:</value>
+  </data>
+  <data name="Dashboard_ViolationAlertFormat" xml:space="preserve">
+    <value>D{0} · {1}: {2}</value>
+  </data>
+  <data name="Deadline_AvailableFromPrefix" xml:space="preserve">
+    <value>Driving available from</value>
+  </data>
+  <data name="Deadline_CompleteBeforePrefix" xml:space="preserve">
+    <value>Complete before</value>
+  </data>
+  <data name="Deadline_CompleteByPrefix" xml:space="preserve">
+    <value>Complete by</value>
+  </data>
+  <data name="Deadline_StartNoLaterThanPrefix" xml:space="preserve">
+    <value>Start no later than</value>
+  </data>
+  <data name="Device_CardErrorFormat" xml:space="preserve">
+    <value>X  CARD {0} ERROR  X</value>
+  </data>
+  <data name="Device_CardReadingFormat" xml:space="preserve">
+    <value>CARD {0} - READING</value>
+  </data>
+  <data name="Device_ConfirmActivity" xml:space="preserve">
+    <value>CONFIRM ACTIVITY</value>
+  </data>
+  <data name="Device_CurrentViewTitle" xml:space="preserve">
+    <value>CURRENT TACHOGRAPH VIEW</value>
+  </data>
+  <data name="Device_DriverButtonTooltipFormat" xml:space="preserve">
+    <value>Driver {0}: click and hold for 3 s to withdraw the card</value>
+  </data>
+  <data name="Device_DriverFallback" xml:space="preserve">
+    <value>DRIVER</value>
+  </data>
+  <data name="Device_DrivingBlocked" xml:space="preserve">
+    <value>DRIVING BLOCKED</value>
+  </data>
+  <data name="Device_DrivingWithoutCard" xml:space="preserve">
+    <value>! DRIVING WITHOUT CARD !</value>
+  </data>
+  <data name="Device_ManualEntryRequired" xml:space="preserve">
+    <value>! MANUAL ENTRY !</value>
+  </data>
+  <data name="Device_NoCardShortFormat" xml:space="preserve">
+    <value>NO C{0}</value>
+  </data>
+  <data name="Device_Printing" xml:space="preserve">
+    <value>PRINTING...</value>
+  </data>
+  <data name="Device_RequiredSlotFormat" xml:space="preserve">
+    <value>SLOT {0} REQUIRED</value>
+  </data>
+  <data name="DeviceActivity_Availability" xml:space="preserve">
+    <value>AVAILABILITY</value>
+  </data>
+  <data name="DeviceActivity_BreakOrRest" xml:space="preserve">
+    <value>REST</value>
+  </data>
+  <data name="DeviceActivity_Driving" xml:space="preserve">
+    <value>DRIVING</value>
+  </data>
+  <data name="DeviceActivity_OtherWork" xml:space="preserve">
+    <value>OTHER WORK</value>
+  </data>
+  <data name="DeviceActivity_Unknown" xml:space="preserve">
+    <value>UNKNOWN</value>
+  </data>
+  <data name="DeviceCompensation_DueByWeekFormat" xml:space="preserve">
+    <value>DUE WK {0}</value>
+  </data>
+  <data name="DeviceCompensation_Overdue" xml:space="preserve">
+    <value>OVERDUE</value>
+  </data>
+  <data name="DeviceCounter_BreakFormat" xml:space="preserve">
+    <value>BREAK {0}</value>
+  </data>
+  <data name="DeviceCounter_CompensationFormat" xml:space="preserve">
+    <value>COMPENSATION {0}</value>
+  </data>
+  <data name="DeviceCounter_ContinuousDrivingFormat" xml:space="preserve">
+    <value>CONTINUOUS {0}</value>
+  </data>
+  <data name="DeviceCounter_DailyDrivingFormat" xml:space="preserve">
+    <value>DAILY {0}</value>
+  </data>
+  <data name="DeviceCounter_DailyDutyFormat" xml:space="preserve">
+    <value>DUTY {0}</value>
+  </data>
+  <data name="DeviceCounter_DailyRestDeadlineFormat" xml:space="preserve">
+    <value>DAILY REST {0}</value>
+  </data>
+  <data name="DeviceCounter_ExtensionsUsageFormat" xml:space="preserve">
+    <value>EXTENSIONS {0} · WEEK</value>
+  </data>
+  <data name="DeviceCounter_FortnightlyDrivingFormat" xml:space="preserve">
+    <value>2 WKS {0}</value>
+  </data>
+  <data name="DeviceCounter_ReducedDailyRestsUsageFormat" xml:space="preserve">
+    <value>REDUCED {0} · SINCE WEEKLY REST</value>
+  </data>
+  <data name="DeviceCounter_TargetFormat" xml:space="preserve">
+    <value>TARGET {0}</value>
+  </data>
+  <data name="DeviceCounter_TimeToBreakFormat" xml:space="preserve">
+    <value>TO BREAK {0}</value>
+  </data>
+  <data name="DeviceCounter_WeeklyDrivingFormat" xml:space="preserve">
+    <value>WEEK {0}</value>
+  </data>
+  <data name="DeviceCounter_WeeklyRestDeadlineFormat" xml:space="preserve">
+    <value>WEEKLY REST {0}</value>
+  </data>
+  <data name="DeviceDeadline_AvailableFromPrefix" xml:space="preserve">
+    <value>FROM</value>
+  </data>
+  <data name="DeviceDeadline_CompleteBeforePrefix" xml:space="preserve">
+    <value>BEFORE</value>
+  </data>
+  <data name="DeviceDeadline_CompleteByPrefix" xml:space="preserve">
+    <value>END≤</value>
+  </data>
+  <data name="DeviceDeadline_StartNoLaterThanPrefix" xml:space="preserve">
+    <value>START≤</value>
+  </data>
+  <data name="DeviceMenu_BreakOrRest" xml:space="preserve">
+    <value>BREAK / REST</value>
+  </data>
+  <data name="DeviceMenu_CardCounters" xml:space="preserve">
+    <value>CARD COUNTERS</value>
+  </data>
+  <data name="DeviceMenu_CardCountersTitleFormat" xml:space="preserve">
+    <value>CARD {0} COUNTERS</value>
+  </data>
+  <data name="DeviceMenu_CardStatusFormat" xml:space="preserve">
+    <value>CARD {0} {1}</value>
+  </data>
+  <data name="DeviceMenu_Countries" xml:space="preserve">
+    <value>COUNTRIES</value>
+  </data>
+  <data name="DeviceMenu_EndCountryFormat" xml:space="preserve">
+    <value>END: {0}</value>
+  </data>
+  <data name="DeviceMenu_EndCountryTitle" xml:space="preserve">
+    <value>END COUNTRY</value>
+  </data>
+  <data name="DeviceMenu_FerryModeFormat" xml:space="preserve">
+    <value>FERRY {0}</value>
+  </data>
+  <data name="DeviceMenu_MainTitle" xml:space="preserve">
+    <value>MAIN MENU</value>
+  </data>
+  <data name="DeviceMenu_ManualEntry" xml:space="preserve">
+    <value>MANUAL ENTRY</value>
+  </data>
+  <data name="DeviceMenu_Modes" xml:space="preserve">
+    <value>MODES</value>
+  </data>
+  <data name="DeviceMenu_OutModeFormat" xml:space="preserve">
+    <value>OUT {0}</value>
+  </data>
+  <data name="DeviceMenu_Print" xml:space="preserve">
+    <value>PRINT</value>
+  </data>
+  <data name="DeviceMenu_PrintDriver1Day" xml:space="preserve">
+    <value>24H DRIVER 1</value>
+  </data>
+  <data name="DeviceMenu_PrintVehicleDay" xml:space="preserve">
+    <value>24H VEHICLE</value>
+  </data>
+  <data name="DeviceMenu_RegulatoryWeek" xml:space="preserve">
+    <value>REGULATORY WEEK</value>
+  </data>
+  <data name="DeviceMenu_SelectBreakTitle" xml:space="preserve">
+    <value>SELECT BREAK</value>
+  </data>
+  <data name="DeviceMenu_SelectCardTitle" xml:space="preserve">
+    <value>SELECT CARD</value>
+  </data>
+  <data name="DeviceMenu_Settings" xml:space="preserve">
+    <value>SETTINGS</value>
+  </data>
+  <data name="DeviceMenu_SpeedThreshold" xml:space="preserve">
+    <value>SPEED THRESHOLD</value>
+  </data>
+  <data name="DeviceMenu_StartCountryFormat" xml:space="preserve">
+    <value>START: {0}</value>
+  </data>
+  <data name="DeviceMenu_StartCountryTitle" xml:space="preserve">
+    <value>START COUNTRY</value>
+  </data>
+  <data name="DeviceRestTarget_Break15Part1" xml:space="preserve">
+    <value>15 MIN PART 1</value>
+  </data>
+  <data name="DeviceRestTarget_Break30Part2" xml:space="preserve">
+    <value>30 MIN PART 2</value>
+  </data>
+  <data name="DeviceRestTarget_Break45Full" xml:space="preserve">
+    <value>45 MIN FULL</value>
+  </data>
+  <data name="DeviceRestTarget_Daily11Hours" xml:space="preserve">
+    <value>DAILY 11H</value>
+  </data>
+  <data name="DeviceRestTarget_Daily9Hours" xml:space="preserve">
+    <value>DAILY 9H</value>
+  </data>
+  <data name="DeviceRestTarget_Weekly24Hours" xml:space="preserve">
+    <value>WEEKLY 24H</value>
+  </data>
+  <data name="DeviceRestTarget_Weekly45Hours" xml:space="preserve">
+    <value>WEEKLY 45H</value>
+  </data>
+  <data name="DeviceState_Missing" xml:space="preserve">
+    <value>MISSING</value>
+  </data>
+  <data name="DeviceState_Off" xml:space="preserve">
+    <value>OFF</value>
+  </data>
+  <data name="DeviceState_On" xml:space="preserve">
+    <value>ON</value>
+  </data>
+  <data name="DeviceState_Ready" xml:space="preserve">
+    <value>READY</value>
+  </data>
+  <data name="Dialog_AlreadyRunning_Message" xml:space="preserve">
+    <value>ETS2 Digital Tachograph is already running.</value>
+  </data>
+  <data name="Dialog_AlreadyRunning_Title" xml:space="preserve">
+    <value>Application already running</value>
+  </data>
+  <data name="Dialog_ManualEntryDiscardMessage" xml:space="preserve">
+    <value>Discard the unsaved manual-entry changes?</value>
+  </data>
+  <data name="Dialog_StartupFailure_Message" xml:space="preserve">
+    <value>The application could not be started. Details were written to the diagnostic log: {0}</value>
+  </data>
+  <data name="Dialog_StartupFailure_MessageWithoutLogPath" xml:space="preserve">
+    <value>The application could not be started.</value>
+  </data>
+  <data name="Dialog_StartupFailure_Title" xml:space="preserve">
+    <value>Tachograph could not be started</value>
+  </data>
+  <data name="Drivers_ActiveHeader" xml:space="preserve">
+    <value>ACTIVE</value>
+  </data>
+  <data name="Drivers_CardNumberTooltip" xml:space="preserve">
+    <value>Card number</value>
+  </data>
+  <data name="Drivers_CreatedAtHeader" xml:space="preserve">
+    <value>CREATED</value>
+  </data>
+  <data name="Drivers_DriverNameTooltip" xml:space="preserve">
+    <value>Driver name</value>
+  </data>
+  <data name="Drivers_NewProfileTitle" xml:space="preserve">
+    <value>NEW PROFILE</value>
+  </data>
+  <data name="Drivers_SetActiveAction" xml:space="preserve">
+    <value>SET ACTIVE</value>
+  </data>
+  <data name="Drivers_Title" xml:space="preserve">
+    <value>DRIVER PROFILES</value>
+  </data>
+  <data name="FileDialog_DiagnosticReportZip" xml:space="preserve">
+    <value>Diagnostic report ZIP</value>
+  </data>
+  <data name="FileDialog_TachographSession" xml:space="preserve">
+    <value>Tachograph session</value>
+  </data>
+  <data name="GameCalendar_DayFormat" xml:space="preserve">
+    <value>Day {0}</value>
+  </data>
+  <data name="Gap_CardStillRemovedHelp" xml:space="preserve">
+    <value>card still withdrawn</value>
+  </data>
+  <data name="Gap_CauseHeader" xml:space="preserve">
+    <value>CAUSE</value>
+  </data>
+  <data name="Gap_DurationHeader" xml:space="preserve">
+    <value>DURATION</value>
+  </data>
+  <data name="Gap_HeaderFormat" xml:space="preserve">
+    <value>ACTIVITY GAPS · UNRESOLVED: {0}</value>
+  </data>
+  <data name="Gap_ResolveAction" xml:space="preserve">
+    <value>Resolve</value>
+  </data>
+  <data name="Gap_ShowResolved" xml:space="preserve">
+    <value>Show resolved</value>
+  </data>
+  <data name="Gap_SlotHeader" xml:space="preserve">
+    <value>SLOT</value>
+  </data>
+  <data name="Gap_StateHeader" xml:space="preserve">
+    <value>STATE</value>
+  </data>
+  <data name="GapReason_CardRemoved" xml:space="preserve">
+    <value>Card withdrawn</value>
+  </data>
+  <data name="GapReason_ForwardTimeJump" xml:space="preserve">
+    <value>Time jump</value>
+  </data>
+  <data name="GapReason_TelemetryUnavailable" xml:space="preserve">
+    <value>Telemetry unavailable</value>
+  </data>
+  <data name="GapState_Ongoing" xml:space="preserve">
+    <value>ONGOING</value>
+  </data>
+  <data name="GapState_ResolvedFormat" xml:space="preserve">
+    <value>RESOLVED · {0}</value>
+  </data>
+  <data name="GapState_Unresolved" xml:space="preserve">
+    <value>UNRESOLVED</value>
+  </data>
+  <data name="History_CardHeader" xml:space="preserve">
+    <value>CARD</value>
+  </data>
+  <data name="History_ConditionHeader" xml:space="preserve">
+    <value>CONDITION</value>
+  </data>
+  <data name="History_ExportDriver1TachoAction" xml:space="preserve">
+    <value>Export driver 1 .tacho</value>
+  </data>
+  <data name="History_FromGameTimeHeader" xml:space="preserve">
+    <value>FROM · GAME TIME</value>
+  </data>
+  <data name="History_ImportTachoAction" xml:space="preserve">
+    <value>Import .tacho</value>
+  </data>
+  <data name="History_Title" xml:space="preserve">
+    <value>ACTIVITY HISTORY · ALL CARDS</value>
+  </data>
+  <data name="History_ToGameTimeHeader" xml:space="preserve">
+    <value>TO · GAME TIME</value>
+  </data>
+  <data name="Language_EnglishUnitedKingdom" xml:space="preserve">
+    <value>English (United Kingdom)</value>
+  </data>
+  <data name="Language_Polish" xml:space="preserve">
+    <value>Polish</value>
+  </data>
+  <data name="ManualEntry_AddOrReplaceAction" xml:space="preserve">
+    <value>ADD / REPLACE SEGMENT</value>
+  </data>
+  <data name="ManualEntry_AddOrReplaceTitle" xml:space="preserve">
+    <value>ADD OR REPLACE SEGMENT</value>
+  </data>
+  <data name="ManualEntry_BreakOrRestAction" xml:space="preserve">
+    <value>BREAK / REST</value>
+  </data>
+  <data name="ManualEntry_CardRemovalMustResolve" xml:space="preserve">
+    <value>This gap was caused by card removal and must be resolved.</value>
+  </data>
+  <data name="ManualEntry_Complete" xml:space="preserve">
+    <value>✓ ENTRY COMPLETE</value>
+  </data>
+  <data name="ManualEntry_ConfirmAction" xml:space="preserve">
+    <value>CONFIRM ENTRY</value>
+  </data>
+  <data name="ManualEntry_CoverageDetailsFormat" xml:space="preserve">
+    <value>Missing: {0} · Overlap: {1}</value>
+  </data>
+  <data name="ManualEntry_CoverageLabel" xml:space="preserve">
+    <value>Coverage:</value>
+  </data>
+  <data name="ManualEntry_Description" xml:space="preserve">
+    <value>Complete the period in which the tachograph did not record activity.</value>
+  </data>
+  <data name="ManualEntry_DriverLabel" xml:space="preserve">
+    <value>DRIVER</value>
+  </data>
+  <data name="ManualEntry_EditSegmentTitle" xml:space="preserve">
+    <value>EDIT SEGMENT</value>
+  </data>
+  <data name="ManualEntry_FromDayLabel" xml:space="preserve">
+    <value>FROM — DAY</value>
+  </data>
+  <data name="ManualEntry_GapDurationFormat" xml:space="preserve">
+    <value>Gap duration: {0}</value>
+  </data>
+  <data name="ManualEntry_HourLabel" xml:space="preserve">
+    <value>TIME</value>
+  </data>
+  <data name="ManualEntry_MissingDurationFormat" xml:space="preserve">
+    <value>MISSING: {0}</value>
+  </data>
+  <data name="ManualEntry_NoQualifiedRest" xml:space="preserve">
+    <value>Qualified: no continuous 9 h rest — no daily reset.</value>
+  </data>
+  <data name="ManualEntry_NotSaved" xml:space="preserve">
+    <value>The entry has not been saved yet.</value>
+  </data>
+  <data name="ManualEntry_PlanTitle" xml:space="preserve">
+    <value>ENTRY PLAN</value>
+  </data>
+  <data name="ManualEntry_QualifiedDailyReducedFormat" xml:space="preserve">
+    <value>Qualified: reduced daily rest period; reset at {0}.</value>
+  </data>
+  <data name="ManualEntry_QualifiedDailyReducedWeeklyReducedFormat" xml:space="preserve">
+    <value>Qualified: reduced daily rest period, reduced weekly rest period; reset at {0}.</value>
+  </data>
+  <data name="ManualEntry_QualifiedDailyReducedWeeklyRegularFormat" xml:space="preserve">
+    <value>Qualified: reduced daily rest period, regular weekly rest period; reset at {0}.</value>
+  </data>
+  <data name="ManualEntry_QualifiedDailyRegularFormat" xml:space="preserve">
+    <value>Qualified: regular daily rest period; reset at {0}.</value>
+  </data>
+  <data name="ManualEntry_QualifiedDailyRegularWeeklyReducedFormat" xml:space="preserve">
+    <value>Qualified: regular daily rest period, reduced weekly rest period; reset at {0}.</value>
+  </data>
+  <data name="ManualEntry_QualifiedDailyRegularWeeklyRegularFormat" xml:space="preserve">
+    <value>Qualified: regular daily rest period, regular weekly rest period; reset at {0}.</value>
+  </data>
+  <data name="ManualEntry_QuickChoiceHelp" xml:space="preserve">
+    <value>Clicking replaces the entire plan with one segment.</value>
+  </data>
+  <data name="ManualEntry_QuickChoiceTitle" xml:space="preserve">
+    <value>QUICK CHOICE FOR THE ENTIRE GAP</value>
+  </data>
+  <data name="ManualEntry_ReasonFormat" xml:space="preserve">
+    <value>Cause: {0}</value>
+  </data>
+  <data name="ManualEntry_RestoreDefaultAction" xml:space="preserve">
+    <value>RESTORE DEFAULT ENTRY</value>
+  </data>
+  <data name="ManualEntry_SaveChangesAction" xml:space="preserve">
+    <value>SAVE CHANGES</value>
+  </data>
+  <data name="ManualEntry_SegmentCountFewFormat" xml:space="preserve">
+    <value>{0} segments · {1}</value>
+  </data>
+  <data name="ManualEntry_SegmentCountManyFormat" xml:space="preserve">
+    <value>{0} segments · {1}</value>
+  </data>
+  <data name="ManualEntry_SegmentCountOneFormat" xml:space="preserve">
+    <value>{0} segment · {1}</value>
+  </data>
+  <data name="ManualEntry_SelectionSummaryFormat" xml:space="preserve">
+    <value>Entry: rest {0}, other work {1}, availability {2}.</value>
+  </data>
+  <data name="ManualEntry_SummaryTitle" xml:space="preserve">
+    <value>SUMMARY AND VALIDATION</value>
+  </data>
+  <data name="ManualEntry_TimeHeader" xml:space="preserve">
+    <value>TIME</value>
+  </data>
+  <data name="ManualEntry_Title" xml:space="preserve">
+    <value>RESOLVE ACTIVITY GAP</value>
+  </data>
+  <data name="ManualEntry_ToDayLabel" xml:space="preserve">
+    <value>TO — DAY</value>
+  </data>
+  <data name="ManualEntry_UnknownDriver" xml:space="preserve">
+    <value>Unknown driver</value>
+  </data>
+  <data name="ManualEntryActivity_BreakOrRest" xml:space="preserve">
+    <value>Break / rest</value>
+  </data>
+  <data name="ManualEntryError_ApplyFailed" xml:space="preserve">
+    <value>The manual entry could not be applied. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="ManualEntryError_DefaultRestCannotBeRemoved" xml:space="preserve">
+    <value>Rest is the default gap allocation and cannot be removed.</value>
+  </data>
+  <data name="ManualEntryError_EditedSegmentMissing" xml:space="preserve">
+    <value>The edited segment is no longer part of the plan.</value>
+  </data>
+  <data name="ManualEntryError_EnterTimeFormat" xml:space="preserve">
+    <value>Field {0}: enter a time in HH:MM format.</value>
+  </data>
+  <data name="ManualEntryError_GapNotCanonical" xml:space="preserve">
+    <value>Only a gap from the canonical game-time branch can be resolved.</value>
+  </data>
+  <data name="ManualEntryError_GapNotFound" xml:space="preserve">
+    <value>The activity gap was not found.</value>
+  </data>
+  <data name="ManualEntryError_GapStillOpen" xml:space="preserve">
+    <value>An ongoing activity gap cannot be resolved.</value>
+  </data>
+  <data name="ManualEntryError_HistoryCollision" xml:space="preserve">
+    <value>The entry conflicts with existing activity history.</value>
+  </data>
+  <data name="ManualEntryError_IncompleteCoverage" xml:space="preserve">
+    <value>The entry must cover the entire gap exactly.</value>
+  </data>
+  <data name="ManualEntryError_InvalidActivity" xml:space="preserve">
+    <value>This activity is not available in a manual entry.</value>
+  </data>
+  <data name="ManualEntryError_InvalidSegment" xml:space="preserve">
+    <value>An entry segment must have a positive duration.</value>
+  </data>
+  <data name="ManualEntryError_OutsideGap" xml:space="preserve">
+    <value>The segment range must stay within the gap being resolved.</value>
+  </data>
+  <data name="ManualEntryError_OverlappingSegments" xml:space="preserve">
+    <value>Entry segments cannot overlap.</value>
+  </data>
+  <data name="ManualEntryError_ProjectedGapCannotBeResolved" xml:space="preserve">
+    <value>A projected gap cannot be resolved.</value>
+  </data>
+  <data name="ManualEntryError_RemovedSegmentMissing" xml:space="preserve">
+    <value>The segment being removed is no longer part of the plan.</value>
+  </data>
+  <data name="ManualEntryError_ResolutionConflict" xml:space="preserve">
+    <value>The gap has already been resolved with a different manual entry.</value>
+  </data>
+  <data name="ManualEntryError_SelectDayFormat" xml:space="preserve">
+    <value>Field {0}: select a day.</value>
+  </data>
+  <data name="Navigation_Compensations" xml:space="preserve">
+    <value>Compensations</value>
+  </data>
+  <data name="Navigation_Dashboard" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
+  <data name="Navigation_Drivers" xml:space="preserve">
+    <value>Drivers</value>
+  </data>
+  <data name="Navigation_History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="Navigation_Planner" xml:space="preserve">
+    <value>JOURNEY PLANNER</value>
+  </data>
+  <data name="Navigation_Reports" xml:space="preserve">
+    <value>Reports</value>
+  </data>
+  <data name="Navigation_Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Operation_CardAlreadyInOtherSlot" xml:space="preserve">
+    <value>This card is already in the other slot.</value>
+  </data>
+  <data name="Operation_CardEjectedFormat" xml:space="preserve">
+    <value>Card ejected. End country: {0}, LCD: {1}.</value>
+  </data>
+  <data name="Operation_CardEjectionRejected" xml:space="preserve">
+    <value>The card could not be ejected. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Operation_CardEjectionWhileMoving" xml:space="preserve">
+    <value>A card cannot be ejected while driving. Stop the vehicle.</value>
+  </data>
+  <data name="Operation_CardInsertedFormat" xml:space="preserve">
+    <value>Card read. Start country: {0}, LCD: {1}. Driving may begin.</value>
+  </data>
+  <data name="Operation_CardInsertionRejected" xml:space="preserve">
+    <value>The card could not be inserted. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Operation_CardInsertionWhileMoving" xml:space="preserve">
+    <value>A card cannot be inserted while driving. Stop the vehicle.</value>
+  </data>
+  <data name="Operation_CoDriverMovingBreakAlreadyActive" xml:space="preserve">
+    <value>Driver 2's 45-minute break is already in progress.</value>
+  </data>
+  <data name="Operation_CoDriverMovingBreakStarted" xml:space="preserve">
+    <value>Driver 2 started a continuous 45-minute break while the vehicle was moving.</value>
+  </data>
+  <data name="Operation_CoDriverRestStartedFormat" xml:space="preserve">
+    <value>Driver 2 started: {0}.</value>
+  </data>
+  <data name="Operation_CompensationDetailsFailed" xml:space="preserve">
+    <value>The compensation details could not be loaded. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Operation_CompensationLoadedManyFormat" xml:space="preserve">
+    <value>Full history of {0} compensation obligations loaded.</value>
+  </data>
+  <data name="Operation_CompensationLoadedOneFormat" xml:space="preserve">
+    <value>Full history of {0} compensation obligation loaded.</value>
+  </data>
+  <data name="Operation_ConfirmRequiredManualEntry" xml:space="preserve">
+    <value>Confirm the required manual entry first.</value>
+  </data>
+  <data name="Operation_CountrySavedFormat" xml:space="preserve">
+    <value>Country saved: {0}, LCD: {1}.</value>
+  </data>
+  <data name="Operation_CreateProfileFirst" xml:space="preserve">
+    <value>Create a driver profile first.</value>
+  </data>
+  <data name="Operation_CrewModeAutomatic" xml:space="preserve">
+    <value>Crew mode is enabled automatically when two cards are inserted.</value>
+  </data>
+  <data name="Operation_CulturePreferenceSaveFailed" xml:space="preserve">
+    <value>The language selection could not be saved. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Operation_DeviceStateRestoreFailed" xml:space="preserve">
+    <value>The device state could not be restored. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Operation_DeviceStateSaveFailed" xml:space="preserve">
+    <value>The device state could not be saved. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Operation_DiagnosticReportFailed" xml:space="preserve">
+    <value>The diagnostic report could not be created. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Operation_DiagnosticReportSavedFormat" xml:space="preserve">
+    <value>Diagnostic report saved: {0}</value>
+  </data>
+  <data name="Operation_DriverActivityAutomaticFormat" xml:space="preserve">
+    <value>While driving, driver {0}'s activity is set automatically.</value>
+  </data>
+  <data name="Operation_DrivingBlockedByManualEntryFormat" xml:space="preserve">
+    <value>Driving is blocked by the tachograph: resolve the manual entry in slot {0}.</value>
+  </data>
+  <data name="Operation_GapListRefreshFailed" xml:space="preserve">
+    <value>The gap list could not be refreshed. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Operation_IdentifierCopied" xml:space="preserve">
+    <value>The full identifier was copied to the clipboard.</value>
+  </data>
+  <data name="Operation_IdentifierCopyFailed" xml:space="preserve">
+    <value>The identifier could not be copied. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Operation_ImportRecordCountFewFormat" xml:space="preserve">
+    <value>{0} records imported.</value>
+  </data>
+  <data name="Operation_ImportRecordCountManyFormat" xml:space="preserve">
+    <value>{0} records imported.</value>
+  </data>
+  <data name="Operation_ImportRecordCountOneFormat" xml:space="preserve">
+    <value>{0} record imported.</value>
+  </data>
+  <data name="Operation_InsertCardRequiredFormat" xml:space="preserve">
+    <value>Insert the driver card into reader {0}.</value>
+  </data>
+  <data name="Operation_ManualActivityRejected" xml:space="preserve">
+    <value>The activity could not be changed. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Operation_ManualEntrySavedFormat" xml:space="preserve">
+    <value>Manual entry saved. {0}</value>
+  </data>
+  <data name="Operation_NoCompensationObligations" xml:space="preserve">
+    <value>The selected card has no compensation obligations.</value>
+  </data>
+  <data name="Operation_OptionalGapDetectedFormat" xml:space="preserve">
+    <value>A time-jump gap was detected in slot {0}. The entry is optional and does not block driving.</value>
+  </data>
+  <data name="Operation_OptionalGapWithdrawn" xml:space="preserve">
+    <value>The time jump was identified as loading or unloading — the gap was withdrawn.</value>
+  </data>
+  <data name="Operation_PrintSavedFormat" xml:space="preserve">
+    <value>Printout saved: {0}</value>
+  </data>
+  <data name="Operation_ProfileActivatedRestart" xml:space="preserve">
+    <value>Profile saved. Restart the application to start its session.</value>
+  </data>
+  <data name="Operation_ProfileActivationFailed" xml:space="preserve">
+    <value>The active profile could not be set. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Operation_ProfileCreated" xml:space="preserve">
+    <value>Profile created.</value>
+  </data>
+  <data name="Operation_ProfileCreateFailed" xml:space="preserve">
+    <value>The profile could not be created. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Operation_ProfileHasNoCard" xml:space="preserve">
+    <value>The selected profile has no driver card.</value>
+  </data>
+  <data name="Operation_ReaderEmptyFormat" xml:space="preserve">
+    <value>Reader {0} is empty.</value>
+  </data>
+  <data name="Operation_ReaderOccupiedFormat" xml:space="preserve">
+    <value>Reader {0} is already occupied.</value>
+  </data>
+  <data name="Operation_ReportExportFailedFormat" xml:space="preserve">
+    <value>{0} could not be saved. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Operation_ReportExportSavedFormat" xml:space="preserve">
+    <value>Saved {0}: {1}</value>
+  </data>
+  <data name="Operation_ReportGeneratedFewFormat" xml:space="preserve">
+    <value>Report: {0} blocks · range {1}.</value>
+  </data>
+  <data name="Operation_ReportGeneratedManyFormat" xml:space="preserve">
+    <value>Report: {0} blocks · range {1}.</value>
+  </data>
+  <data name="Operation_ReportGeneratedOneFormat" xml:space="preserve">
+    <value>Report: {0} block · range {1}.</value>
+  </data>
+  <data name="Operation_RestAllocationBlockChanged" xml:space="preserve">
+    <value>The rest block is no longer current. Refresh the data and select again.</value>
+  </data>
+  <data name="Operation_RestAllocationCandidateChanged" xml:space="preserve">
+    <value>The selected allocation option is no longer available. Refresh the data and select again.</value>
+  </data>
+  <data name="Operation_RestAllocationFailed" xml:space="preserve">
+    <value>The allocation decision could not be saved. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Operation_RestAllocationSaved" xml:space="preserve">
+    <value>The audited rest-allocation decision was saved.</value>
+  </data>
+  <data name="Operation_RestRejected" xml:space="preserve">
+    <value>The rest period could not be started. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Operation_RestStartedFormat" xml:space="preserve">
+    <value>Started: {0}.</value>
+  </data>
+  <data name="Operation_SelectCountry" xml:space="preserve">
+    <value>Select a country from the list.</value>
+  </data>
+  <data name="Operation_SettingsInLeftPanel" xml:space="preserve">
+    <value>Detailed settings are available in the left panel.</value>
+  </data>
+  <data name="Operation_SettingsSavedRestart" xml:space="preserve">
+    <value>Settings saved. They will be applied the next time the application starts.</value>
+  </data>
+  <data name="Operation_SettingsSaveFailed" xml:space="preserve">
+    <value>The settings could not be saved. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Operation_TachographSessionExported" xml:space="preserve">
+    <value>Export completed.</value>
+  </data>
+  <data name="Operation_TachographSessionExportFailed" xml:space="preserve">
+    <value>The tachograph session could not be exported. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Operation_TachographSessionImportFailed" xml:space="preserve">
+    <value>The tachograph session could not be imported. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Overlay_ContinuousDrivingHeader" xml:space="preserve">
+    <value>CONTINUOUS DRIVING</value>
+  </data>
+  <data name="Overlay_DailyDrivingLimitHeader" xml:space="preserve">
+    <value>DAILY / LIMIT</value>
+  </data>
+  <data name="Overlay_DailyDutyHeader" xml:space="preserve">
+    <value>DAILY DUTY</value>
+  </data>
+  <data name="Overlay_DragLabel" xml:space="preserve">
+    <value>DRAG</value>
+  </data>
+  <data name="Overlay_DragTooltip" xml:space="preserve">
+    <value>Drag to reposition</value>
+  </data>
+  <data name="Overlay_ProductName" xml:space="preserve">
+    <value>ETS2 TACHOGRAPH</value>
+  </data>
+  <data name="Overlay_RestElapsedHeader" xml:space="preserve">
+    <value>BREAK ELAPSED</value>
+  </data>
+  <data name="Overlay_RestTargetHeader" xml:space="preserve">
+    <value>BREAK TARGET</value>
+  </data>
+  <data name="Overlay_TimeToBreakHeader" xml:space="preserve">
+    <value>TO BREAK</value>
+  </data>
+  <data name="Overlay_WindowTitleFormat" xml:space="preserve">
+    <value>ETS2 Tachograph Overlay {0}</value>
+  </data>
+  <data name="OverlayModes_FerryMulti" xml:space="preserve">
+    <value>Ferry · multi-manning (30 h)</value>
+  </data>
+  <data name="OverlayModes_FerrySingle" xml:space="preserve">
+    <value>Ferry · single driver (24 h)</value>
+  </data>
+  <data name="OverlayModes_NormalMulti" xml:space="preserve">
+    <value>Normal mode · multi-manning (30 h)</value>
+  </data>
+  <data name="OverlayModes_NormalSingle" xml:space="preserve">
+    <value>Normal mode · single driver (24 h)</value>
+  </data>
+  <data name="OverlayModes_OutMulti" xml:space="preserve">
+    <value>OUT · multi-manning (30 h)</value>
+  </data>
+  <data name="OverlayModes_OutSingle" xml:space="preserve">
+    <value>OUT · single driver (24 h)</value>
+  </data>
+  <data name="Planner_CalculateAction" xml:space="preserve">
+    <value>CALCULATE PLAN</value>
+  </data>
+  <data name="Planner_CargoPickupLabel" xml:space="preserve">
+    <value>CARGO PICKUP</value>
+  </data>
+  <data name="Planner_CurrentGameTimeLabel" xml:space="preserve">
+    <value>CURRENT GAME TIME</value>
+  </data>
+  <data name="Planner_DeliveryArrivalLabel" xml:space="preserve">
+    <value>DELIVERY ARRIVAL</value>
+  </data>
+  <data name="Planner_DeliveryCompletionLabel" xml:space="preserve">
+    <value>DELIVERY COMPLETION</value>
+  </data>
+  <data name="Planner_DeliveryWindowFromLabel" xml:space="preserve">
+    <value>DELIVERY WINDOW FROM</value>
+  </data>
+  <data name="Planner_DeliveryWindowLabel" xml:space="preserve">
+    <value>DELIVERY WINDOW</value>
+  </data>
+  <data name="Planner_DeliveryWindowToLabel" xml:space="preserve">
+    <value>DELIVERY WINDOW TO</value>
+  </data>
+  <data name="Planner_DriveToPickupLabel" xml:space="preserve">
+    <value>DRIVE TO PICKUP</value>
+  </data>
+  <data name="Planner_FirstDriverLabel" xml:space="preserve">
+    <value>DRIVES FIRST</value>
+  </data>
+  <data name="Planner_HourTooltip" xml:space="preserve">
+    <value>Hour</value>
+  </data>
+  <data name="Planner_LoadedRouteLabel" xml:space="preserve">
+    <value>LOADED ROUTE</value>
+  </data>
+  <data name="Planner_MinuteTooltip" xml:space="preserve">
+    <value>Minute</value>
+  </data>
+  <data name="Planner_ModeLabel" xml:space="preserve">
+    <value>PLANNER MODE</value>
+  </data>
+  <data name="Planner_NotApplicable" xml:space="preserve">
+    <value>Not applicable</value>
+  </data>
+  <data name="Planner_OfferExpiresInLabel" xml:space="preserve">
+    <value>OFFER EXPIRES IN</value>
+  </data>
+  <data name="Planner_OfferExpiresLabel" xml:space="preserve">
+    <value>OFFER EXPIRES</value>
+  </data>
+  <data name="Planner_PickupLabel" xml:space="preserve">
+    <value>PICKUP</value>
+  </data>
+  <data name="Planner_PostDeliveryWorkLabel" xml:space="preserve">
+    <value>WORK AFTER</value>
+  </data>
+  <data name="Planner_StrategyDescription" xml:space="preserve">
+    <value>Strategy: earliest legal · read-only calculations</value>
+  </data>
+  <data name="Planner_SummaryTitle" xml:space="preserve">
+    <value>PLAN SUMMARY</value>
+  </data>
+  <data name="Planner_TightThresholdLabel" xml:space="preserve">
+    <value>“TIGHT” THRESHOLD</value>
+  </data>
+  <data name="Planner_TimeInputInstructions" xml:space="preserve">
+    <value>Time fields: enter a value or use the keys — ↑ / ↓ by ±5 min, PgUp / PgDn by ±60 min; preset buttons are also available, and the delivery window is selected from the day / hour / minute lists.</value>
+  </data>
+  <data name="Planner_Title" xml:space="preserve">
+    <value>JOURNEY PLANNER</value>
+  </data>
+  <data name="Planner_UnloadingLabel" xml:space="preserve">
+    <value>UNLOADING</value>
+  </data>
+  <data name="Planner_VehicleHeader" xml:space="preserve">
+    <value>VEHICLE</value>
+  </data>
+  <data name="Planner_VerdictMarginLabel" xml:space="preserve">
+    <value>VERDICT / MARGIN</value>
+  </data>
+  <data name="Planner_WarningsTitle" xml:space="preserve">
+    <value>WARNINGS AND LIMITATIONS</value>
+  </data>
+  <data name="PlannerCrew_CrewFormat" xml:space="preserve">
+    <value>S1: {0} · S2: {1} · 30 h multi-manning</value>
+  </data>
+  <data name="PlannerCrew_Incomplete" xml:space="preserve">
+    <value>Incomplete S1/S2 multi-manning crew</value>
+  </data>
+  <data name="PlannerCrew_WaitingForSnapshot" xml:space="preserve">
+    <value>Waiting for a snapshot of both cards…</value>
+  </data>
+  <data name="PlannerError_CalculationFailed" xml:space="preserve">
+    <value>The plan could not be calculated. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="PlannerError_SnapshotLoadFailed" xml:space="preserve">
+    <value>The snapshot of both cards could not be loaded. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="PlannerFailure_CalculationLimitReached" xml:space="preserve">
+    <value>The calculation limit was reached before a plan was found.</value>
+  </data>
+  <data name="PlannerFailure_DeliveryWindowMissed" xml:space="preserve">
+    <value>Delivery will not be completed before the end of the window.</value>
+  </data>
+  <data name="PlannerFailure_InsufficientData" xml:space="preserve">
+    <value>Reliable data from both cards is unavailable.</value>
+  </data>
+  <data name="PlannerFailure_NoLegalContinuation" xml:space="preserve">
+    <value>There is no legal continuation of the schedule.</value>
+  </data>
+  <data name="PlannerFailure_NotImplemented" xml:space="preserve">
+    <value>The planner does not support this scenario.</value>
+  </data>
+  <data name="PlannerFailure_OfferExpired" xml:space="preserve">
+    <value>Pickup will not be completed before the offer expires.</value>
+  </data>
+  <data name="PlannerFailure_StaleSnapshot" xml:space="preserve">
+    <value>The crew data changed during calculation.</value>
+  </data>
+  <data name="PlannerField_OfferExpiresIn" xml:space="preserve">
+    <value>Offer expires in</value>
+  </data>
+  <data name="PlannerField_Pickup" xml:space="preserve">
+    <value>Pickup</value>
+  </data>
+  <data name="PlannerField_TightThreshold" xml:space="preserve">
+    <value>“Tight” threshold</value>
+  </data>
+  <data name="PlannerInput_DefaultValuesAutosave" xml:space="preserve">
+    <value>Default values · autosave</value>
+  </data>
+  <data name="PlannerInput_RestoredValues" xml:space="preserve">
+    <value>Values restored from the previous session</value>
+  </data>
+  <data name="PlannerInput_RestoreFailed" xml:space="preserve">
+    <value>The saved values were not restored; default values were used. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="PlannerInput_SaveFailed" xml:space="preserve">
+    <value>The Planner values were not saved. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="PlannerInput_UserValuesAutosave" xml:space="preserve">
+    <value>User values · autosave</value>
+  </data>
+  <data name="PlannerMode_ActiveDelivery" xml:space="preserve">
+    <value>ACTIVE DELIVERY</value>
+  </data>
+  <data name="PlannerMode_MarketOffer" xml:space="preserve">
+    <value>MARKET OFFER</value>
+  </data>
+  <data name="PlannerPhase_DriveToPickup" xml:space="preserve">
+    <value>Drive to pickup</value>
+  </data>
+  <data name="PlannerPhase_DriveWithCargo" xml:space="preserve">
+    <value>Loaded route</value>
+  </data>
+  <data name="PlannerPhase_Pickup" xml:space="preserve">
+    <value>Pickup</value>
+  </data>
+  <data name="PlannerPhase_PostDeliveryWork" xml:space="preserve">
+    <value>Post-delivery work</value>
+  </data>
+  <data name="PlannerPhase_RegulatoryInterruption" xml:space="preserve">
+    <value>Regulatory interruption</value>
+  </data>
+  <data name="PlannerPhase_Unloading" xml:space="preserve">
+    <value>Unloading</value>
+  </data>
+  <data name="PlannerPhase_WaitForDeliveryWindow" xml:space="preserve">
+    <value>Waiting for the delivery window</value>
+  </data>
+  <data name="PlannerReadiness_CurrentCrewSnapshotRequired" xml:space="preserve">
+    <value>A current telemetry snapshot of both cards in multi-manning is required.</value>
+  </data>
+  <data name="PlannerReadiness_ResolveCardRemovalGap" xml:space="preserve">
+    <value>Resolve the card-removal gap before calculating the plan.</value>
+  </data>
+  <data name="PlannerReason_BiweeklyDrivingLimitReached" xml:space="preserve">
+    <value>Fortnightly driving limit reached</value>
+  </data>
+  <data name="PlannerReason_ContinuousDrivingBreak" xml:space="preserve">
+    <value>Continuous-driving break</value>
+  </data>
+  <data name="PlannerReason_CrewDriverChange" xml:space="preserve">
+    <value>Driver change</value>
+  </data>
+  <data name="PlannerReason_DailyDrivingLimit" xml:space="preserve">
+    <value>Daily driving limit</value>
+  </data>
+  <data name="PlannerReason_DailyRestDeadline" xml:space="preserve">
+    <value>Daily-rest deadline</value>
+  </data>
+  <data name="PlannerReason_OperationalBufferAfterArrival" xml:space="preserve">
+    <value>Post-arrival work</value>
+  </data>
+  <data name="PlannerReason_RemainingRouteDrive" xml:space="preserve">
+    <value>Remaining route</value>
+  </data>
+  <data name="PlannerReason_SplitBreakCompletion" xml:space="preserve">
+    <value>Split-break completion</value>
+  </data>
+  <data name="PlannerReason_WaitForBiweeklyCapacity" xml:space="preserve">
+    <value>Waiting for available fortnightly capacity</value>
+  </data>
+  <data name="PlannerReason_WaitForNewRegulatoryWeek" xml:space="preserve">
+    <value>Waiting for a new regulatory week</value>
+  </data>
+  <data name="PlannerReason_WeeklyDrivingLimitReached" xml:space="preserve">
+    <value>Weekly driving limit reached</value>
+  </data>
+  <data name="PlannerReason_WeeklyRestRequirement" xml:space="preserve">
+    <value>Weekly rest required</value>
+  </data>
+  <data name="PlannerSlot_CoDriver" xml:space="preserve">
+    <value>S2 — co-driver</value>
+  </data>
+  <data name="PlannerSlot_Driver" xml:space="preserve">
+    <value>S1 — driver</value>
+  </data>
+  <data name="PlannerStatus_CheckingReadiness" xml:space="preserve">
+    <value>Checking planner readiness…</value>
+  </data>
+  <data name="PlannerStatus_CrewStateChanged" xml:space="preserve">
+    <value>The crew state has changed. Calculate the plan again.</value>
+  </data>
+  <data name="PlannerStatus_DataReady" xml:space="preserve">
+    <value>Data ready — select the driver and calculate the plan.</value>
+  </data>
+  <data name="PlannerStatus_InputChanged" xml:space="preserve">
+    <value>The input has changed. Calculate the plan again.</value>
+  </data>
+  <data name="PlannerSummary_BothCardsIncluded" xml:space="preserve">
+    <value>The schedule includes both S1/S2 cards</value>
+  </data>
+  <data name="PlannerSummary_MarginFormat" xml:space="preserve">
+    <value>Margin to the end of the window: {0}</value>
+  </data>
+  <data name="PlannerSummary_PlanFitsWindow" xml:space="preserve">
+    <value>The plan fits within the delivery window</value>
+  </data>
+  <data name="PlannerSummary_PlanRejected" xml:space="preserve">
+    <value>The plan does not meet the acceptance conditions</value>
+  </data>
+  <data name="PlannerTime_FromPrefix" xml:space="preserve">
+    <value>From</value>
+  </data>
+  <data name="PlannerTime_ToPrefix" xml:space="preserve">
+    <value>To</value>
+  </data>
+  <data name="PlannerValidation_CorrectTimeField" xml:space="preserve">
+    <value>Correct the highlighted time field.</value>
+  </data>
+  <data name="PlannerValidation_DurationFormat" xml:space="preserve">
+    <value>{0}: enter a time as HH:MM, minutes, 1h30 or 1.5.</value>
+  </data>
+  <data name="PlannerValidation_NoCurrentSnapshot" xml:space="preserve">
+    <value>No current snapshot of both cards is available.</value>
+  </data>
+  <data name="PlannerValidation_TimeLabel" xml:space="preserve">
+    <value>Time</value>
+  </data>
+  <data name="PlannerVehicle_Parked" xml:space="preserve">
+    <value>Stationary</value>
+  </data>
+  <data name="PlannerVerdict_DeliveryMissed" xml:space="preserve">
+    <value>DELIVERY DEADLINE MISSED</value>
+  </data>
+  <data name="PlannerVerdict_PickupMissed" xml:space="preserve">
+    <value>PICKUP DEADLINE MISSED</value>
+  </data>
+  <data name="PlannerVerdict_Reject" xml:space="preserve">
+    <value>NO LEGAL CONTINUATION</value>
+  </data>
+  <data name="PlannerVerdict_Take" xml:space="preserve">
+    <value>CAN ACCEPT</value>
+  </data>
+  <data name="PlannerVerdict_Tight" xml:space="preserve">
+    <value>TIGHT</value>
+  </data>
+  <data name="PlannerVerdict_UnreliableData" xml:space="preserve">
+    <value>NO RELIABLE DATA</value>
+  </data>
+  <data name="PlannerWarning_CompensationModelLimited" xml:space="preserve">
+    <value>The compensation model limits the plan's reliability.</value>
+  </data>
+  <data name="PlannerWarning_IncompleteHistory" xml:space="preserve">
+    <value>The activity history is incomplete; the result may be limited.</value>
+  </data>
+  <data name="PlannerWarning_LastSavedState" xml:space="preserve">
+    <value>The plan is based on the last saved state.</value>
+  </data>
+  <data name="PlannerWarning_MultiManningPlanningUnsupported" xml:space="preserve">
+    <value>This multi-manning planning variant is not supported.</value>
+  </data>
+  <data name="PlannerWarning_ReducedWeeklyRestUnavailable" xml:space="preserve">
+    <value>Reduced weekly rest is unavailable.</value>
+  </data>
+  <data name="PlannerWarning_RegulatoryExceptionUsed" xml:space="preserve">
+    <value>The plan uses a regulatory exception.</value>
+  </data>
+  <data name="Report_ActivitiesLabel" xml:space="preserve">
+    <value>ACTIVITIES</value>
+  </data>
+  <data name="Report_CompensationsLabel" xml:space="preserve">
+    <value>COMPENSATIONS</value>
+  </data>
+  <data name="Report_Description" xml:space="preserve">
+    <value>Reporting centre · game-time data</value>
+  </data>
+  <data name="Report_DriverCardFormat" xml:space="preserve">
+    <value>{0} — card {1}</value>
+  </data>
+  <data name="Report_DriverCardLabel" xml:space="preserve">
+    <value>DRIVER / CARD</value>
+  </data>
+  <data name="Report_QuickRangeLabel" xml:space="preserve">
+    <value>QUICK RANGE</value>
+  </data>
+  <data name="Report_RangeLabel" xml:space="preserve">
+    <value>RANGE</value>
+  </data>
+  <data name="Report_RefreshPreviewAction" xml:space="preserve">
+    <value>REFRESH PREVIEW</value>
+  </data>
+  <data name="Report_ShowGapsAction" xml:space="preserve">
+    <value>SHOW GAPS</value>
+  </data>
+  <data name="Report_ShowTechnicalData" xml:space="preserve">
+    <value>Show technical data</value>
+  </data>
+  <data name="Report_Title" xml:space="preserve">
+    <value>REPORTS AND STATISTICS</value>
+  </data>
+  <data name="Report_ViolationsLabel" xml:space="preserve">
+    <value>VIOLATIONS</value>
+  </data>
+  <data name="ReportActivity_ConditionFormat" xml:space="preserve">
+    <value>Condition: {0}</value>
+  </data>
+  <data name="ReportActivity_OutOfScope" xml:space="preserve">
+    <value>Out of scope</value>
+  </data>
+  <data name="ReportActivity_SourceFormat" xml:space="preserve">
+    <value>Source: {0}</value>
+  </data>
+  <data name="ReportCompensation_DueAtHeader" xml:space="preserve">
+    <value>DEADLINE</value>
+  </data>
+  <data name="ReportCompensation_PaymentHeader" xml:space="preserve">
+    <value>PAYMENT</value>
+  </data>
+  <data name="ReportCompensation_SettledAtHeader" xml:space="preserve">
+    <value>SETTLED</value>
+  </data>
+  <data name="ReportCompensationStatus_OpenOnTime" xml:space="preserve">
+    <value>Open · on time</value>
+  </data>
+  <data name="ReportCompensationStatus_Overdue" xml:space="preserve">
+    <value>Overdue</value>
+  </data>
+  <data name="ReportCompensationStatus_PaidLate" xml:space="preserve">
+    <value>Paid late</value>
+  </data>
+  <data name="ReportCompensationStatus_PaidOnTime" xml:space="preserve">
+    <value>Paid on time</value>
+  </data>
+  <data name="ReportCompleteness_BalanceLabel" xml:space="preserve">
+    <value>BALANCE</value>
+  </data>
+  <data name="ReportCompleteness_EvidenceLabel" xml:space="preserve">
+    <value>EVIDENCE</value>
+  </data>
+  <data name="ReportCompleteness_GapsLabel" xml:space="preserve">
+    <value>GAPS</value>
+  </data>
+  <data name="ReportCompleteness_PendingAllocationsLabel" xml:space="preserve">
+    <value>PENDING ALLOCATIONS</value>
+  </data>
+  <data name="ReportCoverage_BalanceFormat" xml:space="preserve">
+    <value>{0} + {1} = {2} / range {3}</value>
+  </data>
+  <data name="ReportCoverage_ExcessFormat" xml:space="preserve">
+    <value>Excess coverage: {0}</value>
+  </data>
+  <data name="ReportCoverage_Matches" xml:space="preserve">
+    <value>Range coverage matches</value>
+  </data>
+  <data name="ReportCoverage_MissingFormat" xml:space="preserve">
+    <value>Missing coverage: {0}</value>
+  </data>
+  <data name="ReportDuration_DayOneFormat" xml:space="preserve">
+    <value>{0} day {1}</value>
+  </data>
+  <data name="ReportDuration_DaysFormat" xml:space="preserve">
+    <value>{0} days {1}</value>
+  </data>
+  <data name="ReportEvidence_Complete" xml:space="preserve">
+    <value>COMPLETE</value>
+  </data>
+  <data name="ReportEvidence_Incomplete" xml:space="preserve">
+    <value>INCOMPLETE</value>
+  </data>
+  <data name="ReportExport_CompensationCsvAction" xml:space="preserve">
+    <value>OBLIGATIONS CSV</value>
+  </data>
+  <data name="ReportExport_CompensationCsvName" xml:space="preserve">
+    <value>obligations CSV</value>
+  </data>
+  <data name="ReportExport_Description" xml:space="preserve">
+    <value>The preview is recalculated before saving. The file and screen use the same report.</value>
+  </data>
+  <data name="ReportExport_MoreHeader" xml:space="preserve">
+    <value>MORE EXPORTS</value>
+  </data>
+  <data name="ReportExport_Pdf" xml:space="preserve">
+    <value>PDF</value>
+  </data>
+  <data name="ReportExport_PdfAction" xml:space="preserve">
+    <value>EXPORT PDF</value>
+  </data>
+  <data name="ReportExport_RawActivityCsvAction" xml:space="preserve">
+    <value>RAW ACTIVITY CSV</value>
+  </data>
+  <data name="ReportExport_RawActivityCsvName" xml:space="preserve">
+    <value>raw activity CSV</value>
+  </data>
+  <data name="ReportExport_Title" xml:space="preserve">
+    <value>EXPORT</value>
+  </data>
+  <data name="ReportExport_VtcJson" xml:space="preserve">
+    <value>VTC JSON</value>
+  </data>
+  <data name="ReportMetric_Driving" xml:space="preserve">
+    <value>DRIVING</value>
+  </data>
+  <data name="ReportMetric_OpenDebt" xml:space="preserve">
+    <value>OPEN DEBT</value>
+  </data>
+  <data name="ReportMetric_Work" xml:space="preserve">
+    <value>WORK</value>
+  </data>
+  <data name="ReportRange_AllHistoryAction" xml:space="preserve">
+    <value>ALL HISTORY</value>
+  </data>
+  <data name="ReportRange_AllHistoryDescription" xml:space="preserve">
+    <value>All available card history</value>
+  </data>
+  <data name="ReportRange_CurrentWeekAction" xml:space="preserve">
+    <value>CURRENT WEEK</value>
+  </data>
+  <data name="ReportRange_CurrentWeekDescription" xml:space="preserve">
+    <value>Current regulatory week</value>
+  </data>
+  <data name="ReportRange_CustomAction" xml:space="preserve">
+    <value>CUSTOM RANGE</value>
+  </data>
+  <data name="ReportRange_CustomDescription" xml:space="preserve">
+    <value>Custom game-time range</value>
+  </data>
+  <data name="ReportRange_CustomGameTimeLabel" xml:space="preserve">
+    <value>CUSTOM RANGE · GAME TIME</value>
+  </data>
+  <data name="ReportRange_DescriptionFormat" xml:space="preserve">
+    <value>Range includes: {0}</value>
+  </data>
+  <data name="ReportRange_Invalid" xml:space="preserve">
+    <value>The range is invalid.</value>
+  </data>
+  <data name="ReportRange_Last24HoursAction" xml:space="preserve">
+    <value>LAST 24 HOURS</value>
+  </data>
+  <data name="ReportRange_Last24HoursDescription" xml:space="preserve">
+    <value>Last 24 hours of game time</value>
+  </data>
+  <data name="ReportStatus_CalculatingPreview" xml:space="preserve">
+    <value>RECALCULATING PREVIEW</value>
+  </data>
+  <data name="ReportStatus_DataCompleteFormat" xml:space="preserve">
+    <value>Data complete · {0} · {1}</value>
+  </data>
+  <data name="ReportStatus_DataIncompleteFormat" xml:space="preserve">
+    <value>{0} · {1} · {2} · {3}</value>
+  </data>
+  <data name="ReportStatus_ExportUnavailableNoData" xml:space="preserve">
+    <value>Export is unavailable until data becomes available.</value>
+  </data>
+  <data name="ReportStatus_NoReportableCard" xml:space="preserve">
+    <value>No card is available for reporting.</value>
+  </data>
+  <data name="ReportStatus_OpenObligationCountFewFormat" xml:space="preserve">
+    <value>{0} open obligations</value>
+  </data>
+  <data name="ReportStatus_OpenObligationCountManyFormat" xml:space="preserve">
+    <value>{0} open obligations</value>
+  </data>
+  <data name="ReportStatus_OpenObligationCountOneFormat" xml:space="preserve">
+    <value>{0} open obligation</value>
+  </data>
+  <data name="ReportStatus_ParametersChanged" xml:space="preserve">
+    <value>PARAMETERS HAVE CHANGED</value>
+  </data>
+  <data name="ReportStatus_PendingAllocationCountFewFormat" xml:space="preserve">
+    <value>{0} pending allocations</value>
+  </data>
+  <data name="ReportStatus_PendingAllocationCountManyFormat" xml:space="preserve">
+    <value>{0} pending allocations</value>
+  </data>
+  <data name="ReportStatus_PendingAllocationCountOneFormat" xml:space="preserve">
+    <value>{0} pending allocation</value>
+  </data>
+  <data name="ReportStatus_PreviewCurrent" xml:space="preserve">
+    <value>PREVIEW UP TO DATE</value>
+  </data>
+  <data name="ReportStatus_PreviewError" xml:space="preserve">
+    <value>PREVIEW ERROR</value>
+  </data>
+  <data name="ReportStatus_PreviewErrorDetail" xml:space="preserve">
+    <value>The report preview could not be generated. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="ReportStatus_ReadingCanonicalHistory" xml:space="preserve">
+    <value>Reading canonical card history.</value>
+  </data>
+  <data name="ReportStatus_RefreshBeforeAnalysisExport" xml:space="preserve">
+    <value>Refresh the preview before analysis or export.</value>
+  </data>
+  <data name="ReportStatus_ReportIncomplete" xml:space="preserve">
+    <value>REPORT INCOMPLETE</value>
+  </data>
+  <data name="ReportStatus_SelectDriverAndRange" xml:space="preserve">
+    <value>Select a driver and report range.</value>
+  </data>
+  <data name="ReportStatus_SelectedCardNoHistory" xml:space="preserve">
+    <value>The selected card has no history.</value>
+  </data>
+  <data name="ReportStatus_UnresolvedGapCountFewFormat" xml:space="preserve">
+    <value>{0} unresolved gaps</value>
+  </data>
+  <data name="ReportStatus_UnresolvedGapCountManyFormat" xml:space="preserve">
+    <value>{0} unresolved gaps</value>
+  </data>
+  <data name="ReportStatus_UnresolvedGapCountOneFormat" xml:space="preserve">
+    <value>{0} unresolved gap</value>
+  </data>
+  <data name="ReportStatus_ViolationCountFewFormat" xml:space="preserve">
+    <value>{0} violations</value>
+  </data>
+  <data name="ReportStatus_ViolationCountManyFormat" xml:space="preserve">
+    <value>{0} violations</value>
+  </data>
+  <data name="ReportStatus_ViolationCountOneFormat" xml:space="preserve">
+    <value>{0} violation</value>
+  </data>
+  <data name="ReportStep_Configuration" xml:space="preserve">
+    <value>1  CONFIGURATION</value>
+  </data>
+  <data name="ReportStep_DataCheck" xml:space="preserve">
+    <value>2  DATA CHECK</value>
+  </data>
+  <data name="ReportStep_Export" xml:space="preserve">
+    <value>4  EXPORT</value>
+  </data>
+  <data name="ReportStep_Preview" xml:space="preserve">
+    <value>3  PREVIEW</value>
+  </data>
+  <data name="ReportSummary_ActivityBlocksLabel" xml:space="preserve">
+    <value>ACTIVITY BLOCKS</value>
+  </data>
+  <data name="ReportSummary_GeneratedAtLabel" xml:space="preserve">
+    <value>GENERATED</value>
+  </data>
+  <data name="ReportTab_Completeness" xml:space="preserve">
+    <value>COMPLETENESS</value>
+  </data>
+  <data name="ReportTab_Summary" xml:space="preserve">
+    <value>SUMMARY</value>
+  </data>
+  <data name="ReportValidation_EndAfterStart" xml:space="preserve">
+    <value>The end of the range must be later than the start.</value>
+  </data>
+  <data name="ReportValidation_SelectDriverCard" xml:space="preserve">
+    <value>Select a driver and card.</value>
+  </data>
+  <data name="ReportValidation_SelectStartEndDay" xml:space="preserve">
+    <value>Select the start and end day.</value>
+  </data>
+  <data name="ReportValidation_TimeFormat" xml:space="preserve">
+    <value>Time must use the HH:MM format in the range 00:00–23:59.</value>
+  </data>
+  <data name="ReportViolation_ArticleHeader" xml:space="preserve">
+    <value>ARTICLE</value>
+  </data>
+  <data name="ReportViolation_ExcessHeader" xml:space="preserve">
+    <value>EXCESS</value>
+  </data>
+  <data name="ReportViolation_NameHeader" xml:space="preserve">
+    <value>VIOLATION</value>
+  </data>
+  <data name="RestAllocation_NewDebtFormat" xml:space="preserve">
+    <value>New debt: {0}</value>
+  </data>
+  <data name="RestAllocation_NewDebtNone" xml:space="preserve">
+    <value>New debt: none</value>
+  </data>
+  <data name="RestAllocation_OldDebtNoPayment" xml:space="preserve">
+    <value>Old debt: no payment</value>
+  </data>
+  <data name="RestAllocation_OldDebtPaymentFormat" xml:space="preserve">
+    <value>Old debt: payment {0}</value>
+  </data>
+  <data name="RestAllocation_SelectVariantAction" xml:space="preserve">
+    <value>SELECT THIS OPTION</value>
+  </data>
+  <data name="RestAllocation_Title" xml:space="preserve">
+    <value>CHOOSE HOW TO ALLOCATE THE REST PERIOD</value>
+  </data>
+  <data name="RestAllocation_Warning" xml:space="preserve">
+    <value>Until a choice is made, the Journey Planner and the full report assessment remain unreliable.</value>
+  </data>
+  <data name="RestAllocation_WeeklyNotQualified" xml:space="preserve">
+    <value>Weekly rest period: not qualified</value>
+  </data>
+  <data name="RestAllocation_WeeklyQualified" xml:space="preserve">
+    <value>Weekly rest period: qualified</value>
+  </data>
+  <data name="RestAllocationPurpose_DailyRestWithCompensation" xml:space="preserve">
+    <value>DAILY REST + COMPENSATION</value>
+  </data>
+  <data name="RestAllocationPurpose_ReducedWeeklyRestOnly" xml:space="preserve">
+    <value>REDUCED WEEKLY REST</value>
+  </data>
+  <data name="RestAllocationPurpose_ReducedWeeklyRestWithCompensation" xml:space="preserve">
+    <value>REDUCED WEEKLY REST + COMPENSATION</value>
+  </data>
+  <data name="RestAllocationPurpose_RegularWeeklyRestOnly" xml:space="preserve">
+    <value>REGULAR WEEKLY REST</value>
+  </data>
+  <data name="RestAllocationPurpose_RegularWeeklyRestWithCompensation" xml:space="preserve">
+    <value>REGULAR WEEKLY REST + COMPENSATION</value>
+  </data>
+  <data name="RestStatus_Completed" xml:space="preserve">
+    <value>COMPLETED</value>
+  </data>
+  <data name="RestStatus_CompletedWhileMoving" xml:space="preserve">
+    <value>COMPLETED · WHILE MOVING</value>
+  </data>
+  <data name="RestStatus_InProgress" xml:space="preserve">
+    <value>IN PROGRESS</value>
+  </data>
+  <data name="RestStatus_InProgressWhileMoving" xml:space="preserve">
+    <value>IN PROGRESS · WHILE MOVING</value>
+  </data>
+  <data name="RestStatus_Waiting" xml:space="preserve">
+    <value>WAITING</value>
+  </data>
+  <data name="RestTarget_Break15Part1" xml:space="preserve">
+    <value>15-minute break · part 1</value>
+  </data>
+  <data name="RestTarget_Break30Part2" xml:space="preserve">
+    <value>30-minute break · part 2</value>
+  </data>
+  <data name="RestTarget_Break45Full" xml:space="preserve">
+    <value>45-minute break · full</value>
+  </data>
+  <data name="RestTarget_Daily11Hours" xml:space="preserve">
+    <value>Daily rest period · 11 h</value>
+  </data>
+  <data name="RestTarget_Daily9Hours" xml:space="preserve">
+    <value>Daily rest period · 9 h</value>
+  </data>
+  <data name="RestTarget_Weekly24Hours" xml:space="preserve">
+    <value>Weekly rest period · 24 h</value>
+  </data>
+  <data name="RestTarget_Weekly45Hours" xml:space="preserve">
+    <value>Weekly rest period · 45 h</value>
+  </data>
+  <data name="Settings_DrivingThresholdDescription" xml:space="preserve">
+    <value>The speed at which the tachograph selects driving automatically.</value>
+  </data>
+  <data name="Settings_DrivingThresholdLabel" xml:space="preserve">
+    <value>Driving detection threshold</value>
+  </data>
+  <data name="Settings_LanguageDescription" xml:space="preserve">
+    <value>The language change will be applied the next time the application starts.</value>
+  </data>
+  <data name="Settings_LanguageLabel" xml:space="preserve">
+    <value>Interface language</value>
+  </data>
+  <data name="Settings_RestartNotice" xml:space="preserve">
+    <value>The settings will be applied the next time the application starts.</value>
+  </data>
+  <data name="Settings_SaveAction" xml:space="preserve">
+    <value>SAVE SETTINGS</value>
+  </data>
+  <data name="Settings_Title" xml:space="preserve">
+    <value>TACHOGRAPH SETTINGS</value>
+  </data>
+  <data name="Settings_WeekOffsetDescription" xml:space="preserve">
+    <value>Adjustment of the regulatory week's start in days.</value>
+  </data>
+  <data name="Settings_WeekOffsetLabel" xml:space="preserve">
+    <value>Week offset</value>
+  </data>
+  <data name="Shell_DriverAdministratorRole" xml:space="preserve">
+    <value>DRIVER / ADMINISTRATOR</value>
+  </data>
+  <data name="Shell_Ets2Paused" xml:space="preserve">
+    <value>ETS2 · paused</value>
+  </data>
+  <data name="Shell_ProductName" xml:space="preserve">
+    <value>ETS2 Digital Tachograph</value>
+  </data>
+  <data name="Shell_SystemTitle" xml:space="preserve">
+    <value>TACHOGRAPH MANAGEMENT SYSTEM</value>
+  </data>
+  <data name="Shell_TelemetryActive" xml:space="preserve">
+    <value>ETS2 · telemetry active</value>
+  </data>
+  <data name="Shell_TelemetryError" xml:space="preserve">
+    <value>Telemetry error. Details were written to the diagnostic log.</value>
+  </data>
+  <data name="Shell_VersionFormat" xml:space="preserve">
+    <value>v{0}</value>
+  </data>
+  <data name="Shell_VersionUnknown" xml:space="preserve">
+    <value>version unavailable</value>
+  </data>
+  <data name="Shell_WaitingForEts2" xml:space="preserve">
+    <value>Waiting for ETS2...</value>
+  </data>
+  <data name="SpecialCondition_CrewBreakInMotion" xml:space="preserve">
+    <value>Crew break in motion</value>
+  </data>
+  <data name="SpecialCondition_FerryCrossing" xml:space="preserve">
+    <value>Ferry crossing</value>
+  </data>
+  <data name="SpecialCondition_Mixed" xml:space="preserve">
+    <value>Mixed</value>
+  </data>
+  <data name="SpecialCondition_None" xml:space="preserve">
+    <value>None</value>
+  </data>
+  <data name="Validation_DriverCardDatesInvalid" xml:space="preserve">
+    <value>The card expiry date cannot be earlier than its valid-from date.</value>
+  </data>
+  <data name="Validation_DriverCardNumberRequired" xml:space="preserve">
+    <value>Enter the driver card number.</value>
+  </data>
+  <data name="Validation_DriverNameRequired" xml:space="preserve">
+    <value>Enter the driver's name.</value>
+  </data>
+  <data name="Validation_DrivingThresholdRange" xml:space="preserve">
+    <value>The driving detection threshold must be between 0 and 20 km/h.</value>
+  </data>
+  <data name="Validation_UnsupportedCulture" xml:space="preserve">
+    <value>The supported interface languages are Polish and English (United Kingdom).</value>
+  </data>
+  <data name="Validation_WeekOffsetRange" xml:space="preserve">
+    <value>The week offset must be between −6 and 6 days.</value>
+  </data>
+  <data name="Violation_ContinuousDrivingExceeded" xml:space="preserve">
+    <value>Continuous driving limit exceeded</value>
+  </data>
+  <data name="Violation_DailyDrivingExceeded" xml:space="preserve">
+    <value>Daily driving limit exceeded</value>
+  </data>
+  <data name="Violation_DailyRestMissing" xml:space="preserve">
+    <value>Daily rest period missing</value>
+  </data>
+  <data name="Violation_FortnightlyDrivingExceeded" xml:space="preserve">
+    <value>Fortnightly driving limit exceeded</value>
+  </data>
+  <data name="Violation_MissingRequiredBreak" xml:space="preserve">
+    <value>Required break missing</value>
+  </data>
+  <data name="Violation_TooManyDailyExtensions" xml:space="preserve">
+    <value>Too many daily driving extensions</value>
+  </data>
+  <data name="Violation_TooManyReducedDailyRests" xml:space="preserve">
+    <value>Too many reduced daily rest periods</value>
+  </data>
+  <data name="Violation_WeeklyDrivingExceeded" xml:space="preserve">
+    <value>Weekly driving limit exceeded</value>
+  </data>
+  <data name="Violation_WeeklyRestCompensationOverdue" xml:space="preserve">
+    <value>Weekly rest compensation overdue</value>
+  </data>
+  <data name="Violation_WeeklyRestMissing" xml:space="preserve">
+    <value>Weekly rest period missing</value>
+  </data>
+  <data name="Violation_WeeklyRestPatternInvalid" xml:space="preserve">
+    <value>Invalid weekly rest pattern</value>
+  </data>
+  <data name="Weekday_Display_Friday" xml:space="preserve">
+    <value>Fri</value>
+    <comment>Mixed-case UI abbreviation; do not normalize to Weekday_Short_*.</comment>
+  </data>
+  <data name="Weekday_Display_Monday" xml:space="preserve">
+    <value>Mon</value>
+    <comment>Mixed-case UI abbreviation; do not normalize to Weekday_Short_*.</comment>
+  </data>
+  <data name="Weekday_Display_Saturday" xml:space="preserve">
+    <value>Sat</value>
+    <comment>Mixed-case UI abbreviation; do not normalize to Weekday_Short_*.</comment>
+  </data>
+  <data name="Weekday_Display_Sunday" xml:space="preserve">
+    <value>Sun</value>
+    <comment>Mixed-case UI abbreviation; do not normalize to Weekday_Short_*.</comment>
+  </data>
+  <data name="Weekday_Display_Thursday" xml:space="preserve">
+    <value>Thu</value>
+    <comment>Mixed-case UI abbreviation; do not normalize to Weekday_Short_*.</comment>
+  </data>
+  <data name="Weekday_Display_Tuesday" xml:space="preserve">
+    <value>Tue</value>
+    <comment>Mixed-case UI abbreviation; do not normalize to Weekday_Short_*.</comment>
+  </data>
+  <data name="Weekday_Display_Wednesday" xml:space="preserve">
+    <value>Wed</value>
+    <comment>Mixed-case UI abbreviation; do not normalize to Weekday_Short_*.</comment>
+  </data>
+  <data name="Weekday_Full_Friday" xml:space="preserve">
+    <value>Friday</value>
+  </data>
+  <data name="Weekday_Full_Monday" xml:space="preserve">
+    <value>Monday</value>
+  </data>
+  <data name="Weekday_Full_Saturday" xml:space="preserve">
+    <value>Saturday</value>
+  </data>
+  <data name="Weekday_Full_Sunday" xml:space="preserve">
+    <value>Sunday</value>
+  </data>
+  <data name="Weekday_Full_Thursday" xml:space="preserve">
+    <value>Thursday</value>
+  </data>
+  <data name="Weekday_Full_Tuesday" xml:space="preserve">
+    <value>Tuesday</value>
+  </data>
+  <data name="Weekday_Full_Wednesday" xml:space="preserve">
+    <value>Wednesday</value>
+  </data>
+  <data name="Weekday_Short_Friday" xml:space="preserve">
+    <value>FRI</value>
+    <comment>Uppercase compact/device abbreviation; do not normalize to Weekday_Display_*.</comment>
+  </data>
+  <data name="Weekday_Short_Monday" xml:space="preserve">
+    <value>MON</value>
+    <comment>Uppercase compact/device abbreviation; do not normalize to Weekday_Display_*.</comment>
+  </data>
+  <data name="Weekday_Short_Saturday" xml:space="preserve">
+    <value>SAT</value>
+    <comment>Uppercase compact/device abbreviation; do not normalize to Weekday_Display_*.</comment>
+  </data>
+  <data name="Weekday_Short_Sunday" xml:space="preserve">
+    <value>SUN</value>
+    <comment>Uppercase compact/device abbreviation; do not normalize to Weekday_Display_*.</comment>
+  </data>
+  <data name="Weekday_Short_Thursday" xml:space="preserve">
+    <value>THU</value>
+    <comment>Uppercase compact/device abbreviation; do not normalize to Weekday_Display_*.</comment>
+  </data>
+  <data name="Weekday_Short_Tuesday" xml:space="preserve">
+    <value>TUE</value>
+    <comment>Uppercase compact/device abbreviation; do not normalize to Weekday_Display_*.</comment>
+  </data>
+  <data name="Weekday_Short_Wednesday" xml:space="preserve">
+    <value>WED</value>
+    <comment>Uppercase compact/device abbreviation; do not normalize to Weekday_Display_*.</comment>
+  </data>
+</root>

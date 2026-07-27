@@ -23,6 +23,9 @@
     <EmbeddedResource Include="Resources\CountryNames.pl.json"
                       LogicalName="ETS2Tachograph.Desktop.Resources.CountryNames.pl.json"
                       WithCulture="false" />
+    <EmbeddedResource Include="Resources\CountryNames.en-GB.json"
+                      LogicalName="ETS2Tachograph.Desktop.Resources.CountryNames.en-GB.json"
+                      WithCulture="false" />
   </ItemGroup>
 
 </Project>

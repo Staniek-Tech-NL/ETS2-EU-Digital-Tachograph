@@ -14,6 +14,7 @@ using ETS2Tachograph.Core.Entities;
 using ETS2Tachograph.Core.Enums;
 using ETS2Tachograph.Core.Interfaces;
 using ETS2Tachograph.Core.Time;
+using ETS2Tachograph.Desktop.Localization;
 using ETS2Tachograph.Engine;
 using ETS2Tachograph.RuleEngine;
 using Microsoft.Win32;
@@ -21,6 +22,7 @@ using Microsoft.Win32;
 namespace ETS2Tachograph.Desktop;
 
 public sealed record RestTargetOption(string Name, string DeviceLabel, int Minutes);
+public sealed record UiCultureOption(string CultureName, string DisplayName);
 
 public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 {
@@ -63,6 +65,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private readonly ExportService _export;
     private readonly ImportService _import;
     private readonly SettingsService _settings;
+    private readonly IUiCulturePreferenceStore _culturePreferences;
     private readonly ReportService _reports;
     private readonly RestAllocationService _restAllocations;
     private readonly IPdfReportExporter _pdfReports;
@@ -94,6 +97,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private string _newCardNumber = string.Empty;
     private double _drivingThreshold;
     private int _weekOffset;
+    private UiCultureOption _selectedUiCulture = null!;
     private readonly GameCalendarResolver _gameCalendar;
     private string _operationStatus = string.Empty;
     private int _selectedMainTabIndex;
@@ -214,6 +218,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         IPdfReportExporter pdfReports,
         SettingsService settings,
         SettingsDto savedSettings,
+        IUiCulturePreferenceStore culturePreferences,
+        string activeCultureName,
         ITelemetrySource telemetry,
         DiagnosticLogService diagnostics)
     {
@@ -224,12 +230,24 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _export = export;
         _import = import;
         _settings = settings;
+        _culturePreferences = culturePreferences;
         _reports = reports;
         _restAllocations = restAllocations;
         _pdfReports = pdfReports;
         _defaultDriverCardId = driverCardId;
         _drivingThreshold = savedSettings.DrivingSpeedThresholdKph;
         _weekOffset = savedSettings.WeekEpochOffsetDays;
+        UiCultureOptions.Add(new UiCultureOption(
+            UiCulture.Polish,
+            UiStrings.Get("Language_Polish")));
+        UiCultureOptions.Add(new UiCultureOption(
+            UiCulture.EnglishUnitedKingdom,
+            UiStrings.Get("Language_EnglishUnitedKingdom")));
+        _selectedUiCulture = UiCultureOptions.Single(option =>
+            string.Equals(
+                option.CultureName,
+                UiCulture.Normalize(activeCultureName),
+                StringComparison.Ordinal));
         _gameCalendar = new GameCalendarResolver(
             new GameCalendarContext(crew.Engine.WeekEpochOffsetDays));
         _telemetry = telemetry;
@@ -330,6 +348,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public ObservableCollection<CompensationDetailRow> CompensationDetails { get; } = [];
     public ObservableCollection<RestAllocationChoiceRow> PendingRestAllocationChoices { get; } = [];
     public ObservableCollection<CountryOption> CountryOptions { get; } = [];
+    public ObservableCollection<UiCultureOption> UiCultureOptions { get; } = [];
     public JourneyPlannerViewModel JourneyPlanner { get; }
     public ReportsWorkspaceViewModel ReportsWorkspace { get; }
     public bool HasPendingRestAllocations => PendingRestAllocationChoices.Count > 0;
@@ -411,6 +430,11 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public string NewCardNumber { get => _newCardNumber; set => Set(ref _newCardNumber, value); }
     public double DrivingThreshold { get => _drivingThreshold; set => Set(ref _drivingThreshold, value); }
     public int WeekOffset { get => _weekOffset; set => Set(ref _weekOffset, value); }
+    public UiCultureOption SelectedUiCulture
+    {
+        get => _selectedUiCulture;
+        set => Set(ref _selectedUiCulture, value);
+    }
     public string OperationStatus
     {
         get => _operationStatus;
@@ -2038,8 +2062,47 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
     private async Task SaveSettingsAsync()
     {
-        try { await _settings.SaveAsync(new SettingsDto(DrivingThreshold, WeekOffset)); OperationStatus = "Ustawienia zapisane. Zostaną zastosowane przy następnym uruchomieniu."; }
-        catch (Exception ex) { OperationStatus = ex.Message; }
+        if (DrivingThreshold is < 0 or > 20)
+        {
+            OperationStatus = UiStrings.Get("Validation_DrivingThresholdRange");
+            return;
+        }
+
+        if (WeekOffset is < -6 or > 6)
+        {
+            OperationStatus = UiStrings.Get("Validation_WeekOffsetRange");
+            return;
+        }
+
+        if (!UiCulture.TryNormalize(SelectedUiCulture?.CultureName, out var cultureName))
+        {
+            OperationStatus = UiStrings.Get("Validation_UnsupportedCulture");
+            return;
+        }
+
+        try
+        {
+            await _settings.SaveAsync(new SettingsDto(DrivingThreshold, WeekOffset));
+        }
+        catch (Exception exception)
+        {
+            _diagnostics.Error("SETTINGS_SAVE_FAILED", exception);
+            OperationStatus = UiStrings.Get("Operation_SettingsSaveFailed");
+            return;
+        }
+
+        try
+        {
+            _culturePreferences.Save(cultureName);
+        }
+        catch (Exception exception)
+        {
+            _diagnostics.Error("UI_CULTURE_PREFERENCE_SAVE_FAILED", exception);
+            OperationStatus = UiStrings.Get("Operation_CulturePreferenceSaveFailed");
+            return;
+        }
+
+        OperationStatus = UiStrings.Get("Operation_SettingsSavedRestart");
     }
 
     private async Task ExportAsync()

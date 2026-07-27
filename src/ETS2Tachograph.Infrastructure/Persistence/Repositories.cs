@@ -372,7 +372,7 @@ public sealed class ActivityRepository :
         if (stored is null)
             return null;
 
-        var sessions = await LoadMaterializedSessionsAsync(
+        var sessions = await LoadGapSessionsAsync(
             stored.DriverCardId,
             cancellationToken);
         var canonicalGaps = CanonicalizeGaps(sessions);
@@ -385,18 +385,22 @@ public sealed class ActivityRepository :
             ? effectiveSource
             : Map(stored, stored.ActivitySession.SessionIndex);
         var effectiveGapId = canonicalGap?.Id ?? gapId;
-        var existingResolutionRecords = sessions
-            .SelectMany(session => session.Records)
-            .Where(record => record.SourceGapId == effectiveGapId)
-            .OrderBy(record => record.Start)
+        var existingResolutionRecords = (await context.ActivityRecords.AsNoTracking()
+                .Where(record => record.SourceGapId == effectiveGapId)
+                .OrderBy(record => record.StartGameMinute)
+                .ToListAsync(cancellationToken))
+            .Select(record => Map(record, stored.DriverCardId))
             .ToList();
+        var canonicalRecords = await LoadDriverHistoryAsync(
+            stored.DriverCardId,
+            cancellationToken: cancellationToken);
         return new ManualEntryGapContext(
             canonicalGap ?? sourceGap,
             canonicalGap is not null,
             canonicalGap is not null &&
             canonicalGap.Start == sourceGap.Start &&
             canonicalGap.EndExclusive == sourceGap.EndExclusive,
-            Canonicalize(sessions),
+            canonicalRecords,
             existingResolutionRecords);
     }
 
@@ -629,7 +633,7 @@ public sealed class ActivityRepository :
         string driverCardId, GameTime? from = null, GameTime? toExclusive = null,
         CancellationToken cancellationToken = default)
     {
-        var sessions = await LoadMaterializedSessionsAsync(driverCardId, cancellationToken);
+        var sessions = await LoadGapSessionsAsync(driverCardId, cancellationToken);
         var canonical = CanonicalizeGaps(sessions);
         var fromMinute = from?.TotalMinutes ?? long.MinValue;
         var toMinute = toExclusive?.TotalMinutes ?? long.MaxValue;
@@ -670,7 +674,7 @@ public sealed class ActivityRepository :
 
         foreach (var cardId in cardIds)
         {
-            var sessions = await LoadMaterializedSessionsAsync(cardId, cancellationToken);
+            var sessions = await LoadGapSessionsAsync(cardId, cancellationToken);
             result.AddRange(CanonicalizeGaps(sessions).Where(gap =>
                 (gap.State == ActivityGapState.Unresolved ||
                  includeResolved && gap.State == ActivityGapState.Resolved) &&
@@ -901,6 +905,24 @@ public sealed class ActivityRepository :
                 .Select(x => Map(x, session.SessionIndex)).ToList())).ToList();
     }
 
+    private async Task<IReadOnlyList<MaterializedSession>> LoadGapSessionsAsync(
+        string driverCardId,
+        CancellationToken cancellationToken)
+    {
+        var sessions = await context.ActivitySessions.AsNoTracking()
+            .Include(session => session.Gaps)
+            .Where(session => session.DriverCardId == driverCardId)
+            .OrderBy(session => session.SessionIndex)
+            .ToListAsync(cancellationToken);
+        return sessions.Select(session => new MaterializedSession(
+            session.SessionIndex,
+            new GameTime(session.StartedAtGameMinute),
+            [],
+            session.Gaps.OrderBy(gap => gap.StartGameMinute)
+                .Select(gap => Map(gap, session.SessionIndex))
+                .ToList())).ToList();
+    }
+
     private static IReadOnlyList<StoredActivitySession> MapSessions(
         string driverCardId,
         IReadOnlyList<ActivitySessionEntity> sessions) => sessions.Select(session =>
@@ -928,12 +950,14 @@ public sealed class ActivityRepository :
             // TruncateAfter cleared it. Below the anchor it may only fill minutes nobody
             // covers: a manual entry resolves gaps, it does not amend recorded telemetry.
             foreach (var record in session.Records.OrderBy(x => x.Start))
-                canonical.AddRange(SubtractCoveredRanges(record, canonical).ToList());
+            {
+                foreach (var fragment in SubtractCoveredRanges(record, canonical))
+                    InsertByStart(canonical, fragment);
+            }
         }
 
-        var ordered = canonical.OrderBy(x => x.Start).ToList();
-        EnsureNoOverlap(ordered);
-        return ordered;
+        EnsureNoOverlap(canonical);
+        return canonical;
     }
 
     /// <summary>
@@ -948,11 +972,12 @@ public sealed class ActivityRepository :
     {
         var end = incoming.EndExclusive.TotalMinutes;
         var cursor = incoming.Start.TotalMinutes;
-        foreach (var cover in canonicalRecords
-                     .Where(x => x.EndExclusive.TotalMinutes > cursor &&
-                                 x.Start.TotalMinutes < end)
-                     .OrderBy(x => x.Start.TotalMinutes))
+        var index = FirstRecordEndingAfter(canonicalRecords, cursor);
+        while (index < canonicalRecords.Count)
         {
+            var cover = canonicalRecords[index++];
+            if (cover.Start.TotalMinutes >= end)
+                break;
             if (cover.Start.TotalMinutes > cursor)
                 yield return incoming with
                 {
@@ -970,6 +995,42 @@ public sealed class ActivityRepository :
                 Start = new GameTime(cursor),
                 EndExclusive = new GameTime(end)
             };
+    }
+
+    private static int FirstRecordEndingAfter(
+        IReadOnlyList<ActivityRecord> records,
+        long minute)
+    {
+        var low = 0;
+        var high = records.Count;
+        while (low < high)
+        {
+            var middle = low + ((high - low) / 2);
+            if (records[middle].EndExclusive.TotalMinutes <= minute)
+                low = middle + 1;
+            else
+                high = middle;
+        }
+
+        return low;
+    }
+
+    private static void InsertByStart(
+        List<ActivityRecord> records,
+        ActivityRecord record)
+    {
+        var low = 0;
+        var high = records.Count;
+        while (low < high)
+        {
+            var middle = low + ((high - low) / 2);
+            if (records[middle].Start < record.Start)
+                low = middle + 1;
+            else
+                high = middle;
+        }
+
+        records.Insert(low, record);
     }
 
     private static void EnsureNoOverlap(IReadOnlyList<ActivityRecord> ordered)

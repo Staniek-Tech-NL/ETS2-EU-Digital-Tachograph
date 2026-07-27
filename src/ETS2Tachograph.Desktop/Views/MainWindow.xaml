@@ -1,6 +1,7 @@
 <Window x:Class="ETS2Tachograph.Desktop.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:localization="clr-namespace:ETS2Tachograph.Desktop.Localization"
         Title="ETS2 Digital Tachograph" Height="800" Width="1280"
         MinHeight="680" MinWidth="1080" Background="#F3F5F8" Foreground="#161A20"
         FontFamily="Segoe UI" WindowStartupLocation="CenterScreen">
@@ -796,7 +797,75 @@
 
             <TabItem Header="♙  Kierowcy"><Grid Margin="24"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition/><RowDefinition Height="Auto"/></Grid.RowDefinitions><TextBlock Text="PROFILE KIEROWCÓW" FontSize="23" FontWeight="Bold"/><DataGrid Grid.Row="1" ItemsSource="{Binding Profiles}" SelectedItem="{Binding SelectedProfile}" AutoGenerateColumns="False" IsReadOnly="True" Margin="0,18"><DataGrid.Columns><DataGridTextColumn Header="KIEROWCA" Binding="{Binding DisplayName}" Width="*"/><DataGridCheckBoxColumn Header="AKTYWNY" Binding="{Binding IsActive}"/><DataGridTextColumn Header="UTWORZONO" Binding="{Binding CreatedAtUtc}"/></DataGrid.Columns></DataGrid><Border Grid.Row="2" Style="{StaticResource MetricCard}"><StackPanel><TextBlock Text="NOWY PROFIL" Foreground="{StaticResource Muted}"/><WrapPanel><TextBox Width="240" Text="{Binding NewDriverName, UpdateSourceTrigger=PropertyChanged}" ToolTip="Nazwa kierowcy"/><TextBox Width="190" Text="{Binding NewCardNumber, UpdateSourceTrigger=PropertyChanged}" ToolTip="Numer karty"/><Button Content="DODAJ" Command="{Binding CreateProfileCommand}" Background="#27695E"/><Button Content="USTAW AKTYWNY" Command="{Binding ActivateProfileCommand}"/></WrapPanel><TextBlock Text="{Binding OperationStatus}" Foreground="#F3C969"/></StackPanel></Border></Grid></TabItem>
 
-            <TabItem Header="⚙  Ustawienia"><StackPanel Margin="28" MaxWidth="650" HorizontalAlignment="Left"><TextBlock Text="USTAWIENIA TACHOGRAFU" FontSize="23" FontWeight="Bold"/><TextBlock Text="Parametry zostaną zastosowane przy następnym uruchomieniu." Foreground="{StaticResource Muted}" Margin="0,7,0,20"/><Border Style="{StaticResource MetricCard}" Width="600"><Grid><Grid.ColumnDefinitions><ColumnDefinition/><ColumnDefinition Width="180"/></Grid.ColumnDefinitions><Grid.RowDefinitions><RowDefinition/><RowDefinition/></Grid.RowDefinitions><StackPanel><TextBlock Text="Próg wykrywania jazdy" FontWeight="SemiBold"/><TextBlock Text="Prędkość, od której tachograf wybiera jazdę automatycznie." Foreground="{StaticResource Muted}" TextWrapping="Wrap"/></StackPanel><TextBox Grid.Column="1" Text="{Binding DrivingThreshold}"/><StackPanel Grid.Row="1" Margin="0,18,0,0"><TextBlock Text="Przesunięcie tygodnia" FontWeight="SemiBold"/><TextBlock Text="Korekta początku tygodnia regulacyjnego w dniach." Foreground="{StaticResource Muted}"/></StackPanel><TextBox Grid.Row="1" Grid.Column="1" Margin="4,22,4,4" Text="{Binding WeekOffset}"/></Grid></Border><Button Content="ZAPISZ USTAWIENIA" Command="{Binding SaveSettingsCommand}" Background="#27695E" HorizontalAlignment="Left" Padding="22,12"/><TextBlock Text="{Binding OperationStatus}" Foreground="#F3C969" TextWrapping="Wrap"/></StackPanel></TabItem>
+            <TabItem>
+                <TabItem.Header>
+                    <TextBlock>
+                        <Run Text="⚙  "/>
+                        <Run Text="{localization:Localize Key=Navigation_Settings}"/>
+                    </TextBlock>
+                </TabItem.Header>
+                <StackPanel Margin="28" MaxWidth="650" HorizontalAlignment="Left">
+                    <TextBlock Text="{localization:Localize Key=Settings_Title}"
+                               FontSize="23"
+                               FontWeight="Bold"/>
+                    <TextBlock Text="{localization:Localize Key=Settings_RestartNotice}"
+                               Foreground="{StaticResource Muted}"
+                               Margin="0,7,0,20"/>
+                    <Border Style="{StaticResource MetricCard}" Width="600">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition Width="180"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <StackPanel>
+                                <TextBlock Text="{localization:Localize Key=Settings_DrivingThresholdLabel}"
+                                           FontWeight="SemiBold"/>
+                                <TextBlock Text="{localization:Localize Key=Settings_DrivingThresholdDescription}"
+                                           Foreground="{StaticResource Muted}"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <TextBox Grid.Column="1" Text="{Binding DrivingThreshold}"/>
+                            <StackPanel Grid.Row="1" Margin="0,18,0,0">
+                                <TextBlock Text="{localization:Localize Key=Settings_WeekOffsetLabel}"
+                                           FontWeight="SemiBold"/>
+                                <TextBlock Text="{localization:Localize Key=Settings_WeekOffsetDescription}"
+                                           Foreground="{StaticResource Muted}"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <TextBox Grid.Row="1"
+                                     Grid.Column="1"
+                                     Margin="4,22,4,4"
+                                     Text="{Binding WeekOffset}"/>
+                            <StackPanel Grid.Row="2" Margin="0,18,0,0">
+                                <TextBlock Text="{localization:Localize Key=Settings_LanguageLabel}"
+                                           FontWeight="SemiBold"/>
+                                <TextBlock Text="{localization:Localize Key=Settings_LanguageDescription}"
+                                           Foreground="{StaticResource Muted}"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <ComboBox Grid.Row="2"
+                                      Grid.Column="1"
+                                      Margin="4,22,4,4"
+                                      ItemsSource="{Binding UiCultureOptions}"
+                                      SelectedItem="{Binding SelectedUiCulture}"
+                                      DisplayMemberPath="DisplayName"/>
+                        </Grid>
+                    </Border>
+                    <Button Content="{localization:Localize Key=Settings_SaveAction}"
+                            Command="{Binding SaveSettingsCommand}"
+                            Background="#27695E"
+                            HorizontalAlignment="Left"
+                            Padding="22,12"/>
+                    <TextBlock Text="{Binding OperationStatus}"
+                               Foreground="#F3C969"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </TabItem>
         </TabControl>
 
         <Grid Grid.RowSpan="2" Background="#B0000000" Visibility="{Binding IsCardDialogVisible, Converter={StaticResource BoolToVisibility}}">

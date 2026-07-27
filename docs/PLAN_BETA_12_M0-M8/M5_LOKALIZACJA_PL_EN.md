@@ -4,7 +4,7 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status bieżący:** **W TOKU — M5.1 / PACZKA 1 GO**
+**Status bieżący:** **W TOKU — M5.2 FUNDAMENT DO WERYFIKACJI**
 
 **Data rozpoczęcia:** 27 lipca 2026
 
@@ -29,25 +29,65 @@
 ### Etap M5.1 — inwentaryzacja
 
 - [x] Utworzyć `docs/LOCALIZATION_STRING_INVENTORY.md`.
-- [ ] Sklasyfikować każdy tekst jako użytkowy, techniczny, diagnostyczny, domenowy lub własny.
-- [ ] Zidentyfikować statusy i enumy wymagające presenterów.
-- [ ] Zidentyfikować ekrany narażone na przepełnienie.
-- [ ] Zatwierdzić słownik domenowy PL/EN.
+- [x] Sklasyfikować każdy tekst jako użytkowy, techniczny, diagnostyczny, domenowy lub własny.
+- [x] Zidentyfikować statusy i enumy wymagające presenterów.
+- [x] Zidentyfikować ekrany narażone na przepełnienie.
+- [x] Zatwierdzić słownik domenowy PL/EN.
 
 **Postęp paczek:**
 
-- [x] Paczka 1 — elementy wspólne, powłoka i nawigacja: **GO**,
-  33 wiążące klucze, 0 pozycji otwartych.
-- [ ] Paczka 2 — Dashboard.
+- [x] Paczki 1–13: **GO**, 952 unikalne nazwy, 31 dozwolonych par
+  powtórzonych wartości i 0 pozycji otwartych.
+- [x] Rejestr presenterów: 21 rozstrzygniętych, 9 świadomie wykluczonych,
+  0 pozostałych.
 
 ### Etap M5.2 — fundament
 
-- [ ] Dodać zasoby `.resx` dla Desktopu i raportów.
-- [ ] Dodać trwałe ustawienie kultury.
-- [ ] Dodać wybór języka w Ustawieniach.
-- [ ] Dodać komunikat o zastosowaniu po restarcie.
-- [ ] Dodać bezpieczny fallback.
-- [ ] Ustawić kulturę przed utworzeniem okien WPF.
+- [x] Dodać zasoby `.resx` dla Desktopu i raportów.
+- [x] Dodać trwałe ustawienie kultury.
+- [x] Dodać wybór języka w Ustawieniach.
+- [x] Dodać komunikat o zastosowaniu po restarcie.
+- [x] Dodać bezpieczny fallback.
+- [x] Ustawić kulturę przed utworzeniem okien WPF.
+
+**Stan wykonawczy:** implementacja kompletna, **DO WERYFIKACJI** przed GO.
+
+- `UiStrings`: 626 wpisów w `pl-PL` i `en-GB`;
+- `ReportStrings`: 99 wpisów w `pl-PL` i `en-GB`, w tym 22 klucze mostu;
+- nazwy krajów: dwa magazyny po 249 wpisów przy niezmienionym katalogu ISO;
+- preferencja `%LocalAppData%\ETS2Tachograph\ui-culture.json`, schemat 1,
+  zapis przez plik tymczasowy i atomową zamianę;
+- brak pliku zachowuje `pl-PL`; wartość uszkodzona albo nieobsługiwana
+  uruchamia fallback `en-GB` i zapis diagnostyczny;
+- kultura bieżąca, domyślna kultura wątków i język bindingów WPF są ustawiane
+  przed utworzeniem `MainViewModel`, `MainWindow` i `PdfReportExporter`;
+- jedyna nowa kontrolka względem UI freeze to wybór języka w Ustawieniach;
+- build rozwiązania: 0 błędów, 0 ostrzeżeń;
+- pełna regresja automatyczna: 557/557 testów zielonych.
+
+**Pozostała weryfikacja manualna M5.2:**
+
+- pierwsze uruchomienie bez pliku preferencji pozostawia fundament i sekcję
+  Ustawień po polsku;
+- zapis `en-GB`, restart i ponowne uruchomienie odtwarzają wybór w fundamencie
+  oraz sekcji Ustawień;
+- uszkodzony lub nieobsługiwany wpis uruchamia bezpieczny fallback EN
+  w fundamencie i sekcji Ustawień;
+- kontrolka języka, komunikat restartu i liczby w Ustawieniach są czytelne
+  w obu kulturach.
+
+M5.2 nie lokalizuje jeszcze pozostałych ekranów. Mieszany interfejs po wyborze
+`en-GB` — angielskie Ustawienia przy polskich widokach domenowych — jest
+oczekiwanym stanem przejściowym i znika dopiero w M5.3. Nie jest dowodem
+nieodtworzenia preferencji po restarcie.
+
+**Checkpoint wydajnościowy M5.2-P:** znalezisko zostało wydzielone do
+[osobnej bramki](M5_2_CHECKPOINT_WYDAJNOSCI_STARTU.md). Na świeżej kopii
+tej samej bazy praca repozytorium objęta startem spadła z około 49 sekund
+do 5,36 sekundy. Zasoby lokalizacji nie były źródłem opóźnienia. Checkpoint
+ma GO warunkowe: archiwizacja nadal rośnie liniowo z całą zachowaną historią,
+dlatego osobisty pomiar tworzy bazę odniesienia, a kontrola jest powtarzana
+przed M6.
 
 ### Etap M5.3 — Desktop i Planer
 

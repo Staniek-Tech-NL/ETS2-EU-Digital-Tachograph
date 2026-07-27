@@ -4,6 +4,7 @@ using System.IO;
 using System.Windows;
 using ETS2Tachograph.Application.Dtos;
 using ETS2Tachograph.Application.Services;
+using ETS2Tachograph.Desktop.Localization;
 using ETS2Tachograph.Engine;
 using ETS2Tachograph.Core.Settings;
 using ETS2Tachograph.RuleEngine;
@@ -32,6 +33,17 @@ public partial class App : System.Windows.Application
     protected override async void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+        _diagnostics = new DiagnosticLogService();
+        var culturePreferences = JsonUiCulturePreferenceStore.CreateDefault();
+        var culturePreference = culturePreferences.Load();
+        UiCulture.Apply(culturePreference.CultureName);
+        if (culturePreference.UsedFallback)
+        {
+            _diagnostics.Warning(
+                "UI_CULTURE_FALLBACK",
+                culturePreference.DiagnosticReason ?? "Unknown UI culture preference error.");
+        }
+
         _singleInstanceMutex = new Mutex(
             initiallyOwned: true,
             SingleInstanceMutexName,
@@ -39,15 +51,14 @@ public partial class App : System.Windows.Application
         if (!_ownsSingleInstanceMutex)
         {
             MessageBox.Show(
-                "ETS2 Digital Tachograph jest już uruchomiony.",
-                "Aplikacja już działa",
+                UiStrings.Get("Dialog_AlreadyRunning_Message"),
+                UiStrings.Get("Dialog_AlreadyRunning_Title"),
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
             Shutdown(2);
             return;
         }
 
-        _diagnostics = new DiagnosticLogService();
         _diagnostics.Info("APP_START", "Uruchamianie aplikacji.");
         DispatcherUnhandledException += (_, args) =>
             _diagnostics.Error("UNHANDLED_UI_EXCEPTION", args.Exception);
@@ -143,7 +154,8 @@ public partial class App : System.Windows.Application
                     {
                         WeekEpochOffsetDays = savedSettings.WeekEpochOffsetDays
                     }),
-                new PdfReportExporter(), settingsService, savedSettings, _source, _diagnostics);
+                new PdfReportExporter(), settingsService, savedSettings, culturePreferences,
+                culturePreference.CultureName, _source, _diagnostics);
             var window = new MainWindow(_viewModel);
             MainWindow = window;
             window.Show();
@@ -152,7 +164,15 @@ public partial class App : System.Windows.Application
         catch (Exception exception)
         {
             _diagnostics?.Error("APP_START_FAILED", exception);
-            MessageBox.Show(exception.Message, "Nie można uruchomić tachografu", MessageBoxButton.OK, MessageBoxImage.Error);
+            var logPath = _diagnostics?.CurrentLogPath;
+            var message = string.IsNullOrWhiteSpace(logPath)
+                ? UiStrings.Get("Dialog_StartupFailure_MessageWithoutLogPath")
+                : UiStrings.Format("Dialog_StartupFailure_Message", logPath);
+            MessageBox.Show(
+                message,
+                UiStrings.Get("Dialog_StartupFailure_Title"),
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
             Shutdown(1);
         }
     }

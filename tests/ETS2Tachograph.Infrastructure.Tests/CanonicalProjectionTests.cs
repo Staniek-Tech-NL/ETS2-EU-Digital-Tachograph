@@ -5,6 +5,7 @@ using ETS2Tachograph.Core.Time;
 using ETS2Tachograph.Infrastructure.Persistence;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Stopwatch = System.Diagnostics.Stopwatch;
 
 namespace ETS2Tachograph.Infrastructure.Tests;
 
@@ -266,6 +267,46 @@ public sealed class CanonicalProjectionTests
             // Intra-session overlap is resolved by the same coverage rule, so the guard
             // never fires here. It stays as the last line of defence for other producers.
             Assert.Equal([(100, 150), (150, 170)], Spans(canonical));
+        }
+    }
+
+    [Fact]
+    public async Task Large_minute_history_projects_within_startup_budget()
+    {
+        const int recordCount = 12_000;
+        var (connection, context) = await CreateDatabaseAsync();
+        await using (connection)
+        await using (context)
+        {
+            var repository = new ActivityRepository(context);
+            await repository.EnsureSessionAsync(Card, 0, new GameTime(0));
+            var sessionId = await context.ActivitySessions
+                .Where(session => session.DriverCardId == Card)
+                .Select(session => session.Id)
+                .SingleAsync();
+            context.ActivityRecords.AddRange(Enumerable.Range(0, recordCount)
+                .Select(minute => new ActivityRecordEntity
+                {
+                    Id = Guid.NewGuid(),
+                    ActivitySessionId = sessionId,
+                    Activity = DriverActivity.Driving,
+                    StartGameMinute = minute,
+                    EndGameMinuteExclusive = minute + 1,
+                    RecordedAtUtc = Epoch.AddMinutes(minute),
+                    Source = ActivitySource.Telemetry
+                }));
+            await context.SaveChangesAsync();
+            context.ChangeTracker.Clear();
+
+            var stopwatch = Stopwatch.StartNew();
+            var projected = await repository.LoadRawDriverHistoryAsync(Card);
+            stopwatch.Stop();
+
+            Assert.Equal(recordCount, projected.Count);
+            Assert.Equal(recordCount, projected.Sum(record => record.DurationMinutes));
+            Assert.True(
+                stopwatch.Elapsed < TimeSpan.FromSeconds(1),
+                $"Projection took {stopwatch.Elapsed.TotalSeconds:N3}s.");
         }
     }
 
