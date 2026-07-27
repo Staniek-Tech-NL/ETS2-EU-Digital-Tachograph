@@ -5,13 +5,16 @@
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
 **Status początkowy:** **NIE ROZPOCZĘTY**  
-**Kryterium wejścia:** Planer M3 jest zintegrowany i przechodzi testy funkcjonalne oraz wizualne.  
+**Kryterium wejścia:** Formalne **GO M4-0** po zatwierdzeniu kompletnej
+inwentaryzacji UI i osobistej weryfikacji rozpakowanego rc4.
 **Kryterium wyjścia:** Wszystkie funkcje UI zakończone i formalny **UI freeze**.  
 **Następny etap:** M5
 
 > Ten dokument jest samodzielnym wydzieleniem etapu M4 z planu wydania beta.12. Nie zmienia zakresu ani gate’ów planu nadrzędnego.
 
-**Cel:** zamknąć funkcjonalnie cały interfejs przed lokalizacją.
+**Cel:** zamknąć funkcjonalnie cały interfejs przed lokalizacją. Źródłem zakresu
+jest `M4_0_INWENTARYZACJA_UI.md`; M4 nie tworzy ani nie rozszerza własnej
+inwentaryzacji.
 
 ### Zadania
 
@@ -94,4 +97,8 @@ Każda zmiana XAML po freeze nadal wymaga pełnej checklisty regresji.
 ---
 
 **Źródło nadrzędne:** `PLAN_WYDANIA_BETA_12_I_PUBLIKACJI.md`  
-**Dokumenty powiązane:** `PROJECT_HANDOFF.md`, `README.md`, `RELEASE_NOTES.md`, `KNOWN_ISSUES.md`, `BETA_TEST_PLAN.md`, `JOURNEY_PLANNER_MVP_PLAN.md`, `MINI_PROJEKT_LOKALIZACJA_PL_EN.md`, `RAPORT_PRAC_UI_2026-07-23.md`, `WEEKLY_REST_COMPENSATION_DOMAIN_SPEC.md`, `WEEKLY_REST_COMPENSATION_TEST_MATRIX.md`.
+**Dokumenty powiązane:** `M4_0_INWENTARYZACJA_UI.md`, `PROJECT_HANDOFF.md`,
+`README.md`, `RELEASE_NOTES.md`, `KNOWN_ISSUES.md`, `BETA_TEST_PLAN.md`,
+`JOURNEY_PLANNER_MVP_PLAN.md`, `MINI_PROJEKT_LOKALIZACJA_PL_EN.md`,
+`RAPORT_PRAC_UI_2026-07-23.md`, `WEEKLY_REST_COMPENSATION_DOMAIN_SPEC.md`,
+`WEEKLY_REST_COMPENSATION_TEST_MATRIX.md`.

@@ -21,8 +21,9 @@
 | **M3** | Planer: Application Service i UI | 🟢 M3-R3 automatycznie i ręcznie zielone | GO | M3.5 |
 | **M3.5** | Raporty i statystyki: wariant B | 🟢 UI, automatyka i ręczny gate zielone | GO | M3.6 |
 | **M3.6** | Wewnętrzny smoke checkpoint | 🟢 smoke rc3 zielony | GO | M3.7 |
-| **M3.7** | Planer: ergonomia wprowadzania danych | 🟢 automatyka i ręczny gate zielone | GO | M4 |
-| M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
+| **M3.7** | Planer: ergonomia wprowadzania danych | 🟢 automatyka i ręczny gate zielone | GO | M4-0 |
+| **M4-0** | Inwentaryzacja UI + weryfikacja rc4 | 🟢 62/62 pozycji beta.12 PASS | GO | M4 |
+| M4 | Finalizacja UI + **UI freeze** | ⚪ odblokowany; nie rozpoczęty | ODBLOKOWANE | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
 | M7 | Końcowy smoke beta.12 | ⚪ nie rozpoczęty | — | M8 |
@@ -398,7 +399,8 @@ w `docs/PLAN_BETA_12_M0-M8/M3_7_PLANER_ERGONOMIA_WEJSCIA.md`.
 **Stan wdrożenia 2026-07-26:** właściciel polecił wprowadzić plan mimo
 niezamkniętego formalnie wejścia. Zakres kroków 1–4 został zaimplementowany;
 pełny ręczny gate został następnie potwierdzony przez właściciela jako zielony.
-M3.7 ma wynik **GO**. M4 jest odblokowane.
+M3.7 ma wynik **GO** i odblokował M4-0. M4-0 został następnie zamknięty
+wynikiem GO; właściwe M4 jest odblokowane.
 
 - **Artefakt bieżący:** `ETS2Tachograph-0.1.0-beta.12-rc4-win-x64.zip`
 - **Commit źródłowy:** `a1b8a486b52ee244984016efe268562690d4fbc4`
@@ -436,6 +438,22 @@ M3.7 ma wynik **GO**. M4 jest odblokowane.
 
 ---
 
+## M4-0 — Inwentaryzacja UI (ZAMKNIĘTY — GO)
+
+Etap przygotowawczy dodany decyzją właściciela 2026-07-27, ponieważ M0
+deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
+
+- **Dokument:** `docs/PLAN_BETA_12_M0-M8/M4_0_INWENTARYZACJA_UI.md`
+- **Metoda:** kompletność z XAML i view-modeli; stan faktyczny wyłącznie z
+  osobistej weryfikacji właściciela na rozpakowanym rc4.
+- **Wynik rc4:** 62/62 pozycji `beta.12` — PASS; 4 pozycje poza zakresem — N/D.
+- **Otwarte P0/P1:** 0/0; pozycji przypisanych do naprawy w M4: 0.
+- **Gate:** wykaz zatwierdzony, wszystkie obserwacje przypisane, formalne
+  **GO M4-0**.
+- **Wpływ:** właściwe M4 jest odblokowane, ale jeszcze nierozpoczęte.
+
+---
+
 ## M4–M8 — do rozpoczęcia
 
 Każdy etap otwieramy dopiero po **GO** poprzedniego. Szczegółowe zadania i gate'y
@@ -443,7 +461,8 @@ w `docs/PLAN_BETA_12_M0-M8/`. Poniżej rejestr decyzji wypełniany przy zamykani
 kolejnych etapów (szablon: data start/koniec, wynik, commit, build, testy auto,
 dowody manualne, P0, P1, uwagi).
 
-- **M4** — walidacja gotowej inwentaryzacji UI + formalny **UI freeze**. — *nie rozpoczęty*
+- **M4-0** — inwentaryzacja UI + osobista weryfikacja rc4. — *GO*
+- **M4** — realizacja zatwierdzonej inwentaryzacji + formalny **UI freeze**. — *odblokowany; nie rozpoczęty*
 - **M5** — pełne `pl-PL` i `en-GB`, zielone regresje obu języków. — *nie rozpoczęty*
 - **M6** — niezmienny RC beta.12: numer + commit + SHA-256, ZIP zamrożony. — *nie rozpoczęty*
 - **M7** — smoke na rozpakowanym ZIP-ie (istniejąca + czysta baza) → GO/FIX/HOLD. — *nie rozpoczęty*

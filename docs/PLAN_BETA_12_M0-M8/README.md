@@ -16,6 +16,7 @@ M0 stabilizacja
 → M3.5 Raporty i statystyki: wariant B
 → M3.6 wewnętrzny smoke checkpoint (rc3 — GO)
 → M3.7 Planer: ergonomia wprowadzania danych
+→ M4-0 inwentaryzacja UI i osobista weryfikacja rc4
 → M4 finalizacja UI i UI freeze
 → M5 lokalizacja PL/EN
 → M6 Release Candidate beta.12
@@ -25,17 +26,18 @@ M0 stabilizacja
 
 ## Pliki
 
-| Etap | Status początkowy | Plik |
+| Etap | Status bieżący | Plik |
 |---|---|---|
-| M0 | DO WYKONANIA | [M0 — Stabilizacja stanu wejściowego](M0_STABILIZACJA_STANU_WEJSCIOWEGO.md) |
-| M1 | NIE ROZPOCZĘTY | [M1 — Planer: kontrakty i czerwone testy](M1_PLANER_KONTRAKTY_I_CZERWONE_TESTY.md) |
-| M2 | NIE ROZPOCZĘTY | [M2 — Planer: silnik zdarzeniowy](M2_PLANER_SILNIK_ZDARZENIOWY.md) |
+| M0 | GO — STABILIZACJA ZAMKNIĘTA | [M0 — Stabilizacja stanu wejściowego](M0_STABILIZACJA_STANU_WEJSCIOWEGO.md) |
+| M1 | GO — KONTRAKTY I TESTY ZAMKNIĘTE | [M1 — Planer: kontrakty i czerwone testy](M1_PLANER_KONTRAKTY_I_CZERWONE_TESTY.md) |
+| M2 | GO — PLANOWANIE ZAŁOGI DOMKNIĘTE | [M2 — Planer: silnik zdarzeniowy](M2_PLANER_SILNIK_ZDARZENIOWY.md) |
 | M3A | GO — RĘCZNY GATE UI ZIELONY | [M3A — Game Calendar & Deadline Presentation](M3A_GAME_CALENDAR_AND_DEADLINE_PRESENTATION.md) |
 | M3 | GO — M3-R3 AUTOMATYCZNIE I RĘCZNIE ZIELONE | [M3 — Planer: Application Service i UI](M3_PLANER_APPLICATION_SERVICE_I_UI.md) |
 | M3.5 | GO — UI I REGRESJA ZIELONE | [M3.5 — Raporty i statystyki: wariant B](M3_5_RAPORTY_WARIANT_B.md) |
 | M3.6 | GO — SMOKE RC3 ZIELONY | [M3.6 — Wewnętrzny smoke checkpoint](M3_6_WEWNETRZNY_SMOKE_CHECKPOINT.md) |
 | M3.7 | GO — AUTOMATYKA I RĘCZNY GATE ZIELONE | [M3.7 — Planer: ergonomia wprowadzania danych](M3_7_PLANER_ERGONOMIA_WEJSCIA.md) |
-| M4 | NIE ROZPOCZĘTY | [M4 — Finalizacja całego interfejsu i UI freeze](M4_FINALIZACJA_UI_I_UI_FREEZE.md) |
+| M4-0 | GO — 62/62 POZYCJI BETA.12 PASS | [M4-0 — Inwentaryzacja UI](M4_0_INWENTARYZACJA_UI.md) |
+| M4 | ODBLOKOWANY — NIE ROZPOCZĘTY | [M4 — Finalizacja całego interfejsu i UI freeze](M4_FINALIZACJA_UI_I_UI_FREEZE.md) |
 | M5 | NIE ROZPOCZĘTY | [M5 — Lokalizacja PL/EN](M5_LOKALIZACJA_PL_EN.md) |
 | M6 | NIE ROZPOCZĘTY | [M6 — Release Candidate `0.1.0-beta.12`](M6_RELEASE_CANDIDATE_BETA_12.md) |
 | M7 | NIE ROZPOCZĘTY | [M7 — Końcowy smoke test beta.12](M7_SMOKE_TEST_BETA_12.md) |
