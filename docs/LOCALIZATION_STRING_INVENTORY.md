@@ -4,7 +4,7 @@
 
 **Data rozpoczęcia:** 2026-07-27
 
-**Status:** **W TOKU — PACZKI 1–11 GO**
+**Status:** **W TOKU — PACZKI 1–12 GO**
 
 **Języki:** `pl-PL`, `en-GB`
 
@@ -60,7 +60,7 @@ presentera; nie obejmuje kluczy tworzonych wyłącznie dla hipotetycznej funkcji
 | UI-07 | Kierowcy i Ustawienia | `MainWindow.xaml`, `MainViewModel.cs`, `SettingsService.cs` | U/O/T | zasoby; nazwy i numery kart bez tłumaczenia | GO w paczce 9 |
 | UI-08 | Planer | `MainWindow.xaml`, `JourneyPlannerViewModel.cs` | U/P/T | zasoby + presentery faz, powodów, statusów i ostrzeżeń | GO w paczce 10 |
 | UI-09 | Dialogi, potwierdzenia i komunikaty błędów | `App.xaml.cs`, `MainViewModel.cs`, view-modele | U/D/T | tekst UI w zasobach; logi i kody bez zmian | GO w paczce 11 |
-| UI-10 | Nakładki S1/S2 | `OverlayWindow.xaml`, `OverlayViewModel.cs` | U/P/T | zasoby; `S1`, `S2`, `HH:MM` bez zmian | do rozpisania |
+| UI-10 | Nakładki S1/S2 | `OverlayWindow.xaml`, `OverlayViewModel.cs` | U/P/T | zasoby; `S1`, `S2`, `HH:MM` bez zmian | GO w paczce 12 |
 | X-01 | Wspólne formatery czasu i terminów | `GameCalendarFormatter.cs`, `GameClockFormatter.cs`, `WeeklyRestWindowFormatter.cs` i konsumenci bindingów | U/P/T | wspólne nazwy dni i prefiksy terminów; bez duplikowania per ekran | GO w paczce 5 |
 | PDF-01 | Raport PDF | `PdfReportExporter.cs`, `ReportPresentationBuilder.cs` | U/P/T/O | `ReportStrings`; dane i identyfikatory bez zmian | do rozpisania |
 | DOC-01 | Instrukcja instalacji PL/EN | dokumentacja użytkowa | U | dwa jawne dokumenty językowe | późniejszy etap M5.4 |
@@ -3429,6 +3429,206 @@ Testy funkcjonalne obejmują:
 
 **GO — paczka 11 zatwierdzona.** Zamknięta bez pozycji otwartych. `UI-09` jest
 zamknięte, a łączny, wiążący katalog paczek 1–11 zawiera 859 unikalnych nazw
+i 22 jawnie dozwolone pary powtórzonych wartości.
+
+## Paczka 12 — UI-10: nakładki S1/S2
+
+**Zakres:** dwie kompaktowe nakładki uruchamiane skrótami `Alt+1` i `Alt+2`,
+ich statyczne etykiety, tytuł okna oraz teksty rzutowane z Dashboardu,
+liczników odpoczynku, rekompensat i stanu telemetrii.
+
+**Stan:** **ZAMKNIĘTA — GO**
+
+**Data zatwierdzenia:** 2026-07-27
+
+**Pozycje otwarte:** 0
+
+**Katalog:** 16 nowych kluczy. Łączny katalog paczek 1–12 zawiera 875
+unikalnych nazw.
+
+Paczka nie dodaje nowej dozwolonej pary powtórzonych wartości. Globalna
+lista pozostaje na poziomie 22 pozycji.
+
+### Granica paczki
+
+Paczka obejmuje:
+
+- 14 statycznych literałów w `OverlayWindow.xaml`;
+- tytuł bezramkowego okna z numerem slotu;
+- sześć pełnych kombinacji trybu tachografu i rodzaju obsady;
+- wszystkie tekstowe bindingi obu nakładek oraz ich właścicieli;
+- ryzyka szerokości w stałym oknie `455 × 294`.
+
+Nie obejmuje:
+
+- skrótów klawiaturowych, numerów slotów, liczników i kolorów;
+- współrzędnych okien ani pliku `overlay-position-s{slot}.json`;
+- logiki pokazywania, ukrywania, przeciągania i zapisu pozycji;
+- zmian w silniku, modelu rekompensat albo źródle telemetrii;
+- raportu PDF — `PDF-01`.
+
+Obie nakładki używają jednego katalogu. `S1`, `S2` i numer w `ALT+1` / `ALT+2`
+są parametrami technicznymi, a nie osobnymi wariantami tłumaczenia.
+
+### Statyczne etykiety nakładki
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Overlay_DragTooltip` | Przeciągnij, aby zmienić położenie | Drag to reposition | U |
+| `Overlay_ProductName` | ETS2 TACHOGRAF | ETS2 TACHOGRAPH | U/O |
+| `Overlay_DragLabel` | PRZECIĄGNIJ | DRAG | U |
+| `Overlay_ContinuousDrivingHeader` | JAZDA CIĄGŁA | CONTINUOUS DRIVING | U |
+| `Overlay_TimeToBreakHeader` | DO PRZERWY | TO BREAK | U |
+| `Overlay_DailyDrivingLimitHeader` | DZIENNA / LIMIT | DAILY / LIMIT | U |
+| `Overlay_RestTargetHeader` | CEL PAUZY | BREAK TARGET | U |
+| `Overlay_RestElapsedHeader` | PAUZA TRWA | BREAK ELAPSED | U |
+| `Overlay_DailyDutyHeader` | PRACA DOBOWA | DAILY DUTY | U |
+
+`Overlay_ProductName` zachowuje zatwierdzoną krótką markę nakładki i dlatego
+nie używa `Shell_ProductName` (`ETS2 Digital Tachograph`). Zastąpienie jej
+dłuższą nazwą zmieniłoby zamrożony tekst i pogorszyło ryzyko szerokości.
+
+Obecne `PRZECIĄGNIJ  ·  ` niesie odstępy i separator wewnątrz literału.
+`Overlay_DragLabel` nie zawiera końcowych spacji ani kropki środkowej. M5.2
+pozostawia `·` jako strukturę XAML w osobnym `Run`/`TextBlock` i zapewnia odstęp
+przez układ. Jest to ta sama reguła, którą paczki 4 i 5 przyjęły dla separatorów,
+dwukropków i końcowych odstępów.
+
+### Tytuł okna i tryby
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Overlay_WindowTitleFormat` | Nakładka ETS2 Tachograph {0} | ETS2 Tachograph Overlay {0} | U/T |
+| `OverlayModes_NormalSingle` | Tryb zwykły · pojedyncza obsada (24 h) | Normal mode · single driver (24 h) | U/P/T |
+| `OverlayModes_NormalMulti` | Tryb zwykły · podwójna obsada (30 h) | Normal mode · multi-manning (30 h) | U/P/T |
+| `OverlayModes_OutSingle` | OUT · pojedyncza obsada (24 h) | OUT · single driver (24 h) | U/P/T |
+| `OverlayModes_OutMulti` | OUT · podwójna obsada (30 h) | OUT · multi-manning (30 h) | U/P/T |
+| `OverlayModes_FerrySingle` | Prom · pojedyncza obsada (24 h) | Ferry · single driver (24 h) | U/P/T |
+| `OverlayModes_FerryMulti` | Prom · podwójna obsada (30 h) | Ferry · multi-manning (30 h) | U/P/T |
+
+`Overlay_WindowTitleFormat` zachowuje angielski tytuł dokładnie jak obecnie,
+a w PL usuwa nieprzetłumaczone słowo `Overlay`. Placeholder `{0}` otrzymuje
+techniczne `S1` albo `S2`. Tytuł nie jest widoczny w bezramkowym oknie ani na
+pasku zadań, ale pozostaje tekstem użytkowym dla automatyzacji i dostępności.
+
+Tryb i obsada nie są składane z fragmentów zasobów. Sześć pełnych kombinacji
+odpowiada iloczynowi trzech stanów (`Tryb zwykły`, techniczne `OUT`, `Prom`)
+i dwóch rodzajów obsady. Zachowują bieżące polskie wartości i regulatoryjne
+`24 h` / `30 h`. Angielski używa terminów słownika: `single driver` oraz
+`multi-manning`.
+
+### Istniejące klucze ponownie używane przez UI-10
+
+| Powierzchnia | Klucze / decyzja |
+|---|---|
+| nagłówki rekompensat | `CompensationSummary_OpenHeader`, `CompensationSummary_DebtHeader`, `CompensationSummary_CompleteBeforeHeader`, `Common_StatusHeader` |
+| nagłówek pozostałego czasu | `Dashboard_RemainingLabel` |
+| aktywność i brak karty | `Card_NoCard`, pięć `Activity_*` z paczki 2; `OUT` pozostaje T |
+| cel odpoczynku | siedem `RestTarget_*` |
+| stan odpoczynku | pięć `RestStatus_*` |
+| status skrótu rekompensat | cztery `CompensationSummary_*` |
+| termin rekompensaty | wspólne formatery `X-01`; brak terminu jako techniczne `—` |
+| `OverlayViewModel.ConnectionStatus`, dolna linia nakładki | `Shell_WaitingForEts2`, `Shell_Ets2Paused`, `Shell_TelemetryActive`, `Shell_TelemetryError` |
+
+Pięć statycznych wartości `POZOSTAŁO`, `OTWARTE`, `DŁUG`, `UKOŃCZ PRZED`
+i `STATUS` ma identyczny tekst, znaczenie i pisownię jak istniejące klucze.
+Nie powstają dla nich aliasy `Overlay_*`.
+
+Presenter `ActivityText` zachowuje dokładne mapowanie Dashboardu: `Driving`,
+`OtherWork`, `Availability`, `BreakOrRest`, `Unknown`, techniczne `OUT` oraz
+`Card_NoCard`. Korekta paczki 8 nie zmienia tej powierzchni: nakładka pokazuje
+zatwierdzone `Przerwa / odpoczynek`, nie raportowe `Activity_Rest`.
+
+`CompensationOverview` jest tym samym obiektem co na Dashboardzie, dlatego
+nakładka ponownie używa rodziny `CompensationSummary_*`, a nie tworzy piątej
+rodziny statusów. Wszystkie cztery wartości zachowują tekst i kolor.
+
+### Mapowanie źródeł
+
+| Źródło | Zakres | Decyzja |
+|---|---|---|
+| `OverlayWindow.xaml:14-23` | uchwyt, marka i instrukcja przeciągania | 3 nowe klucze; separator `·` i odstępy jako struktura XAML |
+| `OverlayWindow.xaml:31-45` | liczniki jazdy, pauzy i pracy | 6 nowych kluczy + `Dashboard_RemainingLabel`; wartości `HH:MM` pozostają T |
+| `OverlayWindow.xaml:48-51` | skrót rekompensat | 3 nagłówki `CompensationSummary_*` + `Common_StatusHeader` |
+| `OverlayWindow.xaml:53`, `OverlayViewModel.cs:42` | tekstowy binding `ConnectionStatus` | 4 klucze `Shell_*` z paczki 1; błąd bez `exception.Message` |
+| `OverlayViewModel.cs:24-27` | slot, skrót i tytuł | `S{0}` i `ALT+{0}` jako T; 1 nowy format tytułu |
+| `OverlayViewModel.cs:28-42` | projekcja bindingów `MainViewModel` | wyłącznie ponowne użycie zatwierdzonych presenterów i liczników |
+| `MainViewModel.cs:73,434-441,697-702,738` | właściciel `ConnectionStatus` | `Shell_WaitingForEts2`, `Shell_Ets2Paused`, `Shell_TelemetryActive`, `Shell_TelemetryError` |
+| `MainViewModel.cs:444-449,742-809` | aktywność i liczniki | klucze paczki 2; formaty czasu i limitów T |
+| `MainViewModel.cs:475-494,958-1052` | cele i stany odpoczynku | `RestTarget_*`, `RestStatus_*`; format `HH:MM` T |
+| `MainViewModel.cs:846-847` | tryb i obsada | 6 pełnych kluczy `OverlayModes_*`, bez sklejania zasobów |
+| `CompensationPresentation.cs:7-45` | skrót rekompensat | istniejące klucze paczki 2 i formatery `X-01` |
+| `OverlayWindow.xaml.cs:19-117` | pozycja, przeciąganie i styl okna | bez tekstu UI; ścieżka, JSON, wymiary i flagi Windows pozostają T |
+
+### Elementy świadomie bez lokalizacji
+
+| Element | Kategoria | Uzasadnienie |
+|---|---|---|
+| `S1`, `S2`, `ALT+1`, `ALT+2` | T | identyfikatory slotów i skróty klawiaturowe |
+| `HH:MM`, `00:00 / 09:00`, `00:00 / 13:00` | T | liczniki i limity o niezmiennym formacie |
+| liczba otwartych zobowiązań | T | wartość liczbowa |
+| `OUT` | T | kod trybu tachografu |
+| `—`, `·`, `/`, `24 h`, `30 h` | T | symbole i parametry pełnych etykiet |
+| kolory i `StatusForeground` | T | stan wizualny, nie tekst |
+| współrzędne i `overlay-position-s{slot}.json` | T | stan techniczny okna |
+
+### Ryzyka układu i testy
+
+Nakładka ma stałe `455 × 294`, nie pozwala na zmianę rozmiaru i dzieli drugi
+wiersz na trzy równe kolumny. Największe ryzyka EN to `CONTINUOUS DRIVING`,
+`COMPLETE BEFORE`, siedem nazw `RestTarget_*` oraz wspólna dolna linia, w której
+`Normal mode · multi-manning (30 h)` może sąsiadować z pełnym
+`Telemetry error. Details were written to the diagnostic log.`. To
+`Shell_TelemetryError`, a nie krótszy stan aktywnego połączenia, jest
+najpoważniejszym kandydatem do przepełnienia całej paczki.
+
+M5.3 sprawdza osobno S1 i S2:
+
+- wszystkie 14 statycznych pozycji w PL i EN;
+- sześć kombinacji trybu/obsady bez ucięcia i zmiany znaczenia;
+- brak karty, sześć wartości `DriverActivity` i oba sloty;
+- siedem celów oraz pięć stanów odpoczynku;
+- cztery statusy rekompensat, długi termin i brak terminu;
+- cztery stany połączenia, w tym pełne `Shell_TelemetryError` w obu językach,
+  bez tekstu wyjątku;
+- wspólną dolną linię przy `OverlayModes_NormalMulti` i
+  `Shell_TelemetryError`, z kontrolą zawijania, ucięcia i nachodzenia tekstu;
+- przeciąganie, zapamiętanie pozycji i skróty `Alt+1` / `Alt+2`.
+
+Zmiana szerokości, zawijania albo `TextTrimming` jest dozwolona wyłącznie jako
+korekta przepełnienia zgodna z UI freeze. Nie wolno zmieniać rozmiaru okna,
+kolejności pól, skrótów ani zachowania nakładki.
+
+### Kontrola paczki
+
+- [x] niezależny skan potwierdza 14 statycznych literałów XAML;
+- [x] 14 wystąpień rozkłada się na 9 nowych kluczy i 5 ponownych użyć;
+- [x] wszystkie 20 wystąpień bindingów ma klucz, jawne ponowne użycie albo
+  kategorię T;
+- [x] wartości istniejących presenterów porównano z katalogiem, nie tylko z enumami;
+- [x] sześć kombinacji trybu i obsady jest jawnych i bez fallbacku;
+- [x] obie nakładki korzystają z jednego katalogu;
+- [x] `S1`, `S2`, skróty, liczniki i kolory pozostają techniczne;
+- [x] placeholder `{0}` tytułu jest identyczny w PL i EN;
+- [x] 16 nowych nazw jest unikalnych wobec wiążącego katalogu 859 kluczy;
+- [x] nowe wartości nie tworzą niejawnej pary duplikatów;
+- [x] nie powstaje nowa kontrolka ani zmiana przepływu;
+- [x] brak zmian w kodzie i XAML.
+
+### Punkt kontrolny po GO
+
+- 9 nowych kluczy statycznych etykiet;
+- 1 nowy format tytułu;
+- 6 pełnych kombinacji trybu i obsady;
+- 16 nowych kluczy;
+- 875 unikalnych nazw globalnie;
+- 0 nowych i 22 globalne dozwolone pary powtórzonych wartości;
+- 0 zmian wykonawczych.
+
+### Werdykt
+
+**GO — paczka 12 zatwierdzona.** Zamknięta bez pozycji otwartych. `UI-10` jest
+zamknięte, a łączny, wiążący katalog paczek 1–12 zawiera 875 unikalnych nazw
 i 22 jawnie dozwolone pary powtórzonych wartości.
 
 ## Słownik domenowy PL/EN — część 1
