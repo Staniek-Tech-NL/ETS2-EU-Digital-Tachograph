@@ -4,7 +4,7 @@
 
 **Data rozpoczęcia:** 2026-07-27
 
-**Status:** **W TOKU — PACZKI 1–9 GO**
+**Status:** **W TOKU — PACZKI 1–10 GO**
 
 **Języki:** `pl-PL`, `en-GB`
 
@@ -58,7 +58,7 @@ presentera; nie obejmuje kluczy tworzonych wyłącznie dla hipotetycznej funkcji
 | UI-05 | Rekompensaty | `MainWindow.xaml`, `CompensationPresentation.cs` | U/P/T | zasoby + presenter statusu; identyfikatory bez zmian | GO w paczce 7 |
 | UI-06 | Raporty w Desktop | `MainWindow.xaml`, `ReportsWorkspaceViewModel.cs` | U/P/T | zasoby + presentery; formaty eksportu bez zmian | GO w paczce 8 |
 | UI-07 | Kierowcy i Ustawienia | `MainWindow.xaml`, `MainViewModel.cs`, `SettingsService.cs` | U/O/T | zasoby; nazwy i numery kart bez tłumaczenia | GO w paczce 9 |
-| UI-08 | Planer | `MainWindow.xaml`, `JourneyPlannerViewModel.cs` | U/P/T | zasoby + presentery faz, powodów, statusów i ostrzeżeń | do rozpisania |
+| UI-08 | Planer | `MainWindow.xaml`, `JourneyPlannerViewModel.cs` | U/P/T | zasoby + presentery faz, powodów, statusów i ostrzeżeń | GO w paczce 10 |
 | UI-09 | Dialogi, potwierdzenia i komunikaty błędów | `App.xaml.cs`, `MainViewModel.cs`, view-modele | U/D/T | tekst UI w zasobach; logi i kody bez zmian | do rozpisania |
 | UI-10 | Nakładki S1/S2 | `OverlayWindow.xaml`, `OverlayViewModel.cs` | U/P/T | zasoby; `S1`, `S2`, `HH:MM` bez zmian | do rozpisania |
 | X-01 | Wspólne formatery czasu i terminów | `GameCalendarFormatter.cs`, `GameClockFormatter.cs`, `WeeklyRestWindowFormatter.cs` i konsumenci bindingów | U/P/T | wspólne nazwy dni i prefiksy terminów; bez duplikowania per ekran | GO w paczce 5 |
@@ -1982,8 +1982,8 @@ naruszeń i rekompensat, kontrola kompletności oraz nazwy formatów eksportu.
 
 **Pozycje otwarte:** 0
 
-**Katalog:** 98 nowych kluczy. Łączny katalog paczek 1–8 zawiera
-659 unikalnych nazw.
+**Katalog:** 100 nowych kluczy. Łączny katalog paczek 1–8 zawiera
+661 unikalnych nazw.
 
 Paczka dodaje pięć nowych dozwolonych par powtórzonych wartości. Globalna
 lista rośnie z 13 do 18 pozycji.
@@ -2213,11 +2213,38 @@ i znak `—` pozostają strukturą techniczną.
 
 ### Presentery wierszy
 
-Tabela aktywności ponownie używa pięciu `Activity_*`, technicznego `OUT`,
-sześciu `ActivitySource_*` i czterech `SpecialCondition_*`. Obecne fallbacki
+Wsteczna korekta po porównaniu projektowanego katalogu z istniejącym
+`ReportsWorkspaceViewModel.ActivityName` zachowuje dwa teksty zamrożonego UI:
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Activity_Rest` | Odpoczynek | Rest | P |
+| `ReportActivity_OutOfScope` | Poza zakresem | Out of scope | P |
+
+`Activity_Rest` ma neutralną nazwę, ponieważ ten sam tekst i znaczenie przejmuje
+również Planer w paczce 10. Nie może zastąpić `Activity_BreakOrRest`
+(`Przerwa / odpoczynek`) ani wersalikowego `ActivityUpper_Rest`.
+`ReportActivity_OutOfScope` pozostaje osobnym kluczem Raportów: istniejący
+presenter pokazuje czytelną frazę `Poza zakresem`, a nie kod `OUT`.
+
+Wyczerpujące mapowanie tabeli aktywności wynosi:
+
+| `DriverActivity` | Klucz / wartość |
+|---|---|
+| `Driving` | `Activity_Driving` |
+| `OtherWork` | `Activity_OtherWork` |
+| `Availability` | `Activity_Availability` |
+| `BreakOrRest` | `Activity_Rest` |
+| `OutOfScope` | `ReportActivity_OutOfScope` |
+| `Unknown` | `Activity_Unknown` |
+
+Tabela ponownie używa zatem czterech wcześniejszych `Activity_*`, dodaje jeden
+wspólny `Activity_Rest` i jeden właściwy Raportom
+`ReportActivity_OutOfScope`. Ponownie używa także sześciu `ActivitySource_*`
+i czterech `SpecialCondition_*`. Obecne fallbacki
 `record.Source.ToString()`, `record.Condition.ToString()` i
-`activity.ToString()` nie mogą trafić do UI. Każdy presenter jest jawny
-i wyczerpujący; `DriverActivity.Unknown` używa `Activity_Unknown`.
+`activity.ToString()` nie mogą trafić do UI; każdy presenter jest jawny
+i wyczerpujący.
 
 Tabela naruszeń ponownie używa jedenastu `Violation_*` z paczki 2.
 `ReportViolationDto.Type` pozostaje techniczną reprezentacją stabilnej wartości
@@ -2372,10 +2399,13 @@ i `25`.
 - [x] wszystkie 4 wartości `ReportExportFormat` mają nazwę bez fallbacku;
 - [x] wszystkie 6 `DriverActivity`, 6 `ActivitySource`, 4 `SpecialCondition`,
   11 `ViolationType` i 4 `WeeklyRestCompensationStatusDto` mają jawne mapowanie;
+- [x] wszystkie 6 gałęzi istniejącego presentera `DriverActivity` porównano
+  wartość po wartości z projektowanymi zasobami; `Odpoczynek` i
+  `Poza zakresem` pozostają bez zmiany;
 - [x] `RuleFindingLevel` ma decyzję opartą na rzeczywistym przepływie danych;
 - [x] formaty mają zgodne zbiory placeholderów PL/EN;
 - [x] pluralizacja ma jawne formy PL/EN i przypadki graniczne;
-- [x] 98 nowych nazw nie koliduje z katalogiem paczek 1–7;
+- [x] 100 nowych nazw nie koliduje z katalogiem paczek 1–7;
 - [x] pięć nowych par powtórzonych wartości jest jawnie dozwolonych;
 - [x] `exception.Message` i fallbacki `ToString()` nie są planowane jako tekst UI;
 - [x] PDF, JSON, CSV, nazwy plików, DTO i wartości domenowe pozostają bez zmian;
@@ -2388,10 +2418,11 @@ i `25`.
 - 16 kluczy bazowych stanów i walidacji;
 - 17 kluczy opisów stanu, liczników i pokrycia;
 - 7 kluczy bilansu, dowodu i czasu;
+- 2 klucze zachowujące istniejącą prezentację aktywności;
 - 4 klucze statusów rekompensat;
 - 3 klucze nazw formatów eksportu;
-- 98 nowych kluczy;
-- 659 unikalnych nazw globalnie;
+- 100 nowych kluczy;
+- 661 unikalnych nazw globalnie;
 - 5 nowych par powtórzonych wartości;
 - 18 dozwolonych par globalnie;
 - 0 zmian wykonawczych.
@@ -2399,7 +2430,7 @@ i `25`.
 ### Werdykt
 
 **GO — paczka 8 zatwierdzona.** Zamknięta bez pozycji otwartych. Łączny,
-wiążący katalog paczek 1–8 zawiera 659 unikalnych nazw i 18 jawnie dozwolonych
+wiążący katalog paczek 1–8 zawiera 661 unikalnych nazw i 18 jawnie dozwolonych
 par powtórzonych wartości. `RuleFindingLevel` jest świadomie wykluczony
 z prezentacji tekstowej, ponieważ nie ma aktywnego konsumenta w UI-06.
 
@@ -2416,7 +2447,7 @@ ustawienia tachografu oraz wymagany przez M5.2 trwały wybór języka UI.
 
 **Katalog:** 18 nowych kluczy — 14 dla istniejącego widoku oraz 4 dla
 kontrolki języka wymaganej kontraktem M5. Łączny katalog paczek 1–9 zawiera
-677 unikalnych nazw.
+679 unikalnych nazw.
 
 Paczka nie dodaje par powtórzonych wartości między różnymi kluczami.
 Globalna lista 18 dozwolonych par pozostaje bez zmian.
@@ -2627,7 +2658,7 @@ Schemat istniejącej bazy SQLite musi pozostać identyczny.
 - 7 nowych kluczy istniejących Ustawień;
 - 4 nowe klucze wyboru języka;
 - 18 nowych kluczy;
-- 677 unikalnych nazw globalnie;
+- 679 unikalnych nazw globalnie;
 - 0 nowych par powtórzonych wartości;
 - 18 dozwolonych par globalnie;
 - 0 zmian wykonawczych.
@@ -2635,8 +2666,425 @@ Schemat istniejącej bazy SQLite musi pozostać identyczny.
 ### Werdykt
 
 **GO — paczka 9 zatwierdzona.** Zamknięta bez pozycji otwartych. `UI-07`
-jest zamknięte, a łączny, wiążący katalog paczek 1–9 zawiera 677 unikalnych
+jest zamknięte, a łączny, wiążący katalog paczek 1–9 zawiera 679 unikalnych
 nazw i 18 jawnie dozwolonych par powtórzonych wartości.
+
+## Paczka 10 — UI-08: Planer
+
+**Zakres:** konfiguracja oferty i aktywnej dostawy, gotowość obu kart,
+walidacja czasu, wynik, harmonogram, ostrzeżenia i podsumowanie Planera.
+
+**Stan:** **ZAMKNIĘTA — GO**
+
+**Data zatwierdzenia:** 2026-07-27
+
+**Pozycje otwarte:** 0
+
+**Katalog:** 103 nowe klucze. Łączny katalog paczek 1–10 zawiera
+782 unikalne nazwy.
+
+Paczka dodaje dwie nowe dozwolone pary powtórzonych wartości. Globalna
+lista zawiera 20 pozycji.
+
+### Granica paczki
+
+Paczka obejmuje `MainWindow.xaml:352-568`,
+`JourneyPlannerViewModel.cs`, `DeliveryPlannerService.cs`,
+`DeliveryPlanningContracts.cs`, aktywną ścieżkę
+`DeliveryPlanningEngine` → `CrewJourneyPlanningEngine` oraz wartości domenowe,
+które rzeczywiście trafiają do widoku. Nie obejmuje:
+
+- szczegółów czterech nieznanych wyjątków z ładowania snapshotu, obliczania
+  planu oraz odczytu i zapisu preferencji wejścia — ich właścicielem jest
+  `UI-09`, a `exception.Message` trafia wyłącznie do diagnostyki;
+- technicznych kontraktów silnika, limitów wyszukiwania, identyfikatorów
+  snapshotu i nazw właściwości komend;
+- zmiany algorytmu, reguł prawnych, wartości czasu ani wyniku planowania;
+- osobnego, niepodłączonego do Desktop przepływu `JourneyPlannerService`;
+- komunikatów PDF i eksportów;
+- reorganizacji zamrożonego układu Planera.
+
+Zasoby należą do Desktop. Warstwa Application nie otrzymuje zależności od
+lokalizacji: dwa znane przypadki gotowości są mapowane w Desktop z jawnego stanu
+lub stabilnego kodu, a nie z polskiego tekstu `DeliveryPlannerReadiness.Issues`.
+
+### Nagłówek i instrukcja
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Planner_Title` | PLANER PODRÓŻY | JOURNEY PLANNER | U |
+| `Planner_StrategyDescription` | Strategia: najwcześniejsza legalna · obliczenia tylko do odczytu | Strategy: earliest legal · read-only calculations | U |
+| `Planner_TimeInputInstructions` | Pola czasu: wpisz wartość albo zmieniaj klawiszami — ↑ / ↓ o ±5 min, PgUp / PgDn o ±60 min; obok pól są też przyciski skrótu, a okno dostawy wybierasz z list dzień / godzina / minuta. | Time fields: enter a value or use the keys — ↑ / ↓ by ±5 min, PgUp / PgDn by ±60 min; preset buttons are also available, and the delivery window is selected from the day / hour / minute lists. | U/T |
+
+Nagłówek zakładki ponownie używa `Navigation_Planner`. `Planner_Title` ma tę
+samą wartość EN, lecz inną zatwierdzoną wartość PL i inną rolę nagłówka strony;
+para jest jawnie dozwolona w sekcji duplikatów.
+
+### Konfiguracja
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Planner_ModeLabel` | TRYB PLANERA | PLANNER MODE | U |
+| `PlannerMode_MarketOffer` | OFERTA Z RYNKU | MARKET OFFER | U/P |
+| `PlannerMode_ActiveDelivery` | AKTYWNA DOSTAWA | ACTIVE DELIVERY | U/P |
+| `Planner_FirstDriverLabel` | PROWADZI PIERWSZY | DRIVES FIRST | U |
+| `Planner_DriveToPickupLabel` | DOJAZD PO ŁADUNEK | DRIVE TO PICKUP | U |
+| `Planner_OfferExpiresInLabel` | OFERTA WYGASA ZA | OFFER EXPIRES IN | U |
+| `Planner_PickupLabel` | ODBIÓR | PICKUP | U |
+| `Planner_LoadedRouteLabel` | TRASA Z ŁADUNKIEM | LOADED ROUTE | U |
+| `Planner_DeliveryWindowFromLabel` | OKNO DOSTAWY OD | DELIVERY WINDOW FROM | U |
+| `Planner_DeliveryWindowToLabel` | OKNO DOSTAWY DO | DELIVERY WINDOW TO | U |
+| `Planner_HourTooltip` | Godzina | Hour | U |
+| `Planner_MinuteTooltip` | Minuta | Minute | U |
+| `Planner_UnloadingLabel` | ROZŁADUNEK | UNLOADING | U |
+| `Planner_PostDeliveryWorkLabel` | PRACA PO | WORK AFTER | U |
+| `Planner_TightThresholdLabel` | PRÓG „NA STYK” | “TIGHT” THRESHOLD | U |
+| `Planner_CalculateAction` | OBLICZ PLAN | CALCULATE PLAN | U |
+
+`PlannerMode_*` mapują 1:1 oba elementy `DeliveryPlanningUseCase`. Te same
+klucze zasilają kontrolki trybu i modele opcji; niewidoczne pole `Name` nie
+otrzymuje drugiej wersji o odmiennej pisowni.
+
+Przyciski `15m`, `30m`, `1h`, `2h`, przesunięcia `±5 min` i `±60 min`,
+formaty `HH:MM`, `1h30`, `1,5`/`1.5` oraz wartości godzin i minut pozostają
+techniczne. Parser nadal akceptuje kropkę i przecinek niezależnie od języka,
+ale instrukcja i przykład walidacji pokazują separator aktywnej kultury.
+
+### Sloty i pełne nazwy dni
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `PlannerSlot_Driver` | S1 — kierowca | S1 — driver | U/T |
+| `PlannerSlot_CoDriver` | S2 — zmiennik | S2 — co-driver | U/T |
+| `Weekday_Full_Monday` | Poniedziałek | Monday | P |
+| `Weekday_Full_Tuesday` | Wtorek | Tuesday | P |
+| `Weekday_Full_Wednesday` | Środa | Wednesday | P |
+| `Weekday_Full_Thursday` | Czwartek | Thursday | P |
+| `Weekday_Full_Friday` | Piątek | Friday | P |
+| `Weekday_Full_Saturday` | Sobota | Saturday | P |
+| `Weekday_Full_Sunday` | Niedziela | Sunday | P |
+
+Pełne nazwy dni są trzecią zatwierdzoną rolą `GameWeekday`, odrębną od
+`Weekday_Display_*` (`Pon`) i `Weekday_Short_*` (`PON`). M5.2 dopisuje komentarze
+do wszystkich trzech rodzin, aby narzędzie translatorskie nie ujednoliciło
+wartości różniących się długością lub wielkością liter.
+
+### Gotowość, stan i pochodzenie wejścia
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `PlannerStatus_CheckingReadiness` | Sprawdzanie gotowości planera… | Checking planner readiness… | U |
+| `PlannerCrew_WaitingForSnapshot` | Oczekiwanie na snapshot obu kart… | Waiting for a snapshot of both cards… | U/T |
+| `PlannerInput_DefaultValuesAutosave` | Wartości domyślne · zapis automatyczny | Default values · autosave | U |
+| `PlannerReadiness_CurrentCrewSnapshotRequired` | Wymagany jest aktualny snapshot telemetryczny obu kart w podwójnej obsadzie. | A current telemetry snapshot of both cards in multi-manning is required. | U/T |
+| `PlannerReadiness_ResolveCardRemovalGap` | Rozlicz lukę po wyjęciu karty przed obliczeniem planu. | Resolve the card-removal gap before calculating the plan. | U/P |
+| `PlannerVerdict_UnreliableData` | BRAK WIARYGODNYCH DANYCH | NO RELIABLE DATA | U/P |
+| `PlannerCrew_CrewFormat` | S1: {0} · S2: {1} · podwójna obsada 30 h | S1: {0} · S2: {1} · 30 h multi-manning | U/O/T |
+| `PlannerCrew_Incomplete` | Brak kompletnej podwójnej obsady S1/S2 | Incomplete S1/S2 multi-manning crew | U/T |
+| `PlannerStatus_DataReady` | Dane gotowe — wybierz kierowcę i oblicz plan. | Data ready — select the driver and calculate the plan. | U |
+| `PlannerStatus_CrewStateChanged` | Stan załogi zmienił się. Oblicz plan ponownie. | The crew state has changed. Calculate the plan again. | U |
+| `PlannerValidation_NoCurrentSnapshot` | Brak aktualnego snapshotu obu kart. | No current snapshot of both cards is available. | U/T |
+| `PlannerStatus_InputChanged` | Zmieniono dane. Oblicz plan ponownie. | The input has changed. Calculate the plan again. | U |
+| `PlannerInput_UserValuesAutosave` | Wartości użytkownika · zapis automatyczny | User values · autosave | U |
+| `PlannerInput_RestoredValues` | Przywrócono wartości z poprzedniej sesji | Values restored from the previous session | U |
+
+W `PlannerCrew_CrewFormat` `{0}` i `{1}` są niezmienionymi nazwami kierowców.
+`S1`, `S2` i `30 h` pozostają elementami technicznymi pełnego formatu.
+`PlannerVerdict_UnreliableData` jest wspólnym tekstem statusu gotowości i wyniku;
+nie powstaje drugi identyczny klucz.
+
+### Kafelki wyniku i tabela
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Planner_CurrentGameTimeLabel` | AKTUALNY CZAS W GRZE | CURRENT GAME TIME | U/T |
+| `Planner_OfferExpiresLabel` | OFERTA WYGASA | OFFER EXPIRES | U |
+| `Planner_DeliveryWindowLabel` | OKNO DOSTAWY | DELIVERY WINDOW | U |
+| `Planner_CargoPickupLabel` | ODBIÓR ŁADUNKU | CARGO PICKUP | U |
+| `Planner_DeliveryArrivalLabel` | PRZYJAZD NA DOSTAWĘ | DELIVERY ARRIVAL | U |
+| `Planner_DeliveryCompletionLabel` | KONIEC DOSTAWY | DELIVERY COMPLETION | U |
+| `Planner_VerdictMarginLabel` | WERDYKT / MARGINES | VERDICT / MARGIN | U |
+| `Planner_VehicleHeader` | POJAZD | VEHICLE | U |
+| `Planner_WarningsTitle` | OSTRZEŻENIA I OGRANICZENIA | WARNINGS AND LIMITATIONS | U |
+| `Planner_SummaryTitle` | PODSUMOWANIE PLANU | PLAN SUMMARY | U |
+| `Planner_NotApplicable` | Nie dotyczy | Not applicable | U |
+| `PlannerTime_FromPrefix` | Od | From | U |
+| `PlannerTime_ToPrefix` | Do | To | U |
+| `PlannerVehicle_Parked` | Postój | Stationary | P |
+| `PlannerSummary_PlanRejected` | Plan nie spełnia warunków przyjęcia | The plan does not meet the acceptance conditions | U |
+| `PlannerSummary_PlanFitsWindow` | Plan mieści się w oknie dostawy | The plan fits within the delivery window | U |
+| `PlannerSummary_BothCardsIncluded` | Harmonogram uwzględnia obie karty S1/S2 | The schedule includes both S1/S2 cards | U/T |
+| `PlannerSummary_MarginFormat` | Zapas do końca okna: {0} | Margin to the end of the window: {0} | U/T |
+
+Tabela ponownie używa `Common_From`, `Common_To`, `ManualEntry_TimeHeader`
+i `Common_ReasonHeader`. `#`, `S1` i `S2` pozostają techniczne.
+Stan poruszającego się pojazdu ponownie używa `Activity_Driving`; tekst i
+znaczenie są zgodne, więc nie powstaje duplikat `Jazda` / `Driving`.
+
+Komórki S1/S2 zachowują istniejący tekst `Odpoczynek` dla aktywnego
+`BreakOrRest` przez wspólny klucz `Activity_Rest` dodany we wstecznej korekcie
+paczki 8. Pozostałe mapowanie ponownie używa `Activity_Driving`,
+`Activity_OtherWork`, `Activity_Availability` i `Activity_Unknown`; techniczne
+`OUT` pozostaje wyłącznie dla `OutOfScope`.
+
+Obecny fallback `_ => "Odpoczynek"` zostaje zastąpiony sześcioma jawnymi
+gałęziami. Aktywny silnik załogi emituje w komórkach Planera `Driving`,
+`OtherWork`, `Availability` i `BreakOrRest`, więc zmiana nie modyfikuje żadnego
+dzisiejszego tekstu. `OutOfScope` i `Unknown` są wyczerpującymi, nieaktywnymi
+gałęziami presentera; nie wolno ich przedstawiać jako odpoczynku.
+
+Format okna składa `PlannerTime_FromPrefix`, `PlannerTime_ToPrefix`, stałe
+`: ` i znak nowej linii oraz dwa momenty z presentera czasu paczki 5. Prefiksy
+nie zawierają końcowej interpunkcji ani odstępu. `—`, podpisane `+HH:MM` /
+`−HH:MM`, numer wiersza i wartości czasu pozostają techniczne.
+
+Glify `✓` i `✕` są strukturą prezentacji poprzedzającą zasób podsumowania,
+nie częścią tłumaczenia.
+
+### Walidacja pól czasu
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `PlannerValidation_DurationFormat` | {0}: wpisz czas jako HH:MM, minuty, 1h30 albo 1,5. | {0}: enter a time as HH:MM, minutes, 1h30 or 1.5. | U/T |
+| `PlannerValidation_TimeLabel` | Czas | Time | U |
+| `PlannerValidation_CorrectTimeField` | Popraw oznaczone pole czasu. | Correct the highlighted time field. | U |
+| `PlannerField_OfferExpiresIn` | Oferta wygasa za | Offer expires in | U |
+| `PlannerField_Pickup` | Odbiór | Pickup | U |
+| `PlannerField_TightThreshold` | Próg „na styk” | “Tight” threshold | U |
+
+Pozostałe cztery nazwy pól w komunikacie walidacji ponownie używają
+`PlannerPhase_DriveToPickup`, `PlannerPhase_DriveWithCargo`,
+`PlannerPhase_Unloading` i `PlannerPhase_PostDeliveryWork`. Rozdzielenie rodzin
+wersalikowych i zdaniowych jest celowe: zgodnie z decyzją paczki 1 pisownia
+pozostaje częścią zasobu, a globalny konwerter wielkości liter nie powstaje.
+
+### Werdykt i przyczyny przerwania
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `PlannerVerdict_PickupMissed` | NIE ZDĄŻYSZ ODEBRAĆ | PICKUP DEADLINE MISSED | U/P |
+| `PlannerVerdict_DeliveryMissed` | NIE ZDĄŻYSZ DOSTARCZYĆ | DELIVERY DEADLINE MISSED | U/P |
+| `PlannerVerdict_Take` | MOŻNA PRZYJĄĆ | CAN ACCEPT | U/P |
+| `PlannerVerdict_Tight` | NA STYK | TIGHT | U/P |
+| `PlannerVerdict_Reject` | BRAK LEGALNEJ KONTYNUACJI | NO LEGAL CONTINUATION | U/P |
+| `PlannerFailure_OfferExpired` | Odbiór nie zakończy się przed wygaśnięciem oferty. | Pickup will not be completed before the offer expires. | U/P |
+| `PlannerFailure_DeliveryWindowMissed` | Dostawa nie zakończy się przed końcem okna. | Delivery will not be completed before the end of the window. | U/P |
+| `PlannerFailure_NoLegalContinuation` | Brak legalnej kontynuacji harmonogramu. | There is no legal continuation of the schedule. | U/P |
+| `PlannerFailure_InsufficientData` | Brak wiarygodnych danych obu kart. | Reliable data from both cards is unavailable. | U/P |
+| `PlannerFailure_StaleSnapshot` | Dane załogi zmieniły się podczas obliczeń. | The crew data changed during calculation. | U/P |
+| `PlannerFailure_CalculationLimitReached` | Osiągnięto limit obliczeń przed znalezieniem planu. | The calculation limit was reached before a plan was found. | U/P |
+| `PlannerFailure_NotImplemented` | Planer nie obsługuje tego scenariusza. | The planner does not support this scenario. | U/P |
+
+`DeliveryPlanVerdict` ma wyczerpujące mapowanie `Take` → `PlannerVerdict_Take`,
+`Tight` → `PlannerVerdict_Tight`, `Reject` → `PlannerVerdict_Reject`.
+`OfferExpired`, `DeliveryWindowMissed`, `InsufficientData` i `StaleSnapshot`
+zachowują pierwszeństwo szczegółowego nagłówka. `NoLegalContinuation`,
+`CalculationLimitReached` i `NotImplemented` zachowują obecny ogólny nagłówek
+odrzucenia, a dokładną przyczynę podaje lista ostrzeżeń.
+
+Wszystkie osiem wartości `DeliveryPlanFailureReason` ma jawną decyzję. `None`
+oznacza brak komunikatu i nie otrzymuje sztucznego klucza; pozostałe siedem
+wartości mapuje się 1:1 na `PlannerFailure_*`. `NotImplemented` nie ma obecnie
+producenta, ale jego klucz jest nazwanym wyjątkiem wyczerpującego pokrycia enuma.
+
+### Fazy harmonogramu
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `PlannerPhase_DriveToPickup` | Dojazd po ładunek | Drive to pickup | P |
+| `PlannerPhase_Pickup` | Załadunek | Pickup | P |
+| `PlannerPhase_DriveWithCargo` | Trasa z ładunkiem | Loaded route | P |
+| `PlannerPhase_WaitForDeliveryWindow` | Oczekiwanie na okno dostawy | Waiting for the delivery window | P |
+| `PlannerPhase_Unloading` | Rozładunek | Unloading | P |
+| `PlannerPhase_PostDeliveryWork` | Praca po dostawie | Post-delivery work | P |
+| `PlannerPhase_RegulatoryInterruption` | Przerwa regulacyjna | Regulatory interruption | P |
+
+Siedem kluczy mapuje 1:1 wszystkie wartości `DeliveryPlanPhase`. Faza
+`RegulatoryInterruption` zwykle ma dokładniejszy `JourneyPlanSegmentReason`,
+ale nadal otrzymuje klucz wymagany dla presentera bez fallbacku.
+
+### Powody segmentów regulacyjnych
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `PlannerReason_RemainingRouteDrive` | Pozostała trasa | Remaining route | P |
+| `PlannerReason_ContinuousDrivingBreak` | Przerwa po jeździe ciągłej | Continuous-driving break | P |
+| `PlannerReason_SplitBreakCompletion` | Dokończenie przerwy dzielonej | Split-break completion | P |
+| `PlannerReason_DailyRestDeadline` | Termin odpoczynku dobowego | Daily-rest deadline | P |
+| `PlannerReason_DailyDrivingLimit` | Limit jazdy dziennej | Daily driving limit | P |
+| `PlannerReason_WeeklyRestRequirement` | Wymagany odpoczynek tygodniowy | Weekly rest required | P |
+| `PlannerReason_WeeklyDrivingLimitReached` | Osiągnięty tygodniowy limit jazdy | Weekly driving limit reached | P |
+| `PlannerReason_BiweeklyDrivingLimitReached` | Osiągnięty dwutygodniowy limit jazdy | Fortnightly driving limit reached | P |
+| `PlannerReason_WaitForNewRegulatoryWeek` | Oczekiwanie na nowy tydzień regulacyjny | Waiting for a new regulatory week | P |
+| `PlannerReason_WaitForBiweeklyCapacity` | Oczekiwanie na dostępny limit dwutygodniowy | Waiting for available fortnightly capacity | P |
+| `PlannerReason_OperationalBufferAfterArrival` | Praca po przyjeździe | Post-arrival work | P |
+| `PlannerReason_CrewDriverChange` | Zmiana kierowcy | Driver change | P |
+
+`segment.RegulatoryReason?.ToString()` nie może trafić do UI. Presenter mapuje
+jawnie wszystkie 12 wartości `JourneyPlanSegmentReason`, bez fallbacku.
+`SplitBreakCompletion`, `WeeklyDrivingLimitReached` i
+`BiweeklyDrivingLimitReached` nie są dziś emitowane przez aktywny silnik załogi;
+ich klucze są nazwanymi wyjątkami wyczerpującego pokrycia enuma.
+
+### Ostrzeżenia silnika
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `PlannerWarning_IncompleteHistory` | Historia aktywności jest niekompletna; wynik może być ograniczony. | The activity history is incomplete; the result may be limited. | U/P |
+| `PlannerWarning_LastSavedState` | Plan oparto na ostatnim zapisanym stanie. | The plan is based on the last saved state. | U/P |
+| `PlannerWarning_CompensationModelLimited` | Model rekompensat ogranicza wiarygodność planu. | The compensation model limits the plan's reliability. | U/P |
+| `PlannerWarning_ReducedWeeklyRestUnavailable` | Skrócony odpoczynek tygodniowy nie jest dostępny. | Reduced weekly rest is unavailable. | U/P |
+| `PlannerWarning_MultiManningPlanningUnsupported` | Ten wariant planowania podwójnej obsady nie jest obsługiwany. | This multi-manning planning variant is not supported. | U/P |
+| `PlannerWarning_RegulatoryExceptionUsed` | Plan korzysta z wyjątku regulacyjnego. | The plan uses a regulatory exception. | U/P |
+
+`warning.Code` i angielskie `warning.Context` nie są tekstem użytkowym.
+Presenter mapuje wszystkie sześć wartości `JourneyPlanWarningCode` na pełne
+komunikaty i nie skleja nazwy enuma z kontekstem. Kontekst pozostaje wyłącznie
+w diagnostyce. `CompensationModelLimited` i `RegulatoryExceptionUsed` nie mają
+dziś producenta, a `ReducedWeeklyRestUnavailable` powstaje tylko w niepodłączonej
+ścieżce pojedynczego kierowcy; trzy klucze są nazwanymi wyjątkami
+wyczerpującego pokrycia enuma.
+
+### Typy domenowe bez tekstowego presentera
+
+Sześć typów z rejestru nie dociera do UI jako tekst i zostaje świadomie
+wykluczonych:
+
+| Typ | Decyzja |
+|---|---|
+| `JourneyPlanningMode` | steruje wyborem silnika; aktywna ścieżka przekazuje stałe `MultiManningCrew`, a etykiety użytkowe opisuje `DeliveryPlanningUseCase` |
+| `JourneyPlanStatus` | silnik redukuje status do `DeliveryPlanFailureReason`; Desktop nie wyświetla nazwy statusu |
+| `JourneyPlanConfidence` | pozostaje metadanym wyniku; aktywne ograniczenia wymagające komunikatu mają osobny `JourneyPlanWarningCode`, brak etykiety poziomu |
+| `JourneyPlanSegmentType` | kontrakt niepodłączonego planera jednego kierowcy; aktywny wynik używa `DeliveryPlanPhase`, aktywności i powodu |
+| `JourneyPlanWarningSeverity` | wartość sterująca przyszłym stylem, bez tekstu; obecny widok nie rozróżnia stylu |
+| `JourneyPlanSnapshotMismatch` | porównanie tożsamości i decyzja o przeliczeniu; szczegół enuma nie jest pokazywany |
+
+Jednowartościowy `JourneyOperationalBufferPolicy.OtherWorkAfterArrival` nie
+należy do rejestru presenterów: jest stałą strategii przekazywaną do silnika
+i ma klasyfikację T. Widoczną nazwę odpowiadającego segmentu zapewnia
+`PlannerReason_OperationalBufferAfterArrival`.
+
+Wykluczenie nie pozwala na przyszłe `ToString()` w UI. Jeżeli którykolwiek typ
+otrzyma aktywnego konsumenta tekstowego, wymaga nowej decyzji katalogowej.
+
+Po zatwierdzeniu paczki rejestr 30 typów ma 20 rozstrzygniętych,
+10 świadomie wykluczonych i 0 pozostałych.
+
+### Zobowiązania przekazane do UI-09
+
+| Przypadek | Obecne źródło | Decyzja UI-09 |
+|---|---|---|
+| wyjątek pobrania snapshotu | `JourneyPlannerViewModel.cs:210-215` | ogólny lokalizowany komunikat; wyjątek tylko do diagnostyki |
+| wyjątek obliczania planu | `JourneyPlannerViewModel.cs:354-357` | ogólny lokalizowany komunikat; wyjątek tylko do diagnostyki |
+| wyjątek odtworzenia wejścia | `JourneyPlannerViewModel.cs:625-628` | ogólny lokalizowany komunikat o użyciu wartości domyślnych |
+| wyjątek zapisu wejścia | `JourneyPlannerViewModel.cs:644-647` | ogólny lokalizowany komunikat; bieżące wartości pozostają w pamięci |
+
+Żaden z tych przypadków nie może zachować placeholdera z
+`exception.Message`. UI-09 tworzy klucze i wspólną politykę diagnostyczną;
+paczka 10 nie tworzy ich z wyprzedzeniem ani nie duplikuje.
+
+### Rozliczenie literałów XAML
+
+W `MainWindow.xaml:352-568` są dokładnie 53 wystąpienia tekstowe i 41
+unikalnych wartości:
+
+- 31 wystąpień / 29 unikalnych wartości otrzymuje nowe klucze paczki 10;
+- 5 wystąpień ponownie używa `Navigation_Planner`, `Common_From`,
+  `Common_To`, `ManualEntry_TimeHeader` i `Common_ReasonHeader`;
+- 17 wystąpień jest technicznych: 14 przycisków presetów oraz `#`, `S1`, `S2`;
+- powtórzone są wyłącznie tooltipy `Godzina` i `Minuta`, każdy po dwa razy.
+
+Pozostałe 74 nowe klucze pokrywają opcje, pełne nazwy dni, statusy,
+formaty wyniku, walidację oraz wyczerpujące presentery aktywnych enumów.
+
+### Nowe dozwolone pary powtórzonych wartości
+
+| Wartość | Klucze | Decyzja |
+|---|---|---|
+| EN `JOURNEY PLANNER` | `Navigation_Planner`, `Planner_Title` | nawigacja i nagłówek strony mają odmienne zatwierdzone wartości PL (`PLANER` / `PLANER PODRÓŻY`); wspólny klucz zmieniłby polski UI freeze |
+| EN `Pickup` | `PlannerField_Pickup`, `PlannerPhase_Pickup` | pole oznacza czas odbioru (`Odbiór`), a faza wykonanie załadunku (`Załadunek`); identyczne EN nie znosi różnicy pojęć PL |
+
+Poza tymi pozycjami 103 nowe klucze nie tworzą identycznych wartości między
+różnymi nazwami ani wewnątrz paczki, ani wobec wiążącego katalogu 679 kluczy.
+
+### Elementy świadomie bez lokalizacji
+
+| Element | Kategoria | Uzasadnienie |
+|---|---|---|
+| `S1`, `S2`, nazwy i numery kart | T/O | role techniczne i dane użytkownika |
+| minuty gry, `GameTime`, identyfikatory i generacja snapshotu | T | dane domenowe i kontrola świeżości |
+| `HH:MM`, `D{0}`, `+`/`−`, `—`, `#` | T | wspólny format techniczny |
+| `15m`, `30m`, `1h`, `2h`, wartości komend | T | wejście i parametry komend |
+| kolory werdyktu i kody ostrzeżeń | T | sterowanie prezentacją / diagnostyka |
+| limity segmentów, czasu i odwiedzonych stanów | T | bezpieczniki algorytmu |
+| `exception.Message`, `warning.Context` | D | szczegół wyłącznie w logu |
+
+### Ryzyka i kontrola wizualna
+
+Planer jest ekranem wysokiego ryzyka EN: konfiguracja używa stałych szerokości
+115–240 px, tabela ma osiem kolumn, a prawa karta ma ograniczoną szerokość.
+Kontrola M5.3 obejmuje:
+
+- pełne etykiety `OFFER EXPIRES IN`, `DELIVERY WINDOW FROM/TO`,
+  `“TIGHT” THRESHOLD` i `WARNINGS AND LIMITATIONS`;
+- oba tryby, oba sloty i siedem pełnych nazw dni;
+- poprawny separator dziesiętny w instrukcji PL/EN przy parserze akceptującym
+  oba warianty;
+- wszystkie siedem faz i 12 powodów, w tym najdłuższe wartości EN;
+- pustą listę, kilka segmentów oraz limit wysokości przy wielu ostrzeżeniach;
+- długie nazwy obu kierowców w `PlannerCrew_CrewFormat`;
+- brak surowych nazw enumów i tekstów wyjątków.
+
+Zmiana szerokości, zawijania albo tooltipu jest dozwolona tylko jako korekta
+przepełnienia zgodna z UI freeze. Nie wolno zmieniać kolejności pól ani
+przepływu obliczania.
+
+### Kontrola paczki
+
+- [x] wszystkie 53 wystąpienia XAML mają klucz, jawne ponowne użycie albo
+  klasyfikację techniczną;
+- [x] wszystkie widoczne literały `JourneyPlannerViewModel` i dwa komunikaty
+  gotowości usługi mają klucz albo jawnego właściciela UI-09;
+- [x] wszystkie 6 gałęzi istniejącego presentera `DriverActivity` porównano
+  wartość po wartości z projektowanymi zasobami; aktywne cztery wartości
+  zachowują dzisiejszą polską prezentację;
+- [x] `DeliveryPlanningUseCase`, `DeliveryPlanVerdict`,
+  `DeliveryPlanFailureReason`, `DeliveryPlanPhase`,
+  `JourneyPlanSegmentReason` i `JourneyPlanWarningCode` mają wyczerpujące
+  mapowania bez `ToString()` i fallbacku tekstowego;
+- [x] sześć pozostałych typów Planera ma udowodniony brak konsumenta
+  tekstowego i jawną decyzję o wykluczeniu;
+- [x] wszystkie formaty mają zgodne zbiory placeholderów PL/EN;
+- [x] sprawdzono cały wiążący katalog 679 kluczy przed utworzeniem nowych nazw;
+- [x] dwie nowe pary powtórzonych wartości są jawne i uzasadnione;
+- [x] dane, algorytm, kontrakty i reguły prawne pozostają bez zmian;
+- [x] brak zmian w kodzie i XAML.
+
+### Punkt kontrolny po GO
+
+- 29 nowych kluczy statycznego XAML;
+- 9 nowych kluczy slotów i pełnych nazw dni;
+- 14 nowych kluczy gotowości, statusu i pochodzenia wejścia;
+- 8 nowych kluczy wyników i podsumowania;
+- 6 nowych kluczy walidacji;
+- 5 dodatkowych kluczy werdyktu (`PlannerVerdict_UnreliableData` policzony
+  w statusach);
+- 7 kluczy przyczyn przerwania;
+- 7 kluczy faz;
+- 12 kluczy powodów regulacyjnych;
+- 6 kluczy ostrzeżeń;
+- 103 nowe klucze;
+- 782 unikalne nazwy globalnie;
+- 2 nowe i 20 globalnych dozwolonych par powtórzonych wartości;
+- 20 typów rozstrzygniętych, 10 wykluczonych, 0 pozostałych po GO;
+- 0 zmian wykonawczych.
+
+### Werdykt
+
+**GO — paczka 10 zatwierdzona.** Zamknięta bez pozycji otwartych. `UI-08`
+jest zamknięte, a łączny, wiążący katalog paczek 1–10 zawiera 782 unikalne
+nazwy i 20 jawnie dozwolonych par powtórzonych wartości. Rejestr presenterów
+obejmuje 30 typów: 20 rozstrzygniętych, 10 świadomie wykluczonych i 0 otwartych.
 
 ## Słownik domenowy PL/EN — część 1
 
@@ -2693,8 +3141,8 @@ i ich role prezentacyjne są wiążące wyłącznie w zatwierdzonych katalogach 
 ## Wartości domenowe wymagające presenterów
 
 Nie wolno lokalizować przez zmianę nazw enumów ani przez zapisywanie
-przetłumaczonych wartości. Rejestr obejmuje 30 typów: 14 rozstrzygniętych,
-4 świadomie wykluczone z prezentacji tekstowej i 12 pozostałych.
+przetłumaczonych wartości. Rejestr obejmuje 30 typów: 20 rozstrzygniętych,
+10 świadomie wykluczonych z prezentacji tekstowej i 0 pozostałych.
 
 | Typ | Status | Paczka / decyzja |
 |---|---|---|
@@ -2716,18 +3164,18 @@ przetłumaczonych wartości. Rejestr obejmuje 30 typów: 14 rozstrzygniętych,
 | `ResolveGapStatus` | świadomie wykluczony | paczka 4 — sterowanie przepływem |
 | `ManualEntryPersistenceStatus` | świadomie wykluczony | paczka 4 — sterowanie przepływem |
 | `RuleFindingLevel` | świadomie wykluczony | paczka 8 — brak aktywnego konsumenta tekstowego w UI-06 |
-| `DeliveryPlanningUseCase` | pozostały | właściciel UI-08 |
-| `DeliveryPlanVerdict` | pozostały | właściciel UI-08 |
-| `DeliveryPlanFailureReason` | pozostały | właściciel UI-08 |
-| `DeliveryPlanPhase` | pozostały | właściciel UI-08 |
-| `JourneyPlanningMode` | pozostały | właściciel UI-08 |
-| `JourneyPlanStatus` | pozostały | właściciel UI-08 |
-| `JourneyPlanConfidence` | pozostały | właściciel UI-08 |
-| `JourneyPlanSegmentType` | pozostały | właściciel UI-08 |
-| `JourneyPlanSegmentReason` | pozostały | właściciel UI-08 |
-| `JourneyPlanWarningCode` | pozostały | właściciel UI-08 |
-| `JourneyPlanWarningSeverity` | pozostały | właściciel UI-08 |
-| `JourneyPlanSnapshotMismatch` | pozostały | właściciel UI-08 |
+| `DeliveryPlanningUseCase` | rozstrzygnięty | paczka 10 — dwie opcje trybu |
+| `DeliveryPlanVerdict` | rozstrzygnięty | paczka 10 — wyczerpujący presenter werdyktu |
+| `DeliveryPlanFailureReason` | rozstrzygnięty | paczka 10 — 7 komunikatów i jawne `None` |
+| `DeliveryPlanPhase` | rozstrzygnięty | paczka 10 — 7 faz |
+| `JourneyPlanningMode` | świadomie wykluczony | paczka 10 — sterowanie wyborem silnika |
+| `JourneyPlanStatus` | świadomie wykluczony | paczka 10 — redukcja do `DeliveryPlanFailureReason` |
+| `JourneyPlanConfidence` | świadomie wykluczony | paczka 10 — metadane; ostrzeżenia mają osobne kody |
+| `JourneyPlanSegmentType` | świadomie wykluczony | paczka 10 — brak konsumenta w aktywnym UI |
+| `JourneyPlanSegmentReason` | rozstrzygnięty | paczka 10 — 12 powodów |
+| `JourneyPlanWarningCode` | rozstrzygnięty | paczka 10 — 6 komunikatów |
+| `JourneyPlanWarningSeverity` | świadomie wykluczony | paczka 10 — sterowanie stylem bez tekstu |
+| `JourneyPlanSnapshotMismatch` | świadomie wykluczony | paczka 10 — kontrola świeżości bez tekstu |
 
 Miejsca fallbacku oparte na `ToString()` istnieją obecnie w Desktop i Reports.
 W M5 muszą zostać zastąpione jawnym presenterem dla tekstu użytkowego.

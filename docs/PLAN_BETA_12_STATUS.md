@@ -485,7 +485,7 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
 - **Punkt wejściowy:** `2d8a760`.
 - **Gałąź:** `codex/m5-localization-pl-en`.
 - **Stan:** M5.1 — inwentaryzacja tekstów, kontraktów i ryzyk przepełnień;
-  paczki 1–9 zamknięte wynikiem GO.
+  paczki 1–10 zamknięte wynikiem GO.
 - **Artefakt:** `docs/LOCALIZATION_STRING_INVENTORY.md`.
 - **Paczka 1:** elementy wspólne, powłoka i nawigacja — 33 wiążące klucze,
   0 pozycji otwartych.
@@ -500,21 +500,23 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
   0 pozycji otwartych.
 - **Paczka 7:** `UI-05`, Rekompensaty — 32 wiążące klucze,
   0 pozycji otwartych.
-- **Paczka 8:** `UI-06`, Raporty w Desktop — 98 wiążących kluczy,
+- **Paczka 8:** `UI-06`, Raporty w Desktop — 100 wiążących kluczy,
   0 pozycji otwartych.
 - **Paczka 9:** `UI-07`, Kierowcy i Ustawienia — 18 wiążących kluczy,
   0 pozycji otwartych.
-- **Katalog łączny:** 677 kluczy, 677 unikalnych nazw; jawna lista
-  18 dozwolonych par powtórzonych wartości między różnymi rolami.
+- **Paczka 10:** `UI-08`, Planer — 103 wiążące klucze,
+  0 pozycji otwartych.
+- **Katalog łączny:** 782 klucze, 782 unikalne nazwy; jawna lista
+  20 dozwolonych par powtórzonych wartości między różnymi rolami.
 - **X-01:** GO; zależności kompletności Dashboardu i listy dni w modalu wpisu
   manualnego są zamknięte.
-- **Rejestr presenterów:** 14 typów rozstrzygniętych, 4 świadomie wykluczone,
-  12 pozostałych.
-- **Pozostałe obszary M5.1:** `UI-08`, `UI-09`, `UI-10` i `PDF-01`;
+- **Rejestr presenterów:** 30 typów — 20 rozstrzygniętych,
+  10 świadomie wykluczonych, 0 pozostałych.
+- **Pozostałe obszary M5.1:** `UI-09`, `UI-10` i `PDF-01`;
   `DOC-01/02` pozostają odłożone do M5.4.
 - **Przejęte zobowiązania:** `UI-09` obejmuje szczegółowe komunikaty błędów,
-  `OperationStatus` i potwierdzenia. `UI-08` i `PDF-01` pozostają obszarami
-  o największej liczbie kandydatów i najwyższym ryzyku przepełnień EN.
+  `OperationStatus` i potwierdzenia. `UI-08` jest zamknięte; `PDF-01` pozostaje
+  obszarem o najwyższym ryzyku przepełnień EN.
 - **Warunek przed PDF-01:** rozstrzygnąć ponowne użycie jednej z trzech
   istniejących rodzin statusów rekompensat albo świadomie uzasadnić czwartą
   rodzinę PDF, zanim powstanie jej katalog.
