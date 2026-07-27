@@ -1,4 +1,5 @@
 using System.Text;
+using System.Globalization;
 using ETS2Tachograph.Application.Dtos;
 using ETS2Tachograph.Core.Entities;
 using ETS2Tachograph.Core.Enums;
@@ -188,7 +189,7 @@ public sealed class PdfReportExporterTests
         Assert.Equal(3, timeline.Count);
         Assert.Equal(2, timeline.Count(block => !block.IsGap));
         Assert.Equal(
-            "Brak danych — skok czasu",
+            "Brak danych - skok czasu",
             Assert.Single(timeline, block => block.IsGap).ActivityLabel);
     }
 
@@ -210,7 +211,7 @@ public sealed class PdfReportExporterTests
         var block = Assert.Single(new ReportPresentationBuilder().BuildTimelineBlocks([], [gap]));
 
         Assert.True(block.IsGap);
-        Assert.Equal("Brak danych — karta wyjęta", block.ActivityLabel);
+        Assert.Equal("Brak danych - karta wyjęta", block.ActivityLabel);
     }
 
     [Fact]
@@ -271,6 +272,60 @@ public sealed class PdfReportExporterTests
         Assert.Equal(300, checkpoint.DailyDrivingBefore);
         Assert.Equal(0, checkpoint.DailyDrivingAfter);
         Assert.True(checkpoint.DailyDrivingReset);
+    }
+
+    [Theory]
+    [InlineData("pl-PL", "Raport tachografu PL-REPORT")]
+    [InlineData("en-GB", "Tachograph report PL-REPORT")]
+    public async Task Export_uses_active_culture_without_changing_report_data(
+        string cultureName,
+        string expectedTitle)
+    {
+        var previousCulture = CultureInfo.CurrentCulture;
+        var previousUiCulture = CultureInfo.CurrentUICulture;
+        try
+        {
+            var culture = CultureInfo.GetCultureInfo(cultureName);
+            CultureInfo.CurrentCulture = culture;
+            CultureInfo.CurrentUICulture = culture;
+            var records = new[]
+            {
+                Record(0, 60, DriverActivity.Driving),
+                Record(60, 120, DriverActivity.BreakOrRest)
+            };
+            var report = new ReportDto(
+                "PL-REPORT",
+                0,
+                120,
+                60,
+                0,
+                0,
+                60,
+                0,
+                records,
+                [],
+                []);
+            var before = records.Select(record =>
+                    (record.Id, record.Activity, record.Start, record.EndExclusive))
+                .ToArray();
+            await using var destination = new MemoryStream();
+
+            await new PdfReportExporter().ExportAsync(report, destination);
+
+            destination.Position = 0;
+            using var document = PdfReader.Open(destination, PdfDocumentOpenMode.Import);
+            Assert.Equal(expectedTitle, document.Info.Title);
+            Assert.Equal(
+                before,
+                report.Records.Select(record =>
+                        (record.Id, record.Activity, record.Start, record.EndExclusive))
+                    .ToArray());
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = previousCulture;
+            CultureInfo.CurrentUICulture = previousUiCulture;
+        }
     }
 
     private static ActivityRecord Record(

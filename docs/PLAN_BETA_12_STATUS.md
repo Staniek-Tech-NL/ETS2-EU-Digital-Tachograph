@@ -478,14 +478,15 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
 
 ---
 
-## M5 — Lokalizacja PL/EN (W TOKU)
+## M5 — Lokalizacja PL/EN (GO)
 
 - **Data rozpoczęcia:** 2026-07-27.
+- **Data zakończenia:** 2026-07-27.
 - **Wejście:** GO M4 i aktywny UI freeze.
 - **Punkt wejściowy:** `2d8a760`.
 - **Gałąź:** `codex/m5-localization-pl-en`.
-- **Stan:** M5.1 zamknięte wynikiem GO; M5.2 fundament zaimplementowany
-  i przekazany do weryfikacji manualnej.
+- **Stan:** **GO**; M5.1–M5.4 zamknięte bez pozycji otwartych. M6 odblokowany
+  z zachowaniem obowiązku ponownego pomiaru M5.2-P przed zamrożeniem RC.
 - **Artefakt:** `docs/LOCALIZATION_STRING_INVENTORY.md`.
 - **Paczka 1:** elementy wspólne, powłoka i nawigacja — 33 wiążące klucze,
   0 pozycji otwartych.
@@ -554,8 +555,8 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
   M6 pomiar jest powtarzany i musi pozostać poniżej 10 s pracy repozytorium
   oraz bez wzrostu `APP_START` → `APP_READY` większego niż 50%. Szczegóły:
   `docs/PLAN_BETA_12_M0-M8/M5_2_CHECKPOINT_WYDAJNOSCI_STARTU.md`.
-- **Następny krok:** osobista weryfikacja restartu i fallbacku M5.2 oraz
-  czasu startu M5.2-P, następnie decyzje GO przed rozpoczęciem M5.3.
+- **Następny krok:** M6; przed zamrożeniem RC powtórzyć pomiar M5.2-P zgodnie
+  z jego progami i potwierdzić brak narastania czasu startu.
 - **Jawny wyjątek od UI freeze:** M5.2 dodaje dokładnie jedną nową kontrolkę
   do zamrożonego interfejsu — wybór `pl-PL` / `en-GB` w Ustawieniach.
   Jest wymagana planem M5, nie wprowadza dynamicznej zmiany bez restartu
@@ -573,7 +574,19 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
   Raporty, Kierowcy, Ustawienia, Planer, dialogi i nakładki są zlokalizowane.
   Pełna regresja 558/558, regresja Desktop 129/129 oraz osobisty smoke PL/EN
   są zielone.
-- **M5.4:** rozpoczęte — lokalizacja raportu PDF oraz instrukcji PL/EN.
+- **M5.4 — implementacja:** raport PDF jest zlokalizowany w `pl-PL` i `en-GB`;
+  metadane, treść, presentery, puste stany i stopka używają zasobów. Pełne
+  statusy rekompensat mieszczą się po autoryzowanym poszerzeniu kolumny z
+  95 pt do 125 pt, a układ checkpointów nie ma kolizji nagłówków.
+- **M5.4 — dane i testy:** próbki PL/EN wygenerowane z identycznego raportu
+  zachowują wspólne identyfikatory, wartości czasu i dane techniczne. Render
+  dwóch stron w obu językach: PASS; Reports 11/11 i pełna regresja 561/561:
+  PASS; build Release: 0 błędów, 0 ostrzeżeń.
+- **M5.4 — dokumentacja:** gotowe `docs/INSTALLATION_PL.md`,
+  `docs/INSTALLATION_EN.md`, `docs/USER_GUIDE_PL.md` oraz
+  `docs/USER_GUIDE_EN.md`; README prowadzi do wszystkich czterech plików.
+- **M5.4 — decyzja:** **GO**, zatwierdzone przez właściciela 2026-07-27 po
+  osobistym smoke eksportu i oględzinach PDF PL/EN; 0 pozycji otwartych.
 - **Zakres językowy:** `pl-PL` i `en-GB`.
 - **Kontrakty chronione:** JSON, techniczny CSV, `.tacho`, SQLite, protokół v3,
   identyfikatory i kody techniczne.
@@ -589,7 +602,8 @@ dowody manualne, P0, P1, uwagi).
 
 - **M4-0** — inwentaryzacja UI + osobista weryfikacja rc4. — *GO*
 - **M4** — realizacja zatwierdzonej inwentaryzacji + formalny **UI freeze**. — *GO*
-- **M5** — pełne `pl-PL` i `en-GB`, zielone regresje obu języków. — *w toku: M5.1*
+- **M5** — pełne `pl-PL` i `en-GB`, zielone regresje obu języków.
+  — *GO*
 - **M6** — niezmienny RC beta.12: numer + commit + SHA-256, ZIP zamrożony. — *nie rozpoczęty*
 - **M7** — smoke na rozpakowanym ZIP-ie (istniejąca + czysta baza) → GO/FIX/HOLD. — *nie rozpoczęty*
 - **M8** — publikacja dokładnie artefaktu z GO + checksuma + dokumentacja PL/EN. — *nie rozpoczęty*

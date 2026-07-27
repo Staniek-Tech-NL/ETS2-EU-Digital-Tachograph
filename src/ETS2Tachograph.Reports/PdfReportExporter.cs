@@ -2,6 +2,7 @@ using System.Globalization;
 using ETS2Tachograph.Application.Dtos;
 using ETS2Tachograph.Application.Persistence;
 using ETS2Tachograph.Core.Enums;
+using ETS2Tachograph.Reports.Localization;
 using ETS2Tachograph.RuleEngine;
 using PdfSharp.Drawing;
 using PdfSharp.Fonts;
@@ -23,19 +24,23 @@ public sealed class PdfReportExporter : IPdfReportExporter
     {
         cancellationToken.ThrowIfCancellationRequested();
         GlobalFontSettings.FontResolver ??= new WindowsReportFontResolver();
+        var culture = CultureInfo.CurrentUICulture;
 
         var blocks = _presentation.BuildTimelineBlocks(report.Records, report.Gaps);
         var checkpoints = _presentation.BuildCheckpoints(report.Records);
-        var layouts = BuildLayouts(report, blocks, checkpoints, cancellationToken);
+        var layouts = BuildLayouts(report, blocks, checkpoints, culture, cancellationToken);
 
         using var document = new PdfDocument();
-        document.Info.Title = $"Raport tachografu {report.DriverCardId}";
-        document.Info.Subject = report.GapSummaryText;
-        document.Info.Keywords = report.CoverageBalanceText;
+        document.Info.Title = ReportStrings.Format(
+            "Pdf_DocumentTitleFormat",
+            culture,
+            report.DriverCardId);
+        document.Info.Subject = FormatGapSummary(report, culture);
+        document.Info.Keywords = FormatCoverageBalance(report, culture);
         for (var index = 0; index < layouts.Count; index++)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            DrawPage(document.AddPage(), report, layouts[index], index + 1, layouts.Count);
+            DrawPage(document.AddPage(), report, layouts[index], index + 1, layouts.Count, culture);
         }
 
         document.Save(destination, closeStream: false);
@@ -46,6 +51,7 @@ public sealed class PdfReportExporter : IPdfReportExporter
         ReportDto report,
         IReadOnlyList<ReportTimelineBlock> blocks,
         IReadOnlyList<ReportCheckpoint> checkpoints,
+        CultureInfo culture,
         CancellationToken cancellationToken)
     {
         var pages = new List<PageLayout> { new(true) };
@@ -150,7 +156,27 @@ public sealed class PdfReportExporter : IPdfReportExporter
         Current().Add(new LayoutRow(
             RowKind.ActivitySummary,
             18,
-            $"{report.Records.Count} rekordów minutowych + {report.Gaps.Count} luk -> {blocks.Count} bloków osi czasu"));
+            ReportStrings.Format(
+                "Pdf_ActivitySummaryFormat",
+                culture,
+                CountText(
+                    report.Records.Count,
+                    "Pdf_RecordCountOneFormat",
+                    "Pdf_RecordCountFewFormat",
+                    "Pdf_RecordCountManyFormat",
+                    culture),
+                CountText(
+                    report.Gaps.Count,
+                    "Pdf_GapCountOneFormat",
+                    "Pdf_GapCountFewFormat",
+                    "Pdf_GapCountManyFormat",
+                    culture),
+                CountText(
+                    blocks.Count,
+                    "Pdf_TimelineBlockCountOneFormat",
+                    "Pdf_TimelineBlockCountFewFormat",
+                    "Pdf_TimelineBlockCountManyFormat",
+                    culture))));
         Current().Add(new LayoutRow(RowKind.ActivityHeader, 24));
 
         if (blocks.Count == 0)
@@ -176,7 +202,8 @@ public sealed class PdfReportExporter : IPdfReportExporter
         ReportDto report,
         PageLayout layout,
         int pageNumber,
-        int pageCount)
+        int pageCount,
+        CultureInfo culture)
     {
         page.Size = PdfSharp.PageSize.A4;
         using var graphics = XGraphics.FromPdfPage(page);
@@ -192,9 +219,9 @@ public sealed class PdfReportExporter : IPdfReportExporter
         var pale = XColor.FromArgb(239, 243, 245);
 
         if (layout.IsFirstPage)
-            DrawFirstPageHeader(graphics, page, report, regular, small, bold, title, dark, accent, pale);
+            DrawFirstPageHeader(graphics, page, report, regular, small, bold, title, dark, accent, pale, culture);
         else
-            DrawContinuationHeader(graphics, report, regular, title, dark, accent);
+            DrawContinuationHeader(graphics, report, regular, title, dark, accent, culture);
 
         var rowIndex = 0;
         foreach (var row in layout.Rows)
@@ -206,11 +233,11 @@ public sealed class PdfReportExporter : IPdfReportExporter
                     break;
                 case RowKind.CompensationSection:
                     DrawSectionTitle(graphics, y, (row.Data as bool?) == true
-                        ? "REKOMPENSATY ODPOCZYNKU TYGODNIOWEGO - ciąg dalszy"
-                        : "REKOMPENSATY ODPOCZYNKU TYGODNIOWEGO", section, accent);
+                        ? ReportStrings.Get("PdfSection_WeeklyRestCompensationContinued", culture)
+                        : ReportStrings.Get("Compensation_Title", culture), section, accent);
                     break;
                 case RowKind.CompensationHeader:
-                    DrawCompensationHeader(graphics, y, bold, dark);
+                    DrawCompensationHeader(graphics, y, bold, dark, culture);
                     rowIndex = 0;
                     break;
                 case RowKind.Compensation:
@@ -221,15 +248,16 @@ public sealed class PdfReportExporter : IPdfReportExporter
                         small,
                         tiny,
                         micro,
-                        rowIndex++ % 2 == 0 ? pale : XColors.White);
+                        rowIndex++ % 2 == 0 ? pale : XColors.White,
+                        culture);
                     break;
                 case RowKind.EmptyCompensations:
-                    DrawEmptyRow(graphics, y, "Brak zobowiązań rekompensaty w historii raportu.", small, pale);
+                    DrawEmptyRow(graphics, y, ReportStrings.Get("PdfEmpty_NoCompensations", culture), small, pale);
                     break;
                 case RowKind.RestAllocationSection:
                     DrawSectionTitle(graphics, y, (row.Data as bool?) == true
-                        ? "PRZYDZIAŁ ODPOCZYNKU - ciąg dalszy"
-                        : "PRZYDZIAŁ ODPOCZYNKU I REKOMPENSATY", section, accent);
+                        ? ReportStrings.Get("PdfSection_RestAllocationContinued", culture)
+                        : ReportStrings.Get("PdfSection_RestAllocation", culture), section, accent);
                     break;
                 case RowKind.RestAllocation:
                     DrawRestAllocationRow(
@@ -239,38 +267,39 @@ public sealed class PdfReportExporter : IPdfReportExporter
                         small,
                         tiny,
                         micro,
-                        rowIndex++ % 2 == 0 ? pale : XColors.White);
+                        rowIndex++ % 2 == 0 ? pale : XColors.White,
+                        culture);
                     break;
                 case RowKind.EmptyRestAllocations:
-                    DrawEmptyRow(graphics, y, "Brak bloków wymagających decyzji o przydziale.", small, pale);
+                    DrawEmptyRow(graphics, y, ReportStrings.Get("PdfEmpty_NoRestAllocations", culture), small, pale);
                     break;
                 case RowKind.CheckpointSection:
                     DrawSectionTitle(graphics, y, (row.Data as bool?) == true
-                        ? "PUNKTY PRZEŁOMOWE - ciąg dalszy"
-                        : "PUNKTY PRZEŁOMOWE", section, accent);
+                        ? ReportStrings.Get("PdfSection_CheckpointsContinued", culture)
+                        : ReportStrings.Get("PdfSection_Checkpoints", culture), section, accent);
                     break;
                 case RowKind.CheckpointHeader:
-                    DrawCheckpointHeader(graphics, y, bold, dark);
+                    DrawCheckpointHeader(graphics, y, small, dark, culture);
                     rowIndex = 0;
                     break;
                 case RowKind.Checkpoint:
                     DrawCheckpointRow(graphics, y, (ReportCheckpoint)row.Data!, small, tiny,
-                        rowIndex++ % 2 == 0 ? pale : XColors.White);
+                        rowIndex++ % 2 == 0 ? pale : XColors.White, culture);
                     break;
                 case RowKind.EmptyCheckpoints:
-                    DrawEmptyRow(graphics, y, "Brak przerw co najmniej 15 min w zakresie raportu.", small, pale);
+                    DrawEmptyRow(graphics, y, ReportStrings.Get("PdfEmpty_NoCheckpoints", culture), small, pale);
                     break;
                 case RowKind.ActivitySection:
                     DrawSectionTitle(graphics, y, (row.Data as bool?) == true
-                        ? "ZWINIĘTE BLOKI AKTYWNOŚCI - ciąg dalszy"
-                        : "ZWINIĘTE BLOKI AKTYWNOŚCI", section, accent);
+                        ? ReportStrings.Get("PdfSection_ActivityBlocksContinued", culture)
+                        : ReportStrings.Get("PdfSection_ActivityBlocks", culture), section, accent);
                     break;
                 case RowKind.ActivitySummary:
                     graphics.DrawString((string)row.Data!, small, XBrushes.Gray,
                         new XRect(Left, y, Width, row.Height), XStringFormats.CenterLeft);
                     break;
                 case RowKind.ActivityHeader:
-                    DrawActivityHeader(graphics, y, bold, dark);
+                    DrawActivityHeader(graphics, y, bold, dark, culture);
                     rowIndex = 0;
                     break;
                 case RowKind.Activity:
@@ -278,12 +307,12 @@ public sealed class PdfReportExporter : IPdfReportExporter
                         rowIndex++ % 2 == 0 ? pale : XColors.White);
                     break;
                 case RowKind.EmptyActivities:
-                    DrawEmptyRow(graphics, y, "Brak aktywności w wybranym zakresie.", small, pale);
+                    DrawEmptyRow(graphics, y, ReportStrings.Get("PdfEmpty_NoActivities", culture), small, pale);
                     break;
             }
         }
 
-        graphics.DrawString($"Strona {pageNumber}/{pageCount}", small, XBrushes.Gray,
+        graphics.DrawString(ReportStrings.Format("Pdf_PageFormat", culture, pageNumber, pageCount), small, XBrushes.Gray,
             new XRect(Left, page.Height.Point - 35, Width, 12), XStringFormats.CenterRight);
     }
 
@@ -297,20 +326,21 @@ public sealed class PdfReportExporter : IPdfReportExporter
         XFont title,
         XColor dark,
         XColor accent,
-        XColor pale)
+        XColor pale,
+        CultureInfo culture)
     {
         graphics.DrawRectangle(new XSolidBrush(dark), 0, 0, page.Width.Point, 92);
-        graphics.DrawString("ETS2 DIGITAL TACHOGRAPH", title, XBrushes.White, new XPoint(Left, 42));
-        graphics.DrawString($"Raport kierowcy - karta {report.DriverCardId}", regular,
+        graphics.DrawString(ReportStrings.Get("Pdf_ProductName", culture), title, XBrushes.White, new XPoint(Left, 42));
+        graphics.DrawString(ReportStrings.Format("Pdf_DriverReportFormat", culture, report.DriverCardId), regular,
             new XSolidBrush(accent), new XPoint(Left + 1, 67));
 
         var summary = new[]
         {
-            ("Jazda", report.DrivingMinutes),
-            ("Inna praca", report.OtherWorkMinutes),
-            ("Dyspozycja", report.AvailabilityMinutes),
-            ("Odpoczynek", report.RestMinutes),
-            ("Naruszenia", (long)report.Violations.Count)
+            (ReportStrings.Get("Activity_Driving", culture), report.DrivingMinutes),
+            (ReportStrings.Get("Activity_OtherWork", culture), report.OtherWorkMinutes),
+            (ReportStrings.Get("PdfActivity_Availability", culture), report.AvailabilityMinutes),
+            (ReportStrings.Get("Activity_Rest", culture), report.RestMinutes),
+            (ReportStrings.Get("Pdf_SummaryViolations", culture), (long)report.Violations.Count)
         };
         for (var index = 0; index < summary.Length; index++)
         {
@@ -324,22 +354,29 @@ public sealed class PdfReportExporter : IPdfReportExporter
         }
 
         graphics.DrawString(
-            $"Czas gry: {FormatGameTime(report.FromGameMinute)} - {FormatGameTime(report.ToGameMinuteExclusive)}",
+            ReportStrings.Format(
+                "Pdf_GameTimeRangeFormat",
+                culture,
+                FormatGameTime(report.FromGameMinute),
+                FormatGameTime(report.ToGameMinuteExclusive)),
             regular,
             XBrushes.Black,
             new XPoint(Left, 184));
         graphics.DrawString(
-            $"Rekompensata: {FormatCompensation(report.CompensationSummary)}",
+            ReportStrings.Format(
+                "Pdf_CompensationSummaryFormat",
+                culture,
+                FormatCompensation(report.CompensationSummary, culture)),
             bold,
             report.CompensationSummary.HasOverdue ? XBrushes.Red : XBrushes.Black,
             new XPoint(Left, 204));
         graphics.DrawString(
-            report.GapSummaryText,
+            FormatGapSummary(report, culture),
             bold,
             report.UnresolvedGapCount > 0 ? XBrushes.Red : XBrushes.Black,
             new XPoint(Left, 224));
         graphics.DrawString(
-            report.CoverageBalanceText,
+            FormatCoverageBalance(report, culture),
             small,
             report.CoverageMatchesRange ? XBrushes.DimGray : XBrushes.Red,
             new XPoint(Left, 242));
@@ -351,11 +388,12 @@ public sealed class PdfReportExporter : IPdfReportExporter
         XFont regular,
         XFont title,
         XColor dark,
-        XColor accent)
+        XColor accent,
+        CultureInfo culture)
     {
         graphics.DrawRectangle(new XSolidBrush(dark), 0, 0, 595, 64);
-        graphics.DrawString("ETS2 DIGITAL TACHOGRAPH", title, XBrushes.White, new XPoint(Left, 34));
-        graphics.DrawString($"Karta {report.DriverCardId}", regular,
+        graphics.DrawString(ReportStrings.Get("Pdf_ProductName", culture), title, XBrushes.White, new XPoint(Left, 34));
+        graphics.DrawString(ReportStrings.Format("Pdf_ContinuationCardFormat", culture, report.DriverCardId), regular,
             new XSolidBrush(accent), new XRect(Left, 20, Width, 22), XStringFormats.CenterRight);
     }
 
@@ -366,19 +404,40 @@ public sealed class PdfReportExporter : IPdfReportExporter
         graphics.DrawRectangle(new XSolidBrush(accent), Left, y + 25, Width, 2);
     }
 
-    private static void DrawCheckpointHeader(XGraphics graphics, double y, XFont font, XColor dark)
+    private static void DrawCheckpointHeader(
+        XGraphics graphics,
+        double y,
+        XFont font,
+        XColor dark,
+        CultureInfo culture)
     {
-        DrawHeaderCells(graphics, y, [153, 55, 105, 105, 105],
-            ["Przerwa", "Czas", "Ciągła przed / po", "Dzienna przed / po", "Reset dzienny"], font, dark);
+        DrawHeaderCells(graphics, y, [145, 55, 125, 110, 88],
+            [
+                ReportStrings.Get("PdfHeader_Break", culture),
+                ReportStrings.Get("PdfHeader_Time", culture),
+                ReportStrings.Get("PdfHeader_ContinuousBeforeAfter", culture),
+                ReportStrings.Get("PdfHeader_DailyBeforeAfter", culture),
+                ReportStrings.Get("PdfHeader_DailyReset", culture)
+            ], font, dark);
     }
 
-    private static void DrawCompensationHeader(XGraphics graphics, double y, XFont font, XColor dark)
+    private static void DrawCompensationHeader(
+        XGraphics graphics,
+        double y,
+        XFont font,
+        XColor dark,
+        CultureInfo culture)
     {
         DrawHeaderCells(
             graphics,
             y,
-            [95, 90, 155, 183],
-            ["Status", "Dług / pozostało", "Tydzień / termin wyłączny", "Moment spłaty"],
+            [125, 80, 145, 173],
+            [
+                ReportStrings.Get("PdfHeader_Status", culture),
+                ReportStrings.Get("PdfHeader_DebtRemaining", culture),
+                ReportStrings.Get("PdfHeader_WeekExclusiveDeadline", culture),
+                ReportStrings.Get("PdfHeader_PaymentTime", culture)
+            ],
             font,
             dark);
     }
@@ -390,20 +449,21 @@ public sealed class PdfReportExporter : IPdfReportExporter
         XFont font,
         XFont tiny,
         XFont micro,
-        XColor background)
+        XColor background,
+        CultureInfo culture)
     {
         graphics.DrawRectangle(new XSolidBrush(background), Left, y, Width, 82);
         DrawCells(
             graphics,
             y,
             27,
-            [95, 90, 155, 183],
+            [125, 80, 145, 173],
             [
-                FormatCompensationStatus(obligation.Status),
+                FormatCompensationStatus(obligation.Status, culture),
                 $"{FormatMinutes(obligation.OriginalOwedMinutes)} / {FormatMinutes(obligation.RemainingMinutes)}",
                 $"T{obligation.ReductionWeek} / {FormatGameTime(obligation.DueAtGameMinuteExclusive)}",
                 obligation.SettledAtGameMinute is null
-                    ? "—"
+                    ? "-"
                     : $"{FormatGameTime(obligation.SettledAtGameMinute.Value)} (min {obligation.SettledAtGameMinute.Value})"
             ],
             font,
@@ -412,7 +472,11 @@ public sealed class PdfReportExporter : IPdfReportExporter
 
         graphics.DrawLine(XPens.LightGray, Left, y + 27, Left + Width, y + 27);
         graphics.DrawString(
-            $"Zobowiązanie (schemat v{obligation.IdentitySchemeVersion}): {obligation.ObligationId}",
+            ReportStrings.Format(
+                "PdfCompensation_ObligationFormat",
+                culture,
+                obligation.IdentitySchemeVersion,
+                obligation.ObligationId),
             micro,
             XBrushes.Black,
             new XRect(Left + 5, y + 29, Width - 10, 11),
@@ -422,28 +486,40 @@ public sealed class PdfReportExporter : IPdfReportExporter
         graphics.DrawLine(XPens.LightGray, Left + traceWidth, y + 42, Left + traceWidth, y + 82);
 
         graphics.DrawString(
-            $"Źródło: {obligation.SourceRestBlockId}",
+            ReportStrings.Format(
+                "ReportActivity_SourceFormat",
+                culture,
+                obligation.SourceRestBlockId),
             micro,
             XBrushes.Black,
             new XRect(Left + 5, y + 43, traceWidth - 10, 12),
             XStringFormats.CenterLeft);
         graphics.DrawString(
-            $"Koniec źródła: {FormatGameTime(obligation.SourceRestEndGameMinuteExclusive)} (min {obligation.SourceRestEndGameMinuteExclusive})",
+            ReportStrings.Format(
+                "PdfCompensation_SourceEndFormat",
+                culture,
+                FormatGameTime(obligation.SourceRestEndGameMinuteExclusive),
+                obligation.SourceRestEndGameMinuteExclusive),
             tiny,
             XBrushes.DimGray,
             new XRect(Left + 5, y + 57, traceWidth - 10, 17),
             XStringFormats.CenterLeft);
 
-        var paymentId = obligation.PaymentRestBlockId ?? "—";
+        var paymentId = obligation.PaymentRestBlockId ?? "-";
         graphics.DrawString(
-            $"Blok spłacający: {paymentId}",
+            ReportStrings.Format("PdfCompensation_PayingBlockFormat", culture, paymentId),
             micro,
             XBrushes.Black,
             new XRect(Left + traceWidth + 5, y + 43, traceWidth - 10, 12),
             XStringFormats.CenterLeft);
         var paymentRange = obligation.PaymentRange is null
-            ? "Zakres spłaty: —"
-            : $"Zakres spłaty: [{obligation.PaymentRange.StartGameMinute}, {obligation.PaymentRange.EndGameMinuteExclusive}) = {FormatMinutes(obligation.PaymentRange.DurationMinutes)}";
+            ? ReportStrings.Get("PdfCompensation_PaymentRangeNone", culture)
+            : ReportStrings.Format(
+                "PdfCompensation_PaymentRangeFormat",
+                culture,
+                obligation.PaymentRange.StartGameMinute,
+                obligation.PaymentRange.EndGameMinuteExclusive,
+                FormatMinutes(obligation.PaymentRange.DurationMinutes));
         graphics.DrawString(
             paymentRange,
             tiny,
@@ -459,14 +535,30 @@ public sealed class PdfReportExporter : IPdfReportExporter
         XFont font,
         XFont tiny,
         XFont micro,
-        XColor background)
+        XColor background,
+        CultureInfo culture)
     {
         graphics.DrawRectangle(new XSolidBrush(background), Left, y, Width, 64);
         var allocation = row.Allocation;
         var candidate = row.Candidate;
-        var decisionStatus = allocation.Decision?.Status.ToString() ?? (allocation.IsPending ? "Pending" : "None");
+        var decisionStatus = allocation.Decision is null
+            ? ReportStrings.Get(
+                allocation.IsPending
+                    ? "PdfDecisionStatus_Pending"
+                    : "PdfDecisionStatus_None",
+                culture)
+            : DecisionStatus(allocation.Decision.Status, culture);
+        var purpose = AllocationPurpose(candidate.Purpose, culture);
         graphics.DrawString(
-            $"{(row.Selected ? "WYBRANY" : "KANDYDAT")} · {candidate.Purpose} · podstawa {FormatMinutes(candidate.HostMinimumMinutes)} · nowy dług {FormatMinutes(candidate.NewDebtMinutes)} · tydzień: {(candidate.SatisfiesWeeklyRestRequirement ? "TAK" : "NIE")}",
+            ReportStrings.Format(
+                row.Selected ? "PdfAllocation_SelectedFormat" : "PdfAllocation_CandidateFormat",
+                culture,
+                purpose,
+                FormatMinutes(candidate.HostMinimumMinutes),
+                FormatMinutes(candidate.NewDebtMinutes),
+                ReportStrings.Get(
+                    candidate.SatisfiesWeeklyRestRequirement ? "Pdf_Yes" : "Pdf_No",
+                    culture)),
             font,
             XBrushes.Black,
             new XRect(Left + 5, y + 1, Width - 10, 18),
@@ -484,17 +576,21 @@ public sealed class PdfReportExporter : IPdfReportExporter
             new XRect(Left + 5, y + 31, Width - 10, 11),
             XStringFormats.CenterLeft);
         var obligations = candidate.ObligationIds.Count == 0
-            ? "—"
+            ? "-"
             : string.Join(", ", candidate.ObligationIds);
         graphics.DrawString(
-            $"Zobowiązania: {obligations}",
+            ReportStrings.Format("PdfAllocation_ObligationsFormat", culture, obligations),
             micro,
             XBrushes.Black,
             new XRect(Left + 5, y + 43, Width * 0.58, 18),
             XStringFormats.CenterLeft);
         var decisionTrace = allocation.Decision is null
-            ? $"Decyzja: {decisionStatus}"
-            : $"Decyzja: {decisionStatus} · {allocation.Decision.DecidedAtUtc:O}";
+            ? ReportStrings.Format("PdfDecision_Format", culture, decisionStatus)
+            : ReportStrings.Format(
+                "PdfDecision_WithTimestampFormat",
+                culture,
+                decisionStatus,
+                allocation.Decision.DecidedAtUtc.ToString("O", CultureInfo.InvariantCulture));
         graphics.DrawString(
             decisionTrace,
             tiny,
@@ -509,7 +605,8 @@ public sealed class PdfReportExporter : IPdfReportExporter
         ReportCheckpoint checkpoint,
         XFont font,
         XFont tiny,
-        XColor background)
+        XColor background,
+        CultureInfo culture)
     {
         graphics.DrawRectangle(new XSolidBrush(background), Left, y, Width, 28);
         var values = new[]
@@ -518,15 +615,26 @@ public sealed class PdfReportExporter : IPdfReportExporter
             FormatMinutes(checkpoint.RestMinutes),
             $"{FormatMinutes(checkpoint.ContinuousDrivingBefore)} / {FormatMinutes(checkpoint.ContinuousDrivingAfter)}",
             $"{FormatMinutes(checkpoint.DailyDrivingBefore)} / {FormatMinutes(checkpoint.DailyDrivingAfter)}",
-            checkpoint.DailyDrivingReset ? "TAK" : "NIE"
+            ReportStrings.Get(checkpoint.DailyDrivingReset ? "Pdf_Yes" : "Pdf_No", culture)
         };
-        DrawCells(graphics, y, 28, [153, 55, 105, 105, 105], values, font, 0, tiny);
+        DrawCells(graphics, y, 28, [145, 55, 125, 110, 88], values, font, 0, tiny);
     }
 
-    private static void DrawActivityHeader(XGraphics graphics, double y, XFont font, XColor dark)
+    private static void DrawActivityHeader(
+        XGraphics graphics,
+        double y,
+        XFont font,
+        XColor dark,
+        CultureInfo culture)
     {
         DrawHeaderCells(graphics, y, [86, 86, 123, 174, 54],
-            ["Od", "Do", "Aktywność", "Źródło", "Czas"], font, dark);
+            [
+                ReportStrings.Get("PlannerTime_FromPrefix", culture),
+                ReportStrings.Get("PlannerTime_ToPrefix", culture),
+                ReportStrings.Get("PdfHeader_Activity", culture),
+                ReportStrings.Get("PdfHeader_Source", culture),
+                ReportStrings.Get("PdfHeader_Time", culture)
+            ], font, dark);
     }
 
     private static void DrawActivityRow(
@@ -600,26 +708,118 @@ public sealed class PdfReportExporter : IPdfReportExporter
 
     private static string FormatMinutes(long minutes) => $"{minutes / 60:00}:{minutes % 60:00}";
 
-    private static string FormatCompensation(CompensationSummary summary)
+    private static string FormatCompensation(
+        CompensationSummary summary,
+        CultureInfo culture)
     {
         if (summary.Count == 0)
-            return "—";
+            return "-";
 
-        var count = summary.Count > 1 ? $" ({summary.Count})" : string.Empty;
-        var status = summary.HasOverdue
-            ? "PRZETERMINOWANA"
-            : $"DO TYG. {summary.NearestDueByEndOfWeek!.Value.Index}";
-        return $"{FormatMinutes(summary.TotalOwedMinutes)}{count} · {status}";
+        var minutes = FormatMinutes(summary.TotalOwedMinutes);
+        return (summary.HasOverdue, summary.Count > 1) switch
+        {
+            (true, true) => ReportStrings.Format(
+                "PdfCompensation_OverdueCountFormat",
+                culture,
+                minutes,
+                summary.Count),
+            (true, false) => ReportStrings.Format(
+                "PdfCompensation_OverdueFormat",
+                culture,
+                minutes),
+            (false, true) => ReportStrings.Format(
+                "PdfCompensation_DueWeekCountFormat",
+                culture,
+                minutes,
+                summary.Count,
+                summary.NearestDueByEndOfWeek!.Value.Index),
+            _ => ReportStrings.Format(
+                "PdfCompensation_DueWeekFormat",
+                culture,
+                minutes,
+                summary.NearestDueByEndOfWeek!.Value.Index)
+        };
     }
 
-    private static string FormatCompensationStatus(WeeklyRestCompensationStatusDto status) => status switch
+    private static string FormatCompensationStatus(
+        WeeklyRestCompensationStatusDto status,
+        CultureInfo culture) => status switch
     {
-        WeeklyRestCompensationStatusDto.OpenOnTime => "OTWARTE",
-        WeeklyRestCompensationStatusDto.Overdue => "ZALEGŁE",
-        WeeklyRestCompensationStatusDto.PaidOnTime => "SPŁACONE",
-        WeeklyRestCompensationStatusDto.PaidLate => "SPŁACONE PO TERMINIE",
-        _ => throw new ArgumentOutOfRangeException(nameof(status), status, "Nieznany status rekompensaty.")
+        WeeklyRestCompensationStatusDto.OpenOnTime =>
+            ReportStrings.Get("ReportCompensationStatus_OpenOnTime", culture),
+        WeeklyRestCompensationStatusDto.Overdue =>
+            ReportStrings.Get("ReportCompensationStatus_Overdue", culture),
+        WeeklyRestCompensationStatusDto.PaidOnTime =>
+            ReportStrings.Get("ReportCompensationStatus_PaidOnTime", culture),
+        WeeklyRestCompensationStatusDto.PaidLate =>
+            ReportStrings.Get("ReportCompensationStatus_PaidLate", culture),
+        _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
     };
+
+    private static string AllocationPurpose(
+        RestAllocationPurpose purpose,
+        CultureInfo culture) => purpose switch
+    {
+        RestAllocationPurpose.DailyRestWithCompensation =>
+            ReportStrings.Get("RestAllocationPurpose_DailyRestWithCompensation", culture),
+        RestAllocationPurpose.ReducedWeeklyRestOnly =>
+            ReportStrings.Get("RestAllocationPurpose_ReducedWeeklyRestOnly", culture),
+        RestAllocationPurpose.ReducedWeeklyRestWithCompensation =>
+            ReportStrings.Get("RestAllocationPurpose_ReducedWeeklyRestWithCompensation", culture),
+        RestAllocationPurpose.RegularWeeklyRestOnly =>
+            ReportStrings.Get("RestAllocationPurpose_RegularWeeklyRestOnly", culture),
+        RestAllocationPurpose.RegularWeeklyRestWithCompensation =>
+            ReportStrings.Get("RestAllocationPurpose_RegularWeeklyRestWithCompensation", culture),
+        _ => throw new ArgumentOutOfRangeException(nameof(purpose), purpose, null)
+    };
+
+    private static string DecisionStatus(
+        RestAllocationDecisionStatus status,
+        CultureInfo culture) => status switch
+    {
+        RestAllocationDecisionStatus.Active =>
+            ReportStrings.Get("PdfDecisionStatus_Active", culture),
+        RestAllocationDecisionStatus.Superseded =>
+            ReportStrings.Get("PdfDecisionStatus_Superseded", culture),
+        RestAllocationDecisionStatus.Invalidated =>
+            ReportStrings.Get("PdfDecisionStatus_Invalidated", culture),
+        _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
+    };
+
+    private static string FormatGapSummary(ReportDto report, CultureInfo culture) =>
+        report.UnresolvedGapCount == 0
+            ? ReportStrings.Get("Pdf_GapsNone", culture)
+            : ReportStrings.Format(
+                "Pdf_UnresolvedGapsFormat",
+                culture,
+                report.UnresolvedGapCount,
+                FormatMinutes(report.GapMinutes));
+
+    private static string FormatCoverageBalance(ReportDto report, CultureInfo culture) =>
+        ReportStrings.Format(
+            "Pdf_CoverageBalanceFormat",
+            culture,
+            FormatMinutes(report.TotalMinutes),
+            FormatMinutes(report.GapMinutes),
+            FormatMinutes(report.CoveredMinutes),
+            FormatMinutes(report.RangeMinutes));
+
+    private static string CountText(
+        long count,
+        string one,
+        string few,
+        string many,
+        CultureInfo culture)
+    {
+        var absolute = Math.Abs(count);
+        var key = absolute == 1
+            ? one
+            : absolute % 10 is >= 2 and <= 4 &&
+              absolute % 100 is not (>= 12 and <= 14)
+                ? few
+                : many;
+        return ReportStrings.Format(key, culture, count);
+    }
 
     private static string FormatGameTime(long minutes)
     {

@@ -1,7 +1,9 @@
+using System.Globalization;
 using ETS2Tachograph.Core.Entities;
 using ETS2Tachograph.Core.Enums;
 using ETS2Tachograph.Core.Rules;
 using ETS2Tachograph.Core.Time;
+using ETS2Tachograph.Reports.Localization;
 using ETS2Tachograph.RuleEngine;
 
 namespace ETS2Tachograph.Reports;
@@ -26,34 +28,41 @@ public sealed record ReportActivityBlock(
             }
             else if (Sources.SetEquals([ActivitySource.Telemetry, ActivitySource.Reconstructed]))
             {
-                label = "Telemetria / częściowo rekonstruowana";
+                label = ReportStrings.Get("PdfSource_TelemetryPartiallyReconstructed");
             }
             else if (Sources.Contains(ActivitySource.Reconstructed))
             {
-                label = "Mieszane / częściowo rekonstruowane";
+                label = ReportStrings.Get("PdfSource_MixedPartiallyReconstructed");
             }
             else
             {
-                label = "Mieszane";
+                label = ReportStrings.Get("ActivitySource_Mixed");
             }
 
             if (Conditions.SetEquals([SpecialCondition.FerryCrossing]))
-                return $"{label} - prom";
+                return ReportStrings.Format(
+                    "PdfSource_FerryFormat",
+                    CultureInfo.CurrentUICulture,
+                    label);
             if (Conditions.Count > 1 || Conditions.Contains(SpecialCondition.Mixed))
-                return $"{label} - tryb mieszany";
+                return ReportStrings.Format(
+                    "PdfSource_MixedModeFormat",
+                    CultureInfo.CurrentUICulture,
+                    label);
             return label;
         }
     }
 
     private static string SourceName(ActivitySource source) => source switch
     {
-        ActivitySource.Telemetry => "Telemetria",
-        ActivitySource.Manual => "Ręczne",
-        ActivitySource.Reconstructed => "Rekonstruowane",
-        ActivitySource.Mixed => "Mieszane",
-        ActivitySource.ManualEntry => "Wpis manualny",
-        ActivitySource.AutomaticCrewReconstruction => "Automatyczna rekonstrukcja załogi",
-        _ => source.ToString()
+        ActivitySource.Telemetry => ReportStrings.Get("ActivitySource_Telemetry"),
+        ActivitySource.Manual => ReportStrings.Get("PdfSource_Manual"),
+        ActivitySource.Reconstructed => ReportStrings.Get("PdfSource_Reconstructed"),
+        ActivitySource.Mixed => ReportStrings.Get("ActivitySource_Mixed"),
+        ActivitySource.ManualEntry => ReportStrings.Get("ActivitySource_ManualEntry"),
+        ActivitySource.AutomaticCrewReconstruction =>
+            ReportStrings.Get("PdfSource_AutomaticCrewReconstruction"),
+        _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
     };
 }
 
@@ -69,21 +78,25 @@ public sealed record ReportTimelineBlock(
         ? ActivityName(Activity!.Activity)
         : Gap.Reason switch
         {
-            ActivityGapReason.ForwardTimeJump => "Brak danych — skok czasu",
-            ActivityGapReason.CardRemoved => "Brak danych — karta wyjęta",
-            ActivityGapReason.TelemetryUnavailable => "Brak danych — telemetria",
-            _ => "Brak danych"
+            ActivityGapReason.ForwardTimeJump => ReportStrings.Get("PdfGap_ForwardTimeJump"),
+            ActivityGapReason.CardRemoved => ReportStrings.Get("PdfGap_CardRemoved"),
+            ActivityGapReason.TelemetryUnavailable =>
+                ReportStrings.Get("PdfGap_TelemetryUnavailable"),
+            _ => ReportStrings.Get("Common_NoData")
         };
-    public string SourceLabel => Gap is null ? Activity!.SourceLabel : "Luka aktywności";
+    public string SourceLabel => Gap is null
+        ? Activity!.SourceLabel
+        : ReportStrings.Get("PdfGap_ActivitySource");
 
     private static string ActivityName(DriverActivity activity) => activity switch
     {
-        DriverActivity.Driving => "Jazda",
-        DriverActivity.OtherWork => "Inna praca",
-        DriverActivity.Availability => "Dyspozycja",
-        DriverActivity.BreakOrRest => "Przerwa / odpoczynek",
-        DriverActivity.OutOfScope => "Poza zakresem (OUT)",
-        _ => activity.ToString()
+        DriverActivity.Driving => ReportStrings.Get("Activity_Driving"),
+        DriverActivity.OtherWork => ReportStrings.Get("Activity_OtherWork"),
+        DriverActivity.Availability => ReportStrings.Get("PdfActivity_Availability"),
+        DriverActivity.BreakOrRest => ReportStrings.Get("Activity_BreakOrRest"),
+        DriverActivity.OutOfScope => ReportStrings.Get("PdfActivity_OutOfScope"),
+        DriverActivity.Unknown => ReportStrings.Get("Activity_Unknown"),
+        _ => throw new ArgumentOutOfRangeException(nameof(activity), activity, null)
     };
 }
 

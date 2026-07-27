@@ -66,6 +66,13 @@ oddzielnie i przywracane po kolejnym uruchomieniu.
 
 ## Instalacja
 
+Pełne instrukcje:
+
+- [instalacja po polsku](docs/INSTALLATION_PL.md);
+- [installation in English](docs/INSTALLATION_EN.md);
+- [podstawowa instrukcja użytkowa po polsku](docs/USER_GUIDE_PL.md);
+- [basic user guide in English](docs/USER_GUIDE_EN.md).
+
 ### 1. Plugin SCS
 
 1. Zamknij ETS2.

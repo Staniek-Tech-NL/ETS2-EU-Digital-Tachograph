@@ -4,9 +4,10 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status bieżący:** **W TOKU — M5.3 GO, M5.4 ROZPOCZĘTE**
+**Status bieżący:** **GO — M5 ZAMKNIĘTE**
 
 **Data rozpoczęcia:** 27 lipca 2026
+**Data zakończenia:** 27 lipca 2026
 
 **Kryterium wejścia:** Formalny **UI freeze** po M4.  
 **Kryterium wyjścia:** Kompletne PL/EN, zielone regresje obu języków i niezmienione kontrakty maszynowe.  
@@ -120,10 +121,34 @@ przed M6.
 
 ### Etap M5.4 — PDF i dokumentacja
 
-- [ ] Zlokalizować raport PDF.
-- [ ] Potwierdzić identyczność danych PDF PL i EN.
-- [ ] Przygotować instrukcję instalacji PL i EN.
-- [ ] Przygotować podstawową instrukcję użytkową PL i EN.
+- [x] Zlokalizować raport PDF.
+- [x] Potwierdzić identyczność danych PDF PL i EN.
+- [x] Przygotować instrukcję instalacji PL i EN.
+- [x] Przygotować podstawową instrukcję użytkową PL i EN.
+
+**Postęp wykonawczy M5.4:**
+
+- metadane, sekcje, tabele, statusy, presentery, puste stany i stopka PDF
+  korzystają z `ReportStrings` oraz kultury przechwyconej na początku eksportu;
+- formaty techniczne czasu pozostają niezmienne, a eksport nie modyfikuje
+  danych źródłowego `ReportDto`;
+- PDF ponownie używa pełnych statusów `ReportCompensationStatus_*`; zgodnie
+  z decyzją `PDF-01` kolumna statusu wzrosła z 95 pt do 125 pt, bez zmiany
+  kolejności ani znaczenia danych;
+- próbki PL i EN zbudowane z identycznego raportu mają po dwie strony;
+  render obu języków jest czytelny, pełne statusy mieszczą się w tabeli,
+  a nagłówki checkpointów nie nachodzą na siebie;
+- kontrola tekstu PDF potwierdziła obecność tych samych identyfikatorów,
+  wartości czasu i danych technicznych w PL oraz EN;
+- testy Reports 11/11 oraz pełna regresja rozwiązania 561/561: PASS;
+- build Release całego rozwiązania: 0 błędów, 0 ostrzeżeń;
+- dokumentacja gotowa:
+  `docs/INSTALLATION_PL.md`, `docs/INSTALLATION_EN.md`,
+  `docs/USER_GUIDE_PL.md` i `docs/USER_GUIDE_EN.md`.
+
+**Stan decyzji:** **GO — M5.4**, zatwierdzone przez właściciela 27 lipca 2026
+po osobistym smoke eksportu i oględzinach PDF PL/EN. Etap jest zamknięty bez
+pozycji otwartych.
 
 ### Gate M5
 
@@ -136,6 +161,10 @@ przed M6.
 - PDF PL i EN poprawne wizualnie;
 - RuleEngine i Planer zwracają identyczne dane niezależnie od języka;
 - JSON, CSV techniczny, `.tacho`, SQLite i protokół v3 pozostają niezmienione.
+
+**Wynik gate M5:** **GO**. M5.1–M5.4 są zamknięte, a M6 jest odblokowany.
+Warunek checkpointu wydajnościowego M5.2-P pozostaje obowiązującym pomiarem
+wejściowym przed zamrożeniem RC w M6.
 
 ---
 
