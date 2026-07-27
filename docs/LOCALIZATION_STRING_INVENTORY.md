@@ -4,7 +4,7 @@
 
 **Data rozpoczęcia:** 2026-07-27
 
-**Status:** **W TOKU — PACZKI 1–7 GO**
+**Status:** **W TOKU — PACZKI 1–8 GO**
 
 **Języki:** `pl-PL`, `en-GB`
 
@@ -56,7 +56,7 @@ presentera; nie obejmuje kluczy tworzonych wyłącznie dla hipotetycznej funkcji
 | UI-03 | Historia, luki i wpis manualny | `MainWindow.xaml`, `MainViewModel.cs`, `ManualEntryPlanEditor.cs` | U/P | zasoby + presentery aktywności, źródeł, warunków, przyczyn, stanów luk i walidacji | GO w paczce 4 |
 | UI-04 | Kraje i kody tachografowe | `CountryCatalog.cs`, JSON | U/T | osobne nazwy PL/EN; zapis nadal przez ISO | GO w paczce 6 |
 | UI-05 | Rekompensaty | `MainWindow.xaml`, `CompensationPresentation.cs` | U/P/T | zasoby + presenter statusu; identyfikatory bez zmian | GO w paczce 7 |
-| UI-06 | Raporty w Desktop | `MainWindow.xaml`, `ReportsWorkspaceViewModel.cs` | U/P/T | zasoby + presentery; formaty eksportu bez zmian | do rozpisania |
+| UI-06 | Raporty w Desktop | `MainWindow.xaml`, `ReportsWorkspaceViewModel.cs` | U/P/T | zasoby + presentery; formaty eksportu bez zmian | GO w paczce 8 |
 | UI-07 | Kierowcy i Ustawienia | `MainWindow.xaml`, `MainViewModel.cs`, `SettingsService.cs` | U/O/T | zasoby; nazwy i numery kart bez tłumaczenia | do rozpisania |
 | UI-08 | Planer | `MainWindow.xaml`, `JourneyPlannerViewModel.cs` | U/P/T | zasoby + presentery faz, powodów, statusów i ostrzeżeń | do rozpisania |
 | UI-09 | Dialogi, potwierdzenia i komunikaty błędów | `App.xaml.cs`, `MainViewModel.cs`, view-modele | U/D/T | tekst UI w zasobach; logi i kody bez zmian | do rozpisania |
@@ -1971,6 +1971,438 @@ jeśli nie zmienia kolejności ani znaczenia decyzji.
 wiążący katalog paczek 1–7 zawiera 561 unikalnych nazw i 13 jawnie dozwolonych
 par powtórzonych wartości.
 
+## Paczka 8 — UI-06: Raporty w Desktop
+
+**Zakres:** konfiguracja i podgląd raportu w Desktop, tabele aktywności,
+naruszeń i rekompensat, kontrola kompletności oraz nazwy formatów eksportu.
+
+**Stan:** **ZAMKNIĘTA — GO**
+
+**Data zatwierdzenia:** 2026-07-27
+
+**Pozycje otwarte:** 0
+
+**Katalog:** 98 nowych kluczy. Łączny katalog paczek 1–8 zawiera
+659 unikalnych nazw.
+
+Paczka dodaje pięć nowych dozwolonych par powtórzonych wartości. Globalna
+lista rośnie z 13 do 18 pozycji.
+
+### Granica paczki
+
+Paczka obejmuje `MainWindow.xaml:571-795`,
+`ReportsWorkspaceViewModel.cs`, prezentację bilansu z `ReportDto`
+i mapowanie wartości domenowych, które rzeczywiście trafiają do Raportów
+Desktop. Nie obejmuje:
+
+- treści i metadanych raportu PDF — `PDF-01`;
+- kontraktów i nazw pól w VTC JSON oraz obu CSV — pozostają techniczne;
+- filtrów systemowego okna zapisu, komunikatów `OperationStatus`,
+  potwierdzeń zapisu i szczegółowych komunikatów błędów — `UI-09`;
+- tekstu `exception.Message` — wyjątek trafia wyłącznie do diagnostyki;
+- nazw plików eksportu i ich rozszerzeń — kontrakt techniczny;
+- danych użytkownika, numerów kart, artykułów prawnych, identyfikatorów
+  zobowiązań i bloków;
+- `GapSummaryText` używanego przez PDF — `PDF-01`.
+
+Widok może ponownie używać zatwierdzonych kluczy z wcześniejszych paczek,
+ale nie może pobierać gotowych polskich tekstów z DTO. `CoverageBalanceText`
+nie jest wiążącą prezentacją Desktop: M5.2 buduje bilans z wartości liczbowych
+i lokalnego formatu `ReportCoverage_BalanceFormat`.
+
+### Nagłówek i konfiguracja
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Report_Title` | RAPORTY I STATYSTYKI | REPORTS AND STATISTICS | U |
+| `Report_Description` | Centrum raportowe · dane oparte na czasie gry | Reporting centre · game-time data | U/T |
+| `ReportStep_Configuration` | 1  KONFIGURACJA | 1  CONFIGURATION | U/T |
+| `ReportStep_DataCheck` | 2  KONTROLA DANYCH | 2  DATA CHECK | U/T |
+| `ReportStep_Preview` | 3  PODGLĄD | 3  PREVIEW | U/T |
+| `ReportStep_Export` | 4  EKSPORT | 4  EXPORT | U/T |
+| `Report_DriverCardLabel` | KIEROWCA / KARTA | DRIVER / CARD | U |
+| `Report_QuickRangeLabel` | SZYBKI ZAKRES | QUICK RANGE | U |
+| `ReportRange_CurrentWeekAction` | BIEŻĄCY TYDZIEŃ | CURRENT WEEK | U |
+| `ReportRange_Last24HoursAction` | OSTATNIE 24 H | LAST 24 HOURS | U/T |
+| `ReportRange_AllHistoryAction` | CAŁA HISTORIA | ALL HISTORY | U |
+| `ReportRange_CustomAction` | WŁASNY ZAKRES | CUSTOM RANGE | U |
+| `ReportRange_CustomGameTimeLabel` | WŁASNY ZAKRES · CZAS GRY | CUSTOM RANGE · GAME TIME | U/T |
+| `Report_RefreshPreviewAction` | ODŚWIEŻ PODGLĄD | REFRESH PREVIEW | U |
+| `Report_ShowGapsAction` | POKAŻ LUKI | SHOW GAPS | U |
+
+Numer kroku i separator między numerem a etykietą są częścią zatwierdzonego
+tekstu widoku. Glif zakładki pozostaje strukturą XAML, a jej etykieta ponownie
+używa `Navigation_Reports`.
+
+### Kafelki i podsumowanie
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `ReportMetric_Driving` | JAZDA | DRIVING | U/P |
+| `ReportMetric_Work` | PRACA | WORK | U/P |
+| `ReportMetric_OpenDebt` | OTWARTY DŁUG | OPEN DEBT | U/P |
+| `Report_ViolationsLabel` | NARUSZENIA | VIOLATIONS | U |
+| `ReportTab_Summary` | PODSUMOWANIE | SUMMARY | U |
+| `Report_RangeLabel` | ZAKRES | RANGE | U |
+| `ReportSummary_GeneratedAtLabel` | WYGENEROWANO | GENERATED | U |
+| `ReportSummary_ActivityBlocksLabel` | BLOKI AKTYWNOŚCI | ACTIVITY BLOCKS | U |
+| `Report_ActivitiesLabel` | AKTYWNOŚCI | ACTIVITIES | U |
+
+Kafelek `GOTOWOŚĆ` ponownie używa `DeviceActivity_Availability`, a kafelek
+`ODPOCZYNEK` — `ActivityUpper_Rest`. Prefiks pierwszego klucza jest historyczny,
+lecz wartość i semantyka aktywności są identyczne w obu miejscach; tworzenie
+drugiej identycznej pary byłoby sprzeczne z regułą przeglądu całego katalogu.
+
+`PRACA` pozostaje krótką etykietą istniejącego kafelka, mimo że wartość pochodzi
+z `OtherWorkMinutes`. Pełny presenter aktywności w tabeli nadal używa
+`Activity_OtherWork` (`Inna praca` / `Other work`).
+
+### Tabele aktywności, naruszeń i rekompensat
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Report_ShowTechnicalData` | Pokaż dane techniczne | Show technical data | U/T |
+| `ReportActivity_SourceFormat` | Źródło: {0} | Source: {0} | U/P |
+| `ReportActivity_ConditionFormat` | Warunek: {0} | Condition: {0} | U/P |
+| `ReportViolation_ArticleHeader` | ARTYKUŁ | ARTICLE | U/T |
+| `ReportViolation_NameHeader` | NARUSZENIE | VIOLATION | U |
+| `ReportViolation_ExcessHeader` | PRZEKROCZENIE | EXCESS | U |
+| `Report_CompensationsLabel` | REKOMPENSATY | COMPENSATIONS | U |
+| `ReportCompensation_DueAtHeader` | TERMIN | DEADLINE | U/P |
+| `ReportCompensation_PaymentHeader` | SPŁATA | PAYMENT | U |
+| `ReportCompensation_SettledAtHeader` | ROZLICZONO | SETTLED | U/P |
+
+Nagłówki ponownie używają:
+
+- `Common_From`, `Common_To`, `ManualEntry_TimeHeader`
+  i `Common_ActivityHeader` w tabeli aktywności;
+- `ManualEntry_TimeHeader` w tabeli naruszeń;
+- `Common_StatusHeader`, `CompensationSummary_DebtHeader`,
+  `Dashboard_RemainingLabel` i `Common_SourceHeader` w tabeli rekompensat.
+
+Historyczne prefiksy `ManualEntry_*`, `CompensationSummary_*`
+i `Dashboard_*` są zaakceptowanym długiem nazewniczym zatwierdzonego katalogu.
+Semantyka nagłówków jest identyczna, dlatego paczka nie tworzy ich kopii.
+
+`ReportActivity_ConditionFormat` nie zawiera początkowej spacji ani separatora.
+M5.2 przenosi ` · ` do osobnego elementu XAML między źródłem i warunkiem,
+zgodnie z regułą paczki 4: interpunkcja układu nie należy do zasobu.
+
+### Kompletność i eksport
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `ReportTab_Completeness` | KOMPLETNOŚĆ | COMPLETENESS | U |
+| `ReportCompleteness_GapsLabel` | LUKI | GAPS | U |
+| `ReportCompleteness_EvidenceLabel` | MATERIAŁ DOWODOWY | EVIDENCE | U |
+| `ReportCompleteness_PendingAllocationsLabel` | OCZEKUJĄCE ALOKACJE | PENDING ALLOCATIONS | U |
+| `ReportCompleteness_BalanceLabel` | BILANS | BALANCE | U |
+| `ReportExport_Title` | EKSPORT | EXPORT | U |
+| `ReportExport_Description` | Przed zapisem podgląd jest przeliczany. Plik i ekran korzystają z tego samego raportu. | The preview is recalculated before saving. The file and screen use the same report. | U |
+| `ReportExport_PdfAction` | EKSPORTUJ PDF | EXPORT PDF | U/T |
+| `ReportExport_MoreHeader` | WIĘCEJ EKSPORTÓW | MORE EXPORTS | U |
+| `ReportExport_VtcJson` | VTC JSON | VTC JSON | U/T |
+| `ReportExport_CompensationCsvAction` | CSV ZOBOWIĄZAŃ | OBLIGATIONS CSV | U/T |
+| `ReportExport_RawActivityCsvAction` | SUROWY CSV AKTYWNOŚCI | RAW ACTIVITY CSV | U/T |
+
+`Report_RangeLabel`, `Report_ActivitiesLabel` i `Report_ViolationsLabel` są
+neutralne, ponieważ ten sam tekst pełni więcej niż jedną rolę w obrębie
+Raportów. Nazwa `ReportTab_*` pozostaje tylko tam, gdzie tekst występuje
+wyłącznie jako zakładka.
+
+### Presety zakresu i wybór karty
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `ReportRange_CurrentWeekDescription` | Bieżący tydzień regulacyjny | Current regulatory week | P |
+| `ReportRange_Last24HoursDescription` | Ostatnie 24 godziny czasu gry | Last 24 hours of game time | P/T |
+| `ReportRange_AllHistoryDescription` | Cała dostępna historia karty | All available card history | P |
+| `ReportRange_CustomDescription` | Własny zakres czasu gry | Custom game-time range | P/T |
+| `Report_DriverCardFormat` | {0} — karta {1} | {0} — card {1} | U/O/T |
+
+W formacie karty `{0}` jest nazwą profilu, a `{1}` numerem karty. Obie wartości
+pozostają danymi użytkownika/technicznymi. Cztery wartości `ReportRangePreset`
+mają jawne opisy i akcje bez fallbacku. `GameCalendar_DayFormat` z `X-01`
+obsługuje wszystkie pozycje listy dni.
+
+### Stany i walidacja podglądu
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `ReportStatus_SelectDriverAndRange` | Wybierz kierowcę i zakres raportu. | Select a driver and report range. | U |
+| `ReportStatus_NoReportableCard` | Brak karty możliwej do raportowania. | No card is available for reporting. | U |
+| `ReportStatus_SelectedCardNoHistory` | Wybrana karta nie ma historii. | The selected card has no history. | U |
+| `ReportStatus_ExportUnavailableNoData` | Eksport jest niedostępny do czasu pojawienia się danych. | Export is unavailable until data becomes available. | U |
+| `ReportStatus_CalculatingPreview` | PRZELICZANIE PODGLĄDU | RECALCULATING PREVIEW | U |
+| `ReportStatus_ReadingCanonicalHistory` | Trwa odczyt kanonicznej historii karty. | Reading canonical card history. | U/T |
+| `ReportStatus_PreviewError` | BŁĄD PODGLĄDU | PREVIEW ERROR | U |
+| `ReportStatus_PreviewErrorDetail` | Nie udało się wygenerować podglądu raportu. Szczegóły zapisano w logu diagnostycznym. | The report preview could not be generated. Details were written to the diagnostic log. | U |
+| `ReportValidation_SelectDriverCard` | Wybierz kierowcę i kartę. | Select a driver and card. | U |
+| `ReportValidation_EndAfterStart` | Koniec zakresu musi być późniejszy niż początek. | The end of the range must be later than the start. | U |
+| `ReportValidation_SelectStartEndDay` | Wybierz dzień początku i końca. | Select the start and end day. | U |
+| `ReportValidation_TimeFormat` | Godzina musi mieć format HH:MM w zakresie 00:00–23:59. | Time must use the HH:MM format in the range 00:00–23:59. | U/T |
+| `ReportStatus_ParametersChanged` | PARAMETRY ZOSTAŁY ZMIENIONE | PARAMETERS HAVE CHANGED | U |
+| `ReportStatus_RefreshBeforeAnalysisExport` | Odśwież podgląd przed analizą lub eksportem. | Refresh the preview before analysis or export. | U |
+| `ReportStatus_PreviewCurrent` | PODGLĄD AKTUALNY | PREVIEW UP TO DATE | U |
+| `ReportStatus_ReportIncomplete` | RAPORT NIEKOMPLETNY | REPORT INCOMPLETE | U |
+
+`ReportPreviewStatus` nie jest wyświetlany przez `ToString()`. Jego siedem
+wartości steruje następującymi rodzinami: `NoSelection` ma dwa jawne warianty
+braku wyboru/danych, `InvalidParameters` używa `ReportValidation_*`, `Loading`
+używa pary `CalculatingPreview`/`ReadingCanonicalHistory`, `Current`
+i `CurrentIncomplete` używają jawnych statusów i opisów, `OutOfDate` używa
+pary o zmienionych parametrach, a `Error` — ogólnego komunikatu diagnostycznego.
+
+Oba bloki `catch` w `ReportsWorkspaceViewModel` muszą zapisać wyjątek do
+diagnostyki, zanim pokażą ogólny tekst. `exception.Message` nie może trafić
+ani do `StatusDetail`, ani do `OperationStatus`; szczegółowy komunikat
+operacyjny i ewentualna ścieżka logu należą do `UI-09`.
+
+### Opisy stanu i pluralizacja
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `ReportStatus_DataCompleteFormat` | Dane kompletne · {0} · {1} | Data complete · {0} · {1} | U/T |
+| `ReportStatus_ViolationCountOneFormat` | {0} naruszenie | {0} violation | U/T |
+| `ReportStatus_ViolationCountFewFormat` | {0} naruszenia | {0} violations | U/T |
+| `ReportStatus_ViolationCountManyFormat` | {0} naruszeń | {0} violations | U/T |
+| `ReportStatus_OpenObligationCountOneFormat` | {0} otwarte zobowiązanie | {0} open obligation | U/T |
+| `ReportStatus_OpenObligationCountFewFormat` | {0} otwarte zobowiązania | {0} open obligations | U/T |
+| `ReportStatus_OpenObligationCountManyFormat` | {0} otwartych zobowiązań | {0} open obligations | U/T |
+| `ReportStatus_DataIncompleteFormat` | {0} · {1} · {2} · {3} | {0} · {1} · {2} · {3} | U/T |
+| `ReportStatus_UnresolvedGapCountOneFormat` | {0} nierozliczona luka | {0} unresolved gap | U/T |
+| `ReportStatus_UnresolvedGapCountFewFormat` | {0} nierozliczone luki | {0} unresolved gaps | U/T |
+| `ReportStatus_UnresolvedGapCountManyFormat` | {0} nierozliczonych luk | {0} unresolved gaps | U/T |
+| `ReportStatus_PendingAllocationCountOneFormat` | {0} oczekująca alokacja | {0} pending allocation | U/T |
+| `ReportStatus_PendingAllocationCountFewFormat` | {0} oczekujące alokacje | {0} pending allocations | U/T |
+| `ReportStatus_PendingAllocationCountManyFormat` | {0} oczekujących alokacji | {0} pending allocations | U/T |
+| `ReportCoverage_MissingFormat` | Brak pokrycia: {0} | Missing coverage: {0} | U/T |
+| `ReportCoverage_ExcessFormat` | Nadmiar pokrycia: {0} | Excess coverage: {0} | U/T |
+| `ReportCoverage_Matches` | Pokrycie zakresu zgodne | Range coverage matches | U |
+
+`ReportStatus_DataCompleteFormat` otrzymuje dwie gotowe, odmienione frazy.
+`ReportStatus_DataIncompleteFormat` otrzymuje kolejno frazę liczby luk, czas luk,
+stan pokrycia i frazę liczby oczekujących alokacji. Tekst nie jest składany
+z pojedynczych przetłumaczonych rzeczowników.
+
+Pluralizer PL stosuje trzy formy jak w paczce 4: `1`, końcówki `2–4`
+z wyłączeniem `12–14`, oraz pozostałe. EN rozróżnia `1` i liczbę mnogą.
+Jest to świadoma korekta obecnych stałych form `naruszeń`, `zobowiązań`,
+`luk` i `alokacji`, które dziś dają błędne zdania dla części liczników.
+
+### Bilans, dowód i opis czasu
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `ReportEvidence_Complete` | KOMPLETNY | COMPLETE | P |
+| `ReportEvidence_Incomplete` | NIEKOMPLETNY | INCOMPLETE | P |
+| `ReportCoverage_BalanceFormat` | {0} + {1} = {2} / zakres {3} | {0} + {1} = {2} / range {3} | U/T |
+| `ReportRange_DescriptionFormat` | Zakres obejmuje: {0} | Range includes: {0} | U/T |
+| `ReportRange_Invalid` | Zakres jest nieprawidłowy. | The range is invalid. | U |
+| `ReportDuration_DayOneFormat` | {0} dzień {1} | {0} day {1} | U/T |
+| `ReportDuration_DaysFormat` | {0} dni {1} | {0} days {1} | U/T |
+
+W bilansie `{0}` to suma aktywności, `{1}` czas luk, `{2}` suma pokrycia,
+a `{3}` zakres. Etykieta `BILANS` istnieje osobno w XAML, dlatego format nie
+powtarza prefiksu `BILANS:` z `ReportDto.CoverageBalanceText`.
+
+W formatach okresu `{0}` jest liczbą pełnych dni, a `{1}` pozostałym czasem
+`HH:MM`. Polski i angielski wymagają osobnej formy wyłącznie dla jednego dnia;
+wszystkie pozostałe liczby używają `DaysFormat`. `HH:MM`, `→`, `·`, `/`
+i znak `—` pozostają strukturą techniczną.
+
+### Presentery wierszy
+
+Tabela aktywności ponownie używa pięciu `Activity_*`, technicznego `OUT`,
+sześciu `ActivitySource_*` i czterech `SpecialCondition_*`. Obecne fallbacki
+`record.Source.ToString()`, `record.Condition.ToString()` i
+`activity.ToString()` nie mogą trafić do UI. Każdy presenter jest jawny
+i wyczerpujący; `DriverActivity.Unknown` używa `Activity_Unknown`.
+
+Tabela naruszeń ponownie używa jedenastu `Violation_*` z paczki 2.
+`ReportViolationDto.Type` pozostaje techniczną reprezentacją stabilnej wartości
+`ViolationType`; presenter mapuje dokładnie jedenaście znanych wartości i nie
+wyświetla surowego `ToString()`.
+
+Statusy rekompensat zachowują mieszaną wielkość liter istniejącej tabeli
+Raportów i dlatego nie przejmują wersalikowych kluczy paczki 7:
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `ReportCompensationStatus_OpenOnTime` | Otwarte · w terminie | Open · on time | P |
+| `ReportCompensationStatus_Overdue` | Zaległe | Overdue | P |
+| `ReportCompensationStatus_PaidOnTime` | Spłacone w terminie | Paid on time | P |
+| `ReportCompensationStatus_PaidLate` | Spłacone po terminie | Paid late | P |
+
+Cztery wartości `WeeklyRestCompensationStatusDto` mają mapowanie 1:1 bez
+fallbacku. Identyfikatory bloków są skracane wyłącznie wizualnie do 12 znaków;
+wartość domenowa i eksport pozostają bez zmian.
+
+Przed rozpoczęciem `PDF-01` trzeba jawnie zdecydować, czy raport PDF ponownie
+używa jednej z trzech zatwierdzonych rodzin `WeeklyRestCompensationStatusDto`
+(`CompensationSummary_*`, `CompensationStatus_*`,
+`ReportCompensationStatus_*`), czy otrzymuje własną rodzinę uzasadnioną
+odmienną pisownią. Decyzja musi poprzedzać katalog PDF, aby nie powstała
+niezauważona piąta reprezentacja tego samego enuma obok
+`DeviceCompensation_Overdue`.
+
+### Nazwy formatów eksportu
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `ReportExport_Pdf` | PDF | PDF | P/T |
+| `ReportExport_CompensationCsvName` | CSV zobowiązań | obligations CSV | P/T |
+| `ReportExport_RawActivityCsvName` | surowy CSV aktywności | raw activity CSV | P/T |
+
+`ReportExport_VtcJson` jest jednocześnie neutralną nazwą formatu i tekstem
+przycisku. Wszystkie cztery wartości `ReportExportFormat` mają jawne mapowanie
+bez `format.ToString()`. `UI-09` użyje tych nazw w komunikatach operacyjnych
+i filtrach okna zapisu; wzorce `*.pdf`, `*.json`, `*.csv` i rozszerzenia
+pozostają techniczne.
+
+### `RuleFindingLevel` — decyzja bez kluczy
+
+`RuleFindingLevel` ma trzy wartości (`Information`, `Warning`, `Violation`),
+ale nie ma aktywnego konsumenta w Raportach Desktop. `RuleFinding` nie jest
+przenoszony do `ReportDto`; `RegulationReportAnalyzer` przekazuje do raportu
+`RuleViolation` jako `ReportViolationDto`, którego widoczną kategorią jest
+`ViolationType`.
+
+Tworzenie trzech kluczy dla `RuleFindingLevel` dałoby martwy katalog.
+W wyniku GO paczki 8 typ otrzymuje w rejestrze status
+**świadomie wykluczony — brak prezentacji tekstowej w aktywnym przepływie
+UI-06**. Jeżeli przyszła
+funkcja zacznie prezentować `RuleFinding`, musi otworzyć osobną inwentaryzację
+z rzeczywistym konsumentem.
+
+`ReportWorkspaceTab` również nie wymaga presentera: enum steruje indeksem
+pięciu statycznie nazwanych zakładek. `ReportPreviewStatus` steruje macierzą
+stanów opisaną wyżej, a nie tekstem 1:1.
+
+### Oczekiwane duplikaty wartości
+
+Paczka dodaje pięć par:
+
+| Wartość | Klucze | Decyzja |
+|---|---|---|
+| EN `DRIVING` | `DeviceActivity_Driving`, `ReportMetric_Driving` | urządzeniowy symbol kierownicy i pełna etykieta kafelka mają różne zatwierdzone teksty PL |
+| EN `{0} violations` | `ReportStatus_ViolationCountFewFormat`, `ReportStatus_ViolationCountManyFormat` | EN ma jedną formę mnogą, PL wymaga dwóch |
+| EN `{0} open obligations` | `ReportStatus_OpenObligationCountFewFormat`, `ReportStatus_OpenObligationCountManyFormat` | EN ma jedną formę mnogą, PL wymaga dwóch |
+| EN `{0} unresolved gaps` | `ReportStatus_UnresolvedGapCountFewFormat`, `ReportStatus_UnresolvedGapCountManyFormat` | EN ma jedną formę mnogą, PL wymaga dwóch |
+| EN `{0} pending allocations` | `ReportStatus_PendingAllocationCountFewFormat`, `ReportStatus_PendingAllocationCountManyFormat` | EN ma jedną formę mnogą, PL wymaga dwóch |
+
+Pozostałe 13 par zatwierdzonych po paczce 7 pozostaje bez zmian. Żaden nowy
+klucz paczki 8 nie ma wartości identycznej z innym kluczem w obu językach.
+Porównanie jest dokładne (`Ordinal`): wielkość liter jest częścią wiążącej
+wartości zasobu, zgodnie z decyzją o zachowaniu pisowni z paczki 1.
+
+### Mapowanie źródeł
+
+| Źródło | Obecna wartość / rodzina | Decyzja |
+|---|---|---|
+| `MainWindow.xaml:571-795` | 62 atrybuty `Text`/`Content`/`Header` + 2 widoczne `StringFormat` | 64 teksty lokalizacyjne: 46 nowych kluczy, 14 wystąpień ponownego użycia i 4 powtórne użycia nowych kluczy w obrębie widoku |
+| `ReportsWorkspaceViewModel.cs:14-48` | 4 enumy sterujące ekranem | jawne akcje/opisy/nazwy albo świadome sterowanie techniczne |
+| `ReportsWorkspaceViewModel.cs:118-136,227-233` | stan początkowy i opisy presetów | 5 kluczy presetów/wyboru oraz stany ekranu |
+| `ReportsWorkspaceViewModel.cs:351-496` | wybór karty, ładowanie, błędy, publikacja statusu | UI-06 dla stanu ekranu; `OperationStatus` i szczegóły → UI-09 |
+| `ReportsWorkspaceViewModel.cs:545-623` | dzień, walidacja i zmiana parametrów | `X-01` + 6 kluczy walidacji/stanu |
+| `ReportsWorkspaceViewModel.cs:625-735` | kompletność, liczniki i wiersze | pluralizacja, bilans, presentery oraz `X-01` |
+| `ReportsWorkspaceViewModel.cs:751-830` | format czasu, statusy pokrycia, aktywności, rekompensaty i eksport | zasoby UI-06; fallbacki `ToString()` usunięte |
+| `ReportDto.cs:34-40` | polskie `GapSummaryText` i `CoverageBalanceText` | bilans Desktop z liczb; tekst PDF → PDF-01 |
+| `RegulationReportAnalyzer.cs:31-34` | techniczne `ViolationType.ToString()` w DTO | lokalny presenter 11 `Violation_*`; kontrakt eksportu bez zmian |
+| `MainViewModel.cs:2081-2131` | okno zapisu, filtr, nazwa pliku i `OperationStatus` | nazwy formatów z UI-06; dialogi i komunikaty → UI-09 |
+| `RuleContracts.cs:15-26` | `RuleFindingLevel` bez konsumenta Desktop | świadomie bez kluczy |
+
+Rozliczenie 64 tekstów lokalizacyjnych XAML:
+
+- 14 wystąpień używa wcześniejszych kluczy:
+  `Navigation_Reports` (1), `Common_From` (2), `Common_To` (2),
+  `DeviceActivity_Availability` (1), `ActivityUpper_Rest` (1),
+  `ManualEntry_TimeHeader` (2), `Common_ActivityHeader` (1),
+  `Common_StatusHeader` (1), `CompensationSummary_DebtHeader` (1),
+  `Dashboard_RemainingLabel` (1), `Common_SourceHeader` (1);
+- 50 wystąpień używa 46 nowych kluczy, ponieważ
+  `Report_DriverCardLabel`, `Report_RangeLabel`, `Report_ActivitiesLabel`
+  i `Report_ViolationsLabel` występują po dwa razy.
+
+Licznik 62 obejmuje wyłącznie bezpośrednie atrybuty `Text`, `Content`
+i `Header`. Dwa dodatkowe widoczne teksty są formatami bindingu:
+`MainWindow.xaml:729` (`Źródło: {0}`) i `MainWindow.xaml:730`
+(` · Warunek: {0}`). Oba otrzymują nowe klucze
+`ReportActivity_SourceFormat` i `ReportActivity_ConditionFormat`, dlatego
+dowód kompletności katalogu obejmuje łącznie 64 wystąpienia.
+
+### Elementy świadomie bez lokalizacji
+
+| Element | Kategoria | Uzasadnienie |
+|---|---|---|
+| numery kart, nazwy kierowców | O/T | dane użytkownika i identyfikatory |
+| artykuł prawny, identyfikatory zobowiązań i bloków | T | audyt i odwołanie do źródła |
+| minuty domenowe, `HH:MM`, ISO data wygenerowania | T | stabilna reprezentacja czasu i dowodu |
+| `ReportWorkspaceTab`, indeks zakładki, kolory statusów | T | sterowanie przepływem i prezentacją |
+| `RuleFindingLevel` | T | brak aktywnego konsumenta tekstowego |
+| rozszerzenia, wzorce filtrów i nazwa pliku | T | kontrakt systemu plików |
+| nazwy pól i wartości VTC JSON/CSV | T | chroniony kontrakt eksportu |
+| `—`, `→`, `·`, `/`, wielokropek skróconego identyfikatora | T | struktura układu |
+
+### Ryzyka i kontrola wizualna
+
+Największe ryzyko EN występuje w krokach i zakładkach o stałej szerokości,
+w panelu eksportu 240 px oraz w sześciu kafelkach metryk:
+
+- `2  DATA CHECK`, `PENDING ALLOCATIONS`, `ACTIVITY BLOCKS`;
+- `CUSTOM RANGE · GAME TIME`, `REFRESH PREVIEW`;
+- `The preview is recalculated before saving...`;
+- `RAW ACTIVITY CSV`, `OBLIGATIONS CSV`;
+- pełne frazy statusu z liczbą luk, pokryciem i oczekującymi alokacjami.
+
+Test wizualny obejmuje PL i EN dla braku karty, braku historii, ładowania,
+podglądu kompletnego, podglądu niekompletnego, błędu, zmienionych parametrów,
+czterech presetów, wszystkich pięciu zakładek i rozwiniętego panelu eksportu.
+Pluralizacja jest sprawdzana co najmniej dla `0`, `1`, `2`, `5`, `12`, `22`
+i `25`.
+
+### Kontrola paczki
+
+- [x] wszystkie 62 bezpośrednie teksty XAML i 2 widoczne `StringFormat`
+  mają nowy klucz albo jawne ponowne użycie;
+- [x] 46 nowych kluczy statycznych rozlicza 50 wystąpień;
+- [x] wszystkie 4 wartości `ReportRangePreset` mają akcję i opis;
+- [x] wszystkie 7 wartości `ReportPreviewStatus` mają jawny sposób prezentacji;
+- [x] wszystkie 5 wartości `ReportWorkspaceTab` ma statyczną etykietę i techniczny indeks;
+- [x] wszystkie 4 wartości `ReportExportFormat` mają nazwę bez fallbacku;
+- [x] wszystkie 6 `DriverActivity`, 6 `ActivitySource`, 4 `SpecialCondition`,
+  11 `ViolationType` i 4 `WeeklyRestCompensationStatusDto` mają jawne mapowanie;
+- [x] `RuleFindingLevel` ma decyzję opartą na rzeczywistym przepływie danych;
+- [x] formaty mają zgodne zbiory placeholderów PL/EN;
+- [x] pluralizacja ma jawne formy PL/EN i przypadki graniczne;
+- [x] 98 nowych nazw nie koliduje z katalogiem paczek 1–7;
+- [x] pięć nowych par powtórzonych wartości jest jawnie dozwolonych;
+- [x] `exception.Message` i fallbacki `ToString()` nie są planowane jako tekst UI;
+- [x] PDF, JSON, CSV, nazwy plików, DTO i wartości domenowe pozostają bez zmian;
+- [x] brak zmian w kodzie i XAML.
+
+### Punkt kontrolny po GO
+
+- 46 kluczy statycznego widoku;
+- 5 kluczy presetów i wyboru karty;
+- 16 kluczy bazowych stanów i walidacji;
+- 17 kluczy opisów stanu, liczników i pokrycia;
+- 7 kluczy bilansu, dowodu i czasu;
+- 4 klucze statusów rekompensat;
+- 3 klucze nazw formatów eksportu;
+- 98 nowych kluczy;
+- 659 unikalnych nazw globalnie;
+- 5 nowych par powtórzonych wartości;
+- 18 dozwolonych par globalnie;
+- 0 zmian wykonawczych.
+
+### Werdykt
+
+**GO — paczka 8 zatwierdzona.** Zamknięta bez pozycji otwartych. Łączny,
+wiążący katalog paczek 1–8 zawiera 659 unikalnych nazw i 18 jawnie dozwolonych
+par powtórzonych wartości. `RuleFindingLevel` jest świadomie wykluczony
+z prezentacji tekstowej, ponieważ nie ma aktywnego konsumenta w UI-06.
+
 ## Słownik domenowy PL/EN — część 1
 
 Terminologia angielska opiera się na oficjalnym brzmieniu rozporządzenia
@@ -2027,7 +2459,7 @@ i ich role prezentacyjne są wiążące wyłącznie w zatwierdzonych katalogach 
 
 Nie wolno lokalizować przez zmianę nazw enumów ani przez zapisywanie
 przetłumaczonych wartości. Rejestr obejmuje 30 typów: 14 rozstrzygniętych,
-3 świadomie wykluczone z prezentacji tekstowej i 13 pozostałych.
+4 świadomie wykluczone z prezentacji tekstowej i 12 pozostałych.
 
 | Typ | Status | Paczka / decyzja |
 |---|---|---|
@@ -2048,7 +2480,7 @@ przetłumaczonych wartości. Rejestr obejmuje 30 typów: 14 rozstrzygniętych,
 | `RestAllocationDecisionStatus` | świadomie wykluczony | paczka 7 — sterowanie audytem, bez tekstu UI |
 | `ResolveGapStatus` | świadomie wykluczony | paczka 4 — sterowanie przepływem |
 | `ManualEntryPersistenceStatus` | świadomie wykluczony | paczka 4 — sterowanie przepływem |
-| `RuleFindingLevel` | pozostały | właściciel UI-06 |
+| `RuleFindingLevel` | świadomie wykluczony | paczka 8 — brak aktywnego konsumenta tekstowego w UI-06 |
 | `DeliveryPlanningUseCase` | pozostały | właściciel UI-08 |
 | `DeliveryPlanVerdict` | pozostały | właściciel UI-08 |
 | `DeliveryPlanFailureReason` | pozostały | właściciel UI-08 |
