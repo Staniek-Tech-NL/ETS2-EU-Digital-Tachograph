@@ -4,7 +4,7 @@
 
 **Data rozpoczęcia:** 2026-07-27
 
-**Status:** **W TOKU — PACZKI 1–4 GO**
+**Status:** **W TOKU — PACZKI 1–5 GO**
 
 **Języki:** `pl-PL`, `en-GB`
 
@@ -41,12 +41,18 @@ Każdy kandydat otrzymuje jedną kategorię:
 Liczby są kontrolą kompletności źródeł, a nie liczbą przyszłych kluczy.
 Powtarzające się etykiety wspólne mają korzystać z jednego klucza semantycznego.
 
+Każdy klucz powinien mieć potwierdzone miejsce użycia. Nazwany wyjątek stanowi
+**klucz wyczerpującego pokrycia enuma**: może nie mieć aktywnego konsumenta,
+jeżeli odpowiada istniejącej wartości domenowej i jest wymagany, aby jawny
+presenter nie miał fallbacku. Wyjątek musi wskazywać enum, wartość i gałąź
+presentera; nie obejmuje kluczy tworzonych wyłącznie dla hipotetycznej funkcji.
+
 ## Rejestr obszarów użytkowych
 
 | ID | Obszar | Źródła | Kategoria | Docelowa obsługa | Stan |
 |---|---|---|---|---|---|
 | UI-01 | Powłoka, tytuł, nawigacja i wspólne akcje | `MainWindow.xaml`, `App.xaml.cs`, `MainViewModel.cs` | U/T/D/O | `UiStrings.Common_*`, `UiStrings.Navigation_*`, `UiStrings.Shell_*` | GO — katalog wiążący |
-| UI-02 | Dashboard i wirtualny tachograf | `MainWindow.xaml`, `MainViewModel.cs` | U/P | zasoby + presentery aktywności, trybów i stanu kart | Dashboard GO w paczce 2; urządzenie GO w paczce 3; pełne terminy zależne od X-01 |
+| UI-02 | Dashboard i wirtualny tachograf | `MainWindow.xaml`, `MainViewModel.cs` | U/P | zasoby + presentery aktywności, trybów i stanu kart | GO — Dashboard w paczce 2, urządzenie w paczce 3, terminy domknięte przez paczkę 5 |
 | UI-03 | Historia, luki i wpis manualny | `MainWindow.xaml`, `MainViewModel.cs`, `ManualEntryPlanEditor.cs` | U/P | zasoby + presentery aktywności, źródeł, warunków, przyczyn, stanów luk i walidacji | GO w paczce 4 |
 | UI-04 | Kraje i kody tachografowe | `CountryCatalog.cs`, JSON | U/T | osobne nazwy PL/EN; zapis nadal przez ISO | do rozpisania |
 | UI-05 | Rekompensaty | `MainWindow.xaml`, `CompensationPresentation.cs` | U/P/T | zasoby + presenter statusu; identyfikatory bez zmian | do rozpisania |
@@ -55,7 +61,7 @@ Powtarzające się etykiety wspólne mają korzystać z jednego klucza semantycz
 | UI-08 | Planer | `MainWindow.xaml`, `JourneyPlannerViewModel.cs` | U/P/T | zasoby + presentery faz, powodów, statusów i ostrzeżeń | do rozpisania |
 | UI-09 | Dialogi, potwierdzenia i komunikaty błędów | `App.xaml.cs`, `MainViewModel.cs`, view-modele | U/D/T | tekst UI w zasobach; logi i kody bez zmian | do rozpisania |
 | UI-10 | Nakładki S1/S2 | `OverlayWindow.xaml`, `OverlayViewModel.cs` | U/P/T | zasoby; `S1`, `S2`, `HH:MM` bez zmian | do rozpisania |
-| X-01 | Wspólne formatery czasu i terminów | `GameCalendarFormatter.cs`, `WeeklyRestWindowFormatter.cs` i konsumenci bindingów | U/P/T | wspólne nazwy dni i prefiksy terminów; bez duplikowania per ekran | do rozpisania — warunek kompletności Dashboardu |
+| X-01 | Wspólne formatery czasu i terminów | `GameCalendarFormatter.cs`, `GameClockFormatter.cs`, `WeeklyRestWindowFormatter.cs` i konsumenci bindingów | U/P/T | wspólne nazwy dni i prefiksy terminów; bez duplikowania per ekran | GO w paczce 5 |
 | PDF-01 | Raport PDF | `PdfReportExporter.cs`, `ReportPresentationBuilder.cs` | U/P/T/O | `ReportStrings`; dane i identyfikatory bez zmian | do rozpisania |
 | DOC-01 | Instrukcja instalacji PL/EN | dokumentacja użytkowa | U | dwa jawne dokumenty językowe | późniejszy etap M5.4 |
 | DOC-02 | Instrukcja podstawowa PL/EN | dokumentacja użytkowa | U | dwa jawne dokumenty językowe | późniejszy etap M5.4 |
@@ -453,10 +459,11 @@ oraz etykietę dnia gry. Ich właścicielem jest przekrojowa paczka `X-01` —
 wspólne formatery czasu i terminów. Pełna kompletność EN Dashboardu zależy od
 GO `X-01`.
 
-`X-01` obejmie 12 nowych kluczy: 7 pełnych nazw dni, 4 nieurządzeniowe prefiksy
-`GameDeadlineSemantic` i `GameCalendar_DayFormat` (`Dzień {0}` / `Day {0}`).
-Ponownie użyje 7 skrótów `Weekday_Short_*` zatwierdzanych w paczce 3. Te same
-zasoby obsłużą Dashboard, Planer, Raporty i `WeeklyRestWindowFormatter`.
+`X-01` obejmie 12 nowych kluczy: 7 nazw dni używanych przez pełny wariant
+prezentacji, 4 nieurządzeniowe prefiksy `GameDeadlineSemantic`
+i `GameCalendar_DayFormat` (`Dzień {0}` / `Day {0}`). Ponownie użyje 7 skrótów
+`Weekday_Short_*` zatwierdzonych w paczce 3. Te same zasoby obsłużą Dashboard,
+Planer, Raporty Desktop i `WeeklyRestWindowFormatter`.
 
 ## Paczka 3 — wirtualny tachograf
 
@@ -654,7 +661,8 @@ Urządzeniowy wariant `GameDeadlineFormatter.FormatDevice` korzysta ze wszystkic
 11 wartości tej tabeli. Siedem `Weekday_Short_*` jest jednak neutralne,
 ponieważ `GameWeekdayNames.Abbreviated` zasila również `FormatCompact` na
 Dashboardzie, w Planerze i Raportach. `X-01` ponownie użyje tych skrótów oraz
-doda pełne nazwy dni, nieurządzeniowe prefiksy i etykietę dnia gry.
+doda nazwy dni dla pełnego wariantu prezentacji, nieurządzeniowe prefiksy
+i etykietę dnia gry.
 `D{0}`, numer dnia, godzina i okres `n/6` pozostają techniczne.
 
 ### Mapowanie źródeł
@@ -725,7 +733,7 @@ M5 nie zmienia zatwierdzonej polskiej treści urządzenia.
 ### Werdykt
 
 **GO — paczka 3 zatwierdzona.** Łączny katalog paczek 1–3 zawiera 170
-wiążących kluczy bez powtórzeń nazw. `X-01` pozostaje obszarem do rozpisania.
+wiążących kluczy bez powtórzeń nazw. `X-01` przechodzi do paczki 5.
 
 ## Paczka 4 — Historia, luki i wpis manualny
 
@@ -1017,6 +1025,250 @@ Globalna lista dla katalogu paczek 1–4 ma zatem 12 pozycji:
 **GO — paczka 4 zatwierdzona.** Zamknięta bez pozycji otwartych. Łączny,
 wiążący katalog paczek 1–4 zawiera 257 unikalnych nazw i 12 jawnie dozwolonych
 par powtórzonych wartości.
+
+## Paczka 5 — X-01: wspólne formatery czasu i terminów
+
+**Zakres:** prezentacja absolutnego czasu gry, nazw dni tygodnia i czterech
+semantyk terminu na Dashboardzie, w Historii, wpisie manualnym, Rekompensatach,
+Planerze, Raportach Desktop oraz licznikach odpoczynku tygodniowego.
+
+**Stan:** **ZAMKNIĘTA — GO**
+
+**Data zatwierdzenia:** 2026-07-27
+
+**Pozycje otwarte:** 0
+
+**Katalog:** 12 nowych kluczy — 7 nazw dni dla pełnego wariantu prezentacji,
+4 nieurządzeniowe prefiksy terminu oraz 1 format etykiety dnia gry. Paczka
+ponownie używa 7 `Weekday_Short_*` i 4 `DeviceDeadline_*Prefix` z paczki 3.
+
+Łączny katalog paczek 1–5 zawiera 269 unikalnych nazw. Paczka 5 nie dodaje
+żadnej pary powtórzonych wartości, dlatego globalna lista 12 dozwolonych par
+pozostaje bez zmian.
+
+### Granica paczki
+
+`X-01` lokalizuje tekst tworzony przez wspólne formatery Desktop. Nie
+inwentaryzuje pozostałych etykiet Planera, Raportów ani Rekompensat — należą
+odpowiednio do UI-08, UI-06 i UI-05. Pełne nazwy dni w polach wyboru Planera
+(`Poniedziałek`, `Wtorek`, ...) są osobną rolą kontrolki i pozostają w UI-08.
+Paczka 5 obejmuje natomiast wartości `Pon`, `Wt`, ... używane przez zatwierdzony
+pełny format kalendarza M3A.
+
+Wcześniejsze określenie „7 pełnych nazw dni” oznaczało wartości metody
+`GameWeekdayNames.Full`, a nie nieskrócone nazwy leksykalne. Nazwy kluczy
+`Weekday_Display_*` usuwają tę nieścisłość i zachowują polski UI freeze:
+`Pon · Dzień 29 · 00:00`, nie `Poniedziałek · Dzień 29 · 00:00`.
+
+M5.2 doda do wartości `Weekday_Display_*` i `Weekday_Short_*` komentarze
+`.resx`, że są to odrębne role różniące się wymaganą pisownią (`Pon` / `PON`,
+`Mon` / `MON`). Tłumacz ani narzędzie nie może automatycznie ujednolicić obu
+rodzin.
+
+PDF-01 ma osobny katalog `ReportStrings` i własną kontrolę układu dokumentu.
+Nie może pobierać `UiStrings` z Desktop. Wspólny pozostaje model liczbowy czasu,
+ale tekst PDF zostanie rozpisany w paczce PDF-01.
+
+### Nazwy dni dla pełnego wariantu prezentacji
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Weekday_Display_Monday` | Pon | Mon | P |
+| `Weekday_Display_Tuesday` | Wt | Tue | P |
+| `Weekday_Display_Wednesday` | Śr | Wed | P |
+| `Weekday_Display_Thursday` | Czw | Thu | P |
+| `Weekday_Display_Friday` | Pt | Fri | P |
+| `Weekday_Display_Saturday` | Sob | Sat | P |
+| `Weekday_Display_Sunday` | Ndz | Sun | P |
+
+`GameWeekdayNames.Full` zostaje zastąpiony wyczerpującym presenterem korzystającym
+z tych siedmiu kluczy. Nazwa metody może pozostać ze względu na mały zakres
+zmiany, ale nie może sugerować ponownego użycia pełnych nazw z listy Planera.
+Każda z siedmiu wartości `GameWeekday` ma dokładnie jedno mapowanie, bez
+fallbacku `ToString()`.
+
+`GameWeekdayNames.Abbreviated` ponownie używa zatwierdzonych w paczce 3
+`Weekday_Short_Monday`–`Weekday_Short_Sunday`. Te wartości zachowują wersaliki
+i zasilają format kompaktowy oraz LCD:
+
+```text
+PL: PON · D29 · 00:00
+EN: MON · D29 · 00:00
+```
+
+### Semantyka terminów
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Deadline_CompleteByPrefix` | Ukończ do | Complete by | P |
+| `Deadline_StartNoLaterThanPrefix` | Rozpocznij najpóźniej | Start no later than | P |
+| `Deadline_CompleteBeforePrefix` | Ukończ przed | Complete before | P |
+| `Deadline_AvailableFromPrefix` | Jazda dostępna od | Driving available from | P |
+
+Cztery klucze mapują 1:1 wszystkie wartości `GameDeadlineSemantic`. Dwukropek,
+spacja i separatory kalendarza pozostają stałą strukturą formattera. Zasób nie
+zawiera końcowej interpunkcji ani odstępu.
+
+Wariant urządzeniowy nie używa tych kluczy. `FormatDevice` nadal mapuje ten sam
+enum na cztery zatwierdzone `DeviceDeadline_*Prefix`, ponieważ LCD ma inną rolę,
+pisownię i ograniczenie szerokości. `Deadline_StartNoLaterThanPrefix` oraz
+`DeviceDeadline_StartNoLaterThanPrefix` nie są duplikatem wartości
+(`Rozpocznij najpóźniej` / `START≤`, `Start no later than` / `START≤`).
+
+`Deadline_AvailableFromPrefix` nie ma jeszcze aktywnego konsumenta produkcyjnego,
+ale odpowiada istniejącej wartości `GameDeadlineSemantic.AvailableFrom`
+i istniejącej gałęzi presentera. Pozostaje wymagany dla wyczerpującego mapowania
+oraz planowanego segmentu `CalendarWait`; M5 nie uruchamia nowej funkcji Planera.
+Jest to nazwany wyjątek „klucz wyczerpującego pokrycia enuma”, a nie martwy
+klucz funkcjonalny.
+
+### Etykieta dnia i formaty złożone
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `GameCalendar_DayFormat` | Dzień {0} | Day {0} | U/T |
+
+`{0}` jest dodatnim numerem dnia wyliczonym przez `GameCalendarResolver`
+według istniejącej reguły `floor(GameMinute / 1440) + 1`. Oba języki mają
+identyczny zbiór placeholderów. Liczba jest formatowana
+`InvariantCulture`; lokalizacja nie zmienia wartości, granicy ani zaokrąglenia.
+
+Formattery składają lokalizowane elementy ze stałymi separatorami:
+
+```text
+FormatFull:
+PL: Pon · Dzień 29 · 00:00
+EN: Mon · Day 29 · 00:00
+
+FormatCompact:
+PL: PON · D29 · 00:00
+EN: MON · D29 · 00:00
+
+GameClock w UI:
+PL: Dzień 29, 00:00
+EN: Day 29, 00:00
+```
+
+`D{0}`, `HH:MM`, `n/6`, `—/6`, `6/6+`, przecinek, dwukropek, nawiasy,
+środkowa kropka i strzałka zakresu pozostają techniczną strukturą prezentacji.
+Dla `pl-PL` i `en-GB` kolejność elementów jest wspólna i nie wymaga osobnych
+pełnych formatów zdaniowych.
+
+### Rozdzielenie UI od formatów technicznych
+
+`GameClockFormatter` z projektu Core jest używany nie tylko przez UI, lecz także
+przez JSON Application, diagnostykę oraz właściwości zgodnościowe encji i DTO.
+Nie może czytać bieżącej kultury ani odwoływać się do `UiStrings`; w przeciwnym
+razie eksport i log zależałyby od języka procesu.
+
+M5.2 wprowadzi lokalny presenter czasu gry w Desktop, oparty na
+`GameCalendar_DayFormat`, i skieruje do niego wszystkie widoczne użycia:
+
+- wiersze Historii i rejestru luk;
+- zakres oraz segmenty wpisu manualnego;
+- widoki Rekompensat;
+- wyniki Planera i Raportów Desktop;
+- wartości terminów na Dashboardzie i w nakładkach.
+
+`ActivityRecord` i `ActivityGapListItemDto` zachowują minuty domenowe. Desktop
+nie może polegać na polskich `StartGameTimeText`, `EndGameTimeText`,
+`ResolvedAtGameTimeText` ani na `GameClockFormatter.Format` jako źródle tekstu
+użytkowego. Jest to zgodne z decyzją paczki 4 o lokalnym wierszu prezentacyjnym.
+
+Techniczny JSON tworzony przez `ReportService`, raport diagnostyczny oraz wpisy
+logu pozostają poza lokalizacją i zachowują istniejący stabilny format.
+`GameClockFormatter.TryParse` również pozostaje niezmiennym parserem technicznym;
+M5 nie uzależnia jego gramatyki od aktywnego języka.
+
+Martwe `MainViewModel.GameTimeText` nie ma bindingu w XAML ani innego konsumenta
+UI. Nie otrzymuje nowego klucza. M5.2 może pozostawić tę właściwość bez zmian
+albo usunąć ją dopiero w osobnej, jawnej zmianie porządkowej — pakiet 5 nie
+autoryzuje takiego usunięcia.
+
+### `WeeklyRestWindowFormatter`
+
+Teksty okresu `1/6`–`6/6+` i fallbacki `—/6`, `(—)` pozostają techniczne.
+Wariant standardowy składa okres z
+`Deadline_StartNoLaterThanPrefix`, `Weekday_Short_*` i `D{0}`. Wariant LCD
+składa ten sam okres z `DeviceDeadline_StartNoLaterThanPrefix`,
+`Weekday_Short_*` i `D{0}`.
+
+Brak terminu nie tworzy lokalizowanego zdania. Zachowany zostaje dokładny
+fallback:
+
+```text
+4/6 (—)
+—/6 (—)
+```
+
+Lokalizacja nie może przeliczać okna sześciu okresów, tworzyć terminu z tekstu
+ani zmieniać granicy `WeeklyRestStartDeadlineGameMinute`.
+
+### Mapowanie źródeł i konsumentów
+
+| Źródło | Obecna wartość / rodzina | Decyzja |
+|---|---|---|
+| `GameCalendarFormatter.cs:5-31` | `Pon`–`Ndz`, `PON`–`NDZ` | 7 `Weekday_Display_*` + ponowne użycie 7 `Weekday_Short_*` |
+| `GameCalendarFormatter.cs:34-44` | pełny i kompaktowy moment kalendarza | `Weekday_Display_*`, `Weekday_Short_*`, `GameCalendar_DayFormat`; struktura T |
+| `GameCalendarFormatter.cs:51-77` | 4 prefiksy pełne i 4 prefiksy LCD | 4 `Deadline_*Prefix` + ponowne użycie 4 `DeviceDeadline_*Prefix` |
+| `WeeklyRestWindowFormatter.cs:7-48` | okres `n/6`, termin i fallback | zasoby terminów; okres i fallback T |
+| `CompensationPresentation.cs:15-45,142-176` | najbliższy termin, szczegóły i zakresy | wspólny presenter czasu; pozostałe etykiety → UI-05 |
+| `JourneyPlannerViewModel.cs:86-93,473-474,676-678` | pełne nazwy opcji i kompaktowe terminy | opcje → UI-08; wyniki czasu → wspólny presenter |
+| `ReportsWorkspaceViewModel.cs:556,768-795` | opcje dnia, kompaktowy czas i długie okresy | dzień i czas → wspólny presenter; opis okresu → UI-06 |
+| `ManualEntryPlanEditor.cs:7-22` | `Dzień {0}` i zakres segmentu | `GameCalendar_DayFormat` + wspólny presenter czasu |
+| `ActivityGapDtos.cs:20-36`, `ActivityRecord.cs:20-21` | polskie teksty czasu w modelach | wartości liczbowe do lokalnego wiersza Desktop; tekst modelu nie trafia do UI |
+| `MainViewModel.cs:784-825,2319-2326` | terminy dobowe i tygodniowe LCD | istniejące klucze urządzeniowe; bez nowych kluczy |
+| `GameClockFormatter.cs:10-48` | stabilny format i parser Core | bez zależności od kultury; widoczne użycia przejmuje Desktop |
+| `ReportService.cs:114,183-184,229-230` | tekst czasu w JSON | T — kontrakt eksportu bez zmian |
+
+### Elementy świadomie bez lokalizacji
+
+| Element | Kategoria | Uzasadnienie |
+|---|---|---|
+| `GameTime.TotalMinutes`, `GameWeek`, `GameWeekday` | T | dane i enumy domenowe |
+| `D{0}`, `HH:MM`, `n/6`, `—/6`, `6/6+` | T | zwarte, językowo neutralne formaty |
+| `·`, `:`, `,`, `→`, `–`, `(`, `)` | T | separatory zatwierdzone dla PL i EN |
+| treść JSON i diagnostyki | T/D | stabilny eksport i materiał techniczny |
+| pełne nazwy opcji dnia w Planerze | U | osobna rola i właściciel UI-08 |
+| formaty czasu w PDF | U/T | osobny właściciel PDF-01 i `ReportStrings` |
+
+### Oczekiwane identyczne wartości i duplikaty
+
+Paczka 5 nie dodaje wartości identycznych po obu stronach PL/EN. Żaden z 12
+nowych tekstów nie powtarza dokładnie wartości zatwierdzonego katalogu.
+Globalna lista 12 dozwolonych par wartości z paczki 4 pozostaje kompletna
+i bez zmian.
+
+### Kontrola paczki
+
+- [x] wszystkie 7 wartości `GameWeekday` ma wariant pełnej prezentacji i ponownie użyty wariant kompaktowy;
+- [x] wszystkie 4 wartości `GameDeadlineSemantic` ma pełny i urządzeniowy wariant bez fallbacku;
+- [x] `GameCalendar_DayFormat` ma zgodny placeholder `{0}` w PL/EN;
+- [x] zachowano dokładne polskie formaty M3A i regułę numeracji dnia od 1;
+- [x] rozdzielono tytułowe skróty `Pon`–`Ndz` od pełnych nazw opcji Planera;
+- [x] wszystkie widoczne użycia `GameClockFormatter.Format` mają drogę do lokalnego presentera Desktop;
+- [x] JSON, diagnostyka, parser, enumy i minuty domenowe pozostają niezależne od kultury UI;
+- [x] okres `n/6`, fallback i znaki graniczne nie są parsowane z tekstu zasobu;
+- [x] sprawdzono katalog 257 kluczy z paczek 1–4; brak nowych duplikatów nazw i wartości;
+- [x] paczka nie dodaje funkcji Planera ani nie zmienia reguł terminów;
+- [x] EN wymaga kontroli szerokości dla `Start no later than` w standardowym wariancie licznika oraz pełnych tooltipów `Complete before`.
+
+### Punkt kontrolny
+
+- 12 nowych kluczy;
+- 269 unikalnych nazw globalnie;
+- 0 nowych par powtórzonych wartości;
+- 12 dozwolonych par globalnie;
+- 7/7 wartości `GameWeekday`;
+- 4/4 wartości `GameDeadlineSemantic`;
+- 0 zmian w kodzie i XAML.
+
+### Werdykt
+
+**GO — paczka 5 (`X-01`) zatwierdzona.** Zamknięta bez pozycji otwartych.
+Łączny, wiążący katalog paczek 1–5 zawiera 269 unikalnych nazw i 12 jawnie
+dozwolonych par powtórzonych wartości. Zależności kompletności Dashboardu
+oraz listy dni w modalu wpisu manualnego od `X-01` są zamknięte.
 
 ## Słownik domenowy PL/EN — część 1
 
