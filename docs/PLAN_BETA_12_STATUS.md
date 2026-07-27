@@ -24,7 +24,7 @@
 | **M3.7** | Planer: ergonomia wprowadzania danych | 🟢 automatyka i ręczny gate zielone | GO | M4-0 |
 | **M4-0** | Inwentaryzacja UI + weryfikacja rc4 | 🟢 62/62 pozycji beta.12 PASS | GO | M4 |
 | **M4** | Finalizacja UI + **UI freeze** | 🟢 UI zamrożone | GO | M5 |
-| **M5** | Lokalizacja PL/EN | 🟡 M5.1; paczki 1–8 GO | W TOKU | M6 |
+| **M5** | Lokalizacja PL/EN | 🟡 M5.1; paczki 1–9 GO | W TOKU | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
 | M7 | Końcowy smoke beta.12 | ⚪ nie rozpoczęty | — | M8 |
 | M8 | Publikacja | ⚪ nie rozpoczęty | — | — |
@@ -485,7 +485,7 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
 - **Punkt wejściowy:** `2d8a760`.
 - **Gałąź:** `codex/m5-localization-pl-en`.
 - **Stan:** M5.1 — inwentaryzacja tekstów, kontraktów i ryzyk przepełnień;
-  paczki 1–8 zamknięte wynikiem GO.
+  paczki 1–9 zamknięte wynikiem GO.
 - **Artefakt:** `docs/LOCALIZATION_STRING_INVENTORY.md`.
 - **Paczka 1:** elementy wspólne, powłoka i nawigacja — 33 wiążące klucze,
   0 pozycji otwartych.
@@ -502,20 +502,28 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
   0 pozycji otwartych.
 - **Paczka 8:** `UI-06`, Raporty w Desktop — 98 wiążących kluczy,
   0 pozycji otwartych.
-- **Katalog łączny:** 659 kluczy, 659 unikalnych nazw; jawna lista
+- **Paczka 9:** `UI-07`, Kierowcy i Ustawienia — 18 wiążących kluczy,
+  0 pozycji otwartych.
+- **Katalog łączny:** 677 kluczy, 677 unikalnych nazw; jawna lista
   18 dozwolonych par powtórzonych wartości między różnymi rolami.
 - **X-01:** GO; zależności kompletności Dashboardu i listy dni w modalu wpisu
   manualnego są zamknięte.
 - **Rejestr presenterów:** 14 typów rozstrzygniętych, 4 świadomie wykluczone,
   12 pozostałych.
-- **Pozostałe obszary M5.1:** `UI-07`, `UI-08`, `UI-09`, `UI-10`
-  i `PDF-01`; `DOC-01/02` pozostają odłożone do M5.4.
+- **Pozostałe obszary M5.1:** `UI-08`, `UI-09`, `UI-10` i `PDF-01`;
+  `DOC-01/02` pozostają odłożone do M5.4.
 - **Przejęte zobowiązania:** `UI-09` obejmuje szczegółowe komunikaty błędów,
   `OperationStatus` i potwierdzenia. `UI-08` i `PDF-01` pozostają obszarami
   o największej liczbie kandydatów i najwyższym ryzyku przepełnień EN.
 - **Warunek przed PDF-01:** rozstrzygnąć ponowne użycie jednej z trzech
   istniejących rodzin statusów rekompensat albo świadomie uzasadnić czwartą
   rodzinę PDF, zanim powstanie jej katalog.
+- **Jawny wyjątek od UI freeze:** M5.2 dodaje dokładnie jedną nową kontrolkę
+  do zamrożonego interfejsu — wybór `pl-PL` / `en-GB` w Ustawieniach.
+  Jest wymagana planem M5, nie wprowadza dynamicznej zmiany bez restartu
+  i stanowi jedyną autoryzowaną różnicę względem inwentaryzacji UI z M4.
+  Smoke M7 porównuje ekran z bazą M4 powiększoną o ten jeden element;
+  każda inna nowa kontrolka nadal narusza UI freeze.
 - **Zmiany wykonawcze:** brak zmian w kodzie i XAML; dotychczasowe paczki M5.1
   są wyłącznie kontraktem dokumentacyjnym przed M5.2.
 - **Zakres językowy:** `pl-PL` i `en-GB`.

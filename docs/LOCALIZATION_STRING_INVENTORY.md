@@ -4,7 +4,7 @@
 
 **Data rozpoczęcia:** 2026-07-27
 
-**Status:** **W TOKU — PACZKI 1–8 GO**
+**Status:** **W TOKU — PACZKI 1–9 GO**
 
 **Języki:** `pl-PL`, `en-GB`
 
@@ -57,7 +57,7 @@ presentera; nie obejmuje kluczy tworzonych wyłącznie dla hipotetycznej funkcji
 | UI-04 | Kraje i kody tachografowe | `CountryCatalog.cs`, JSON | U/T | osobne nazwy PL/EN; zapis nadal przez ISO | GO w paczce 6 |
 | UI-05 | Rekompensaty | `MainWindow.xaml`, `CompensationPresentation.cs` | U/P/T | zasoby + presenter statusu; identyfikatory bez zmian | GO w paczce 7 |
 | UI-06 | Raporty w Desktop | `MainWindow.xaml`, `ReportsWorkspaceViewModel.cs` | U/P/T | zasoby + presentery; formaty eksportu bez zmian | GO w paczce 8 |
-| UI-07 | Kierowcy i Ustawienia | `MainWindow.xaml`, `MainViewModel.cs`, `SettingsService.cs` | U/O/T | zasoby; nazwy i numery kart bez tłumaczenia | do rozpisania |
+| UI-07 | Kierowcy i Ustawienia | `MainWindow.xaml`, `MainViewModel.cs`, `SettingsService.cs` | U/O/T | zasoby; nazwy i numery kart bez tłumaczenia | GO w paczce 9 |
 | UI-08 | Planer | `MainWindow.xaml`, `JourneyPlannerViewModel.cs` | U/P/T | zasoby + presentery faz, powodów, statusów i ostrzeżeń | do rozpisania |
 | UI-09 | Dialogi, potwierdzenia i komunikaty błędów | `App.xaml.cs`, `MainViewModel.cs`, view-modele | U/D/T | tekst UI w zasobach; logi i kody bez zmian | do rozpisania |
 | UI-10 | Nakładki S1/S2 | `OverlayWindow.xaml`, `OverlayViewModel.cs` | U/P/T | zasoby; `S1`, `S2`, `HH:MM` bez zmian | do rozpisania |
@@ -2402,6 +2402,241 @@ i `25`.
 wiążący katalog paczek 1–8 zawiera 659 unikalnych nazw i 18 jawnie dozwolonych
 par powtórzonych wartości. `RuleFindingLevel` jest świadomie wykluczony
 z prezentacji tekstowej, ponieważ nie ma aktywnego konsumenta w UI-06.
+
+## Paczka 9 — UI-07: Kierowcy i Ustawienia
+
+**Zakres:** lista i tworzenie profili kierowców, wybór profilu aktywnego,
+ustawienia tachografu oraz wymagany przez M5.2 trwały wybór języka UI.
+
+**Stan:** **ZAMKNIĘTA — GO**
+
+**Data zatwierdzenia:** 2026-07-27
+
+**Pozycje otwarte:** 0
+
+**Katalog:** 18 nowych kluczy — 14 dla istniejącego widoku oraz 4 dla
+kontrolki języka wymaganej kontraktem M5. Łączny katalog paczek 1–9 zawiera
+677 unikalnych nazw.
+
+Paczka nie dodaje par powtórzonych wartości między różnymi kluczami.
+Globalna lista 18 dozwolonych par pozostaje bez zmian.
+
+### Granica paczki
+
+Paczka obejmuje `MainWindow.xaml:797-799`, pola i komendy kierowców/ustawień
+w `MainViewModel`, `DriverService`, `SettingsService` oraz osobną persystencję
+wybranej kultury UI. Nie obejmuje:
+
+- komunikatów sukcesu, walidacji i błędów publikowanych przez
+  `OperationStatus` — ich właścicielem pozostaje `UI-09`;
+- dialogów kart w slotach S1/S2 — `UI-09`;
+- nazw kierowców, numerów kart i identyfikatorów profili — dane O/T;
+- kodu kraju wydania karty, dat ważności i reguł profilu — dane domenowe;
+- dynamicznej zmiany języka bez restartu — jawnie poza zakresem M5;
+- języków innych niż `pl-PL` i `en-GB`;
+- zmian kontraktów `.tacho`, VTC JSON, CSV ani SQLite.
+
+Dodanie wyboru języka nie jest nową funkcją „przy okazji”: wynika wprost
+z M5.2 i końcowego smoke M7. Kontrolka ma dwa warianty i nie przeładowuje
+otwartych okien; zmiana obowiązuje dopiero po ponownym uruchomieniu.
+
+### Kierowcy
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Drivers_Title` | PROFILE KIEROWCÓW | DRIVER PROFILES | U |
+| `Drivers_ActiveHeader` | AKTYWNY | ACTIVE | U |
+| `Drivers_CreatedAtHeader` | UTWORZONO | CREATED | U/T |
+| `Drivers_NewProfileTitle` | NOWY PROFIL | NEW PROFILE | U |
+| `Drivers_DriverNameTooltip` | Nazwa kierowcy | Driver name | U/O |
+| `Drivers_CardNumberTooltip` | Numer karty | Card number | U/T |
+| `Drivers_SetActiveAction` | USTAW AKTYWNY | SET ACTIVE | U |
+
+Zakładka ponownie używa `Navigation_Drivers`, przycisk `DODAJ` —
+`Common_AddAction`, a nagłówek `KIEROWCA` —
+`ManualEntry_DriverLabel`. Ostatni prefiks jest historycznym długiem
+zatwierdzonego katalogu, lecz rola etykiety kierowcy i pisownia są identyczne.
+
+Kolumna `AKTYWNY` pozostaje polem logicznym prezentowanym przez
+`DataGridCheckBoxColumn`; nie powstają teksty `Tak`/`Nie`. `CreatedAtUtc`
+nie może korzystać z przypadkowego `ToString()` WPF. Warstwa prezentacji
+konwertuje moment na lokalną strefę i krótki format daty/czasu aktywnej kultury,
+bez zmiany wartości UTC w DTO i SQLite.
+
+Konwersja `CreatedAtUtc` do lokalnej strefy jest świadomą decyzją produktową
+zatwierdzoną z GO paczki 9, a nie neutralnym skutkiem formatowania. Widoczna
+godzina zmienia się o przesunięcie strefy użytkownika względem UTC, natomiast
+instant, kolejność rekordów i dane w DTO/SQLite pozostają identyczne. Test
+regresyjny musi osobno potwierdzić ten sam instant przed i po prezentacji oraz
+oczekiwaną godzinę lokalną w strefie innej niż UTC.
+
+### Ustawienia tachografu
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Settings_Title` | USTAWIENIA TACHOGRAFU | TACHOGRAPH SETTINGS | U |
+| `Settings_RestartNotice` | Parametry zostaną zastosowane przy następnym uruchomieniu. | The settings will be applied the next time the application starts. | U |
+| `Settings_DrivingThresholdLabel` | Próg wykrywania jazdy | Driving detection threshold | U |
+| `Settings_DrivingThresholdDescription` | Prędkość, od której tachograf wybiera jazdę automatycznie. | The speed at which the tachograph selects driving automatically. | U |
+| `Settings_WeekOffsetLabel` | Przesunięcie tygodnia | Week offset | U |
+| `Settings_WeekOffsetDescription` | Korekta początku tygodnia regulacyjnego w dniach. | Adjustment of the regulatory week's start in days. | U/T |
+| `Settings_SaveAction` | ZAPISZ USTAWIENIA | SAVE SETTINGS | U |
+
+Zakładka ponownie używa `Navigation_Settings`. `km/h`, zakres `0–20`,
+zakres dni `-6–6` oraz wartości liczbowe pozostają techniczne. Binding liczby
+zmiennoprzecinkowej używa aktywnej kultury (`1,5` w PL, `1.5` w EN), natomiast
+SQLite przechowuje tę samą wartość liczbową niezależnie od języka.
+
+### Trwały wybór języka
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Settings_LanguageLabel` | Język interfejsu | Interface language | U |
+| `Settings_LanguageDescription` | Zmiana języka zostanie zastosowana przy następnym uruchomieniu. | The language change will be applied the next time the application starts. | U |
+| `Language_Polish` | Polski | Polish | U/T |
+| `Language_EnglishUnitedKingdom` | Angielski (Wielka Brytania) | English (United Kingdom) | U/T |
+
+Wartość prezentacyjna nie jest zapisywana. Model opcji zawiera stabilne
+`CultureName` (`pl-PL` albo `en-GB`) i lokalizowaną nazwę. Zapis, porównanie
+i odtworzenie wyboru zawsze używają `CultureName`, nigdy tekstu zasobu.
+
+Chroniony schemat SQLite pozostaje bez zmian: `SettingsDto`,
+`TachographSettingsEntity` i `SettingsRepository` nadal przechowują wyłącznie
+próg jazdy i przesunięcie tygodnia. M5.2 dodaje osobny
+`UiCulturePreferenceStore` w Desktop, wzorowany na istniejącym magazynie
+wejść Planera. Plik `%LocalAppData%\ETS2Tachograph\ui-culture.json` ma
+techniczny schemat `{ "schemaVersion": 1, "cultureName": "pl-PL" }`.
+Nie jest to VTC JSON ani kontrakt eksportu.
+
+Brak pliku zachowuje `pl-PL`, czyli język istniejących instalacji.
+Nieobsługiwana, pusta albo uszkodzona wartość po odczycie uruchamia bezpieczny
+fallback `en-GB`, zgodnie z planem M5, i zapisuje zdarzenie diagnostyczne bez
+wyświetlania surowego kodu użytkownikowi. Zapis używa pliku tymczasowego
+i atomowej zamiany, aby awaria nie pozostawiła częściowego JSON.
+
+Kultura jest ustawiana w `App.xaml.cs` po odczycie ustawień, lecz przed
+utworzeniem `MainWindow`, `MainViewModel` i raportera PDF. Implementacja ustawia
+bieżącą i domyślną kulturę wątków oraz język WPF, aby bindingi liczb i dat nie
+pozostały w domyślnym `en-US`. PDF używa tej samej aktywnej kultury; osobny
+język raportu pozostaje poza zakresem.
+
+### Zobowiązania przekazane do UI-09
+
+Wszystkie poniższe przypadki są zinwentaryzowane, ale nie tworzą kluczy
+pakietu 9, ponieważ jedynym konsumentem jest wspólny `OperationStatus`
+lub komunikat błędu:
+
+| Przypadek | Obecny tekst / źródło | Wymagana decyzja UI-09 |
+|---|---|---|
+| profil utworzony | `Profil utworzony.` | lokalizowane potwierdzenie |
+| profil ustawiony jako aktywny | `Profil zapisany. Uruchom aplikację ponownie, aby rozpocząć jego sesję.` | lokalizowane potwierdzenie restartu |
+| ustawienia zapisane | `Ustawienia zapisane. Zostaną zastosowane przy następnym uruchomieniu.` | lokalizowane potwierdzenie restartu |
+| brak nazwy kierowcy | `Driver display name is required.` | znany błąd pola, bez `exception.Message` |
+| brak numeru karty | `Driver card number is required.` | znany błąd pola, bez `exception.Message` |
+| błędna kolejność dat karty | `Driver card expiry must not precede its validity date.` | znany błąd domenowy; dziś brak aktywnej ścieżki edycji dat |
+| próg poza `0–20 km/h` | `Driving threshold must be between 0 and 20 km/h.` | znany błąd pola, bez `exception.Message` |
+| przesunięcie poza `-6–6` | `Week offset must be between -6 and 6 days.` | znany błąd pola, bez `exception.Message` |
+| nieobsługiwana kultura przy zapisie | nowy przypadek M5.2 | znany błąd pola; dozwolone tylko `pl-PL` i `en-GB` |
+| błąd zapisu preferencji języka | nowy przypadek M5.2 | ogólny komunikat, szczegół wyłącznie w diagnostyce |
+| nieznany błąd zapisu profilu/ustawień | obecnie `ex.Message` | komunikat ogólny, wyjątek tylko do diagnostyki |
+
+`DriverService` i `SettingsService` mogą zachować angielskie komunikaty
+wyjątków jako diagnostykę/developer contract, ale Desktop nie może ich
+wyświetlać bezpośrednio. M5.2/M5.3 powinny użyć jawnych wyników walidacji,
+kodów błędów albo kontrolowanego mapowania; tekst zasobu nie steruje logiką.
+
+### Mapowanie źródeł
+
+| Źródło | Obecna wartość / rodzina | Decyzja |
+|---|---|---|
+| `MainWindow.xaml:797` | 10 wystąpień Kierowców | 7 nowych kluczy + `Navigation_Drivers`, `Common_AddAction`, `ManualEntry_DriverLabel` |
+| `MainWindow.xaml:799` | 8 wystąpień Ustawień | 7 nowych kluczy + `Navigation_Settings` |
+| `M5_LOKALIZACJA_PL_EN.md:43-50,84-96` | trwała kultura, wybór języka, restart i fallback | 4 nowe klucze + pole `CultureName` |
+| `MainViewModel.cs:385-413` | pola profilu i ustawień | bindingi danych; bez lokalizacji O/T |
+| `MainViewModel.cs:2015-2043` | tworzenie/aktywacja profilu i zapis ustawień | przepływ bez zmian; komunikaty → UI-09 |
+| `DriverService.cs:14-29` | 3 walidacje profilu | jawne przypadki UI-09; brak wycieku tekstu wyjątku |
+| `SettingsService.cs:8-18` | 2 walidacje liczb | jawne przypadki UI-09; serwis tachografu bez odpowiedzialności za kulturę |
+| nowy `UiCulturePreferenceStore` | walidacja `pl-PL` / `en-GB`, fallback i zapis atomowy | persystencja kultury niezależna od SQLite |
+| `JourneyPlannerInputStateStore.cs:31-57` | wzorzec osobnego magazynu preferencji Desktop | nowy, wersjonowany `UiCulturePreferenceStore` |
+| `SettingsDto.cs`, `SettingsRepository.cs`, `Entities.cs` | ustawienia tachografu w SQLite | bez zmian schematu i znaczenia |
+| `App.xaml.cs:56-147` | inicjalizacja przed utworzeniem okna | odczyt preferencji i zastosowanie kultury przed UI i PDF |
+
+### Rozliczenie tekstów widoku
+
+W istniejącym XAML są dokładnie 18 wystąpień i 18 unikalnych wartości:
+
+- 4 wystąpienia ponownie używają zatwierdzonego katalogu:
+  `Navigation_Drivers`, `Navigation_Settings`, `Common_AddAction`
+  i `ManualEntry_DriverLabel`;
+- pozostałe 14 otrzymuje 14 nowych kluczy;
+- wymagany przez M5.2 wybór języka dodaje 4 nowe klucze, których nie ma jeszcze
+  w zamrożonym XAML.
+
+Łącznie paczka zawiera 18 nowych nazw. Nie ma placeholderów ani powtórzonych
+wartości między różnymi nowymi kluczami.
+
+### Elementy świadomie bez lokalizacji
+
+| Element | Kategoria | Uzasadnienie |
+|---|---|---|
+| nazwa kierowcy, numer karty | O/T | dane użytkownika i identyfikator |
+| identyfikator profilu, `IsActive` | T | dane i sterowanie |
+| kod kraju wydania, daty ważności karty | T | dane tachografowe |
+| `CreatedAtUtc` | T | instant pozostaje UTC; zatwierdzona prezentacja świadomie konwertuje go do lokalnej strefy i formatu kultury |
+| `pl-PL`, `en-GB` | T | stabilne identyfikatory kultury |
+| `km/h`, `0–20`, `-6–6` | T | jednostka i granice walidacji |
+| wartości `double`/`int` w SQLite | T | dane liczbowe niezależne od kultury |
+| `schemaVersion`, `cultureName`, nazwa pliku preferencji | T | wewnętrzny kontrakt ustawienia UI |
+
+### Ryzyka i kontrola wizualna
+
+Największe ryzyko EN występuje w zwartej zakładce Ustawień o szerokości
+600 px i w wierszu nowego profilu:
+
+- `The settings will be applied the next time the application starts.`;
+- `Driving detection threshold`;
+- `Adjustment of the regulatory week's start in days.`;
+- `English (United Kingdom)` w kontrolce o docelowej szerokości 180 px;
+- `SET ACTIVE` obok pól nazwy i numeru karty.
+
+Test wizualny obejmuje oba języki, pustą i długą nazwę kierowcy, długi numer
+karty, oba warianty języka oraz format daty utworzenia. Test funkcjonalny
+obejmuje zapis `pl-PL`, zapis `en-GB`, restart po każdym wyborze, brak pliku
+preferencji, nieznaną kulturę, uszkodzony JSON i przerwany zapis, przecinek
+dziesiętny PL, kropkę EN oraz identyczne wartości liczbowe po ponownym odczycie.
+Schemat istniejącej bazy SQLite musi pozostać identyczny.
+
+### Kontrola paczki
+
+- [x] wszystkie 18 istniejących wystąpień XAML ma klucz albo jawne ponowne użycie;
+- [x] 14 nowych kluczy istniejącego widoku nie koliduje z paczkami 1–8;
+- [x] 4 klucze wyboru języka realizują jawny wymóg M5.2;
+- [x] `CultureName` jest oddzielone od lokalizowanej nazwy języka;
+- [x] brak preferencji (`pl-PL`) i fallback uszkodzonej wartości (`en-GB`)
+  mają odrębne znaczenie;
+- [x] kultura jest stosowana przed utworzeniem UI i PDF;
+- [x] wybór języka nie zmienia schematu SQLite ani kontraktów eksportu;
+- [x] nazwy, numery kart, identyfikatory i wartości SQLite nie są tłumaczone;
+- [x] 11 przypadków `OperationStatus`/błędów ma właściciela w UI-09;
+- [x] brak nowych duplikatów wartości i brak placeholderów;
+- [x] brak zmian w kodzie i XAML.
+
+### Punkt kontrolny po GO
+
+- 7 nowych kluczy Kierowców;
+- 7 nowych kluczy istniejących Ustawień;
+- 4 nowe klucze wyboru języka;
+- 18 nowych kluczy;
+- 677 unikalnych nazw globalnie;
+- 0 nowych par powtórzonych wartości;
+- 18 dozwolonych par globalnie;
+- 0 zmian wykonawczych.
+
+### Werdykt
+
+**GO — paczka 9 zatwierdzona.** Zamknięta bez pozycji otwartych. `UI-07`
+jest zamknięte, a łączny, wiążący katalog paczek 1–9 zawiera 677 unikalnych
+nazw i 18 jawnie dozwolonych par powtórzonych wartości.
 
 ## Słownik domenowy PL/EN — część 1
 
