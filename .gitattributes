@@ -1,0 +1,3 @@
+# Markdown documentation is hashed as canonical Git blobs.
+.gitattributes text eol=lf
+*.md text eol=lf

@@ -13,6 +13,10 @@ Podczas generowania manifestu przed commitem należy hashować odpowiadający bl
 z indeksu (`git show :docs/PLAN_BETA_12_M0-M8/NAZWA_PLIKU.md`). Po commicie
 wynik musi być ponownie potwierdzony względem `HEAD`.
 
+Repozytorium wymusza dla dokumentów Markdown zakończenia linii LF przez
+`.gitattributes` (`*.md text eol=lf`). Pełną tabelę odtworzono 2026-07-27
+z blobów zapisanych w indeksie i zweryfikowano w komplecie 15/15.
+
 | Plik | SHA-256 |
 |---|---|
 | `M0_STABILIZACJA_STANU_WEJSCIOWEGO.md` | `F03C7DEF64A5D8141430E814082783B92AB9C0579419B189508657C64C601444` |
