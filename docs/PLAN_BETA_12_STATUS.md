@@ -20,7 +20,7 @@
 | **M3A** | Game Calendar & Deadline Presentation | 🟢 ręczny gate UI zielony | GO | M3 |
 | **M3** | Planer: Application Service i UI | 🟢 M3-R3 automatycznie i ręcznie zielone | GO | M3.5 |
 | **M3.5** | Raporty i statystyki: wariant B | 🟢 UI, automatyka i ręczny gate zielone | GO | M3.6 |
-| **M3.6** | Wewnętrzny smoke checkpoint | 🟡 rc3 gotowy; pozostały smoke oczekuje | FIX | M3.7 |
+| **M3.6** | Wewnętrzny smoke checkpoint | 🟢 smoke rc3 zielony | GO | M3.7 |
 | **M3.7** | Planer: ergonomia wprowadzania danych | 🟢 automatyka i ręczny gate zielone | GO | M4 |
 | M4 | Finalizacja UI + **UI freeze** | ⚪ nie rozpoczęty | — | M5 |
 | M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
@@ -316,7 +316,7 @@ zakończone wynikiem GO po akceptacji właściciela 2026-07-24.
 
 ---
 
-## M3.6 — Wewnętrzny smoke checkpoint (W TOKU)
+## M3.6 — Wewnętrzny smoke checkpoint (ZAMKNIĘTY — GO)
 
 **Kryterium wejścia:** formalny wynik GO dla M3.5. **Stan:** spełnione; artefakty
 `rc0`, `rc1` i `rc2` zostały unieważnione przez błędy wykryte w smoke.
@@ -366,6 +366,11 @@ zakończone wynikiem GO po akceptacji właściciela 2026-07-24.
   świeże dane i aktywna telemetria, potwierdzone przez właściciela 2026-07-25.
 - **Restart aplikacji:** PASS — poprawiona aplikacja podpięła istniejącą
   telemetrię bez restartu ETS2.
+- **Pozostały smoke `rc3`:** PASS — potwierdzony przez właściciela 2026-07-27.
+- **Obserwacja PROM:** nierozliczona luka po skoku czasu wynika z opisanego
+  ograniczenia trybu promowego i nie jest regresją `rc3`; pełne odstępstwo z
+  art. 9 pozostaje jawnie odłożone poza beta.12.
+- **Decyzja M3.6:** **GO** — brak otwartych błędów P0/P1.
 - **Pełny smoke `rc2`:** FAIL; `rc2` unieważniony.
 - **Artefakty historyczne:** `rc0`, `rc1` i `rc2` pozostają unieważnione.
 
@@ -387,13 +392,13 @@ zakończone wynikiem GO po akceptacji właściciela 2026-07-24.
 Etap wstawiony między M3.6 a M4 decyzją właściciela z 2026-07-26. Szczegóły
 w `docs/PLAN_BETA_12_M0-M8/M3_7_PLANER_ERGONOMIA_WEJSCIA.md`.
 
-**Kryterium wejścia:** formalny wynik GO dla M3.6. **Stan:** niespełnione —
-pozostały smoke `rc3` oczekuje.
+**Kryterium wejścia:** formalny wynik GO dla M3.6. **Stan:** spełnione
+2026-07-27.
 
 **Stan wdrożenia 2026-07-26:** właściciel polecił wprowadzić plan mimo
 niezamkniętego formalnie wejścia. Zakres kroków 1–4 został zaimplementowany;
 pełny ręczny gate został następnie potwierdzony przez właściciela jako zielony.
-M3.7 ma wynik **GO**. M4 pozostaje formalnie zablokowane do zamknięcia M3.6.
+M3.7 ma wynik **GO**. M4 jest odblokowane.
 
 - **Artefakt bieżący:** `ETS2Tachograph-0.1.0-beta.12-rc4-win-x64.zip`
 - **Commit źródłowy:** `a1b8a486b52ee244984016efe268562690d4fbc4`

@@ -1,10 +1,10 @@
 # M3.6 — Wewnętrzny smoke checkpoint (próba generalna RC)
 
 **Projekt:** ETS2 EU Digital Tachograph  
-**Artefakt:** `0.1.0-beta.12-rc3` — gotowy do dalszego smoke
+**Artefakt:** `0.1.0-beta.12-rc3` — smoke zakończony wynikiem GO
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status bieżący:** **FIX — RC3 GOTOWY, POZOSTAŁY SMOKE OCZEKUJE**
+**Status bieżący:** **ZAMKNIĘTY — GO**
 **Kryterium wejścia:** Formalny wynik **GO** dla M3.5.  
 **Kryterium wyjścia:** Triaging zakończony, potwierdzone błędy naprawione **przed** M4, formalna decyzja **GO / FIX / HOLD** dla checkpointu.  
 **Następny etap:** M4
@@ -22,10 +22,10 @@ in-game do końcowego smoke M7.
 
 ## Charakter etapu
 
-- Budujemy **zamrożony wewnętrzny artefakt** `beta.12-rc1` z konkretnego commita
+- Budujemy **zamrożony wewnętrzny artefakt** `beta.12-rc*` z konkretnego commita
   (numer + commit + wewnętrzna SHA-256), jak w dyscyplinie M6.
 - **To nie jest publikacja.** Nie uruchamia bramki M8, nie tworzy publicznej
-  paczki i nie wchodzi na osobną linię wersji. Etykieta `-rc1` oznacza próbę
+  paczki i nie wchodzi na osobną linię wersji. Etykieta `-rc*` oznacza próbę
   generalną RC beta.12, nie wydanie „beta.11.5”.
 - Smoke wykonujemy wyłącznie na **rozpakowanym artefakcie**, nigdy z IDE, z
   pluginem z tej samej paczki.
@@ -38,37 +38,37 @@ pozostaje wymagany** i nie jest zastępowany przez M3.6.
 
 ## Przygotowanie
 
-- [x] Zbudować Release z zamrożonego commita i spakować `beta.12-rc1`.
+- [x] Zbudować Release z zamrożonego commita i spakować `beta.12-rc3`.
 - [x] Zapisać numer, commit i wewnętrzną SHA-256 artefaktu.
 - [x] Rozpakować ZIP do nowego katalogu; nie uruchamiać z IDE ani z ZIP-a.
-- [ ] Zainstalować DLL pluginu z tej samej paczki i uruchomić ETS2 ponownie.
-- [ ] Zachować kopię istniejącej bazy oraz przygotować wariant czystej bazy.
+- [x] Zainstalować DLL pluginu z tej samej paczki i uruchomić ETS2 ponownie.
+- [x] Zachować kopię istniejącej bazy oraz przygotować wariant czystej bazy.
 
 ## Scenariusze smoke — celowane w ryzyka beta.12
 
 ### Istniejąca baza (sesja wielogodzinna, aktywna telemetria v3)
 
-- [ ] Start bez błędów; odtworzenie profili, kart, ustawień i historii.
-- [ ] **Załoga w ruchu:** S1 jedzie, S2 bierze 45 min przerwy w ruchu, S2
+- [x] Start bez błędów; odtworzenie profili, kart, ustawień i historii.
+- [x] **Załoga w ruchu:** S1 jedzie, S2 bierze 45 min przerwy w ruchu, S2
       przejmuje bez postoju pojazdu; osobne liczniki obu kart poprawne.
-- [ ] **Granica pauzy 44/45** in-game jest poprawna (residuum otwarte od M0).
-- [ ] **Kalendarz przez zmianę dni i tygodnia:** terminy `ODP. DZIENNY`,
+- [x] **Granica pauzy 44/45** in-game jest poprawna (residuum otwarte od M0).
+- [x] **Kalendarz przez zmianę dni i tygodnia:** terminy `ODP. DZIENNY`,
       `ODP. TYG.` i rekompensat są stabilne i zgodne z tygodniem regulacyjnym;
       sprawdzić różne `WeekEpochOffsetDays`.
-- [ ] **Rekompensaty przez restart + warm:** zapłać zobowiązanie, zrestartuj,
+- [x] **Rekompensaty przez restart + warm:** zapłać zobowiązanie, zrestartuj,
       potwierdź `PaidOnTime` po rejestracji załogi (scenariusz z `d3e21b4`).
-- [ ] Planer tworzy legalny harmonogram i unieważnia stale snapshot.
-- [ ] **Wariant B Raporty:** podgląd = plik dla PDF/JSON/CSV; eksport nie używa
+- [x] Planer tworzy legalny harmonogram i unieważnia stale snapshot.
+- [x] **Wariant B Raporty:** podgląd = plik dla PDF/JSON/CSV; eksport nie używa
       nieaktualnych parametrów.
-- [ ] Nakładki S1/S2 zgodne z Dashboardem; OUT/Prom; auto-Jazda i blokady od ruchu.
-- [ ] Zamknięcie i ponowny start odtwarzają identyczne dane; logi bez nowych
+- [x] Nakładki S1/S2 zgodne z Dashboardem; OUT/Prom; auto-Jazda i blokady od ruchu.
+- [x] Zamknięcie i ponowny start odtwarzają identyczne dane; logi bez nowych
       wyjątków i błędów bindingów.
 
 ### Czysta baza
 
-- [ ] Pierwszy start tworzy bazę i ustawienia; profil i karta działają.
-- [ ] Podstawowy przepływ telemetrii, Planer i raport podstawowy działają.
-- [ ] Włożenie/wyjęcie karty i oba sloty działają.
+- [x] Pierwszy start tworzy bazę i ustawienia; profil i karta działają.
+- [x] Podstawowy przepływ telemetrii, Planer i raport podstawowy działają.
+- [x] Włożenie/wyjęcie karty i oba sloty działają.
 
 ## Reguła unieważnienia smoke
 
@@ -195,8 +195,8 @@ zielony; następnym krokiem jest commit i nowy artefakt `rc3`.
 ## Szablon aktualizacji statusu
 
 - **Data rozpoczęcia:** 2026-07-24
-- **Data zakończenia:**
-- **Wynik:** `FIX — RC3 GOTOWY, POZOSTAŁY SMOKE OCZEKUJE`
+- **Data zakończenia:** 2026-07-27
+- **Wynik:** **GO**
 - **Artefakt bieżący:** `ETS2Tachograph-0.1.0-beta.12-rc3-win-x64.zip`
 - **Commit bieżący:** `7e90a3620e68b7dc8598d733bc17eac4f5e488e6`
 - **SHA-256 bieżący:** `F9E85D58E37EF381D5DD435222A7594A34430B99F1E69DDD669CF608899D026E`
@@ -212,15 +212,18 @@ zielony; następnym krokiem jest commit i nowy artefakt `rc3`.
 - **Build Release:** 0 błędów / 0 ostrzeżeń
 - **Testy automatyczne:** 524/524 sekwencyjnie po poprawce przerwy slotu 2
 - **Testy manualne / dowody:** Alt+Tab — PASS; przerwa slotu 2 `1 + 44 = 45`
-  — PASS na świeżych danych i aktywnej telemetrii
+  — PASS na świeżych danych i aktywnej telemetrii; pozostały smoke `rc3` —
+  PASS, potwierdzony przez właściciela 2026-07-27
 - **Weryfikacja paczki `rc3`:** świeże rozpakowanie, 454 pliki zgodne bajtowo,
   `FileVersion 0.1.12.3`, dokładny `ProductVersion`, plugin v3 i checksumy — PASS
 - **Weryfikacja paczki `rc2`:** struktura i checksumy — PASS, funkcjonalny smoke
   — FAIL
 - **Otwarte błędy P0:** 0
 - **Otwarte błędy P1:** 0
-- **Uwagi do następnego etapu:** wznowić pozostały zakres smoke na rozpakowanym
-  artefakcie `rc3`.
+- **Obserwacja PROM:** nierozliczona luka po skoku czasu została sklasyfikowana
+  jako znane ograniczenie trybu promowego, a nie regresja `rc3`. Pełne
+  odstępstwo z art. 9 pozostaje w backlogu po beta.12.
+- **Uwagi do następnego etapu:** M3.6 zamknięte; można kontynuować do M4.
 
 ---
 
