@@ -4,7 +4,10 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status początkowy:** **NIE ROZPOCZĘTY**  
+**Status bieżący:** **W TOKU — M5.1 INWENTARYZACJA**
+
+**Data rozpoczęcia:** 27 lipca 2026
+
 **Kryterium wejścia:** Formalny **UI freeze** po M4.  
 **Kryterium wyjścia:** Kompletne PL/EN, zielone regresje obu języków i niezmienione kontrakty maszynowe.  
 **Następny etap:** M6
@@ -13,9 +16,19 @@
 
 **Cel:** przygotować pełnoprawne, spójne wersje `pl-PL` i `en-GB`.
 
+## Otwarcie etapu
+
+- **Wejście:** spełnione — M4 zamknięte wynikiem GO, UI freeze obowiązuje.
+- **Punkt wejściowy:** `2d8a760` — commit zamykający M4.
+- **Gałąź:** `codex/m5-localization-pl-en`.
+- **Pierwszy artefakt:** `docs/LOCALIZATION_STRING_INVENTORY.md`.
+- **Granica:** lokalizowana jest wyłącznie prezentacja; JSON, techniczny CSV,
+  `.tacho`, SQLite, protokół v3, identyfikatory i kody pozostają niezmienne.
+- **Kolejność:** kompletna inwentaryzacja i słownik przed wdrożeniem `.resx`.
+
 ### Etap M5.1 — inwentaryzacja
 
-- [ ] Utworzyć `docs/LOCALIZATION_STRING_INVENTORY.md`.
+- [x] Utworzyć `docs/LOCALIZATION_STRING_INVENTORY.md`.
 - [ ] Sklasyfikować każdy tekst jako użytkowy, techniczny, diagnostyczny, domenowy lub własny.
 - [ ] Zidentyfikować statusy i enumy wymagające presenterów.
 - [ ] Zidentyfikować ekrany narażone na przepełnienie.

@@ -2,7 +2,8 @@
 
 **Projekt nadrzędny:** ETS2 EU Digital Tachograph  
 **Nazwa mini-projektu:** Lokalizacja interfejsu i raportów PL/EN  
-**Stan dokumentu:** zaakceptowany plan wykonawczy  
+**Stan dokumentu:** realizacja rozpoczęta — M5.1
+
 **Data przygotowania:** 23 lipca 2026  
 **Wersja bazowa:** `0.1.0-beta.11.1`  
 **Warunek rozpoczęcia:** spełniony — formalny werdykt **GO** po smoke teście beta.11.1
@@ -11,13 +12,16 @@
 
 ## Aktualizacja stanu lokalnego
 
-Mini-projekt nadal nie został rozpoczęty jako pełna lokalizacja PL/EN. Bieżący
-kod wprowadził jednak pierwszy wersjonowany zasób językowy:
+Mini-projekt rozpoczęto 2026-07-27 po formalnym GO M4. Stan wejściowy kodu
+zawierał już pierwszy wersjonowany zasób językowy:
 
 - `Data/Countries.iso3166-1.json` przechowuje stabilne dane ISO i kody
   tachografowe;
 - `Resources/CountryNames.pl.json` przechowuje polskie nazwy 249 krajów;
 - historia zapisuje ISO, nie przetłumaczoną nazwę.
+
+Dedykowana gałąź to `codex/m5-localization-pl-en`. Pierwszym etapem pozostaje
+inwentaryzacja; fundament `.resx` nie może jej wyprzedzić.
 
 Przy wdrażaniu `.resx` nie wolno duplikować ani zastępować stabilnych kodów
 ISO. Nazwy krajów należy włączyć do wspólnego mechanizmu lokalizacji albo
@@ -416,12 +420,13 @@ Warunki:
 - [x] repozytorium czyste poza prywatnym, nietkniętym katalogiem `.claude/`;
 - [x] artefakt beta.11.1 zamrożony;
 - [x] późniejsze poprawki UI rozdzielone od artefaktu beta.11.1 i lokalizacji;
-- [ ] utworzona osobna gałąź mini-projektu.
+- [x] utworzona osobna gałąź mini-projektu:
+      `codex/m5-localization-pl-en`.
 
-Proponowana gałąź:
+Utworzona gałąź:
 
 ```text
-feature/localization-pl-en
+codex/m5-localization-pl-en
 ```
 
 Gate:
@@ -836,12 +841,12 @@ Słownik jest punktem startowym. Przed implementacją powinien zostać zweryfiko
 Formalny GO beta.11.1 został zapisany 23 lipca 2026. Nie zmieniać zamrożonego
 artefaktu i nie scalać do niego późniejszych zmian UI ani lokalizacji.
 
-Po osobnej decyzji właściciela projektu o rozpoczęciu lokalizacji:
+Po decyzji właściciela lokalizację rozpoczęto na gałęzi
+`codex/m5-localization-pl-en`. Obowiązują kolejne kroki:
 
-1. utworzyć gałąź `feature/localization-pl-en`;
-2. wykonać Etap 1 — inwentaryzację tekstów;
-3. zatwierdzić neutralny język zasobów i politykę fallbacku;
-4. dopiero potem wdrażać `.resx`.
+1. wykonać Etap 1 — inwentaryzację tekstów;
+2. zatwierdzić neutralny język zasobów i politykę fallbacku;
+3. dopiero potem wdrażać `.resx`.
 
 ---
 

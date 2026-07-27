@@ -24,7 +24,7 @@
 | **M3.7** | Planer: ergonomia wprowadzania danych | 🟢 automatyka i ręczny gate zielone | GO | M4-0 |
 | **M4-0** | Inwentaryzacja UI + weryfikacja rc4 | 🟢 62/62 pozycji beta.12 PASS | GO | M4 |
 | **M4** | Finalizacja UI + **UI freeze** | 🟢 UI zamrożone | GO | M5 |
-| M5 | Lokalizacja PL/EN | ⚪ odblokowany; nie rozpoczęty | ODBLOKOWANE | M6 |
+| **M5** | Lokalizacja PL/EN | 🟡 M5.1 inwentaryzacja | W TOKU | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
 | M7 | Końcowy smoke beta.12 | ⚪ nie rozpoczęty | — | M8 |
 | M8 | Publikacja | ⚪ nie rozpoczęty | — | — |
@@ -478,7 +478,21 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
 
 ---
 
-## M5 odblokowany; M6–M8 do rozpoczęcia
+## M5 — Lokalizacja PL/EN (W TOKU)
+
+- **Data rozpoczęcia:** 2026-07-27.
+- **Wejście:** GO M4 i aktywny UI freeze.
+- **Punkt wejściowy:** `2d8a760`.
+- **Gałąź:** `codex/m5-localization-pl-en`.
+- **Stan:** M5.1 — inwentaryzacja tekstów, kontraktów i ryzyk przepełnień.
+- **Artefakt:** `docs/LOCALIZATION_STRING_INVENTORY.md`.
+- **Zakres językowy:** `pl-PL` i `en-GB`.
+- **Kontrakty chronione:** JSON, techniczny CSV, `.tacho`, SQLite, protokół v3,
+  identyfikatory i kody techniczne.
+
+---
+
+## M6–M8 — do rozpoczęcia
 
 Każdy etap otwieramy dopiero po **GO** poprzedniego. Szczegółowe zadania i gate'y
 w `docs/PLAN_BETA_12_M0-M8/`. Poniżej rejestr decyzji wypełniany przy zamykaniu
@@ -487,7 +501,7 @@ dowody manualne, P0, P1, uwagi).
 
 - **M4-0** — inwentaryzacja UI + osobista weryfikacja rc4. — *GO*
 - **M4** — realizacja zatwierdzonej inwentaryzacji + formalny **UI freeze**. — *GO*
-- **M5** — pełne `pl-PL` i `en-GB`, zielone regresje obu języków. — *odblokowany; nie rozpoczęty*
+- **M5** — pełne `pl-PL` i `en-GB`, zielone regresje obu języków. — *w toku: M5.1*
 - **M6** — niezmienny RC beta.12: numer + commit + SHA-256, ZIP zamrożony. — *nie rozpoczęty*
 - **M7** — smoke na rozpakowanym ZIP-ie (istniejąca + czysta baza) → GO/FIX/HOLD. — *nie rozpoczęty*
 - **M8** — publikacja dokładnie artefaktu z GO + checksuma + dokumentacja PL/EN. — *nie rozpoczęty*
