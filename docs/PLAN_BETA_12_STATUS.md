@@ -484,8 +484,8 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
 - **Wejście:** GO M4 i aktywny UI freeze.
 - **Punkt wejściowy:** `2d8a760`.
 - **Gałąź:** `codex/m5-localization-pl-en`.
-- **Stan:** M5.1 — inwentaryzacja tekstów, kontraktów i ryzyk przepełnień;
-  paczki 1–12 zamknięte wynikiem GO.
+- **Stan:** M5.1 zamknięte wynikiem GO — wszystkie obszary mają wiążące
+  katalogi; paczki 1–13 zatwierdzone.
 - **Artefakt:** `docs/LOCALIZATION_STRING_INVENTORY.md`.
 - **Paczka 1:** elementy wspólne, powłoka i nawigacja — 33 wiążące klucze,
   0 pozycji otwartych.
@@ -510,22 +510,28 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
   77 wiążących kluczy, 0 pozycji otwartych.
 - **Paczka 12:** `UI-10`, nakładki S1/S2 — 16 wiążących kluczy,
   0 pozycji otwartych.
-- **Katalog łączny:** 875 kluczy, 875 unikalnych nazw; jawna lista
-  22 dozwolonych par powtórzonych wartości między różnymi rolami.
+- **Paczka 13:** `PDF-01`, raport PDF — 77 nowych wiążących nazw,
+  22 ponowne użycia i 99 wpisów `ReportStrings` na język,
+  0 pozycji otwartych.
+- **Katalog łączny:** 952 klucze, 952 unikalne nazwy; jawna lista
+  31 dozwolonych par powtórzonych wartości między różnymi rolami.
 - **X-01:** GO; zależności kompletności Dashboardu i listy dni w modalu wpisu
   manualnego są zamknięte.
-- **Rejestr presenterów:** 30 typów — 20 rozstrzygniętych,
-  10 świadomie wykluczonych, 0 pozostałych.
-- **Pozostałe obszary M5.1:** `PDF-01`;
+- **Rejestr presenterów:** 30 typów — 21 rozstrzygniętych,
+  9 świadomie wykluczonych, 0 pozostałych.
+- **Pozostałe obszary M5.1:** brak;
   `DOC-01/02` pozostają odłożone do M5.4.
 - **Przejęte zobowiązania:** `UI-09` jest zamknięte; szczegółowe komunikaty
   błędów, `OperationStatus` i potwierdzenia mają wiążące klucze oraz wspólną
   politykę diagnostyczną. `UI-10` jest zamknięte; wszystkie tekstowe bindingi
   obu nakładek, w tym `ConnectionStatus`, mają klucze albo kategorię techniczną.
-  `PDF-01` pozostaje obszarem o najwyższym ryzyku przepełnień EN.
-- **Warunek przed PDF-01:** rozstrzygnąć ponowne użycie jednej z trzech
-  istniejących rodzin statusów rekompensat albo świadomie uzasadnić czwartą
-  rodzinę PDF, zanim powstanie jej katalog.
+  `PDF-01` jest zamknięte; metadane, treść i presentery PDF mają katalog oraz
+  bramkę renderowania PL/EN.
+- **Decyzja statusów PDF:** PDF ponownie używa `ReportCompensationStatus_*`.
+  Zysk semantyczny i brak piątej rodziny kosztują prawdopodobną zmianę
+  szerokości kolumny `95 pt` w M5.3; jest ona z góry autoryzowana wyłącznie
+  jako korekta przepełnienia, bez zmiany kolejności, danych i semantyki.
+- **Następny krok:** M5.2 — implementacja zatwierdzonych katalogów i presenterów.
 - **Jawny wyjątek od UI freeze:** M5.2 dodaje dokładnie jedną nową kontrolkę
   do zamrożonego interfejsu — wybór `pl-PL` / `en-GB` w Ustawieniach.
   Jest wymagana planem M5, nie wprowadza dynamicznej zmiany bez restartu

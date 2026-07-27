@@ -4,7 +4,7 @@
 
 **Data rozpoczęcia:** 2026-07-27
 
-**Status:** **W TOKU — PACZKI 1–12 GO**
+**Status:** **M5.1 ZAMKNIĘTE — PACZKI 1–13 GO**
 
 **Języki:** `pl-PL`, `en-GB`
 
@@ -62,7 +62,7 @@ presentera; nie obejmuje kluczy tworzonych wyłącznie dla hipotetycznej funkcji
 | UI-09 | Dialogi, potwierdzenia i komunikaty błędów | `App.xaml.cs`, `MainViewModel.cs`, view-modele | U/D/T | tekst UI w zasobach; logi i kody bez zmian | GO w paczce 11 |
 | UI-10 | Nakładki S1/S2 | `OverlayWindow.xaml`, `OverlayViewModel.cs` | U/P/T | zasoby; `S1`, `S2`, `HH:MM` bez zmian | GO w paczce 12 |
 | X-01 | Wspólne formatery czasu i terminów | `GameCalendarFormatter.cs`, `GameClockFormatter.cs`, `WeeklyRestWindowFormatter.cs` i konsumenci bindingów | U/P/T | wspólne nazwy dni i prefiksy terminów; bez duplikowania per ekran | GO w paczce 5 |
-| PDF-01 | Raport PDF | `PdfReportExporter.cs`, `ReportPresentationBuilder.cs` | U/P/T/O | `ReportStrings`; dane i identyfikatory bez zmian | do rozpisania |
+| PDF-01 | Raport PDF | `PdfReportExporter.cs`, `ReportPresentationBuilder.cs` | U/P/T/O | `ReportStrings`; dane i identyfikatory bez zmian | GO w paczce 13 |
 | DOC-01 | Instrukcja instalacji PL/EN | dokumentacja użytkowa | U | dwa jawne dokumenty językowe | późniejszy etap M5.4 |
 | DOC-02 | Instrukcja podstawowa PL/EN | dokumentacja użytkowa | U | dwa jawne dokumenty językowe | późniejszy etap M5.4 |
 
@@ -3631,6 +3631,405 @@ kolejności pól, skrótów ani zachowania nakładki.
 zamknięte, a łączny, wiążący katalog paczek 1–12 zawiera 875 unikalnych nazw
 i 22 jawnie dozwolone pary powtórzonych wartości.
 
+## Paczka 13 — PDF-01: raport PDF
+
+**Zakres:** treść i metadane wielostronicowego raportu PDF, presentery osi
+czasu, rekompensat i audytu przydziału odpoczynku oraz osobna kontrola
+renderowania dokumentu w `pl-PL` i `en-GB`.
+
+**Stan:** **ZAMKNIĘTA — GO**
+
+**Data zatwierdzenia:** 2026-07-27
+
+**Pozycje otwarte:** 0
+
+**Katalog:** 77 nowych nazw i 22 jawne ponowne użycia. Łączny katalog paczek
+1–13 zawiera 952 unikalne nazwy.
+
+`ReportStrings` zawiera 99 wpisów w każdym języku: 77 nowych kluczy PDF oraz
+22 zatwierdzone wcześniej klucze semantyczne. Paczka dodaje 9 nowych
+dozwolonych par powtórzonych wartości. Globalna lista zawiera 31 pozycji.
+
+### Granica paczki
+
+Paczka obejmuje:
+
+- `PdfReportExporter.cs`, łącznie z metadanymi dokumentu;
+- tekstowe projekcje `ReportPresentationBuilder.cs`;
+- `GapSummaryText` i `CoverageBalanceText` używane dziś przez PDF;
+- wszystkie widoczne nazwy enumów i stanów pochodnych w raporcie;
+- nagłówki kontynuacji, puste stany, stopkę i pluralizację podsumowania;
+- testy zasobów, ekstrakcji tekstu, metadanych oraz renderowania stron.
+
+Nie obejmuje:
+
+- VTC JSON, obu CSV i nazw pól ich chronionych kontraktów;
+- nazw plików, filtrów okna zapisu i komunikatów eksportu — paczki 8 i 11;
+- identyfikatorów kart, zobowiązań, bloków, kandydatów i decyzji;
+- wartości liczbowych, minut gry i znaczników czasu audytu;
+- zmiany algorytmu raportu, kolejności sekcji albo zasad podziału stron.
+
+Język jest ustalany raz na początku eksportu. Jedna instancja dokumentu nie
+może pobierać zasobów z dwóch kultur, nawet gdy eksport obejmuje wiele stron.
+`ReportDto` pozostaje nośnikiem wartości domenowych; raport i Desktop budują
+teksty lokalnie z liczb, zamiast pobierać polskie `GapSummaryText` lub
+`CoverageBalanceText` z warstwy Application.
+
+### Kontrakt `ReportStrings` i ponowne użycie
+
+Powstają neutralny polski `ReportStrings.resx` i
+`ReportStrings.en-GB.resx` w projekcie Reports. Każdy ma dokładnie 99 wpisów.
+Klucz wspólny z `UiStrings` zachowuje tę samą nazwę i parę wartości; nie jest
+liczony jako nowa nazwa katalogu. Test mostu zasobów porównuje 22 takie wpisy
+między oboma magazynami, aby przyszła zmiana tłumaczenia nie rozjechała UI i PDF.
+
+| Rola PDF | Ponownie używane klucze |
+|---|---|
+| tytuł sekcji rekompensat | `Compensation_Title` |
+| podsumowanie odpoczynku | `Activity_Rest` |
+| aktywności osi czasu | `Activity_Driving`, `Activity_OtherWork`, `Activity_BreakOrRest`, `Activity_Unknown` |
+| statusy zobowiązań | 4 `ReportCompensationStatus_*` |
+| cele przydziału odpoczynku | 5 `RestAllocationPurpose_*` |
+| źródła aktywności | `ActivitySource_Telemetry`, `ActivitySource_Mixed`, `ActivitySource_ManualEntry` |
+| nagłówki granic czasu | `PlannerTime_FromPrefix`, `PlannerTime_ToPrefix` |
+| prefiks źródła zobowiązania | `ReportActivity_SourceFormat` |
+| nieznana luka | `Common_NoData` |
+
+`ReportStrings` nie odwołuje się w czasie renderowania do zasobów Desktop.
+Powtarza zatwierdzone wpisy pod tym samym kluczem, a test mostu gwarantuje ich
+identyczność. Dzięki temu projekt Reports pozostaje niezależny od warstwy UI.
+
+### Metadane, kompletność i pluralizacja
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Pdf_DocumentTitleFormat` | Raport tachografu {0} | Tachograph report {0} | U/O/T |
+| `Pdf_GapsNone` | LUKI: brak | GAPS: none | U |
+| `Pdf_UnresolvedGapsFormat` | LUKI NIEROZLICZONE: {0} · {1} | UNRESOLVED GAPS: {0} · {1} | U/T |
+| `Pdf_CoverageBalanceFormat` | BILANS: {0} + {1} = {2} / zakres {3} | BALANCE: {0} + {1} = {2} / range {3} | U/T |
+| `Pdf_ActivitySummaryFormat` | {0} + {1} -> {2} | {0} + {1} -> {2} | U/T |
+| `Pdf_RecordCountOneFormat` | {0} rekord minutowy | {0} minute record | U/T |
+| `Pdf_RecordCountFewFormat` | {0} rekordy minutowe | {0} minute records | U/T |
+| `Pdf_RecordCountManyFormat` | {0} rekordów minutowych | {0} minute records | U/T |
+| `Pdf_GapCountOneFormat` | {0} luka | {0} gap | U/T |
+| `Pdf_GapCountFewFormat` | {0} luki | {0} gaps | U/T |
+| `Pdf_GapCountManyFormat` | {0} luk | {0} gaps | U/T |
+| `Pdf_TimelineBlockCountOneFormat` | {0} blok osi czasu | {0} timeline block | U/T |
+| `Pdf_TimelineBlockCountFewFormat` | {0} bloki osi czasu | {0} timeline blocks | U/T |
+| `Pdf_TimelineBlockCountManyFormat` | {0} bloków osi czasu | {0} timeline blocks | U/T |
+
+Tytuł, `Subject` i `Keywords` metadanych używają tej samej kultury co treść
+stron. `Subject` otrzymuje jeden z formatów luk, a `Keywords` pełny bilans.
+Numer karty w tytule jest identyfikatorem O/T.
+
+Podsumowanie osi czasu nie zachowuje błędnej stałej odmiany
+`rekordów + luk -> bloków`. Trzy liczniki otrzymują niezależnie polską formę
+`one/few/many`, a format nadrzędny składa trzy gotowe frazy. EN rozróżnia
+liczbę pojedynczą i mnogą. Przypadki testowe to `0`, `1`, `2`, `5`, `12`,
+`22` i `25`.
+
+### Nagłówek, podsumowanie i skrót rekompensat
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Pdf_ProductName` | ETS2 DIGITAL TACHOGRAPH | ETS2 DIGITAL TACHOGRAPH | O |
+| `Pdf_DriverReportFormat` | Raport kierowcy - karta {0} | Driver report - card {0} | U/O/T |
+| `Pdf_ContinuationCardFormat` | Karta {0} | Card {0} | U/O/T |
+| `Pdf_PageFormat` | Strona {0}/{1} | Page {0}/{1} | U/T |
+| `Pdf_GameTimeRangeFormat` | Czas gry: {0} - {1} | Game time: {0} - {1} | U/T |
+| `Pdf_CompensationSummaryFormat` | Rekompensata: {0} | Compensation: {0} | U/P |
+| `Pdf_SummaryViolations` | Naruszenia | Violations | U |
+| `PdfActivity_Availability` | Dyspozycja | Availability | P |
+| `PdfActivity_OutOfScope` | Poza zakresem (OUT) | Out of scope (OUT) | P/T |
+| `PdfCompensation_OverdueFormat` | {0} · PRZETERMINOWANA | {0} · OVERDUE | U/P/T |
+| `PdfCompensation_OverdueCountFormat` | {0} ({1}) · PRZETERMINOWANA | {0} ({1}) · OVERDUE | U/P/T |
+| `PdfCompensation_DueWeekFormat` | {0} · DO TYG. {1} | {0} · DUE WK {1} | U/P/T |
+| `PdfCompensation_DueWeekCountFormat` | {0} ({1}) · DO TYG. {2} | {0} ({1}) · DUE WK {2} | U/P/T |
+
+Pięć kafelków podsumowania używa kolejno `Activity_Driving`,
+`Activity_OtherWork`, `PdfActivity_Availability`, `Activity_Rest` i
+`Pdf_SummaryViolations`. Oś czasu używa czterech wspólnych `Activity_*`,
+nowego `PdfActivity_Availability` i `PdfActivity_OutOfScope`.
+
+`OUT` pozostaje kodem technicznym. `PdfActivity_Availability` zachowuje
+zatwierdzoną wartość PDF `Dyspozycja`, odmienną od dashboardowej
+`Dyspozycyjność`. `PdfActivity_Unknown` nie powstaje, ponieważ PDF ponownie
+używa jawnego `Activity_Unknown` zamiast obecnego fallbacku `ToString()`.
+
+Cztery formaty skrótu rekompensat zachowują istniejące kompaktowe
+`PRZETERMINOWANA` i `DO TYG.`. Znak `-` jest techniczną wartością braku
+zobowiązań; nie powstaje dla niego klucz.
+
+### Sekcje i puste stany
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `PdfSection_WeeklyRestCompensationContinued` | REKOMPENSATY ODPOCZYNKU TYGODNIOWEGO - ciąg dalszy | WEEKLY REST COMPENSATION - continued | U |
+| `PdfSection_RestAllocation` | PRZYDZIAŁ ODPOCZYNKU I REKOMPENSATY | REST AND COMPENSATION ALLOCATION | U |
+| `PdfSection_RestAllocationContinued` | PRZYDZIAŁ ODPOCZYNKU - ciąg dalszy | REST ALLOCATION - continued | U |
+| `PdfSection_Checkpoints` | PUNKTY PRZEŁOMOWE | CHECKPOINTS | U |
+| `PdfSection_CheckpointsContinued` | PUNKTY PRZEŁOMOWE - ciąg dalszy | CHECKPOINTS - continued | U |
+| `PdfSection_ActivityBlocks` | ZWINIĘTE BLOKI AKTYWNOŚCI | COLLAPSED ACTIVITY BLOCKS | U |
+| `PdfSection_ActivityBlocksContinued` | ZWINIĘTE BLOKI AKTYWNOŚCI - ciąg dalszy | COLLAPSED ACTIVITY BLOCKS - continued | U |
+| `PdfEmpty_NoCompensations` | Brak zobowiązań rekompensaty w historii raportu. | No compensation obligations in the report history. | U |
+| `PdfEmpty_NoRestAllocations` | Brak bloków wymagających decyzji o przydziale. | No blocks require an allocation decision. | U |
+| `PdfEmpty_NoCheckpoints` | Brak przerw co najmniej 15 min w zakresie raportu. | No breaks of at least 15 min in the report range. | U/T |
+| `PdfEmpty_NoActivities` | Brak aktywności w wybranym zakresie. | No activity in the selected range. | U |
+
+Pierwszy tytuł sekcji rekompensat ponownie używa `Compensation_Title`.
+Kontynuacja ma osobny pełny klucz; PDF nie dokleja do zasobu fragmentu
+`ciąg dalszy` / `continued`. Ta sama reguła dotyczy pozostałych trzech sekcji.
+
+### Nagłówki tabel
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `PdfHeader_Break` | Przerwa | Break | U |
+| `PdfHeader_Time` | Czas | Duration | U |
+| `PdfHeader_ContinuousBeforeAfter` | Ciągła przed / po | Continuous before / after | U |
+| `PdfHeader_DailyBeforeAfter` | Dzienna przed / po | Daily before / after | U |
+| `PdfHeader_DailyReset` | Reset dzienny | Daily reset | U |
+| `PdfHeader_Status` | Status | Status | U |
+| `PdfHeader_DebtRemaining` | Dług / pozostało | Debt / remaining | U |
+| `PdfHeader_WeekExclusiveDeadline` | Tydzień / termin wyłączny | Week / exclusive deadline | U/P |
+| `PdfHeader_PaymentTime` | Moment spłaty | Payment time | U |
+| `PdfHeader_Activity` | Aktywność | Activity | U |
+| `PdfHeader_Source` | Źródło | Source | U |
+
+`PdfHeader_Time` obsługuje kolumnę długości przerwy i kolumnę długości
+aktywności; w obu miejscach oznacza czas trwania. Nagłówki `Od` i `Do`
+ponownie używają `PlannerTime_FromPrefix` i `PlannerTime_ToPrefix`, ponieważ
+tekst, pisownia i semantyka granic zakresu są identyczne.
+
+### Ślad zobowiązania rekompensaty
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `PdfCompensation_ObligationFormat` | Zobowiązanie (schemat v{0}): {1} | Obligation (scheme v{0}): {1} | U/T |
+| `PdfCompensation_SourceEndFormat` | Koniec źródła: {0} (min {1}) | Source end: {0} (min {1}) | U/T |
+| `PdfCompensation_PayingBlockFormat` | Blok spłacający: {0} | Paying block: {0} | U/T |
+| `PdfCompensation_PaymentRangeNone` | Zakres spłaty: - | Payment range: - | U/T |
+| `PdfCompensation_PaymentRangeFormat` | Zakres spłaty: [{0}, {1}) = {2} | Payment range: [{0}, {1}) = {2} | U/T |
+
+Prefiks źródła ponownie używa `ReportActivity_SourceFormat`. Identyfikatory,
+wersja schematu, indeksy minut i półotwarty zakres `[start, end)` pozostają
+techniczne. `min` oznacza surowy indeks minuty gry i nie jest tłumaczone.
+
+PDF używa `ReportCompensationStatus_*` z paczki 8. Nie powstaje piąta rodzina
+statusów `WeeklyRestCompensationStatusDto`. Jest to świadoma korekta tekstu:
+
+| Wartość | Obecny PDF | Po ponownym użyciu |
+|---|---|---|
+| `OpenOnTime` | `OTWARTE` | `Otwarte · w terminie` / `Open · on time` |
+| `Overdue` | `ZALEGŁE` | `Zaległe` / `Overdue` |
+| `PaidOnTime` | `SPŁACONE` | `Spłacone w terminie` / `Paid on time` |
+| `PaidLate` | `SPŁACONE PO TERMINIE` | `Spłacone po terminie` / `Paid late` |
+
+Zmiana przywraca pełne znaczenie dwóch statusów, ujednolica raport ekranowy
+i PDF oraz ogranicza koszt utrzymania enuma. Kolor nadal wynika z wartości
+domenowej, nigdy z przetłumaczonego tekstu.
+
+Decyzja ma świadomy koszt układowy. `Otwarte · w terminie` jest około
+dwuipółkrotnie szersze od obecnego `OTWARTE` w komórce `95 pt`. M5.3 powinno
+zakładać, że zachowanie czytelności najprawdopodobniej wymaga zmiany szerokości
+kolumn tabeli, a nie traktować jej jako nieoczekiwanej regresji. Paczka 13
+z góry autoryzuje taką przebudowę w granicach korekty przepełnienia: bez zmiany
+kolejności kolumn, danych ani semantyki raportu. Odrzuconą alternatywą jest
+piąta, kompaktowa rodzina czterech kluczy PDF, która zachowałaby obecny układ,
+ale zwiększyłaby koszt utrzymania jednego enuma i ponownie rozdzieliła raport
+ekranowy od PDF.
+
+### Audyt przydziału odpoczynku
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `PdfAllocation_SelectedFormat` | WYBRANY · {0} · podstawa {1} · nowy dług {2} · tydzień: {3} | SELECTED · {0} · base {1} · new debt {2} · weekly rest: {3} | U/P/T |
+| `PdfAllocation_CandidateFormat` | KANDYDAT · {0} · podstawa {1} · nowy dług {2} · tydzień: {3} | CANDIDATE · {0} · base {1} · new debt {2} · weekly rest: {3} | U/P/T |
+| `Pdf_Yes` | TAK | YES | U |
+| `Pdf_No` | NIE | NO | U |
+| `PdfAllocation_ObligationsFormat` | Zobowiązania: {0} | Obligations: {0} | U/T |
+| `PdfDecisionStatus_Active` | Aktywna | Active | P |
+| `PdfDecisionStatus_Superseded` | Zastąpiona | Superseded | P |
+| `PdfDecisionStatus_Invalidated` | Unieważniona | Invalidated | P |
+| `PdfDecisionStatus_Pending` | Oczekująca | Pending | U/P |
+| `PdfDecisionStatus_None` | Brak | None | U/P |
+| `PdfDecision_Format` | Decyzja: {0} | Decision: {0} | U/P |
+| `PdfDecision_WithTimestampFormat` | Decyzja: {0} · {1} | Decision: {0} · {1} | U/P/T |
+
+Pięć `RestAllocationPurpose_*` jest powtórzonych w `ReportStrings` pod tymi
+samymi kluczami i wartościami co UI-05. Obecny wyciek nazw
+`DailyRestWithCompensation` itd. znika z raportu.
+
+`RestAllocationDecisionStatus` ma trzy wartości i po raz pierwszy otrzymuje
+aktywny presenter. `Pending` pochodzi z `IsPending`, a `None` oznacza brak
+decyzji i brak stanu oczekującego. Rejestr 30 typów ma po GO paczki
+21 rozstrzygniętych, 9 świadomie wykluczonych i 0 pozostałych.
+
+`RestBlockId:` i `CandidateId:` pozostają nazwami technicznymi pól audytu.
+Wartości identyfikatorów, lista zobowiązań i znacznik
+`DecidedAtUtc` są przekazywane bez tłumaczenia. Znacznik używa formatu `O`
+z `InvariantCulture`; lokalizacja nie zmienia chwili ani strefy.
+
+### Źródła, warunki i luki osi czasu
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `PdfSource_Manual` | Ręczne | Manual | P |
+| `PdfSource_Reconstructed` | Rekonstruowane | Reconstructed | P |
+| `PdfSource_AutomaticCrewReconstruction` | Automatyczna rekonstrukcja załogi | Automatic crew reconstruction | P |
+| `PdfSource_TelemetryPartiallyReconstructed` | Telemetria / częściowo rekonstruowana | Telemetry / partially reconstructed | U/P |
+| `PdfSource_MixedPartiallyReconstructed` | Mieszane / częściowo rekonstruowane | Mixed / partially reconstructed | U/P |
+| `PdfSource_FerryFormat` | {0} - prom | {0} - ferry | U/P |
+| `PdfSource_MixedModeFormat` | {0} - tryb mieszany | {0} - mixed mode | U/P |
+| `PdfGap_ForwardTimeJump` | Brak danych - skok czasu | No data - time jump | U/P |
+| `PdfGap_CardRemoved` | Brak danych - karta wyjęta | No data - card withdrawn | U/P |
+| `PdfGap_TelemetryUnavailable` | Brak danych - telemetria | No data - telemetry unavailable | U/P |
+| `PdfGap_ActivitySource` | Luka aktywności | Activity gap | U/P |
+
+Pojedyncze źródła `Telemetry`, `Mixed` i `ManualEntry` ponownie używają
+`ActivitySource_*`. Trzy pozostałe wartości zachowują odmienną gramatykę
+istniejącego PDF i otrzymują własne klucze. Każda z 6 wartości
+`ActivitySource` ma jawną gałąź; fallback `source.ToString()` znika.
+
+Warunki nie są drukowane jako osobna nazwa enuma. `FerryCrossing` i kombinacje
+warunków modyfikują pełny opis źródła dwoma formatami. Brak warunku pozostawia
+samą nazwę źródła. `SpecialCondition.Mixed` nadal ma jawne znaczenie, lecz nie
+wymaga dodatkowego klucza PDF.
+
+Trzy wartości `ActivityGapReason` mają osobne komunikaty. Nieznany powód
+ponownie używa `Common_NoData`, a źródło bloku luki ma własny klucz.
+Raportowe separatory i znak braku wartości używają ASCII `-`, nie znaków
+U+2011/U+2013/U+2014, aby ograniczyć ryzyko brakującego glifu w osadzonym foncie.
+
+### Nowe dozwolone pary powtórzonych wartości
+
+| Wartość | Klucze | Decyzja |
+|---|---|---|
+| EN `Availability` | `PdfActivity_Availability`, `Activity_Availability` | PDF zachowuje krótsze PL `Dyspozycja`, Dashboard pełne `Dyspozycyjność` |
+| PL `Czas` | `PdfHeader_Time`, `PlannerValidation_TimeLabel` | czas trwania w tabeli PDF i etykieta pola czasu Planera są odmiennymi rolami |
+| PL/EN `Brak` / `None` | `PdfDecisionStatus_None`, `SpecialCondition_None` | brak decyzji audytowej i brak warunku specjalnego należą do różnych typów |
+| EN `Manual` | `PdfSource_Manual`, `ActivitySource_Manual` | PDF zachowuje PL `Ręczne`, Historia używa `Ręcznie` |
+| EN `Reconstructed` | `PdfSource_Reconstructed`, `ActivitySource_Reconstructed` | PDF zachowuje PL `Rekonstruowane`, Historia używa `Odtworzona` |
+| EN `Automatic crew reconstruction` | `PdfSource_AutomaticCrewReconstruction`, `ActivitySource_AutomaticCrewReconstruction` | różne zatwierdzone brzmienie PL tej samej projekcji |
+| EN `{0} minute records` | `Pdf_RecordCountFewFormat`, `Pdf_RecordCountManyFormat` | EN ma jedną formę mnogą, PL dwie |
+| EN `{0} gaps` | `Pdf_GapCountFewFormat`, `Pdf_GapCountManyFormat` | EN ma jedną formę mnogą, PL dwie |
+| EN `{0} timeline blocks` | `Pdf_TimelineBlockCountFewFormat`, `Pdf_TimelineBlockCountManyFormat` | EN ma jedną formę mnogą, PL dwie |
+
+Poza tymi dziewięcioma pozycjami 77 nowych nazw nie powtarza wartości innego
+klucza ani wewnątrz paczki, ani wobec wiążącego katalogu 875 nazw.
+Porównanie używa `Ordinal`; wielkość liter pozostaje częścią wartości.
+
+### Mapowanie źródeł
+
+| Źródło | Zakres | Decyzja |
+|---|---|---|
+| `ReportDto.cs:27-40` | liczby kompletności i dwa polskie teksty | PDF buduje 3 formaty z wartości liczbowych; DTO nie jest właścicielem języka |
+| `PdfReportExporter.cs:32-34` | tytuł, Subject i Keywords | `Pdf_DocumentTitleFormat`, format luk i bilans tej samej kultury |
+| `PdfReportExporter.cs:153` | trzy liczniki osi czasu | 9 form liczby + `Pdf_ActivitySummaryFormat` |
+| `PdfReportExporter.cs:209-286` | 4 sekcje, kontynuacje, puste stany i stopka | 13 kluczy, w tym `Compensation_Title` |
+| `PdfReportExporter.cs:303-359` | nagłówek, kafelki, zakres i rekompensata | 14 kluczy nowych lub ponownie użytych |
+| `PdfReportExporter.cs:370-532` | 3 tabele i wiersze audytu | nagłówki, statusy, 5 celów, 5 stanów decyzji i formaty śladu |
+| `PdfReportExporter.cs:603-628` | rekompensata, status i czas gry | jawne formaty bez tekstowego fallbacku; czas T |
+| `ReportPresentationBuilder.cs:19-57` | 6 źródeł i 2 warunki | 10 kluczy nowych lub ponownie użytych; bez `ToString()` |
+| `ReportPresentationBuilder.cs:68-87` | luki i 6 aktywności | 11 kluczy nowych lub ponownie użytych; bez `ToString()` |
+| `PdfReportExporterTests.cs` | testy kontraktu i prezentacji | rozszerzenie o obie kultury, zasoby, metadane i render |
+
+### Elementy świadomie bez lokalizacji
+
+| Element | Kategoria | Uzasadnienie |
+|---|---|---|
+| karta kierowcy i identyfikatory audytu | O/T | dane użytkownika i stabilne identyfikatory |
+| `RestBlockId`, `CandidateId` | T | jawne nazwy pól śladu audytowego |
+| wersja schematu i indeksy minut | T | wartości kontraktu |
+| `D{0} HH:mm`, `HH:MM`, `[start, end)` | T | format czasu gry i zakres półotwarty |
+| `DecidedAtUtc:O` | T | maszynowy moment audytu z `InvariantCulture` |
+| `OUT`, `min`, `v`, `PDF` | T | kody i skróty |
+| `-`, `->`, `·`, `/`, `+`, nawiasy | T | struktura formatu |
+| rozmiary, kolory i indeksy fontów | T | kontrakt układu |
+| Arial / `ReportSans` i ścieżki fontów Windows | T | techniczny resolver fontów |
+| wyjątek nieznanego enuma | D | błąd programistyczny, nigdy tekst raportu |
+
+### Ryzyka renderowania i bramka wizualna
+
+Oględziny istniejącego renderu PL potwierdzają, że układ bazowy jest czytelny,
+ale kolumna źródła `174 pt` jest już blisko granicy dla
+`Telemetria / częściowo rekonstruowana`. EN
+`Telemetry / partially reconstructed` jest dłuższe. Największe ryzyka:
+
+- pojedyncza linia przydziału o szerokości `523 pt`, zwłaszcza z
+  `REGULAR WEEKLY REST + COMPENSATION`;
+- komórka statusu rekompensaty `95 pt` po przejęciu pełnych statusów paczki 8;
+- nagłówki `Continuous before / after` i `Week / exclusive deadline`;
+- pełne identyfikatory w fontach `5.5–7.5 pt`;
+- tytuły sekcji z `- continued`;
+- poprawne glify PL i brak zamiany znaków na kwadraty.
+
+M5.3 generuje co najmniej cztery deterministyczne fixture'y na język:
+
+1. wszystkie sekcje puste;
+2. wszystkie aktywności, źródła, warunki i trzy przyczyny luk;
+3. cztery statusy rekompensat oraz bardzo długie identyfikatory;
+4. pięć celów alokacji, pięć stanów decyzji i wielostronicowe kontynuacje.
+
+Każdy wynik jest ponownie otwierany, tekst i metadane są ekstrahowane, strony
+są renderowane do PNG i oglądane. Bramka wymaga braku ucięć, nakładania,
+czarnych kwadratów, wyjścia poza komórki i mieszanego języka. Kontrola obejmuje
+też numerację `1/n`, powtarzane nagłówki oraz granicę strony przed każdą sekcją.
+
+Zmiana szerokości kolumn, wysokości wiersza, zawijania albo rozmiaru fontu jest
+dozwolona wyłącznie jako korekta przepełnienia zgodna z UI freeze. Kolejność
+sekcji, wartości danych, podział audytowy i semantyka zakresów pozostają bez
+zmian.
+
+### Testy zasobów i kontraktów
+
+- oba pliki `ReportStrings` mają po 99 identycznych nazw;
+- 22 klucze mostu są identyczne z odpowiadającymi wpisami `UiStrings`;
+- wszystkie 77 nowych nazw są unikalne wobec katalogu 875 kluczy;
+- placeholdery PL/EN mają identyczne indeksy i liczbę powtórzeń;
+- 9 nowych par duplikatów odpowiada wyłącznie jawnej liście;
+- każdy klucz ma aktywnego konsumenta albo jest wymagany przez wyczerpujący enum;
+- nie występuje `ToString()` enuma ani tekst wyjątku w wygenerowanym PDF;
+- JSON i CSV pozostają bajtowo zgodne z dotychczasowymi kontraktami;
+- font użyty na czystym Windows obsługuje wszystkie znaki obu kultur.
+
+### Kontrola paczki
+
+- [x] wszystkie teksty `PdfReportExporter` i `ReportPresentationBuilder` mają klucz, ponowne użycie albo kategorię T/O/D;
+- [x] metadane i strony używają jednej kultury ustalonej na początku eksportu;
+- [x] `ReportDto` nie jest planowany jako właściciel przetłumaczonego tekstu;
+- [x] 99 wpisów `ReportStrings` rozkłada się na 77 nowych nazw i 22 ponowne użycia;
+- [x] PDF przejmuje `ReportCompensationStatus_*`, bez piątej rodziny statusów;
+- [x] wszystkie 6 `DriverActivity`, 6 `ActivitySource`, 3 `ActivityGapReason`, 5 `RestAllocationPurpose` i 3 `RestAllocationDecisionStatus` mają decyzję;
+- [x] `Pending` i `None` mają jawne etykiety bez fallbacku;
+- [x] wszystkie placeholdery PL/EN mają zgodne zbiory;
+- [x] 9 nowych par powtórzonych wartości jest jawnych i uzasadnionych;
+- [x] ryzyka układu wynikają z kodu i oględzin bazowego renderu;
+- [x] brak zmian wykonawczych w kodzie i zasobach.
+
+### Punkt kontrolny po GO
+
+- 14 nowych kluczy metadanych, kompletności i pluralizacji;
+- 13 nowych kluczy nagłówka, podsumowania i skrótu rekompensat;
+- 11 nowych kluczy sekcji i pustych stanów;
+- 11 nowych kluczy nagłówków tabel;
+- 5 nowych kluczy śladu zobowiązania;
+- 12 nowych kluczy audytu przydziału;
+- 11 nowych kluczy źródeł, warunków i luk;
+- 77 nowych nazw i 22 ponowne użycia;
+- 99 wpisów na język w `ReportStrings`;
+- 952 unikalne nazwy globalnie;
+- 9 nowych i 31 globalnych dozwolonych par powtórzonych wartości;
+- rejestr presenterów po GO: 21 rozstrzygniętych, 9 wykluczonych, 0 pozostałych;
+- 0 zmian wykonawczych.
+
+### Werdykt
+
+**GO — paczka 13 (`PDF-01`) zatwierdzona.** Zamknięta bez pozycji otwartych.
+Łączny, wiążący katalog paczek 1–13 zawiera 952 unikalne nazwy i 31 jawnie
+dozwolonych par powtórzonych wartości. `PDF-01` jest zamknięte; wszystkie
+obszary M5.1 mają wiążące katalogi.
+
 ## Słownik domenowy PL/EN — część 1
 
 Terminologia angielska opiera się na oficjalnym brzmieniu rozporządzenia
@@ -3686,8 +4085,9 @@ i ich role prezentacyjne są wiążące wyłącznie w zatwierdzonych katalogach 
 ## Wartości domenowe wymagające presenterów
 
 Nie wolno lokalizować przez zmianę nazw enumów ani przez zapisywanie
-przetłumaczonych wartości. Rejestr obejmuje 30 typów: 20 rozstrzygniętych,
-10 świadomie wykluczonych z prezentacji tekstowej i 0 pozostałych.
+przetłumaczonych wartości. Wiążący rejestr po paczce 13 obejmuje 30 typów:
+21 rozstrzygniętych, 9 świadomie wykluczonych z prezentacji tekstowej
+i 0 pozostałych.
 
 | Typ | Status | Paczka / decyzja |
 |---|---|---|
@@ -3705,7 +4105,7 @@ przetłumaczonych wartości. Rejestr obejmuje 30 typów: 20 rozstrzygniętych,
 | `RestAllocationPurpose` | rozstrzygnięty | paczka 7 |
 | `ViolationType` | rozstrzygnięty | paczka 2 |
 | `ManualEntryError` | rozstrzygnięty | paczka 4 |
-| `RestAllocationDecisionStatus` | świadomie wykluczony | paczka 7 — sterowanie audytem, bez tekstu UI |
+| `RestAllocationDecisionStatus` | rozstrzygnięty | paczka 13 — aktywny presenter audytu PDF |
 | `ResolveGapStatus` | świadomie wykluczony | paczka 4 — sterowanie przepływem |
 | `ManualEntryPersistenceStatus` | świadomie wykluczony | paczka 4 — sterowanie przepływem |
 | `RuleFindingLevel` | świadomie wykluczony | paczka 8 — brak aktywnego konsumenta tekstowego w UI-06 |
