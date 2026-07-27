@@ -4,7 +4,7 @@
 
 **Data rozpoczęcia:** 2026-07-27
 
-**Status:** **W TOKU — PACZKA 1 GO**
+**Status:** **W TOKU — PACZKI 1–2 GO**
 
 **Języki:** `pl-PL`, `en-GB`
 
@@ -46,7 +46,7 @@ Powtarzające się etykiety wspólne mają korzystać z jednego klucza semantycz
 | ID | Obszar | Źródła | Kategoria | Docelowa obsługa | Stan |
 |---|---|---|---|---|---|
 | UI-01 | Powłoka, tytuł, nawigacja i wspólne akcje | `MainWindow.xaml`, `App.xaml.cs`, `MainViewModel.cs` | U/T/D/O | `UiStrings.Common_*`, `UiStrings.Navigation_*`, `UiStrings.Shell_*` | GO — katalog wiążący |
-| UI-02 | Dashboard i wirtualny tachograf | `MainWindow.xaml`, `MainViewModel.cs` | U/P | zasoby + presentery aktywności, trybów i stanu kart | do rozpisania |
+| UI-02 | Dashboard i wirtualny tachograf | `MainWindow.xaml`, `MainViewModel.cs` | U/P | zasoby + presentery aktywności, trybów i stanu kart | Dashboard GO w paczce 2; urządzenie pozostaje do paczki 3 |
 | UI-03 | Historia, luki i wpis manualny | `MainWindow.xaml`, `MainViewModel.cs`, `ManualEntryPlanEditor.cs` | U/P | zasoby + presentery aktywności, przyczyn i stanów luk | do rozpisania |
 | UI-04 | Kraje i kody tachografowe | `CountryCatalog.cs`, JSON | U/T | osobne nazwy PL/EN; zapis nadal przez ISO | do rozpisania |
 | UI-05 | Rekompensaty | `MainWindow.xaml`, `CompensationPresentation.cs` | U/P/T | zasoby + presenter statusu; identyfikatory bez zmian | do rozpisania |
@@ -205,8 +205,10 @@ częścią klucza, gdy rozróżnia rzeczywiście odmienne etykiety.
 5. **Znane przypadki szczegółowe:** ich lista i klucze nie należą do paczki 1.
    Powstaną wyłącznie po jawnej inwentaryzacji w paczce UI-09 — dialogi,
    potwierdzenia i komunikaty błędów. M5.3 nie może tworzyć ich doraźnie.
-6. **Ponowne użycie:** każda kolejna paczka sprawdza zatwierdzony katalog
-   `Common_*` przed utworzeniem klucza, aby nie duplikować tych samych literałów.
+6. **Ponowne użycie:** każda kolejna paczka sprawdza cały zatwierdzony katalog
+   wszystkich wcześniejszych paczek przed utworzeniem klucza. Reguła nie jest
+   ograniczona do `Common_*`; klucz domenowy lub ekranowy również ma być użyty
+   ponownie, jeśli zachowuje tę samą semantykę i rolę prezentacyjną.
 
 ### Notatki wykonawcze M5.2
 
@@ -254,6 +256,192 @@ Test duplikatów musi mieć jawną listę wyjątków dla paczki 1:
 **GO — paczka 1 zatwierdzona.** Katalog 33 kluczy jest wiążący dla kolejnych
 paczek. Paczka została zamknięta bez pozycji otwartych.
 
+## Paczka 2 — Dashboard
+
+**Zakres:** szybkie akcje, alerty, karty slotów S1/S2, skrót rekompensat,
+wybór celu odpoczynku i licznik odpoczynku.
+
+**Stan:** **ZAMKNIĘTA — GO**
+
+**Data zatwierdzenia:** 2026-07-27
+
+**Pozycje otwarte:** 0
+
+**Katalog:** 58 nowych kluczy — 23 etykiety i akcje, 35 wartości dynamicznych
+i domenowych. Dodatkowo Dashboard ponownie używa zatwierdzonego
+`Common_StatusHeader`.
+
+### Granica paczki
+
+Wnętrze wirtualnego tachografu (`MainWindow.xaml:72-87`) nie należy do tej
+paczki. Jego LCD, menu, etykiety przycisków, statusy kart urządzenia i skrócone
+`DeviceLabel` celów odpoczynku przechodzą w całości do paczki 3. `ActivityLabel`
+z `MainViewModel.cs:1821` jest drugim presenterem `DriverActivity`; także należy
+do paczki 3 i musi jawnie obsłużyć wszystkie sześć wartości zamiast fallbacku
+`ToString().ToUpperInvariant()`. Polskie `DeviceLabel`, takie jak
+`15 MIN CZĘŚĆ 1`, `DZIENNY 9H` i `TYGODNIOWY 24H`, oznaczają, że paczka 3 jest
+warunkiem kompletności wersji EN, a nie korektą kosmetyczną.
+
+`ManualEntrySelectionMessage`, `ManualEntryQualificationMessage` oraz akcja
+rozliczenia opcjonalnej luki są widoczne w panelu alertów. Etykieta akcji
+należy do paczki 2, ale dynamiczne treści stanu wpisu manualnego należą do
+UI-03. `OperationStatus` jest współdzieloną
+powierzchnią komunikatów wielu funkcji; jej komunikaty sukcesu, walidacji
+i błędów należą do UI-09. Paczka 2 inwentaryzuje kontrolki i jedyny własny alert
+Dashboardu, nie tworzy przedwcześnie kluczy należących do tych obszarów.
+
+### Etykiety i akcje
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Dashboard_QuickActionsTitle` | SZYBKIE AKCJE | QUICK ACTIONS | U |
+| `Dashboard_GeneratePdfAction` | Generuj raport PDF | Generate PDF report | U/T |
+| `Dashboard_RefreshReportAction` | Odśwież raport | Refresh report | U |
+| `Dashboard_ExportObligationsCsvAction` | Eksportuj zobowiązania CSV | Export obligations CSV | U/T |
+| `Dashboard_DiagnosticReportAction` | Raport diagnostyczny | Diagnostic report | U |
+| `Dashboard_AlertsTitle` | ALERTY | ALERTS | U |
+| `Dashboard_ResolveOptionalGapAction` | ROZLICZ OPCJONALNĄ LUKĘ | RESOLVE OPTIONAL GAP | U |
+| `Dashboard_Slot1Title` | SLOT 1 - KIEROWCA AKTYWNY | SLOT 1 - ACTIVE DRIVER | U/T |
+| `Dashboard_Slot2Title` | SLOT 2 - KIEROWCA ZMIENNIK | SLOT 2 - CO-DRIVER | U/T |
+| `Dashboard_DriverNameLabel` | Imię i nazwisko: | Driver name: | U |
+| `Dashboard_ActivityStatusLabel` | Status: | Activity: | U |
+| `Dashboard_TimeUntilBreakLabel` | Do przerwy jazdy: | Time to break: | U |
+| `Dashboard_DrivingAndTimeUntilBreakLabel` | Jazda / do przerwy: | Driving / time to break: | U |
+| `Dashboard_DailyDrivingLabel` | Jazda dzienna: | Daily driving: | U |
+| `Dashboard_DailyDutyLabel` | Praca dobowa: | Daily duty: | U |
+| `CompensationSummary_OpenHeader` | OTWARTE | OPEN | U |
+| `CompensationSummary_DebtHeader` | DŁUG | DEBT | U |
+| `CompensationSummary_CompleteBeforeHeader` | UKOŃCZ PRZED | COMPLETE BEFORE | U |
+| `Dashboard_SelectedBreakLabel` | WYBRANA PAUZA | SELECTED BREAK | U |
+| `Dashboard_ElapsedLabel` | TRWA | ELAPSED | U |
+| `Dashboard_RemainingLabel` | POZOSTAŁO | REMAINING | U |
+| `Dashboard_StartBreakAction` | ROZPOCZNIJ PAUZĘ | START BREAK | U |
+| `Dashboard_StartCoDriverBreakAction` | PAUZA KIEROWCY 2 | CO-DRIVER BREAK | U |
+
+Nagłówek `STATUS` w skrócie rekompensat używa istniejącego
+`Common_StatusHeader`. Pełne frazy akcji pozostają kluczami Dashboardu:
+nie są składane z nieistniejących kluczy ogólnych `Refresh` albo `Export`.
+`Dashboard_ActivityStatusLabel` świadomie nie jest tłumaczeniem słowo w słowo:
+angielskie `Activity:` nazywa faktyczną zawartość pola trafniej niż `Status:`.
+
+### Wartości aktywności i brak karty
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Card_NoCard` | BRAK KARTY | NO CARD | U |
+| `Activity_Driving` | Jazda | Driving | P |
+| `Activity_OtherWork` | Inna praca | Other work | P |
+| `Activity_Availability` | Dyspozycyjność | Availability | P |
+| `Activity_BreakOrRest` | Przerwa / odpoczynek | Break / rest | P |
+| `Activity_Unknown` | Nieznana | Unknown | P |
+
+`DriverActivity.OutOfScope` jest prezentowane jako techniczne `OUT` i nie
+otrzymuje tłumaczenia. `DriverActivity.Unknown` ma jawny klucz
+`Activity_Unknown`. Dashboardowy presenter `DriverActivity` musi więc obsłużyć
+wszystkie sześć wartości bez fallbacku `activity.ToString()`.
+
+### Cele i stany odpoczynku
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `RestTarget_Break15Part1` | Przerwa 15 min · część 1 | 15-minute break · part 1 | U |
+| `RestTarget_Break30Part2` | Przerwa 30 min · część 2 | 30-minute break · part 2 | U |
+| `RestTarget_Break45Full` | Przerwa 45 min · pełna | 45-minute break · full | U |
+| `RestTarget_Daily9Hours` | Odpoczynek dzienny · 9 h | Daily rest period · 9 h | U |
+| `RestTarget_Daily11Hours` | Odpoczynek dzienny · 11 h | Daily rest period · 11 h | U |
+| `RestTarget_Weekly24Hours` | Odpoczynek tygodniowy · 24 h | Weekly rest period · 24 h | U |
+| `RestTarget_Weekly45Hours` | Odpoczynek tygodniowy · 45 h | Weekly rest period · 45 h | U |
+| `RestStatus_Waiting` | OCZEKUJE | WAITING | P |
+| `RestStatus_InProgress` | W TRAKCIE | IN PROGRESS | P |
+| `RestStatus_Completed` | ZALICZONA | COMPLETED | P |
+| `RestStatus_InProgressWhileMoving` | W TRAKCIE · W RUCHU | IN PROGRESS · WHILE MOVING | P |
+| `RestStatus_CompletedWhileMoving` | ZALICZONA · W RUCHU | COMPLETED · WHILE MOVING | P |
+
+Nazwy z kolumny `Name` w `RestTargetOption` są lokalizowane tym katalogiem.
+Skrócone wartości `DeviceLabel` nie są ich drugą rolą prezentacyjną i zostaną
+zinwentaryzowane osobno z LCD w paczce 3.
+
+### Skrót rekompensat
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `CompensationSummary_NoOpen` | BRAK OTWARTYCH | NO OPEN ITEMS | P |
+| `CompensationSummary_Overdue` | ZALEGŁE | OVERDUE | P |
+| `CompensationSummary_PaidLate` | SPŁACONO PO TERMINIE | PAID LATE | P |
+| `CompensationSummary_OnTime` | W TERMINIE | ON TIME | P |
+
+Te cztery wartości obejmują cały presenter `CompensationOverview.StatusText`.
+Pozostałe statusy i etykiety widoku szczegółowego zobowiązań należą do UI-05.
+Klucze skrótu są współdzielone z nakładkami S1/S2, które nie mogą tworzyć ich
+duplikatów w UI-10.
+
+### Alerty naruszeń
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Dashboard_ViolationAlertFormat` | K{0} · {1}: {2} | D{0} · {1}: {2} | U/T |
+| `Dashboard_ManualEntryRequiredAlert` | WPIS MANUALNY WYMAGANY · jazda zablokowana do rozliczenia luki po wyjęciu karty. | MANUAL ENTRY REQUIRED · driving is blocked until the gap after card withdrawal is resolved. | U |
+| `Violation_ContinuousDrivingExceeded` | Przekroczono czas jazdy ciągłej | Continuous driving limit exceeded | P |
+| `Violation_MissingRequiredBreak` | Brak wymaganej przerwy | Required break missing | P |
+| `Violation_DailyDrivingExceeded` | Przekroczono dzienny czas jazdy | Daily driving limit exceeded | P |
+| `Violation_WeeklyDrivingExceeded` | Przekroczono tygodniowy czas jazdy | Weekly driving limit exceeded | P |
+| `Violation_FortnightlyDrivingExceeded` | Przekroczono dwutygodniowy czas jazdy | Fortnightly driving limit exceeded | P |
+| `Violation_TooManyDailyExtensions` | Zbyt wiele wydłużeń dziennego czasu jazdy | Too many daily driving extensions | P |
+| `Violation_DailyRestMissing` | Brak odpoczynku dobowego | Daily rest period missing | P |
+| `Violation_TooManyReducedDailyRests` | Zbyt wiele skróconych odpoczynków dobowych | Too many reduced daily rest periods | P |
+| `Violation_WeeklyRestMissing` | Brak odpoczynku tygodniowego | Weekly rest period missing | P |
+| `Violation_WeeklyRestPatternInvalid` | Nieprawidłowy wzorzec odpoczynków tygodniowych | Invalid weekly rest pattern | P |
+| `Violation_WeeklyRestCompensationOverdue` | Zaległa rekompensata odpoczynku tygodniowego | Weekly rest compensation overdue | P |
+
+W `Dashboard_ViolationAlertFormat` `{0}` oznacza numer slotu, `{1}` niezmienny
+artykuł, a `{2}` wynik lokalnego presentera `ViolationType`. Pole
+`RuleViolation.Message` oraz nazwa enuma nie są wyświetlane bezpośrednio.
+
+### Mapowanie źródeł
+
+| Źródło | Obecna wartość / rodzina | Decyzja |
+|---|---|---|
+| `MainWindow.xaml:90-92` | szybkie akcje, alerty i przycisk opcjonalnej luki | klucze `Dashboard_*` tej paczki; treści wpisu manualnego → UI-03, `OperationStatus` → UI-09 |
+| `MainWindow.xaml:96-106,133-143` | tytuły slotów i etykiety kierowców | klucze `Dashboard_*` |
+| `MainWindow.xaml:111-114,148-151` | skrót rekompensat | trzy `CompensationSummary_*Header` + `Common_StatusHeader`; status przez presenter |
+| `MainWindow.xaml:119-128,156-165` | cel, licznik i akcje odpoczynku | `Dashboard_*`, `RestTarget_*`, `RestStatus_*` |
+| `MainViewModel.cs:35-44` | siedem nazw i siedem etykiet LCD celów | `Name` → `RestTarget_*`; `DeviceLabel` → paczka 3 |
+| `MainViewModel.cs:742,800,1072-1080` | brak karty i sześć wartości `DriverActivity` | `Card_NoCard` + pięć kluczy `Activity_*`; `OUT` pozostaje T |
+| `MainViewModel.cs:1821-1827` | drugi presenter `ActivityLabel` urządzenia, fallback dla trzech wartości | paczka 3; jawna obsługa wszystkich sześciu wartości bez `ToString()` |
+| `MainViewModel.cs:833-841` | alerty slotów, naruszeń i wymaganego wpisu | format Dashboardu + presenter wszystkich 11 wartości `ViolationType` |
+| `MainViewModel.cs:959-1051` | pięć stanów licznika odpoczynku | `RestStatus_*`; `HH:MM` pozostaje T |
+| `CompensationPresentation.cs:15-39` | cztery statusy skrótu rekompensat | `CompensationSummary_*`; kolory pozostają T |
+
+### Elementy świadomie bez lokalizacji
+
+| Element | Kategoria | Uzasadnienie |
+|---|---|---|
+| numer slotu w `Dashboard_ViolationAlertFormat` | T | wartość techniczna podstawiana przez `{0}`; pełne tytuły slotów są lokalizowane w całości |
+| nazwa kierowcy (`CardOwner`, `Card2Owner`) | O | dane użytkownika |
+| `---`, `—`, kolory i procent postępu | T | znaczniki i wartości prezentacyjne bez języka |
+| `HH:MM`, liczby limitów i separator ` / ` | T | format czasu trwania i dane liczbowe |
+| `PDF`, `CSV`, `OUT` | T | formaty i ustalony kod trybu |
+| artykuł naruszenia | T | niezmienna wartość podstawiana do lokalizowanego formatu |
+
+### Kontrola paczki
+
+- [x] wszystkie statyczne literały Dashboardu mają klucz albo jawnego właściciela późniejszej paczki;
+- [x] katalog paczki 1 sprawdzono przed dodaniem kluczy; `Common_StatusHeader` jest ponownie użyty;
+- [x] oba sloty używają wspólnych etykiet, celów, statusów i presentera aktywności;
+- [x] wszystkie 7 celów oraz 5 stanów odpoczynku ma decyzję;
+- [x] wszystkie 4 możliwe statusy `CompensationOverview` ma decyzję;
+- [x] wszystkie 6 wartości `DriverActivity` ma decyzję: 5 kluczy i techniczne `OUT`;
+- [x] wszystkie 11 wartości `ViolationType` ma jawny presenter bez fallbacku `ToString()`;
+- [x] jedyny format paczki ma identyczny zbiór placeholderów `{0}`, `{1}`, `{2}` w PL/EN;
+- [x] żaden klucz nie zmienia enumów, DTO, JSON, CSV, SQLite ani danych użytkownika;
+- [x] ryzyko długości EN dotyczy tytułów slotów, celu odpoczynku, statusu w ruchu i `COMPLETE BEFORE` — do kontroli wizualnej w obu kartach;
+- [x] paczka nie obejmuje wnętrza wirtualnego urządzenia, UI-03 ani UI-09.
+
+### Werdykt
+
+**GO — paczka 2 zatwierdzona.** Katalog 58 nowych kluczy jest wiążący dla
+paczki 3 i kolejnych.
+
 ## Słownik domenowy PL/EN — część 1
 
 Terminologia angielska opiera się na oficjalnym brzmieniu rozporządzenia
@@ -264,33 +452,37 @@ odpoczynków i tachografów:
 - <https://transport.ec.europa.eu/transport-modes/road/social-provisions/driving-time-and-rest-periods_en>
 - <https://transport.ec.europa.eu/transport-modes/road/tachograph_en>
 
-| Klucz / pojęcie | Polski | English | Uwagi |
-|---|---|---|---|
-| `Activity_Driving` | Jazda | Driving | aktywność tachografowa |
-| `Activity_OtherWork` | Inna praca | Other work | termin oficjalny UE |
-| `Activity_Availability` | Dyspozycyjność | Availability | w opisie pełnym: period of availability |
-| `Activity_BreakOrRest` | Przerwa / odpoczynek | Break / rest | wspólna aktywność UI; prawnie dwa odrębne pojęcia |
-| `Driving_Continuous` | Jazda ciągła | Continuous driving | licznik od ostatniej kwalifikowanej przerwy |
-| `Driving_TimeUntilBreak` | Do przerwy | Time to break | krótka etykieta UI |
-| `Driving_Daily` | Jazda dzienna | Daily driving | czas jazdy |
-| `Duty_Daily` | Praca dobowa | Daily duty | etykieta produktu dla okna pracy |
-| `Rest_Daily` | Odpoczynek dobowy | Daily rest period | termin oficjalny UE |
-| `Rest_DailyRegular` | Regularny odpoczynek dobowy | Regular daily rest period | termin oficjalny UE |
-| `Rest_DailyReduced` | Skrócony odpoczynek dobowy | Reduced daily rest period | termin oficjalny UE |
-| `Rest_Weekly` | Odpoczynek tygodniowy | Weekly rest period | termin oficjalny UE |
-| `Rest_WeeklyRegular` | Regularny odpoczynek tygodniowy | Regular weekly rest period | termin oficjalny UE |
-| `Rest_WeeklyReduced` | Skrócony odpoczynek tygodniowy | Reduced weekly rest period | termin oficjalny UE |
-| `Crew_MultiManning` | Podwójna obsada | Multi-manning | termin używany przez Komisję Europejską |
-| `Crew_SingleDriver` | Pojedyncza obsada | Single driver | czytelniejsze niż nieoficjalne single-manning |
-| `Crew_ActiveDriver` | Kierowca aktywny | Active driver | rola prezentacyjna |
-| `Crew_CoDriver` | Kierowca zmiennik | Co-driver | rola prezentacyjna |
-| `Compensation_Name` | Rekompensata | Compensation | rekompensata skróconego odpoczynku |
-| `Compensation_Obligation` | Zobowiązanie | Compensation obligation | pojęcie produktu, nie identyfikator techniczny |
-| `Compensation_RemainingDebt` | Pozostały dług | Remaining compensation due | tekst użytkowy; pole maszynowe bez zmian |
-| `Compensation_DueDate` | Termin | Due date | prezentacja terminu |
-| `Gap_ActivityGap` | Luka aktywności | Activity gap | pojęcie produktu |
-| `Gap_Unresolved` | Luka nierozliczona | Unresolved activity gap | stan prezentacyjny |
-| `ManualEntry_Name` | Wpis manualny | Manual entry | termin tachografowy |
+Słownik jest źródłem terminologii, nie rejestrem kluczy zasobów. Nazwy kluczy
+i ich role prezentacyjne są wiążące wyłącznie w zatwierdzonych katalogach paczek.
+
+| Polski | English | Uwagi |
+|---|---|---|
+| Jazda | Driving | aktywność tachografowa |
+| Inna praca | Other work | termin oficjalny UE |
+| Dyspozycyjność | Availability | w opisie pełnym: period of availability |
+| Przerwa / odpoczynek | Break / rest | wspólna aktywność UI; prawnie dwa odrębne pojęcia |
+| Nieznana | Unknown | jawny stan prezentacyjny, bez nazwy enuma jako fallbacku |
+| Jazda ciągła | Continuous driving | licznik od ostatniej kwalifikowanej przerwy |
+| Do przerwy | Time to break | krótka etykieta UI |
+| Jazda dzienna | Daily driving | czas jazdy |
+| Praca dobowa | Daily duty | etykieta produktu dla okna pracy |
+| Odpoczynek dobowy | Daily rest period | termin oficjalny UE |
+| Regularny odpoczynek dobowy | Regular daily rest period | termin oficjalny UE |
+| Skrócony odpoczynek dobowy | Reduced daily rest period | termin oficjalny UE |
+| Odpoczynek tygodniowy | Weekly rest period | termin oficjalny UE |
+| Regularny odpoczynek tygodniowy | Regular weekly rest period | termin oficjalny UE |
+| Skrócony odpoczynek tygodniowy | Reduced weekly rest period | termin oficjalny UE |
+| Podwójna obsada | Multi-manning | termin używany przez Komisję Europejską |
+| Pojedyncza obsada | Single driver | czytelniejsze niż nieoficjalne single-manning |
+| Kierowca aktywny | Active driver | rola prezentacyjna |
+| Kierowca zmiennik | Co-driver | rola prezentacyjna |
+| Rekompensata | Compensation | rekompensata skróconego odpoczynku |
+| Zobowiązanie | Compensation obligation | pojęcie produktu, nie identyfikator techniczny |
+| Pozostały dług | Remaining compensation due | tekst użytkowy; pole maszynowe bez zmian |
+| Termin | Due date | prezentacja terminu |
+| Luka aktywności | Activity gap | pojęcie produktu |
+| Luka nierozliczona | Unresolved activity gap | stan prezentacyjny |
+| Wpis manualny | Manual entry | termin tachografowy |
 
 ## Polityka placeholderów
 
