@@ -4,7 +4,7 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status bieżący:** **W TOKU — M5.2 FUNDAMENT DO WERYFIKACJI**
+**Status bieżący:** **W TOKU — M5.3 PACZKA 1 GO**
 
 **Data rozpoczęcia:** 27 lipca 2026
 
@@ -91,7 +91,7 @@ przed M6.
 
 ### Etap M5.3 — Desktop i Planer
 
-- [ ] Zlokalizować nawigację i wspólne elementy.
+- [x] Zlokalizować nawigację i wspólne elementy.
 - [ ] Zlokalizować Dashboard i tachograf.
 - [ ] Zlokalizować Historię, luki i wpis manualny.
 - [ ] Zlokalizować Rekomensaty.
@@ -99,6 +99,16 @@ przed M6.
 - [ ] Zlokalizować Planer i wszystkie jego statusy, segmenty oraz ostrzeżenia.
 - [ ] Zlokalizować dialogi i nakładki.
 - [ ] Zlokalizować nazwy krajów bez zmiany ISO.
+
+**Postęp wykonawczy M5.3:**
+
+- paczka 1 (`UI-01`): **GO**, zamknięta bez pozycji otwartych; powłoka,
+  siedem pozycji nawigacji, wspólne akcje
+  i nagłówki oraz status telemetrii podpięte do wiążących kluczy;
+- komunikat błędu telemetrii nie publikuje `exception.Message` w UI;
+- surowe literały objęte paczką 1 usunięte z XAML i stanu początkowego VM;
+- build WPF oraz 128/128 testów Desktopu: PASS;
+- osobista kontrola wizualna PL/EN, w tym szerokość `JOURNEY PLANNER`: PASS.
 
 ### Etap M5.4 — PDF i dokumentacja
 

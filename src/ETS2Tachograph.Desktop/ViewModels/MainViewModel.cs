@@ -53,10 +53,12 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
                 .InformationalVersion;
             return string.IsNullOrWhiteSpace(informationalVersion)
-                ? "wersja nieznana"
+                ? UiStrings.Get("Shell_VersionUnknown")
                 : informationalVersion.Split('+', 2)[0];
         }
     }
+    public static string ApplicationVersionText =>
+        UiStrings.Format("Shell_VersionFormat", ApplicationVersion);
 
     private readonly CrewTachographService _crew;
     private readonly ManualEntryService _manualEntries;
@@ -73,9 +75,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private readonly string _defaultDriverCardId;
     private readonly ITelemetrySource _telemetry;
     private readonly CancellationTokenSource _cancellation = new();
-    private string _connectionStatus = "Oczekiwanie na ETS2...";
+    private string _connectionStatus = UiStrings.Get("Shell_WaitingForEts2");
     private string _gameTimeText = "Czas gry: --";
-    private string _activityText = "Brak danych";
+    private string _activityText = UiStrings.Get("Common_NoData");
     private string _continuousDriving = "00:00";
     private string _untilBreak = "04:30";
     private string _dailyDriving = "00:00";
@@ -722,7 +724,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         catch (Exception exception)
         {
             _diagnostics.Error("TELEMETRY_ERROR", exception);
-            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() => ConnectionStatus = $"Błąd telemetrii: {exception.Message}");
+            await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+                ConnectionStatus = UiStrings.Get("Shell_TelemetryError"));
         }
     }
 
@@ -759,7 +762,11 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             }
             _lastObservedCargoOperationGeneration = frame.CargoOperationGeneration;
         }
-        ConnectionStatus = frame is null ? "Oczekiwanie na ETS2..." : frame.GamePaused ? "ETS2 · pauza" : "ETS2 · telemetria aktywna";
+        ConnectionStatus = frame is null
+            ? UiStrings.Get("Shell_WaitingForEts2")
+            : frame.GamePaused
+                ? UiStrings.Get("Shell_Ets2Paused")
+                : UiStrings.Get("Shell_TelemetryActive");
         GameTimeText = frame is null ? "Czas gry: --" : $"Czas gry: {GameClockFormatter.Format(frame.GameTime)}";
 
         var driver = snapshot.Driver;

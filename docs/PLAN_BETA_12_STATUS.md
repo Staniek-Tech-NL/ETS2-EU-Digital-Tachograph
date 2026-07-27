@@ -564,6 +564,10 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
   każda inna nowa kontrolka nadal narusza UI freeze.
 - **Zmiany wykonawcze:** fundament zasobów i kultury, magazyn preferencji,
   lokalizowana sekcja Ustawień oraz jedna autoryzowana kontrolka języka.
+- **M5.3 — paczka 1:** **GO**, zamknięta bez pozycji otwartych. Powłoka,
+  nawigacja, wspólne akcje i nagłówki oraz status telemetrii korzystają
+  z wiążących zasobów. Build WPF, 128/128 testów Desktopu oraz osobista
+  kontrola wizualna PL/EN są zielone.
 - **Zakres językowy:** `pl-PL` i `en-GB`.
 - **Kontrakty chronione:** JSON, techniczny CSV, `.tacho`, SQLite, protokół v3,
   identyfikatory i kody techniczne.
