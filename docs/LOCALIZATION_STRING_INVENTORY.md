@@ -4,7 +4,7 @@
 
 **Data rozpoczęcia:** 2026-07-27
 
-**Status:** **W TOKU — PACZKI 1–5 GO**
+**Status:** **W TOKU — PACZKI 1–6 GO**
 
 **Języki:** `pl-PL`, `en-GB`
 
@@ -54,7 +54,7 @@ presentera; nie obejmuje kluczy tworzonych wyłącznie dla hipotetycznej funkcji
 | UI-01 | Powłoka, tytuł, nawigacja i wspólne akcje | `MainWindow.xaml`, `App.xaml.cs`, `MainViewModel.cs` | U/T/D/O | `UiStrings.Common_*`, `UiStrings.Navigation_*`, `UiStrings.Shell_*` | GO — katalog wiążący |
 | UI-02 | Dashboard i wirtualny tachograf | `MainWindow.xaml`, `MainViewModel.cs` | U/P | zasoby + presentery aktywności, trybów i stanu kart | GO — Dashboard w paczce 2, urządzenie w paczce 3, terminy domknięte przez paczkę 5 |
 | UI-03 | Historia, luki i wpis manualny | `MainWindow.xaml`, `MainViewModel.cs`, `ManualEntryPlanEditor.cs` | U/P | zasoby + presentery aktywności, źródeł, warunków, przyczyn, stanów luk i walidacji | GO w paczce 4 |
-| UI-04 | Kraje i kody tachografowe | `CountryCatalog.cs`, JSON | U/T | osobne nazwy PL/EN; zapis nadal przez ISO | do rozpisania |
+| UI-04 | Kraje i kody tachografowe | `CountryCatalog.cs`, JSON | U/T | osobne nazwy PL/EN; zapis nadal przez ISO | GO w paczce 6 |
 | UI-05 | Rekompensaty | `MainWindow.xaml`, `CompensationPresentation.cs` | U/P/T | zasoby + presenter statusu; identyfikatory bez zmian | do rozpisania |
 | UI-06 | Raporty w Desktop | `MainWindow.xaml`, `ReportsWorkspaceViewModel.cs` | U/P/T | zasoby + presentery; formaty eksportu bez zmian | do rozpisania |
 | UI-07 | Kierowcy i Ustawienia | `MainWindow.xaml`, `MainViewModel.cs`, `SettingsService.cs` | U/O/T | zasoby; nazwy i numery kart bez tłumaczenia | do rozpisania |
@@ -1269,6 +1269,487 @@ i bez zmian.
 Łączny, wiążący katalog paczek 1–5 zawiera 269 unikalnych nazw i 12 jawnie
 dozwolonych par powtórzonych wartości. Zależności kompletności Dashboardu
 oraz listy dni w modalu wpisu manualnego od `X-01` są zamknięte.
+
+## Paczka 6 — UI-04: kraje i kody tachografowe
+
+**Zakres:** 249 lokalizowanych nazw krajów, ładowanie i sortowanie katalogu,
+wyszukiwanie po nazwie i kodach oraz modal wyboru kraju przy wkładaniu
+i wyjmowaniu karty.
+
+**Stan:** **ZAMKNIĘTA — GO**
+
+**Data zatwierdzenia:** 2026-07-27
+
+**Pozycje otwarte:** 0
+
+**Katalog:** 260 nowych kluczy — 249 `Country_*` i 11 tekstów modala karty.
+Łączny katalog paczek 1–6 zawiera 529 unikalnych nazw.
+
+Paczka nie dodaje duplikatów wartości między różnymi kluczami. Globalna lista
+12 dozwolonych par z paczki 4 pozostaje bez zmian. Wśród 249 nazw krajów
+75 wartości jest świadomie identycznych w PL i EN.
+
+### Granica paczki
+
+Stabilny katalog `Countries.iso3166-1.json` pozostaje jedynym źródłem kodu
+`ISO 3166-1 alpha-2`, klucza nazwy, kodu tachografowego, kodu numerycznego
+i regionu fallback. Język zmienia wyłącznie `DisplayName` i kolejność
+alfabetyczną listy. Nie zmienia:
+
+- wartości zapisywanej w historii i stanie urządzenia — nadal ISO alpha-2;
+- kodów tachografowych, w tym `EUR` i `WLD`;
+- kodów numerycznych 0–255;
+- działania `ResolveLegacyCode`;
+- identyfikatorów `Country_*`.
+
+Komunikaty sukcesu, walidacji i odrzuceń przypisywane do `OperationStatus`
+pozostają w UI-09. Paczka 6 obejmuje treść samego modala kraju. Wpisy
+diagnostyczne i wyjątki integralności katalogu są D; dzięki decyzji paczki 1
+nie mogą trafić surowo do komunikatu błędu startu.
+
+Menu `KRAJE` w wirtualnym urządzeniu, jego tytuły oraz formaty `START: {0}`
+i `KONIEC: {0}` mają klucze z paczki 3. Paczka 6 dostarcza dane krajów i regułę
+sortowania, ale nie tworzy drugich kluczy LCD.
+
+### Modal wyboru kraju
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `CardDialog_SelectCountryPrompt` | WYBIERZ KRAJ | SELECT COUNTRY | U |
+| `CardDialog_AvailableCardLabel` | Dostępna karta | Available card | U |
+| `CardDialog_StartCountryLabel` | Kraj rozpoczęcia | Start country | U |
+| `CardDialog_EndCountryLabel` | Kraj zakończenia | End country | U |
+| `CardDialog_CountryPlaceholder` | Wybierz kraj... | Select a country... | U |
+| `CardDialog_ConfirmAction` | POTWIERDŹ | CONFIRM | U |
+| `CardDialog_InsertTitleFormat` | WŁOŻENIE KARTY - CZYTNIK {0} | CARD INSERTION - READER {0} | U/T |
+| `CardDialog_InsertMessage` | Potwierdź kierowcę i kraj rozpoczęcia zmiany. Karta zostanie przypisana do kierowcy prowadzącego. | Confirm the driver and the country where the shift starts. The card will be assigned to the active driver. | U |
+| `CardDialog_EjectTitleFormat` | WYJĘCIE KARTY - CZYTNIK {0} | CARD EJECTION - READER {0} | U/T |
+| `CardDialog_EjectMessage` | Wybierz kraj zakończenia zmiany. Dane zostaną zapisane przed wysunięciem karty. | Select the country where the shift ends. The data will be saved before the card is ejected. | U |
+| `CardDialog_DriverCardLabel` | KARTA KIEROWCY | DRIVER CARD | U |
+
+`{0}` w dwóch tytułach oznacza numer czytnika i ma zgodny zbiór placeholderów
+PL/EN. `ANULUJ` ponownie używa `Common_CancelAction`. Techniczne `OK` pozostaje
+oddzielone od `CardDialog_ConfirmAction`; dwie spacje pomiędzy etykietą i `OK`
+są strukturą XAML, nie częścią zasobu. Tak samo numer slotu i odstęp przed
+`CardDialog_DriverCardLabel` pozostają strukturą prezentacyjną.
+
+Nazwa profilu i numer karty są danymi użytkownika O. `CountryOption.DisplayText`
+zachowuje wspólny format techniczny `{ISO} — {DisplayName}` i nie potrzebuje
+osobnego klucza.
+
+### Katalog nazw krajów PL/EN
+
+Źródłem nazw jest Unicode CLDR, zgodnie z metadanymi istniejącego pliku PL.
+M5.2 doda `Resources/CountryNames.en-GB.json` z dokładnie tym samym zbiorem
+249 kluczy co `CountryNames.pl.json`. Nazwy EN są wariantem `en-GB`;
+nie są kopiowane z pola ISO ani tłumaczone w locie. Wartości zatwierdzone
+w poniższej tabeli są wiążącym snapshotem dla beta.12; późniejsza aktualizacja
+CLDR wymaga osobnej decyzji i nie może wejść automatycznie podczas M5.2.
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Country_AD` | Andora | Andorra | U |
+| `Country_AE` | Zjednoczone Emiraty Arabskie | United Arab Emirates | U |
+| `Country_AF` | Afganistan | Afghanistan | U |
+| `Country_AG` | Antigua i Barbuda | Antigua & Barbuda | U |
+| `Country_AI` | Anguilla | Anguilla | U |
+| `Country_AL` | Albania | Albania | U |
+| `Country_AM` | Armenia | Armenia | U |
+| `Country_AO` | Angola | Angola | U |
+| `Country_AQ` | Antarktyda | Antarctica | U |
+| `Country_AR` | Argentyna | Argentina | U |
+| `Country_AS` | Samoa Amerykańskie | American Samoa | U |
+| `Country_AT` | Austria | Austria | U |
+| `Country_AU` | Australia | Australia | U |
+| `Country_AW` | Aruba | Aruba | U |
+| `Country_AX` | Wyspy Alandzkie | Åland Islands | U |
+| `Country_AZ` | Azerbejdżan | Azerbaijan | U |
+| `Country_BA` | Bośnia i Hercegowina | Bosnia & Herzegovina | U |
+| `Country_BB` | Barbados | Barbados | U |
+| `Country_BD` | Bangladesz | Bangladesh | U |
+| `Country_BE` | Belgia | Belgium | U |
+| `Country_BF` | Burkina Faso | Burkina Faso | U |
+| `Country_BG` | Bułgaria | Bulgaria | U |
+| `Country_BH` | Bahrajn | Bahrain | U |
+| `Country_BI` | Burundi | Burundi | U |
+| `Country_BJ` | Benin | Benin | U |
+| `Country_BL` | Saint-Barthélemy | St Barthélemy | U |
+| `Country_BM` | Bermudy | Bermuda | U |
+| `Country_BN` | Brunei | Brunei | U |
+| `Country_BO` | Boliwia | Bolivia | U |
+| `Country_BQ` | Niderlandy Karaibskie | Caribbean Netherlands | U |
+| `Country_BR` | Brazylia | Brazil | U |
+| `Country_BS` | Bahamy | Bahamas | U |
+| `Country_BT` | Bhutan | Bhutan | U |
+| `Country_BV` | Wyspa Bouveta | Bouvet Island | U |
+| `Country_BW` | Botswana | Botswana | U |
+| `Country_BY` | Białoruś | Belarus | U |
+| `Country_BZ` | Belize | Belize | U |
+| `Country_CA` | Kanada | Canada | U |
+| `Country_CC` | Wyspy Kokosowe | Cocos (Keeling) Islands | U |
+| `Country_CD` | Demokratyczna Republika Konga | Congo - Kinshasa | U |
+| `Country_CF` | Republika Środkowoafrykańska | Central African Republic | U |
+| `Country_CG` | Kongo | Congo - Brazzaville | U |
+| `Country_CH` | Szwajcaria | Switzerland | U |
+| `Country_CI` | Côte d’Ivoire | Côte d’Ivoire | U |
+| `Country_CK` | Wyspy Cooka | Cook Islands | U |
+| `Country_CL` | Chile | Chile | U |
+| `Country_CM` | Kamerun | Cameroon | U |
+| `Country_CN` | Chiny | China | U |
+| `Country_CO` | Kolumbia | Colombia | U |
+| `Country_CR` | Kostaryka | Costa Rica | U |
+| `Country_CU` | Kuba | Cuba | U |
+| `Country_CV` | Republika Zielonego Przylądka | Cape Verde | U |
+| `Country_CW` | Curaçao | Curaçao | U |
+| `Country_CX` | Wyspa Bożego Narodzenia | Christmas Island | U |
+| `Country_CY` | Cypr | Cyprus | U |
+| `Country_CZ` | Czechy | Czechia | U |
+| `Country_DE` | Niemcy | Germany | U |
+| `Country_DJ` | Dżibuti | Djibouti | U |
+| `Country_DK` | Dania | Denmark | U |
+| `Country_DM` | Dominika | Dominica | U |
+| `Country_DO` | Dominikana | Dominican Republic | U |
+| `Country_DZ` | Algieria | Algeria | U |
+| `Country_EC` | Ekwador | Ecuador | U |
+| `Country_EE` | Estonia | Estonia | U |
+| `Country_EG` | Egipt | Egypt | U |
+| `Country_EH` | Sahara Zachodnia | Western Sahara | U |
+| `Country_ER` | Erytrea | Eritrea | U |
+| `Country_ES` | Hiszpania | Spain | U |
+| `Country_ET` | Etiopia | Ethiopia | U |
+| `Country_FI` | Finlandia | Finland | U |
+| `Country_FJ` | Fidżi | Fiji | U |
+| `Country_FK` | Falklandy | Falkland Islands | U |
+| `Country_FM` | Mikronezja | Micronesia | U |
+| `Country_FO` | Wyspy Owcze | Faroe Islands | U |
+| `Country_FR` | Francja | France | U |
+| `Country_GA` | Gabon | Gabon | U |
+| `Country_GB` | Wielka Brytania | United Kingdom | U |
+| `Country_GD` | Grenada | Grenada | U |
+| `Country_GE` | Gruzja | Georgia | U |
+| `Country_GF` | Gujana Francuska | French Guiana | U |
+| `Country_GG` | Guernsey | Guernsey | U |
+| `Country_GH` | Ghana | Ghana | U |
+| `Country_GI` | Gibraltar | Gibraltar | U |
+| `Country_GL` | Grenlandia | Greenland | U |
+| `Country_GM` | Gambia | Gambia | U |
+| `Country_GN` | Gwinea | Guinea | U |
+| `Country_GP` | Gwadelupa | Guadeloupe | U |
+| `Country_GQ` | Gwinea Równikowa | Equatorial Guinea | U |
+| `Country_GR` | Grecja | Greece | U |
+| `Country_GS` | Georgia Południowa i Sandwich Południowy | South Georgia & South Sandwich Islands | U |
+| `Country_GT` | Gwatemala | Guatemala | U |
+| `Country_GU` | Guam | Guam | U |
+| `Country_GW` | Gwinea Bissau | Guinea-Bissau | U |
+| `Country_GY` | Gujana | Guyana | U |
+| `Country_HK` | SRA Hongkong (Chiny) | Hong Kong SAR China | U |
+| `Country_HM` | Wyspy Heard i McDonalda | Heard & McDonald Islands | U |
+| `Country_HN` | Honduras | Honduras | U |
+| `Country_HR` | Chorwacja | Croatia | U |
+| `Country_HT` | Haiti | Haiti | U |
+| `Country_HU` | Węgry | Hungary | U |
+| `Country_ID` | Indonezja | Indonesia | U |
+| `Country_IE` | Irlandia | Ireland | U |
+| `Country_IL` | Izrael | Israel | U |
+| `Country_IM` | Wyspa Man | Isle of Man | U |
+| `Country_IN` | Indie | India | U |
+| `Country_IO` | Brytyjskie Terytorium Oceanu Indyjskiego | British Indian Ocean Territory | U |
+| `Country_IQ` | Irak | Iraq | U |
+| `Country_IR` | Iran | Iran | U |
+| `Country_IS` | Islandia | Iceland | U |
+| `Country_IT` | Włochy | Italy | U |
+| `Country_JE` | Jersey | Jersey | U |
+| `Country_JM` | Jamajka | Jamaica | U |
+| `Country_JO` | Jordania | Jordan | U |
+| `Country_JP` | Japonia | Japan | U |
+| `Country_KE` | Kenia | Kenya | U |
+| `Country_KG` | Kirgistan | Kyrgyzstan | U |
+| `Country_KH` | Kambodża | Cambodia | U |
+| `Country_KI` | Kiribati | Kiribati | U |
+| `Country_KM` | Komory | Comoros | U |
+| `Country_KN` | Saint Kitts i Nevis | St Kitts & Nevis | U |
+| `Country_KP` | Korea Północna | North Korea | U |
+| `Country_KR` | Korea Południowa | South Korea | U |
+| `Country_KW` | Kuwejt | Kuwait | U |
+| `Country_KY` | Kajmany | Cayman Islands | U |
+| `Country_KZ` | Kazachstan | Kazakhstan | U |
+| `Country_LA` | Laos | Laos | U |
+| `Country_LB` | Liban | Lebanon | U |
+| `Country_LC` | Saint Lucia | St Lucia | U |
+| `Country_LI` | Liechtenstein | Liechtenstein | U |
+| `Country_LK` | Sri Lanka | Sri Lanka | U |
+| `Country_LR` | Liberia | Liberia | U |
+| `Country_LS` | Lesotho | Lesotho | U |
+| `Country_LT` | Litwa | Lithuania | U |
+| `Country_LU` | Luksemburg | Luxembourg | U |
+| `Country_LV` | Łotwa | Latvia | U |
+| `Country_LY` | Libia | Libya | U |
+| `Country_MA` | Maroko | Morocco | U |
+| `Country_MC` | Monako | Monaco | U |
+| `Country_MD` | Mołdawia | Moldova | U |
+| `Country_ME` | Czarnogóra | Montenegro | U |
+| `Country_MF` | Saint-Martin | St Martin | U |
+| `Country_MG` | Madagaskar | Madagascar | U |
+| `Country_MH` | Wyspy Marshalla | Marshall Islands | U |
+| `Country_MK` | Macedonia Północna | North Macedonia | U |
+| `Country_ML` | Mali | Mali | U |
+| `Country_MM` | Mjanma (Birma) | Myanmar (Burma) | U |
+| `Country_MN` | Mongolia | Mongolia | U |
+| `Country_MO` | SRA Makau (Chiny) | Macao SAR China | U |
+| `Country_MP` | Mariany Północne | Northern Mariana Islands | U |
+| `Country_MQ` | Martynika | Martinique | U |
+| `Country_MR` | Mauretania | Mauritania | U |
+| `Country_MS` | Montserrat | Montserrat | U |
+| `Country_MT` | Malta | Malta | U |
+| `Country_MU` | Mauritius | Mauritius | U |
+| `Country_MV` | Malediwy | Maldives | U |
+| `Country_MW` | Malawi | Malawi | U |
+| `Country_MX` | Meksyk | Mexico | U |
+| `Country_MY` | Malezja | Malaysia | U |
+| `Country_MZ` | Mozambik | Mozambique | U |
+| `Country_NA` | Namibia | Namibia | U |
+| `Country_NC` | Nowa Kaledonia | New Caledonia | U |
+| `Country_NE` | Niger | Niger | U |
+| `Country_NF` | Norfolk | Norfolk Island | U |
+| `Country_NG` | Nigeria | Nigeria | U |
+| `Country_NI` | Nikaragua | Nicaragua | U |
+| `Country_NL` | Holandia | Netherlands | U |
+| `Country_NO` | Norwegia | Norway | U |
+| `Country_NP` | Nepal | Nepal | U |
+| `Country_NR` | Nauru | Nauru | U |
+| `Country_NU` | Niue | Niue | U |
+| `Country_NZ` | Nowa Zelandia | New Zealand | U |
+| `Country_OM` | Oman | Oman | U |
+| `Country_PA` | Panama | Panama | U |
+| `Country_PE` | Peru | Peru | U |
+| `Country_PF` | Polinezja Francuska | French Polynesia | U |
+| `Country_PG` | Papua-Nowa Gwinea | Papua New Guinea | U |
+| `Country_PH` | Filipiny | Philippines | U |
+| `Country_PK` | Pakistan | Pakistan | U |
+| `Country_PL` | Polska | Poland | U |
+| `Country_PM` | Saint-Pierre i Miquelon | St Pierre & Miquelon | U |
+| `Country_PN` | Pitcairn | Pitcairn Islands | U |
+| `Country_PR` | Portoryko | Puerto Rico | U |
+| `Country_PS` | Terytoria Palestyńskie | Palestinian Territories | U |
+| `Country_PT` | Portugalia | Portugal | U |
+| `Country_PW` | Palau | Palau | U |
+| `Country_PY` | Paragwaj | Paraguay | U |
+| `Country_QA` | Katar | Qatar | U |
+| `Country_RE` | Reunion | Réunion | U |
+| `Country_RO` | Rumunia | Romania | U |
+| `Country_RS` | Serbia | Serbia | U |
+| `Country_RU` | Rosja | Russia | U |
+| `Country_RW` | Rwanda | Rwanda | U |
+| `Country_SA` | Arabia Saudyjska | Saudi Arabia | U |
+| `Country_SB` | Wyspy Salomona | Solomon Islands | U |
+| `Country_SC` | Seszele | Seychelles | U |
+| `Country_SD` | Sudan | Sudan | U |
+| `Country_SE` | Szwecja | Sweden | U |
+| `Country_SG` | Singapur | Singapore | U |
+| `Country_SH` | Wyspa Świętej Heleny | St Helena | U |
+| `Country_SI` | Słowenia | Slovenia | U |
+| `Country_SJ` | Svalbard i Jan Mayen | Svalbard & Jan Mayen | U |
+| `Country_SK` | Słowacja | Slovakia | U |
+| `Country_SL` | Sierra Leone | Sierra Leone | U |
+| `Country_SM` | San Marino | San Marino | U |
+| `Country_SN` | Senegal | Senegal | U |
+| `Country_SO` | Somalia | Somalia | U |
+| `Country_SR` | Surinam | Suriname | U |
+| `Country_SS` | Sudan Południowy | South Sudan | U |
+| `Country_ST` | Wyspy Świętego Tomasza i Książęca | São Tomé & Príncipe | U |
+| `Country_SV` | Salwador | El Salvador | U |
+| `Country_SX` | Sint Maarten | Sint Maarten | U |
+| `Country_SY` | Syria | Syria | U |
+| `Country_SZ` | Eswatini | Eswatini | U |
+| `Country_TC` | Turks i Caicos | Turks & Caicos Islands | U |
+| `Country_TD` | Czad | Chad | U |
+| `Country_TF` | Francuskie Terytoria Południowe i Antarktyczne | French Southern Territories | U |
+| `Country_TG` | Togo | Togo | U |
+| `Country_TH` | Tajlandia | Thailand | U |
+| `Country_TJ` | Tadżykistan | Tajikistan | U |
+| `Country_TK` | Tokelau | Tokelau | U |
+| `Country_TL` | Timor Wschodni | Timor-Leste | U |
+| `Country_TM` | Turkmenistan | Turkmenistan | U |
+| `Country_TN` | Tunezja | Tunisia | U |
+| `Country_TO` | Tonga | Tonga | U |
+| `Country_TR` | Turcja | Türkiye | U |
+| `Country_TT` | Trynidad i Tobago | Trinidad & Tobago | U |
+| `Country_TV` | Tuvalu | Tuvalu | U |
+| `Country_TW` | Tajwan | Taiwan | U |
+| `Country_TZ` | Tanzania | Tanzania | U |
+| `Country_UA` | Ukraina | Ukraine | U |
+| `Country_UG` | Uganda | Uganda | U |
+| `Country_UM` | Dalekie Wyspy Mniejsze Stanów Zjednoczonych | US Outlying Islands | U |
+| `Country_US` | Stany Zjednoczone | United States | U |
+| `Country_UY` | Urugwaj | Uruguay | U |
+| `Country_UZ` | Uzbekistan | Uzbekistan | U |
+| `Country_VA` | Watykan | Vatican City | U |
+| `Country_VC` | Saint Vincent i Grenadyny | St Vincent & the Grenadines | U |
+| `Country_VE` | Wenezuela | Venezuela | U |
+| `Country_VG` | Brytyjskie Wyspy Dziewicze | British Virgin Islands | U |
+| `Country_VI` | Wyspy Dziewicze Stanów Zjednoczonych | US Virgin Islands | U |
+| `Country_VN` | Wietnam | Vietnam | U |
+| `Country_VU` | Vanuatu | Vanuatu | U |
+| `Country_WF` | Wallis i Futuna | Wallis & Futuna | U |
+| `Country_WS` | Samoa | Samoa | U |
+| `Country_YE` | Jemen | Yemen | U |
+| `Country_YT` | Majotta | Mayotte | U |
+| `Country_ZA` | Republika Południowej Afryki | South Africa | U |
+| `Country_ZM` | Zambia | Zambia | U |
+| `Country_ZW` | Zimbabwe | Zimbabwe | U |
+
+### Kontrakt plików językowych
+
+M5.2 zachowuje `Data/Countries.iso3166-1.json` bez zmian i ładuje osobny plik
+nazw według wybranego języka:
+
+| Kultura UI | Zasób nazw |
+|---|---|
+| `pl-PL` | istniejący `Resources/CountryNames.pl.json` |
+| `en-GB` | nowy `Resources/CountryNames.en-GB.json` |
+
+Oba pliki nazw muszą mieć `schemaVersion=1`, deklarację kultury i dokładnie
+249 niepustych wartości. Zbiory kluczy obu plików oraz pola `nameKey`
+w katalogu ISO muszą być identyczne. Brak, nadmiar, duplikat albo nieznana
+kultura jest błędem integralności przy starcie; nie wolno mieszać języków
+przez fallback pojedynczej nazwy.
+
+M5.2 doda osobny test parzystości magazynu krajów. Test ma porównać trzy zbiory:
+249 pól `nameKey` z `Countries.iso3166-1.json`, 249 kluczy
+`CountryNames.pl.json` i 249 kluczy `CountryNames.en-GB.json`, a następnie
+potwierdzić brak wartości pustych. Ogólny test parzystości `.resx` nie obejmuje
+`Country_*` i nie zastępuje tej kontroli.
+
+Bazowy wybór kultury następuje przed pierwszym odwołaniem do statycznego
+`CountryCatalog.Options`. MVP przełącza język po restarcie, więc jedna
+załadowana lista na proces pozostaje poprawna.
+
+### Sortowanie i wyszukiwanie
+
+Obecne sortowanie jest na stałe oparte na `pl-PL`. M5.2 użyje czystej kolacji
+`CompareInfo` wybranej kultury UI, bez `IgnoreNonSpace`, a przy rzeczywistym
+remisie stabilnego ISO alpha-2. Diakrytyka musi uczestniczyć w naturalnej
+kolejności właściwej dla `pl-PL` albo `en-GB`. Lista PL i EN może mieć inną
+kolejność; to oczekiwany skutek lokalizacji, nie zmiana danych.
+
+Wyszukiwanie w `CountryComboBox_PreviewTextInput` zachowuje kolejność kryteriów:
+
+1. dokładny ISO;
+2. dokładny nieambiguouszny kod tachografowy;
+3. prefiks ISO;
+4. prefiks lokalizowanej nazwy;
+5. prefiks nieambiguousznego kodu tachografowego.
+
+Porównanie nazwy korzysta z tej samej jawnej kultury co sortowanie, ale dla
+dopasowania używa `IgnoreCase | IgnoreNonSpace`. Dzięki temu wpisanie `Wlochy`
+może znaleźć `Włochy`, nie zaburzając kolejności sortowania. `EUR` i `WLD`
+nadal nie wybierają kraju, ponieważ nie identyfikują jednej pozycji. Zmiana
+języka nie może wpływać na przywracanie ostatniego kraju — zapis i lookup używają
+ISO.
+
+### Oczekiwane identyczne wartości PL/EN
+
+Dokładnie 75 nazw jest identycznych w obu plikach:
+
+`Country_AI`, `Country_AL`, `Country_AM`, `Country_AO`, `Country_AT`,
+`Country_AU`, `Country_AW`, `Country_BB`, `Country_BF`, `Country_BI`,
+`Country_BJ`, `Country_BN`, `Country_BT`, `Country_BW`, `Country_BZ`,
+`Country_CI`, `Country_CL`, `Country_CW`, `Country_EE`, `Country_GA`,
+`Country_GD`, `Country_GG`, `Country_GH`, `Country_GI`, `Country_GM`,
+`Country_GU`, `Country_HN`, `Country_HT`, `Country_IR`, `Country_JE`,
+`Country_KI`, `Country_LA`, `Country_LI`, `Country_LK`, `Country_LR`,
+`Country_LS`, `Country_ML`, `Country_MN`, `Country_MS`, `Country_MT`,
+`Country_MU`, `Country_MW`, `Country_NA`, `Country_NE`, `Country_NG`,
+`Country_NP`, `Country_NR`, `Country_NU`, `Country_OM`, `Country_PA`,
+`Country_PE`, `Country_PK`, `Country_PW`, `Country_RS`, `Country_RW`,
+`Country_SD`, `Country_SL`, `Country_SM`, `Country_SN`, `Country_SO`,
+`Country_SX`, `Country_SY`, `Country_SZ`, `Country_TG`, `Country_TK`,
+`Country_TM`, `Country_TO`, `Country_TV`, `Country_TZ`, `Country_UG`,
+`Country_UZ`, `Country_VU`, `Country_WS`, `Country_ZM`, `Country_ZW`.
+
+To identyczność wartości tego samego klucza między językami, a nie duplikaty
+między różnymi kluczami. Nie zwiększa listy 12 dozwolonych par.
+
+### Mapowanie źródeł
+
+| Źródło | Obecna wartość / rodzina | Decyzja |
+|---|---|---|
+| `Countries.iso3166-1.json` | 249 rekordów technicznych i 249 `nameKey` | T — bez zmian |
+| `CountryNames.pl.json` | 249 unikalnych nazw PL | 249 `Country_*` |
+| nowy `CountryNames.en-GB.json` | 249 nazw EN | ten sam zbiór `Country_*` |
+| `CountryCatalog.cs:7-18` | `DisplayText = ISO — nazwa` | ISO T + zlokalizowane `DisplayName`; struktura bez zasobu |
+| `CountryCatalog.cs:49-108` | ładowanie PL i sortowanie `pl-PL` | wybór pliku i `CompareInfo` według kultury UI |
+| `CountryCatalog.cs:110-128` | polskie wyjątki integralności | D; pełny wyjątek tylko do logu |
+| `MainWindow.xaml.cs:79-118` | wyszukiwanie ISO, kodu i nazwy | jawna kultura wybranego języka; reguły bez zmian |
+| `MainWindow.xaml:804-844` | modal wyboru kraju | 4 nowe klucze statyczne + ponowne użycie `Common_CancelAction` |
+| `MainViewModel.cs:515-538` | etykieta kraju i wiersz karty | 3 klucze modala + wartości T/O |
+| `MainViewModel.cs:1086-1130` | tytuły i opisy wkładania/wyjmowania | 4 klucze modala |
+| `MainViewModel.cs:1132-1212,1695` | komunikaty `OperationStatus` | UI-09; ISO i kod tachografowy jako placeholdery T |
+| `MainViewModel.cs:1674-1695,1739-1797` | menu krajów LCD | klucze paczki 3 + techniczne ISO/kody |
+| `MainViewModel.cs:1850-1989` | migracja, zapis i ostatnie kraje | wyłącznie ISO i kody; bez lokalizowanych nazw |
+
+### Elementy świadomie bez lokalizacji
+
+| Element | Kategoria | Uzasadnienie |
+|---|---|---|
+| ISO alpha-2 i `Country_*` | T | stabilne identyfikatory |
+| kod i kod numeryczny tachografu | T | kontrakt urządzenia |
+| `EUR`, `WLD`, `regionFallback` | T | techniczne fallbacki katalogu |
+| schema, data snapshotu i nazwy pól JSON | T | kontrakt danych referencyjnych |
+| nazwa profilu, numer karty | O | dane użytkownika |
+| `OK`, numer czytnika, `—` i odstępy układu | T | struktura prezentacyjna |
+| wyjątki integralności i logi operacji karty | D | diagnostyka |
+
+### Ryzyka i kontrola wizualna
+
+Lista ma szerokość 260 px. Test PL/EN musi objąć co najmniej:
+
+- `TF` — `Francuskie Terytoria Południowe i Antarktyczne` (46 znaków);
+- `UM` — `Dalekie Wyspy Mniejsze Stanów Zjednoczonych` (43);
+- `GS` — `South Georgia & South Sandwich Islands` (38);
+- `IO` — `British Indian Ocean Territory` (30);
+- oba tytuły modala dla czytników 1 i 2.
+
+UI freeze nie zezwala na zmianę przepływu ani modelu wyboru. Dopuszczalne są
+`TextTrimming`, tooltip lub zwiększenie szerokości rozwijanej części bez zmiany
+szerokości samego pola, jeżeli test EN wykaże obcięcie uniemożliwiające
+rozróżnienie nazw.
+
+### Kontrola paczki
+
+- [x] katalog ISO ma 249 rekordów i 249 unikalnych `nameKey`;
+- [x] katalog PL ma 249 niepustych, unikalnych wartości;
+- [x] katalog EN ma 249 niepustych, unikalnych wartości;
+- [x] zbiory kluczy ISO, PL i EN są identyczne;
+- [x] 12 tekstów modala ma decyzję: 11 nowych kluczy i ponowne użycie `Common_CancelAction`;
+- [x] oba formaty z `{0}` mają zgodne placeholdery PL/EN;
+- [x] 75 identycznych nazw PL/EN jest jawnie wymienionych;
+- [x] 260 nowych nazw kluczy nie koliduje z katalogiem paczek 1–5;
+- [x] brak nowych duplikatów wartości między różnymi kluczami;
+- [x] zapis, migracja i przywracanie używają ISO, nie `DisplayName`;
+- [x] kody tachografowe i numeryczne pozostają bez zmian;
+- [x] sortowanie i wyszukiwanie mają jawną kulturę PL/EN;
+- [x] sortowanie zachowuje diakrytykę, a wyszukiwanie używa `IgnoreNonSpace`;
+- [x] osobny test porównuje 249 `nameKey` ISO z oboma plikami JSON nazw;
+- [x] `OperationStatus` i surowe wyjątki mają właściciela poza paczką;
+- [x] brak zmian w kodzie, XAML i JSON.
+
+### Punkt kontrolny przed GO
+
+- 249 kluczy nazw krajów;
+- 11 kluczy modala;
+- 260 nowych kluczy;
+- 529 unikalnych nazw globalnie;
+- 75 identycznych wartości PL/EN;
+- 0 nowych par powtórzonych wartości;
+- 12 dozwolonych par globalnie;
+- 0 zmian wykonawczych.
+
+### Werdykt
+
+**GO — paczka 6 zatwierdzona.** Zamknięta bez pozycji otwartych. Łączny,
+wiążący katalog paczek 1–6 zawiera 529 unikalnych nazw i 12 jawnie dozwolonych
+par powtórzonych wartości.
 
 ## Słownik domenowy PL/EN — część 1
 
