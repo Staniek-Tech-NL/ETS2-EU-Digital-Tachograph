@@ -4,7 +4,7 @@
 
 **Data rozpoczęcia:** 2026-07-27
 
-**Status:** **W TOKU — PACZKI 1–10 GO**
+**Status:** **W TOKU — PACZKI 1–11 GO**
 
 **Języki:** `pl-PL`, `en-GB`
 
@@ -59,7 +59,7 @@ presentera; nie obejmuje kluczy tworzonych wyłącznie dla hipotetycznej funkcji
 | UI-06 | Raporty w Desktop | `MainWindow.xaml`, `ReportsWorkspaceViewModel.cs` | U/P/T | zasoby + presentery; formaty eksportu bez zmian | GO w paczce 8 |
 | UI-07 | Kierowcy i Ustawienia | `MainWindow.xaml`, `MainViewModel.cs`, `SettingsService.cs` | U/O/T | zasoby; nazwy i numery kart bez tłumaczenia | GO w paczce 9 |
 | UI-08 | Planer | `MainWindow.xaml`, `JourneyPlannerViewModel.cs` | U/P/T | zasoby + presentery faz, powodów, statusów i ostrzeżeń | GO w paczce 10 |
-| UI-09 | Dialogi, potwierdzenia i komunikaty błędów | `App.xaml.cs`, `MainViewModel.cs`, view-modele | U/D/T | tekst UI w zasobach; logi i kody bez zmian | do rozpisania |
+| UI-09 | Dialogi, potwierdzenia i komunikaty błędów | `App.xaml.cs`, `MainViewModel.cs`, view-modele | U/D/T | tekst UI w zasobach; logi i kody bez zmian | GO w paczce 11 |
 | UI-10 | Nakładki S1/S2 | `OverlayWindow.xaml`, `OverlayViewModel.cs` | U/P/T | zasoby; `S1`, `S2`, `HH:MM` bez zmian | do rozpisania |
 | X-01 | Wspólne formatery czasu i terminów | `GameCalendarFormatter.cs`, `GameClockFormatter.cs`, `WeeklyRestWindowFormatter.cs` i konsumenci bindingów | U/P/T | wspólne nazwy dni i prefiksy terminów; bez duplikowania per ekran | GO w paczce 5 |
 | PDF-01 | Raport PDF | `PdfReportExporter.cs`, `ReportPresentationBuilder.cs` | U/P/T/O | `ReportStrings`; dane i identyfikatory bez zmian | do rozpisania |
@@ -3085,6 +3085,351 @@ przepływu obliczania.
 jest zamknięte, a łączny, wiążący katalog paczek 1–10 zawiera 782 unikalne
 nazwy i 20 jawnie dozwolonych par powtórzonych wartości. Rejestr presenterów
 obejmuje 30 typów: 20 rozstrzygniętych, 10 świadomie wykluczonych i 0 otwartych.
+
+## Paczka 11 — UI-09: dialogi, potwierdzenia i komunikaty operacyjne
+
+**Zakres:** współdzielony `OperationStatus`, komunikaty sukcesu i odrzucenia,
+potwierdzenie odrzucenia wpisu manualnego, filtry systemowych okien plików oraz
+ogólna obsługa awarii przekazanych przez paczki 1–10.
+
+**Stan:** **ZAMKNIĘTA — GO**
+
+**Data zatwierdzenia:** 2026-07-27
+
+**Pozycje otwarte:** 0
+
+**Katalog:** 77 nowych kluczy. Łączny katalog paczek 1–11 zawiera 859
+unikalnych nazw.
+
+Paczka dodaje dwie nowe dozwolone pary powtórzonych wartości wynikające
+z polskiej pluralizacji. Globalna lista zawiera 22 pozycje.
+
+### Granica paczki
+
+Paczka obejmuje:
+
+- wszystkie przypisania do `MainViewModel.OperationStatus`;
+- komunikaty publikowane do tego statusu przez `ReportsWorkspaceViewModel`;
+- cztery awarie przekazane z `JourneyPlannerViewModel`;
+- `MessageBox` uruchomienia aplikacji i odrzucenia zmian wpisu manualnego;
+- opisy filtrów `SaveFileDialog` i `OpenFileDialog`;
+- znane walidacje `DriverService`, `SettingsService`,
+  `RestAllocationService` i preferencji kultury.
+
+Nie obejmuje:
+
+- tekstów wnętrza modali karty i wpisu manualnego — paczki 6 i 4;
+- stanów i walidacji wewnątrz Raportów i Planera — paczki 8 i 10;
+- systemowych podpisów przycisków i obramowania okien Windows;
+- treści diagnostycznych, kodów zdarzeń i stosów wyjątków;
+- nazw plików, ścieżek, ISO, kodów tachografowych i liczników;
+- komunikatów nakładek — `UI-10`;
+- treści raportu PDF — `PDF-01`.
+
+`MessageBox` i systemowe okna plików używają języka powłoki Windows dla
+własnych przycisków i chrome. Aplikacja lokalizuje ich tytuły, treść i opisy
+filtrów. Systemowe `Tak/Nie`, `Zapisz`, `Anuluj` i podobne elementy pozostają
+poza zakresem zasobów aplikacji; zastępowanie ich własnym dialogiem dodałoby
+nową kontrolkę po UI freeze.
+
+### Reguła błędów i diagnostyki
+
+UI nie może mapować błędu przez porównanie `exception.Message`. Znany przypadek
+otrzymuje stabilny kod, typ wyniku albo walidację przed wywołaniem. Nieznany
+wyjątek:
+
+1. trafia w całości do `DiagnosticLogService` ze stabilnym kodem zdarzenia;
+2. pokazuje wyłącznie właściwy dla operacji komunikat ogólny;
+3. nie przenosi nazwy typu, stosu ani tekstu warstwy niższej do UI.
+
+M5.2 uzupełnia diagnostykę w ścieżkach, które dziś tylko przypisują
+`exception.Message`: odtworzenie i zapis stanu urządzenia, profil, ustawienia,
+import, oba view-modele Raportów i Planera. Tekst zasobu nie steruje wyborem
+gałęzi, kolorem, zamknięciem modala ani wynikiem operacji.
+
+### Urządzenie, odpoczynek i karty
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Operation_CrewModeAutomatic` | Tryb załogi włącza się automatycznie po włożeniu dwóch kart. | Crew mode is enabled automatically when two cards are inserted. | U |
+| `Operation_InsertCardRequiredFormat` | Włóż kartę kierowcy do czytnika {0}. | Insert the driver card into reader {0}. | U/T |
+| `Operation_ManualActivityRejected` | Nie można zmienić aktywności. Szczegóły zapisano w logu diagnostycznym. | The activity could not be changed. Details were written to the diagnostic log. | U |
+| `Operation_RestStartedFormat` | Rozpoczęto: {0}. | Started: {0}. | U/P |
+| `Operation_CoDriverMovingBreakAlreadyActive` | Przerwa 45 minut kierowcy 2 jest już w trakcie. | Driver 2's 45-minute break is already in progress. | U/T |
+| `Operation_CoDriverMovingBreakStarted` | Kierowca 2 rozpoczął ciągłą przerwę 45 minut podczas jazdy. | Driver 2 started a continuous 45-minute break while the vehicle was moving. | U/T |
+| `Operation_CoDriverRestStartedFormat` | Kierowca 2 rozpoczął: {0}. | Driver 2 started: {0}. | U/P |
+| `Operation_RestRejected` | Nie można rozpocząć odpoczynku. Szczegóły zapisano w logu diagnostycznym. | The rest period could not be started. Details were written to the diagnostic log. | U |
+| `Operation_ReaderOccupiedFormat` | Czytnik {0} jest już zajęty. | Reader {0} is already occupied. | U/T |
+| `Operation_CardInsertionWhileMoving` | Nie można wkładać karty podczas jazdy. Zatrzymaj pojazd. | A card cannot be inserted while driving. Stop the vehicle. | U |
+| `Operation_CreateProfileFirst` | Najpierw utwórz profil kierowcy. | Create a driver profile first. | U |
+| `Operation_ReaderEmptyFormat` | W czytniku {0} nie ma karty. | Reader {0} is empty. | U/T |
+| `Operation_CardEjectionWhileMoving` | Nie można wyjąć karty podczas jazdy. Zatrzymaj pojazd. | A card cannot be ejected while driving. Stop the vehicle. | U |
+| `Operation_SelectCountry` | Wybierz kraj z listy. | Select a country from the list. | U |
+| `Operation_ProfileHasNoCard` | Wybrany profil nie ma karty kierowcy. | The selected profile has no driver card. | U |
+| `Operation_CardAlreadyInOtherSlot` | Ta karta jest już w drugim slocie. | This card is already in the other slot. | U |
+| `Operation_CardInsertionRejected` | Nie można włożyć karty. Szczegóły zapisano w logu diagnostycznym. | The card could not be inserted. Details were written to the diagnostic log. | U |
+| `Operation_CardInsertedFormat` | Karta odczytana. Kraj rozpoczęcia: {0}, LCD: {1}. Można rozpocząć jazdę. | Card read. Start country: {0}, LCD: {1}. Driving may begin. | U/T |
+| `Operation_CardEjectionRejected` | Nie można wyjąć karty. Szczegóły zapisano w logu diagnostycznym. | The card could not be ejected. Details were written to the diagnostic log. | U |
+| `Operation_CardEjectedFormat` | Karta wysunięta. Kraj zakończenia: {0}, LCD: {1}. | Card ejected. End country: {0}, LCD: {1}. | U/T |
+| `Operation_DrivingBlockedByManualEntryFormat` | Jazda zablokowana przez tachograf: rozlicz wpis manualny w slocie {0}. | Driving is blocked by the tachograph: resolve the manual entry in slot {0}. | U/T |
+| `Operation_OptionalGapWithdrawn` | Skok czasu rozpoznany jako załadunek lub rozładunek — luka została wycofana. | The time jump was identified as loading or unloading — the gap was withdrawn. | U |
+| `Operation_OptionalGapDetectedFormat` | Wykryto lukę po skoku czasu w slocie {0}. Wpis jest opcjonalny i nie blokuje jazdy. | A time-jump gap was detected in slot {0}. The entry is optional and does not block driving. | U/T |
+| `Operation_ManualEntrySavedFormat` | Wpis manualny zapisany. {0} | Manual entry saved. {0} | U/P |
+| `Operation_DriverActivityAutomaticFormat` | Podczas jazdy aktywność kierowcy {0} jest ustawiana automatycznie. | While driving, driver {0}'s activity is set automatically. | U/T |
+| `Operation_ConfirmRequiredManualEntry` | Najpierw zatwierdź wymagany wpis manualny. | Confirm the required manual entry first. | U |
+| `Operation_CountrySavedFormat` | Zapisano kraj: {0}, LCD: {1}. | Country saved: {0}, LCD: {1}. | U/T |
+| `Operation_SettingsInLeftPanel` | Ustawienia szczegółowe są dostępne w lewym panelu. | Detailed settings are available in the left panel. | U |
+| `Operation_PrintSavedFormat` | Wydruk zapisany: {0} | Printout saved: {0} | U/O/T |
+| `Operation_DeviceStateRestoreFailed` | Nie udało się odtworzyć stanu urządzenia. Szczegóły zapisano w logu diagnostycznym. | The device state could not be restored. Details were written to the diagnostic log. | U |
+| `Operation_DeviceStateSaveFailed` | Nie udało się zapisać stanu urządzenia. Szczegóły zapisano w logu diagnostycznym. | The device state could not be saved. Details were written to the diagnostic log. | U |
+
+W formatach kart i kraju `{0}` oraz `{1}` są technicznym ISO i kodem
+tachografowym. W formatach odpoczynku placeholder otrzymuje gotową nazwę celu
+z paczki 2. `Operation_ManualEntrySavedFormat` otrzymuje kompletny komunikat
+kwalifikacji z paczki 4; nie skleja fragmentów zdania ani nazw klasyfikacji.
+
+### Profile, ustawienia i kultura
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Operation_ProfileCreated` | Profil utworzony. | Profile created. | U |
+| `Operation_ProfileActivatedRestart` | Profil zapisany. Uruchom aplikację ponownie, aby rozpocząć jego sesję. | Profile saved. Restart the application to start its session. | U |
+| `Operation_SettingsSavedRestart` | Ustawienia zapisane. Zostaną zastosowane przy następnym uruchomieniu. | Settings saved. They will be applied the next time the application starts. | U |
+| `Validation_DriverNameRequired` | Podaj nazwę kierowcy. | Enter the driver's name. | U |
+| `Validation_DriverCardNumberRequired` | Podaj numer karty kierowcy. | Enter the driver card number. | U |
+| `Validation_DriverCardDatesInvalid` | Data ważności karty nie może być wcześniejsza niż data początku ważności. | The card expiry date cannot be earlier than its valid-from date. | U |
+| `Validation_DrivingThresholdRange` | Próg wykrywania jazdy musi mieścić się w zakresie 0–20 km/h. | The driving detection threshold must be between 0 and 20 km/h. | U/T |
+| `Validation_WeekOffsetRange` | Przesunięcie tygodnia musi mieścić się w zakresie od −6 do 6 dni. | The week offset must be between −6 and 6 days. | U/T |
+| `Validation_UnsupportedCulture` | Obsługiwane języki interfejsu to polski i angielski (Wielka Brytania). | The supported interface languages are Polish and English (United Kingdom). | U/T |
+| `Operation_CulturePreferenceSaveFailed` | Nie udało się zapisać wyboru języka. Szczegóły zapisano w logu diagnostycznym. | The language selection could not be saved. Details were written to the diagnostic log. | U |
+| `Operation_ProfileCreateFailed` | Nie udało się utworzyć profilu. Szczegóły zapisano w logu diagnostycznym. | The profile could not be created. Details were written to the diagnostic log. | U |
+| `Operation_ProfileActivationFailed` | Nie udało się ustawić aktywnego profilu. Szczegóły zapisano w logu diagnostycznym. | The active profile could not be set. Details were written to the diagnostic log. | U |
+| `Operation_SettingsSaveFailed` | Nie udało się zapisać ustawień. Szczegóły zapisano w logu diagnostycznym. | The settings could not be saved. Details were written to the diagnostic log. | U |
+
+Pięć istniejących walidacji usług oraz nieobsługiwana kultura są znanymi
+przypadkami. M5.2 nie może rozpoznawać ich po angielskim tekście wyjątku:
+Desktop waliduje wejście przed zapisem albo otrzymuje stabilny kod wyniku.
+Nieaktywna dziś walidacja kolejności dat pozostaje wymagana przez istniejący
+kontrakt `DriverService`.
+
+### Pliki, import, eksport i Raporty
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `FileDialog_TachographSession` | Sesja tachografu | Tachograph session | U/T |
+| `FileDialog_DiagnosticReportZip` | Raport diagnostyczny ZIP | Diagnostic report ZIP | U/T |
+| `Operation_TachographSessionExported` | Eksport zakończony. | Export completed. | U |
+| `Operation_TachographSessionExportFailed` | Nie udało się wyeksportować sesji tachografu. Szczegóły zapisano w logu diagnostycznym. | The tachograph session could not be exported. Details were written to the diagnostic log. | U |
+| `Operation_ImportRecordCountOneFormat` | Zaimportowano {0} rekord. | {0} record imported. | U/T |
+| `Operation_ImportRecordCountFewFormat` | Zaimportowano {0} rekordy. | {0} records imported. | U/T |
+| `Operation_ImportRecordCountManyFormat` | Zaimportowano {0} rekordów. | {0} records imported. | U/T |
+| `Operation_TachographSessionImportFailed` | Nie udało się zaimportować sesji tachografu. Szczegóły zapisano w logu diagnostycznym. | The tachograph session could not be imported. Details were written to the diagnostic log. | U |
+| `Operation_ReportExportSavedFormat` | Zapisano {0}: {1} | Saved {0}: {1} | U/O/T |
+| `Operation_ReportExportFailedFormat` | Nie udało się zapisać {0}. Szczegóły zapisano w logu diagnostycznym. | {0} could not be saved. Details were written to the diagnostic log. | U |
+| `Operation_DiagnosticReportSavedFormat` | Zapisano raport diagnostyczny: {0} | Diagnostic report saved: {0} | U/O/T |
+| `Operation_DiagnosticReportFailed` | Nie udało się utworzyć raportu diagnostycznego. Szczegóły zapisano w logu diagnostycznym. | The diagnostic report could not be created. Details were written to the diagnostic log. | U |
+| `Operation_ReportGeneratedOneFormat` | Raport: {0} blok · zakres {1}. | Report: {0} block · range {1}. | U/T |
+| `Operation_ReportGeneratedFewFormat` | Raport: {0} bloki · zakres {1}. | Report: {0} blocks · range {1}. | U/T |
+| `Operation_ReportGeneratedManyFormat` | Raport: {0} bloków · zakres {1}. | Report: {0} blocks · range {1}. | U/T |
+
+Filtr sesji składa lokalizowane `FileDialog_TachographSession` i techniczne
+`(*.tacho)|*.tacho`. Filtry raportów ponownie używają czterech nazw
+`ReportExport_*` z paczki 8 oraz technicznych wzorców rozszerzeń. Opis ZIP
+korzysta z `FileDialog_DiagnosticReportZip`; nazwa pliku i znacznik czasu
+pozostają techniczne.
+
+Eksport Raportów ma jednego właściciela statusu. Obecne podwójne publikowanie
+przez `MainViewModel` i `ReportsWorkspaceViewModel` zostaje zastąpione jednym
+`Operation_ReportExportSavedFormat` albo `Operation_ReportExportFailedFormat`.
+Format raportu jest gotową nazwą z paczki 8, a ścieżka pozostaje wartością O/T.
+Automatyczny wydruk 24 h ponownie używa tej samej ścieżki błędu z
+`ReportExport_Pdf`; nie tworzy osobnego komunikatu o tej samej operacji.
+
+Nieudany podgląd ponownie używa `ReportStatus_PreviewErrorDetail`; oba bloki
+`catch` Raportów zapisują szczegół w diagnostyce. Status wewnątrz widoku
+i współdzielony `OperationStatus` nie pokazują tekstu wyjątku.
+
+### Luki, rekompensaty i schowek
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Operation_GapListRefreshFailed` | Nie udało się odświeżyć listy luk. Szczegóły zapisano w logu diagnostycznym. | The gap list could not be refreshed. Details were written to the diagnostic log. | U |
+| `Operation_NoCompensationObligations` | Wybrana karta nie ma zobowiązań rekompensaty. | The selected card has no compensation obligations. | U |
+| `Operation_CompensationLoadedOneFormat` | Wczytano pełny ślad {0} zobowiązania rekompensaty. | Full history of {0} compensation obligation loaded. | U/T |
+| `Operation_CompensationLoadedManyFormat` | Wczytano pełny ślad {0} zobowiązań rekompensaty. | Full history of {0} compensation obligations loaded. | U/T |
+| `Operation_CompensationDetailsFailed` | Nie udało się wczytać szczegółów rekompensaty. Szczegóły zapisano w logu diagnostycznym. | The compensation details could not be loaded. Details were written to the diagnostic log. | U |
+| `Operation_RestAllocationSaved` | Zapisano audytowaną decyzję rozliczenia odpoczynku. | The audited rest-allocation decision was saved. | U |
+| `Operation_RestAllocationBlockChanged` | Blok odpoczynku nie jest już aktualny. Odśwież dane i wybierz ponownie. | The rest block is no longer current. Refresh the data and select again. | U |
+| `Operation_RestAllocationCandidateChanged` | Wybrany wariant rozliczenia nie jest już dostępny. Odśwież dane i wybierz ponownie. | The selected allocation option is no longer available. Refresh the data and select again. | U |
+| `Operation_RestAllocationFailed` | Nie udało się zapisać decyzji rozliczenia. Szczegóły zapisano w logu diagnostycznym. | The allocation decision could not be saved. Details were written to the diagnostic log. | U |
+| `Operation_IdentifierCopied` | Skopiowano pełny identyfikator do schowka. | The full identifier was copied to the clipboard. | U |
+| `Operation_IdentifierCopyFailed` | Nie udało się skopiować identyfikatora. Szczegóły zapisano w logu diagnostycznym. | The identifier could not be copied. Details were written to the diagnostic log. | U |
+
+`RestAllocationService` musi zwracać stabilne rozróżnienie dwóch znanych
+konfliktów. Obecne polskie `InvalidOperationException.Message` nie może być
+ani kontraktem, ani tekstem UI. Wszystkie pozostałe wyjątki decyzji otrzymują
+komunikat ogólny.
+
+### Awarie Planera
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `PlannerError_SnapshotLoadFailed` | Nie można pobrać snapshotu obu kart. Szczegóły zapisano w logu diagnostycznym. | The snapshot of both cards could not be loaded. Details were written to the diagnostic log. | U/T |
+| `PlannerError_CalculationFailed` | Nie można obliczyć planu. Szczegóły zapisano w logu diagnostycznym. | The plan could not be calculated. Details were written to the diagnostic log. | U |
+| `PlannerInput_RestoreFailed` | Nie odtworzono zapisanych wartości; użyto wartości domyślnych. Szczegóły zapisano w logu diagnostycznym. | The saved values were not restored; default values were used. Details were written to the diagnostic log. | U |
+| `PlannerInput_SaveFailed` | Nie zapisano wartości Planera. Szczegóły zapisano w logu diagnostycznym. | The Planner values were not saved. Details were written to the diagnostic log. | U |
+
+`JourneyPlannerViewModel` otrzymuje diagnostykę albo kontrolowany callback do
+logowania. Cztery zasoby zastępują wyłącznie ogólne komunikaty; przyczyny
+domenowe wyniku planowania nadal obsługuje paczka 10.
+
+### Potwierdzenie wpisu manualnego
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Dialog_ManualEntryDiscardMessage` | Odrzucić niezapisane zmiany wpisu manualnego? | Discard the unsaved manual-entry changes? | U |
+| `ManualEntry_CardRemovalMustResolve` | Ta luka powstała po wyjęciu karty i musi zostać rozliczona. | This gap was caused by card removal and must be resolved. | U/P |
+
+Tytuł `MessageBox` ponownie używa `ActivitySource_ManualEntry`
+(`Wpis manualny` / `Manual entry`): tekst i pojęcie są identyczne, więc osobny
+klucz dialogu byłby nieuzasadnionym duplikatem. Treść jest lokalizowana nowym
+kluczem, a przyciski `Yes/No` są kontrolowane przez język powłoki Windows.
+Pozostałe walidacje wpisu manualnego ponownie używają wyczerpującego katalogu
+`ManualEntryError_*` z paczki 4.
+
+### Istniejące klucze ponownie używane przez UI-09
+
+Jeżeli diagnostyka nie została jeszcze utworzona, awaria startu używa jednego
+nowego wariantu bez placeholdera:
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Dialog_StartupFailure_MessageWithoutLogPath` | Nie udało się uruchomić aplikacji. | The application could not be started. | U |
+
+| Powierzchnia | Klucze / decyzja |
+|---|---|
+| druga instancja i awaria startu | cztery `Dialog_AlreadyRunning_*` / `Dialog_StartupFailure_*` z paczki 1 + nowy fallback bez ścieżki |
+| błąd telemetrii | `Shell_TelemetryError`; wyjątek tylko w diagnostyce |
+| modal karty | `CardDialog_*` z paczki 6 |
+| walidacja wpisu manualnego | `ManualEntryError_*` i kompletne kwalifikacje z paczki 4 |
+| tytuł potwierdzenia wpisu manualnego | `ActivitySource_ManualEntry` z paczki 4 |
+| błąd podglądu Raportów | `ReportStatus_PreviewErrorDetail` z paczki 8 |
+| nazwy formatów raportu i filtrów | `ReportExport_*` z paczki 8 |
+| nazwy celów odpoczynku | `RestTarget_*` z paczki 2 |
+
+`Dialog_StartupFailure_Message` otrzymuje ścieżkę tylko wtedy, gdy
+`_diagnostics?.CurrentLogPath` jest dostępna. W przeciwnym razie używany jest
+`Dialog_StartupFailure_MessageWithoutLogPath`; obsługa awarii startu nie może
+sama wywołać kolejnego wyjątku.
+
+### Mapowanie źródeł
+
+| Źródło | Zakres | Decyzja |
+|---|---|---|
+| `App.xaml.cs:28-45,153-158` | druga instancja i awaria startu | ponowne użycie 4 kluczy paczki 1 + 1 fallback; ścieżka logu T |
+| `MainViewModel.cs:247-255,880-953` | status współdzielony, aktywności i odpoczynki | 8 kluczy operacyjnych; cele odpoczynku z paczki 2 |
+| `MainViewModel.cs:1054-1217` | tryby, modal i operacje kart | 12 kluczy statusu + `CardDialog_*` |
+| `MainViewModel.cs:1220-1269,1488-1634` | luki i wpis manualny | 8 kluczy + katalog paczki 4 + dialog odrzucenia |
+| `MainViewModel.cs:1672-1762,1860-1927` | menu kraju, wydruk i stan urządzenia | 5 kluczy statusu; wyjątki D |
+| `MainViewModel.cs:2015-2067` | profile, ustawienia, `.tacho` | 18 kluczy walidacji, sukcesu, błędu i filtra |
+| `MainViewModel.cs:2081-2167` | eksporty Raportów i diagnostyki | 5 kluczy + 4 nazwy formatów paczki 8 |
+| `MainViewModel.cs:2180-2314` | luki, rekompensaty i schowek | 11 kluczy |
+| `ReportsWorkspaceViewModel.cs:416-495` | publikacja stanu i dwa wyjątki | 3 formaty liczby bloków + ponowne użycie błędu paczki 8 |
+| `JourneyPlannerViewModel.cs:203-217,316-357,599-647` | cztery nieznane awarie | 4 ogólne klucze; wyjątki D |
+| `DriverService.cs`, `SettingsService.cs` | 5 znanych walidacji | stabilny wynik lub walidacja Desktop, bez dopasowania tekstu |
+| `RestAllocationService.cs:52-55` | 2 konflikty współbieżności | stabilne rozróżnienie + 2 komunikaty szczegółowe |
+| nowy `UiCulturePreferenceStore` | walidacja i zapis kultury | 2 klucze błędu; identyfikator kultury T |
+
+### Elementy świadomie bez lokalizacji
+
+| Element | Kategoria | Uzasadnienie |
+|---|---|---|
+| `exception.Message`, typ i stos | D | pełny szczegół tylko w logu |
+| kody `MANUAL_ACTIVITY_REJECTED`, `REPORT_EXPORT_FAILED` itd. | D/T | stabilne identyfikatory zdarzeń |
+| ścieżki plików i nazwy plików | O/T | wartości systemowe lub użytkownika |
+| `*.tacho`, `*.pdf`, `*.json`, `*.csv`, `*.zip` | T | wzorce kontraktu okna plików |
+| ISO, kod tachografowy, `S1`, `S2`, numer czytnika | T | identyfikatory i parametry |
+| kody wyników usług | T | sterowanie, nigdy tekst UI |
+| przyciski i chrome dialogów Windows | T | język powłoki systemu |
+| treść logu diagnostycznego i raportu ZIP | D/T | artefakt wsparcia, nie UI |
+
+Nazwa pliku diagnostycznego i wydruku zachowuje `InvariantCulture` dla
+maszynowego znacznika `yyyyMMdd-HHmmss`. To porządkuje istniejący kod bez zmiany
+widocznej treści ani formatu pliku.
+
+### Pluralizacja i placeholdery
+
+Trzy rodziny liczników używają tej samej reguły PL co paczki 4 i 8:
+
+- import: trzy formy `rekord`, `rekordy`, `rekordów`;
+- wygenerowany raport: trzy formy `blok`, `bloki`, `bloków`;
+- ślad rekompensaty: forma dla `1` i wspólna forma `zobowiązań` dla pozostałych.
+
+W EN import i liczba bloków mają formę pojedynczą dla `1` oraz wspólną mnogą
+dla wszystkich pozostałych. Wszystkie placeholdery mają identyczne indeksy
+w parze językowej; liczby i ścieżki są formatowane przed przekazaniem.
+
+### Nowe dozwolone pary powtórzonych wartości
+
+| Wartość | Klucze | Decyzja |
+|---|---|---|
+| EN `{0} records imported.` | `Operation_ImportRecordCountFewFormat`, `Operation_ImportRecordCountManyFormat` | EN ma jedną formę mnogą, PL rozróżnia `rekordy` i `rekordów` |
+| EN `Report: {0} blocks · range {1}.` | `Operation_ReportGeneratedFewFormat`, `Operation_ReportGeneratedManyFormat` | EN ma jedną formę mnogą, PL rozróżnia `bloki` i `bloków` |
+
+Poza tymi dwiema pozycjami 77 nowych kluczy nie tworzy identycznych wartości
+między różnymi nazwami ani wewnątrz paczki, ani wobec wiążącego katalogu
+782 kluczy.
+
+### Ryzyka i testy
+
+Największym ryzykiem jest długość ogólnych komunikatów w `OperationStatus`,
+który jest widoczny w Dashboardzie, Kierowcach i Ustawieniach. Kontrola M5.3
+obejmuje zawijanie w każdym z trzech miejsc, długą ścieżkę pliku, długie nazwy
+formatów oraz komunikaty z dwoma kodami kraju.
+
+Testy funkcjonalne obejmują:
+
+- drugą instancję oraz awarię startu z dostępną i niedostępną diagnostyką;
+- pięć znanych walidacji profilu/ustawień i nieznaną awarię zapisu;
+- oba konflikty decyzji rekompensaty i nieznaną awarię;
+- sukces i błąd każdego importu/eksportu bez tekstu wyjątku;
+- liczby `0`, `1`, `2`, `5`, `12`, `22`, `25`;
+- oba języki aplikacji na systemie Windows o przeciwnym języku powłoki;
+- uszkodzony stan urządzenia i preferencji Planera;
+- brak surowego `exception.Message` w każdym widocznym polu.
+
+### Kontrola paczki
+
+- [x] wszystkie przypisania `OperationStatus` mają klucz albo jawne ponowne użycie;
+- [x] wszystkie zobowiązania przekazane z paczek 1–10 są rozliczone;
+- [x] pięć walidacji profilu/ustawień i dwa konflikty rekompensaty mają stabilną decyzję;
+- [x] cztery nieznane awarie Planera mają ogólny tekst i diagnostykę;
+- [x] dialog odrzucenia wpisu ma lokalizowany tytuł i treść;
+- [x] opisy filtrów są lokalizowane, a wzorce i nazwy plików pozostają techniczne;
+- [x] nie ma dopasowania logiki do tekstu wyjątku ani zasobu;
+- [x] wszystkie placeholdery PL/EN mają identyczne zbiory;
+- [x] dwie nowe pary powtórzonych wartości są jawnie dozwolone;
+- [x] nie powstaje nowa kontrolka ani zmiana przepływu;
+- [x] brak zmian w kodzie i XAML.
+
+### Punkt kontrolny po GO
+
+- 31 kluczy urządzenia, odpoczynku, kart i wpisu manualnego;
+- 13 kluczy profili, ustawień i kultury;
+- 15 kluczy plików, importu, eksportu i Raportów;
+- 11 kluczy luk, rekompensat i schowka;
+- 4 klucze awarii Planera;
+- 3 klucze dialogów i walidacji;
+- 77 nowych kluczy;
+- 859 unikalnych nazw globalnie;
+- 2 nowe i 22 globalne dozwolone pary powtórzonych wartości;
+- 0 zmian wykonawczych.
+
+### Werdykt
+
+**GO — paczka 11 zatwierdzona.** Zamknięta bez pozycji otwartych. `UI-09` jest
+zamknięte, a łączny, wiążący katalog paczek 1–11 zawiera 859 unikalnych nazw
+i 22 jawnie dozwolone pary powtórzonych wartości.
 
 ## Słownik domenowy PL/EN — część 1
 
