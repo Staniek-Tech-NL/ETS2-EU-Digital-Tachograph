@@ -24,7 +24,7 @@
 | **M3.7** | Planer: ergonomia wprowadzania danych | 🟢 automatyka i ręczny gate zielone | GO | M4-0 |
 | **M4-0** | Inwentaryzacja UI + weryfikacja rc4 | 🟢 62/62 pozycji beta.12 PASS | GO | M4 |
 | **M4** | Finalizacja UI + **UI freeze** | 🟢 UI zamrożone | GO | M5 |
-| **M5** | Lokalizacja PL/EN | 🟡 M5.1 inwentaryzacja | W TOKU | M6 |
+| **M5** | Lokalizacja PL/EN | 🟡 M5.1; paczka 1 GO | W TOKU | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
 | M7 | Końcowy smoke beta.12 | ⚪ nie rozpoczęty | — | M8 |
 | M8 | Publikacja | ⚪ nie rozpoczęty | — | — |
@@ -484,8 +484,11 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
 - **Wejście:** GO M4 i aktywny UI freeze.
 - **Punkt wejściowy:** `2d8a760`.
 - **Gałąź:** `codex/m5-localization-pl-en`.
-- **Stan:** M5.1 — inwentaryzacja tekstów, kontraktów i ryzyk przepełnień.
+- **Stan:** M5.1 — inwentaryzacja tekstów, kontraktów i ryzyk przepełnień;
+  paczka 1 zamknięta wynikiem GO.
 - **Artefakt:** `docs/LOCALIZATION_STRING_INVENTORY.md`.
+- **Paczka 1:** elementy wspólne, powłoka i nawigacja — 33 wiążące klucze,
+  0 pozycji otwartych.
 - **Zakres językowy:** `pl-PL` i `en-GB`.
 - **Kontrakty chronione:** JSON, techniczny CSV, `.tacho`, SQLite, protokół v3,
   identyfikatory i kody techniczne.

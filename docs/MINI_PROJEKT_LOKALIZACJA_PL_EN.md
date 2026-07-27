@@ -780,7 +780,7 @@ Mini-projekt jest ukończony, gdy:
 | Dyspozycyjność | Availability |
 | Przerwa / odpoczynek | Break / rest |
 | Jazda ciągła | Continuous driving |
-| Do przerwy | Until break |
+| Do przerwy | Time to break |
 | Jazda dzienna | Daily driving |
 | Praca dobowa | Daily duty |
 | Odpoczynek dobowy | Daily rest |

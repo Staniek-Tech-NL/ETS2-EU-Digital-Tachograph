@@ -4,7 +4,7 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status bieżący:** **W TOKU — M5.1 INWENTARYZACJA**
+**Status bieżący:** **W TOKU — M5.1 / PACZKA 1 GO**
 
 **Data rozpoczęcia:** 27 lipca 2026
 
@@ -33,6 +33,12 @@
 - [ ] Zidentyfikować statusy i enumy wymagające presenterów.
 - [ ] Zidentyfikować ekrany narażone na przepełnienie.
 - [ ] Zatwierdzić słownik domenowy PL/EN.
+
+**Postęp paczek:**
+
+- [x] Paczka 1 — elementy wspólne, powłoka i nawigacja: **GO**,
+  33 wiążące klucze, 0 pozycji otwartych.
+- [ ] Paczka 2 — Dashboard.
 
 ### Etap M5.2 — fundament
 
