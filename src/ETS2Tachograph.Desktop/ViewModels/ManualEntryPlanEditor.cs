@@ -10,7 +10,8 @@ public sealed record ManualEntryActivityOption(
 
 public sealed record ManualEntryDayOption(long DayNumber)
 {
-    public string DisplayName => $"Dzień {DayNumber}";
+    public string DisplayName =>
+        Localization.UiStrings.Format("GameCalendar_DayFormat", DayNumber);
 }
 
 public sealed record ManualEntrySegmentRow(
@@ -48,7 +49,7 @@ public sealed class ManualEntryPlanEditor
         if (gapEndExclusive <= gapStart)
             throw new ArgumentOutOfRangeException(
                 nameof(gapEndExclusive),
-                "Luka musi mieć dodatnią długość.");
+                Localization.UiStrings.Get("ManualEntryError_InvalidSegment"));
 
         GapStart = gapStart;
         GapEndExclusive = gapEndExclusive;
@@ -131,7 +132,7 @@ public sealed class ManualEntryPlanEditor
     {
         ArgumentNullException.ThrowIfNull(original);
         if (!_segments.Contains(original))
-            throw new InvalidOperationException("Edytowany segment nie należy już do planu.");
+            throw new InvalidOperationException(Localization.UiStrings.Get("ManualEntryError_EditedSegmentMissing"));
         ValidateRange(fromGameMinute, toGameMinuteExclusive);
         EnsureAllowed(activity);
 
@@ -150,9 +151,9 @@ public sealed class ManualEntryPlanEditor
     {
         ArgumentNullException.ThrowIfNull(segment);
         if (!_segments.Contains(segment))
-            throw new InvalidOperationException("Usuwany segment nie należy już do planu.");
+            throw new InvalidOperationException(Localization.UiStrings.Get("ManualEntryError_RemovedSegmentMissing"));
         if (!segment.CanDelete)
-            throw new InvalidOperationException("Odpoczynek jest domyślnym wypełnieniem luki.");
+            throw new InvalidOperationException(Localization.UiStrings.Get("ManualEntryError_DefaultRestCannotBeRemoved"));
 
         Replace(
             segment.FromGameMinute,
@@ -168,10 +169,11 @@ public sealed class ManualEntryPlanEditor
 
     public static string ActivityLabel(DriverActivity activity) => activity switch
     {
-        DriverActivity.BreakOrRest => "Przerwa / Odpoczynek",
-        DriverActivity.OtherWork => "Inna praca",
-        DriverActivity.Availability => "Dyspozycyjność",
-        _ => activity.ToString()
+        DriverActivity.BreakOrRest =>
+            Localization.UiStrings.Get("ManualEntryActivity_BreakOrRest"),
+        DriverActivity.OtherWork => Localization.UiStrings.Get("Activity_OtherWork"),
+        DriverActivity.Availability => Localization.UiStrings.Get("Activity_Availability"),
+        _ => throw new ArgumentOutOfRangeException(nameof(activity))
     };
 
     public static string FormatDuration(long minutes) =>
@@ -184,9 +186,10 @@ public sealed class ManualEntryPlanEditor
     private void ValidateRange(long fromGameMinute, long toGameMinuteExclusive)
     {
         if (toGameMinuteExclusive <= fromGameMinute)
-            throw new InvalidOperationException("Początek segmentu musi być wcześniejszy niż koniec.");
+            throw new InvalidOperationException(
+                Localization.UiStrings.Get("ManualEntryError_InvalidSegment"));
         if (fromGameMinute < GapStart || toGameMinuteExclusive > GapEndExclusive)
-            throw new InvalidOperationException("Zakres segmentu musi mieścić się w rozliczanej luce.");
+            throw new InvalidOperationException(Localization.UiStrings.Get("ManualEntryError_OutsideGap"));
     }
 
     private static void EnsureAllowed(DriverActivity activity)
@@ -197,7 +200,7 @@ public sealed class ManualEntryPlanEditor
             DriverActivity.Availability))
         {
             throw new InvalidOperationException(
-                "Ta aktywność nie jest dostępna we wpisie manualnym.");
+                Localization.UiStrings.Get("ManualEntryError_InvalidActivity"));
         }
     }
 
@@ -231,6 +234,7 @@ public sealed class ManualEntryPlanEditor
         _segments.Clear();
         _segments.AddRange(normalized);
         if (!IsComplete)
-            throw new InvalidOperationException("Plan wpisu nie pokrywa całej luki.");
+            throw new InvalidOperationException(
+                Localization.UiStrings.Get("ManualEntryError_IncompleteCoverage"));
     }
 }

@@ -11,9 +11,12 @@ public static class UiCulture
 
     private static readonly object WpfMetadataSync = new();
     private static bool _wpfMetadataApplied;
+    private static CultureInfo _current =
+        CultureInfo.GetCultureInfo(Polish);
 
     public static IReadOnlyList<string> SupportedNames { get; } =
         [Polish, EnglishUnitedKingdom];
+    public static CultureInfo Current => Volatile.Read(ref _current);
 
     public static bool TryNormalize(string? cultureName, out string normalized)
     {
@@ -36,6 +39,7 @@ public static class UiCulture
     public static void Apply(string cultureName, bool applyWpfLanguage = true)
     {
         var culture = CultureInfo.GetCultureInfo(Normalize(cultureName));
+        Volatile.Write(ref _current, culture);
         CultureInfo.DefaultThreadCurrentCulture = culture;
         CultureInfo.DefaultThreadCurrentUICulture = culture;
         CultureInfo.CurrentCulture = culture;

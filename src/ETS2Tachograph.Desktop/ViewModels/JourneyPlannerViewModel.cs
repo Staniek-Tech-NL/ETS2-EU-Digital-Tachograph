@@ -28,6 +28,7 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataError
     private readonly IDeliveryPlannerService _service;
     private readonly Func<string, string> _driverName;
     private readonly IJourneyPlannerInputStateStore? _inputStateStore;
+    private readonly Action<string, Exception>? _diagnosticError;
     private readonly AsyncCommand _calculateCommand;
     private JourneyPlannerModeOption _selectedMode;
     private JourneyPlannerSlotOption _selectedSlot;
@@ -45,9 +46,9 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataError
     private string _postDeliveryWork = "00:00";
     private string _tightMargin = "01:00";
     private string _validationMessage = string.Empty;
-    private string _statusText = "Sprawdzanie gotowości planera…";
+    private string _statusText = Localization.UiStrings.Get("PlannerStatus_CheckingReadiness");
     private string _currentTimeText = "—";
-    private string _crewText = "Oczekiwanie na snapshot obu kart…";
+    private string _crewText = Localization.UiStrings.Get("PlannerCrew_WaitingForSnapshot");
     private string _offerExpiryText = "—";
     private string _deliveryWindowText = "—";
     private string _pickupText = "—";
@@ -55,7 +56,7 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataError
     private string _completionText = "—";
     private string _marginText = "—";
     private string _statusForeground = "#5F6874";
-    private string _inputOriginText = "Wartości domyślne · zapis automatyczny";
+    private string _inputOriginText = Localization.UiStrings.Get("PlannerInput_DefaultValuesAutosave");
     private bool _hasResult;
     private bool _snapshotReady;
     private bool _requiresRecalculation;
@@ -66,30 +67,32 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataError
     public JourneyPlannerViewModel(
         IDeliveryPlannerService service,
         Func<string, string>? driverName = null,
-        IJourneyPlannerInputStateStore? inputStateStore = null)
+        IJourneyPlannerInputStateStore? inputStateStore = null,
+        Action<string, Exception>? diagnosticError = null)
     {
         _service = service;
         _driverName = driverName ?? (cardId => cardId);
         _inputStateStore = inputStateStore;
+        _diagnosticError = diagnosticError;
         Modes =
         [
-            new(true, "Oferta z rynku"),
-            new(false, "Aktywna dostawa")
+            new(true, Localization.UiStrings.Get("PlannerMode_MarketOffer")),
+            new(false, Localization.UiStrings.Get("PlannerMode_ActiveDelivery"))
         ];
         Slots =
         [
-            new(1, "S1 — kierowca"),
-            new(2, "S2 — zmiennik")
+            new(1, Localization.UiStrings.Get("PlannerSlot_Driver")),
+            new(2, Localization.UiStrings.Get("PlannerSlot_CoDriver"))
         ];
         Weekdays =
         [
-            new(GameWeekday.Monday, "Poniedziałek"),
-            new(GameWeekday.Tuesday, "Wtorek"),
-            new(GameWeekday.Wednesday, "Środa"),
-            new(GameWeekday.Thursday, "Czwartek"),
-            new(GameWeekday.Friday, "Piątek"),
-            new(GameWeekday.Saturday, "Sobota"),
-            new(GameWeekday.Sunday, "Niedziela")
+            new(GameWeekday.Monday, Localization.UiStrings.Get("Weekday_Full_Monday")),
+            new(GameWeekday.Tuesday, Localization.UiStrings.Get("Weekday_Full_Tuesday")),
+            new(GameWeekday.Wednesday, Localization.UiStrings.Get("Weekday_Full_Wednesday")),
+            new(GameWeekday.Thursday, Localization.UiStrings.Get("Weekday_Full_Thursday")),
+            new(GameWeekday.Friday, Localization.UiStrings.Get("Weekday_Full_Friday")),
+            new(GameWeekday.Saturday, Localization.UiStrings.Get("Weekday_Full_Saturday")),
+            new(GameWeekday.Sunday, Localization.UiStrings.Get("Weekday_Full_Sunday"))
         ];
         _selectedMode = Modes[0];
         _selectedSlot = Slots[0];
@@ -209,21 +212,28 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataError
         }
         catch (Exception exception)
         {
+            _diagnosticError?.Invoke("PLANNER_READINESS_FAILED", exception);
             SnapshotReady = false;
             ReadinessIssues.Clear();
-            ReadinessIssues.Add($"Nie można pobrać snapshotu: {exception.Message}");
-            StatusText = "BRAK WIARYGODNYCH DANYCH";
+            ReadinessIssues.Add(Localization.UiStrings.Get("PlannerError_SnapshotLoadFailed"));
+            StatusText = Localization.UiStrings.Get("PlannerVerdict_UnreliableData");
             StatusForeground = "#B3261E";
             return;
         }
         ReadinessIssues.Clear();
-        foreach (var issue in readiness.Issues)
-            ReadinessIssues.Add(issue);
+        if (!readiness.IsReady)
+        {
+            ReadinessIssues.Add(readiness.HasBlockingCardRemovedGap
+                ? Localization.UiStrings.Get("PlannerReadiness_ResolveCardRemovalGap")
+                : Localization.UiStrings.Get("PlannerReadiness_CurrentCrewSnapshotRequired"));
+        }
         SnapshotReady = readiness.IsReady;
         CrewText = readiness.Slot1CardId is not null && readiness.Slot2CardId is not null
-            ? $"S1: {_driverName(readiness.Slot1CardId)} · " +
-              $"S2: {_driverName(readiness.Slot2CardId)} · podwójna obsada 30 h"
-            : "Brak kompletnej podwójnej obsady S1/S2";
+            ? Localization.UiStrings.Format(
+                "PlannerCrew_CrewFormat",
+                _driverName(readiness.Slot1CardId),
+                _driverName(readiness.Slot2CardId))
+            : Localization.UiStrings.Get("PlannerCrew_Incomplete");
         if (readiness.CurrentGameMinute is { } now)
         {
             _previewNow = now;
@@ -234,12 +244,12 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataError
         }
         if (!SnapshotReady)
         {
-            StatusText = "BRAK WIARYGODNYCH DANYCH";
+            StatusText = Localization.UiStrings.Get("PlannerVerdict_UnreliableData");
             StatusForeground = "#B3261E";
         }
         else if (!HasResult && !_requiresRecalculation)
         {
-            StatusText = "Dane gotowe — wybierz kierowcę i oblicz plan.";
+            StatusText = Localization.UiStrings.Get("PlannerStatus_DataReady");
             StatusForeground = "#5F6874";
         }
     }
@@ -247,7 +257,7 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataError
     public void ObserveStateChange()
     {
         if (_resultIdentity is not null && !_service.IsCurrent(_resultIdentity))
-            InvalidateResult("Stan załogi zmienił się. Oblicz plan ponownie.");
+            InvalidateResult(Localization.UiStrings.Get("PlannerStatus_CrewStateChanged"));
     }
 
     public static bool TryParseDuration(string? text, out int minutes)
@@ -321,7 +331,7 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataError
         {
             ValidationMessage = SnapshotReady
                 ? FirstValidationError()
-                : ReadinessIssues.FirstOrDefault() ?? "Brak aktualnego snapshotu obu kart.";
+                : ReadinessIssues.FirstOrDefault() ?? Localization.UiStrings.Get("PlannerValidation_NoCurrentSnapshot");
             return;
         }
 
@@ -353,7 +363,8 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataError
         }
         catch (Exception exception)
         {
-            ValidationMessage = $"Nie można obliczyć planu: {exception.Message}";
+            _diagnosticError?.Invoke("PLANNER_CALCULATION_FAILED", exception);
+            ValidationMessage = Localization.UiStrings.Get("PlannerError_CalculationFailed");
         }
     }
 
@@ -383,10 +394,12 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataError
         CurrentTimeText = Format(calendar, result.StartGameMinute);
         OfferExpiryText = result.OfferExpiresAtGameMinuteExclusive is { } expiry
             ? Format(calendar, expiry)
-            : "Nie dotyczy";
+            : Localization.UiStrings.Get("Planner_NotApplicable");
         DeliveryWindowText =
-            $"Od: {Format(calendar, result.DeliveryWindowStartGameMinute)}\n" +
-            $"Do: {Format(calendar, result.DeliveryWindowEndGameMinuteExclusive)}";
+            $"{Localization.UiStrings.Get("PlannerTime_FromPrefix")}: " +
+            $"{Format(calendar, result.DeliveryWindowStartGameMinute)}\n" +
+            $"{Localization.UiStrings.Get("PlannerTime_ToPrefix")}: " +
+            $"{Format(calendar, result.DeliveryWindowEndGameMinuteExclusive)}";
         PickupText = Format(calendar, result.PickupCompletedAtGameMinute);
         ArrivalText = Format(calendar, result.ArrivedAtDeliveryGameMinute);
         CompletionText = Format(calendar, result.DeliveryCompletedAtGameMinute);
@@ -403,7 +416,9 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataError
                 number++,
                 Format(calendar, segment.StartGameMinute),
                 Format(calendar, segment.EndGameMinute),
-                segment.DrivingSlot is null ? "Postój" : "Jazda",
+                segment.DrivingSlot is null
+                    ? Localization.UiStrings.Get("PlannerVehicle_Parked")
+                    : Localization.UiStrings.Get("Activity_Driving"),
                 Activity(segment.Slot1Activity),
                 segment.Slot2Activity is { } slot2 ? Activity(slot2) : "—",
                 FormatDuration(segment.DurationMinutes),
@@ -412,44 +427,49 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataError
 
         Warnings.Clear();
         foreach (var warning in result.Warnings)
-            Warnings.Add($"{warning.Code}: {warning.Context}".TrimEnd(' ', ':'));
+            Warnings.Add(warning.Context is null
+                ? WarningText(warning.Code)
+                : $"{WarningText(warning.Code)}: {warning.Context}");
         if (result.FailureReason != DeliveryPlanFailureReason.None)
             Warnings.Add(FailureText(result.FailureReason));
         Summary.Clear();
-        Summary.Add(result.Verdict == DeliveryPlanVerdict.Reject
-            ? "✕ Plan nie spełnia warunków przyjęcia"
-            : "✓ Plan mieści się w oknie dostawy");
-        Summary.Add("✓ Harmonogram uwzględnia obie karty S1/S2");
+        Summary.Add(
+            $"{(result.Verdict == DeliveryPlanVerdict.Reject ? "✕" : "✓")} " +
+            (result.Verdict == DeliveryPlanVerdict.Reject
+                ? Localization.UiStrings.Get("PlannerSummary_PlanRejected")
+                : Localization.UiStrings.Get("PlannerSummary_PlanFitsWindow")));
+        Summary.Add($"✓ {Localization.UiStrings.Get("PlannerSummary_BothCardsIncluded")}");
         if (result.DeliveryCompletedAtGameMinute is not null)
-            Summary.Add($"✓ Zapas do końca okna: {MarginText}");
+            Summary.Add(
+                $"✓ {Localization.UiStrings.Format("PlannerSummary_MarginFormat", MarginText)}");
     }
 
     private static (string Text, string Color) Verdict(DeliveryPlanResult result) =>
         result.FailureReason switch
         {
             DeliveryPlanFailureReason.OfferExpired =>
-                ("NIE ZDĄŻYSZ ODEBRAĆ", "#B3261E"),
+                (Localization.UiStrings.Get("PlannerVerdict_PickupMissed"), "#B3261E"),
             DeliveryPlanFailureReason.DeliveryWindowMissed =>
-                ("NIE ZDĄŻYSZ DOSTARCZYĆ", "#B3261E"),
+                (Localization.UiStrings.Get("PlannerVerdict_DeliveryMissed"), "#B3261E"),
             DeliveryPlanFailureReason.NoLegalContinuation or
             DeliveryPlanFailureReason.CalculationLimitReached =>
-                ("BRAK LEGALNEJ KONTYNUACJI", "#B3261E"),
+                (Localization.UiStrings.Get("PlannerVerdict_Reject"), "#B3261E"),
             DeliveryPlanFailureReason.InsufficientData or
             DeliveryPlanFailureReason.StaleSnapshot =>
-                ("BRAK WIARYGODNYCH DANYCH", "#B3261E"),
+                (Localization.UiStrings.Get("PlannerVerdict_UnreliableData"), "#B3261E"),
             _ when result.Verdict == DeliveryPlanVerdict.Take =>
-                ("MOŻNA PRZYJĄĆ", "#258A4B"),
+                (Localization.UiStrings.Get("PlannerVerdict_Take"), "#258A4B"),
             _ when result.Verdict == DeliveryPlanVerdict.Tight =>
-                ("NA STYK", "#C67A00"),
-            _ => ("BRAK LEGALNEJ KONTYNUACJI", "#B3261E")
+                (Localization.UiStrings.Get("PlannerVerdict_Tight"), "#C67A00"),
+            _ => (Localization.UiStrings.Get("PlannerVerdict_Reject"), "#B3261E")
         };
 
     private void InputChanged()
     {
-        InvalidateResult("Zmieniono dane. Oblicz plan ponownie.");
+        InvalidateResult(Localization.UiStrings.Get("PlannerStatus_InputChanged"));
         RefreshInputPreviews();
         ValidationMessage = string.Empty;
-        InputOriginText = "Wartości użytkownika · zapis automatyczny";
+        InputOriginText = Localization.UiStrings.Get("PlannerInput_UserValuesAutosave");
         SaveInputState();
         OnPropertyChanged(nameof(CanCalculate));
         foreach (var property in DurationPropertyNames)
@@ -462,7 +482,7 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataError
         if (_previewCalendar is null || _previewNow is null)
             return;
         if (!IsMarketOffer)
-            OfferExpiryText = "Nie dotyczy";
+            OfferExpiryText = Localization.UiStrings.Get("Planner_NotApplicable");
         else if (TryParseDuration(OfferExpiresIn, out var expires))
             OfferExpiryText = Format(_previewCalendar, checked(_previewNow.Value + expires));
         var resolvedStart = _previewCalendar.ResolveNext(
@@ -500,7 +520,9 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataError
     public string this[string columnName] =>
         IsDurationProperty(columnName) &&
         !TryParseDuration(GetDurationValue(columnName), out _)
-            ? $"{DurationLabel(columnName)}: wpisz czas jako HH:MM, minuty, 1h30 albo 1,5."
+            ? Localization.UiStrings.Format(
+                "PlannerValidation_DurationFormat",
+                DurationLabel(columnName))
             : string.Empty;
 
     private static readonly string[] DurationPropertyNames =
@@ -527,14 +549,14 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataError
 
     private static string DurationLabel(string propertyName) => propertyName switch
     {
-        nameof(DriveToPickup) => "Dojazd po ładunek",
-        nameof(OfferExpiresIn) => "Oferta wygasa za",
-        nameof(PickupWork) => "Odbiór",
-        nameof(LoadedDrive) => "Trasa z ładunkiem",
-        nameof(UnloadingWork) => "Rozładunek",
-        nameof(PostDeliveryWork) => "Praca po dostawie",
-        nameof(TightMargin) => "Próg „na styk”",
-        _ => "Czas"
+        nameof(DriveToPickup) => Localization.UiStrings.Get("PlannerPhase_DriveToPickup"),
+        nameof(OfferExpiresIn) => Localization.UiStrings.Get("PlannerField_OfferExpiresIn"),
+        nameof(PickupWork) => Localization.UiStrings.Get("PlannerField_Pickup"),
+        nameof(LoadedDrive) => Localization.UiStrings.Get("PlannerPhase_DriveWithCargo"),
+        nameof(UnloadingWork) => Localization.UiStrings.Get("PlannerPhase_Unloading"),
+        nameof(PostDeliveryWork) => Localization.UiStrings.Get("PlannerPhase_PostDeliveryWork"),
+        nameof(TightMargin) => Localization.UiStrings.Get("PlannerField_TightThreshold"),
+        _ => Localization.UiStrings.Get("PlannerValidation_TimeLabel")
     };
 
     private string FirstValidationError()
@@ -548,7 +570,7 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataError
             if (error.Length > 0)
                 return error;
         }
-        return "Popraw oznaczone pole czasu.";
+        return Localization.UiStrings.Get("PlannerValidation_CorrectTimeField");
     }
 
     private void SetDurationPreset(string? parameter)
@@ -620,11 +642,12 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataError
             _unloadingWork = state.UnloadingWork;
             _postDeliveryWork = state.PostDeliveryWork;
             _tightMargin = state.TightMargin;
-            _inputOriginText = "Przywrócono wartości z poprzedniej sesji";
+            _inputOriginText = Localization.UiStrings.Get("PlannerInput_RestoredValues");
         }
         catch (Exception exception)
         {
-            _inputOriginText = $"Nie odtworzono zapisanych wartości: {exception.Message}";
+            _diagnosticError?.Invoke("PLANNER_INPUT_RESTORE_FAILED", exception);
+            _inputOriginText = Localization.UiStrings.Get("PlannerInput_RestoreFailed");
         }
     }
 
@@ -643,35 +666,63 @@ public sealed class JourneyPlannerViewModel : INotifyPropertyChanged, IDataError
         }
         catch (Exception exception)
         {
-            InputOriginText = $"Nie zapisano wartości: {exception.Message}";
+            _diagnosticError?.Invoke("PLANNER_INPUT_SAVE_FAILED", exception);
+            InputOriginText = Localization.UiStrings.Get("PlannerInput_SaveFailed");
         }
     }
 
     private static string FailureText(DeliveryPlanFailureReason reason) => reason switch
     {
-        DeliveryPlanFailureReason.OfferExpired => "Odbiór nie zakończy się przed wygaśnięciem oferty.",
-        DeliveryPlanFailureReason.DeliveryWindowMissed => "Dostawa nie zakończy się przed końcem okna.",
-        DeliveryPlanFailureReason.NoLegalContinuation => "Brak legalnej kontynuacji harmonogramu.",
-        DeliveryPlanFailureReason.InsufficientData => "Brak wiarygodnych danych obu kart.",
-        DeliveryPlanFailureReason.StaleSnapshot => "Snapshot zmienił się podczas obliczeń.",
-        _ => $"Plan przerwany: {reason}."
+        DeliveryPlanFailureReason.OfferExpired => Localization.UiStrings.Get("PlannerFailure_OfferExpired"),
+        DeliveryPlanFailureReason.DeliveryWindowMissed => Localization.UiStrings.Get("PlannerFailure_DeliveryWindowMissed"),
+        DeliveryPlanFailureReason.NoLegalContinuation => Localization.UiStrings.Get("PlannerFailure_NoLegalContinuation"),
+        DeliveryPlanFailureReason.InsufficientData => Localization.UiStrings.Get("PlannerFailure_InsufficientData"),
+        DeliveryPlanFailureReason.StaleSnapshot =>
+            Localization.UiStrings.Get("PlannerFailure_StaleSnapshot"),
+        DeliveryPlanFailureReason.CalculationLimitReached =>
+            Localization.UiStrings.Get("PlannerFailure_CalculationLimitReached"),
+        DeliveryPlanFailureReason.NotImplemented =>
+            Localization.UiStrings.Get("PlannerFailure_NotImplemented"),
+        DeliveryPlanFailureReason.None => string.Empty,
+        _ => throw new ArgumentOutOfRangeException(nameof(reason))
     };
     private static string Phase(DeliveryPlanPhase phase) => phase switch
     {
-        DeliveryPlanPhase.DriveToPickup => "Dojazd po ładunek",
-        DeliveryPlanPhase.Pickup => "Załadunek",
-        DeliveryPlanPhase.DriveWithCargo => "Trasa z ładunkiem",
-        DeliveryPlanPhase.WaitForDeliveryWindow => "Oczekiwanie na okno dostawy",
-        DeliveryPlanPhase.Unloading => "Rozładunek",
-        DeliveryPlanPhase.PostDeliveryWork => "Praca po dostawie",
-        _ => "Przerwa regulacyjna"
+        DeliveryPlanPhase.DriveToPickup => Localization.UiStrings.Get("PlannerPhase_DriveToPickup"),
+        DeliveryPlanPhase.Pickup => Localization.UiStrings.Get("PlannerPhase_Pickup"),
+        DeliveryPlanPhase.DriveWithCargo => Localization.UiStrings.Get("PlannerPhase_DriveWithCargo"),
+        DeliveryPlanPhase.WaitForDeliveryWindow => Localization.UiStrings.Get("PlannerPhase_WaitForDeliveryWindow"),
+        DeliveryPlanPhase.Unloading => Localization.UiStrings.Get("PlannerPhase_Unloading"),
+        DeliveryPlanPhase.PostDeliveryWork => Localization.UiStrings.Get("PlannerPhase_PostDeliveryWork"),
+        DeliveryPlanPhase.RegulatoryInterruption =>
+            Localization.UiStrings.Get("PlannerPhase_RegulatoryInterruption"),
+        _ => throw new ArgumentOutOfRangeException(nameof(phase))
     };
     private static string Activity(DriverActivity activity) => activity switch
     {
-        DriverActivity.Driving => "Jazda",
-        DriverActivity.OtherWork => "Inna praca",
-        DriverActivity.Availability => "Dyspozycyjność",
-        _ => "Odpoczynek"
+        DriverActivity.Driving => Localization.UiStrings.Get("Activity_Driving"),
+        DriverActivity.OtherWork => Localization.UiStrings.Get("Activity_OtherWork"),
+        DriverActivity.Availability => Localization.UiStrings.Get("Activity_Availability"),
+        DriverActivity.BreakOrRest => Localization.UiStrings.Get("Activity_Rest"),
+        DriverActivity.OutOfScope => "OUT",
+        DriverActivity.Unknown => Localization.UiStrings.Get("Activity_Unknown"),
+        _ => throw new ArgumentOutOfRangeException(nameof(activity))
+    };
+    private static string WarningText(JourneyPlanWarningCode code) => code switch
+    {
+        JourneyPlanWarningCode.IncompleteHistory =>
+            Localization.UiStrings.Get("PlannerWarning_IncompleteHistory"),
+        JourneyPlanWarningCode.LastSavedState =>
+            Localization.UiStrings.Get("PlannerWarning_LastSavedState"),
+        JourneyPlanWarningCode.CompensationModelLimited =>
+            Localization.UiStrings.Get("PlannerWarning_CompensationModelLimited"),
+        JourneyPlanWarningCode.ReducedWeeklyRestUnavailable =>
+            Localization.UiStrings.Get("PlannerWarning_ReducedWeeklyRestUnavailable"),
+        JourneyPlanWarningCode.MultiManningPlanningUnsupported =>
+            Localization.UiStrings.Get("PlannerWarning_MultiManningPlanningUnsupported"),
+        JourneyPlanWarningCode.RegulatoryExceptionUsed =>
+            Localization.UiStrings.Get("PlannerWarning_RegulatoryExceptionUsed"),
+        _ => throw new ArgumentOutOfRangeException(nameof(code))
     };
     private static string Format(GameCalendarResolver calendar, long? minute) =>
         minute is null ? "—" : GameCalendarFormatter.FormatCompact(

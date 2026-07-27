@@ -4,7 +4,7 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status bieżący:** **W TOKU — M5.3 PACZKA 1 GO**
+**Status bieżący:** **W TOKU — M5.3 GO, M5.4 ROZPOCZĘTE**
 
 **Data rozpoczęcia:** 27 lipca 2026
 
@@ -92,13 +92,13 @@ przed M6.
 ### Etap M5.3 — Desktop i Planer
 
 - [x] Zlokalizować nawigację i wspólne elementy.
-- [ ] Zlokalizować Dashboard i tachograf.
-- [ ] Zlokalizować Historię, luki i wpis manualny.
-- [ ] Zlokalizować Rekomensaty.
-- [ ] Zlokalizować Raporty, Kierowców i Ustawienia.
-- [ ] Zlokalizować Planer i wszystkie jego statusy, segmenty oraz ostrzeżenia.
-- [ ] Zlokalizować dialogi i nakładki.
-- [ ] Zlokalizować nazwy krajów bez zmiany ISO.
+- [x] Zlokalizować Dashboard i tachograf.
+- [x] Zlokalizować Historię, luki i wpis manualny.
+- [x] Zlokalizować Rekomensaty.
+- [x] Zlokalizować Raporty, Kierowców i Ustawienia.
+- [x] Zlokalizować Planer i wszystkie jego statusy, segmenty oraz ostrzeżenia.
+- [x] Zlokalizować dialogi i nakładki.
+- [x] Zlokalizować nazwy krajów bez zmiany ISO.
 
 **Postęp wykonawczy M5.3:**
 
@@ -109,6 +109,14 @@ przed M6.
 - surowe literały objęte paczką 1 usunięte z XAML i stanu początkowego VM;
 - build WPF oraz 128/128 testów Desktopu: PASS;
 - osobista kontrola wizualna PL/EN, w tym szerokość `JOURNEY PLANNER`: PASS.
+- paczki 2–12 (`UI-02`–`UI-10` oraz `X-01`): **GO**, zamknięte bez
+  pozycji otwartych; wszystkie powierzchnie Desktopu, Planer, tachograf LCD,
+  dialogi i nakładki korzystają z wiążących zasobów;
+- wybór `en-GB` obowiązuje procesowo także na wątkach telemetrycznych; test
+  regresyjny chroni menu LCD przed powrotem do `pl-PL`;
+- pełna regresja rozwiązania 558/558 oraz końcowa regresja Desktop 129/129:
+  PASS;
+- osobisty smoke PL/EN całego M5.3: **GO**.
 
 ### Etap M5.4 — PDF i dokumentacja
 

@@ -13,7 +13,7 @@ public sealed record CompensationOverview(
     string StatusForeground)
 {
     public static CompensationOverview Empty { get; } = new(
-        0, "00:00", "—", "—", "BRAK OTWARTYCH", "#5F6874");
+        0, "00:00", "—", "—", Localization.UiStrings.Get("CompensationSummary_NoOpen"), "#5F6874");
 
     public static CompensationOverview From(
         IReadOnlyList<WeeklyRestCompensationDto> obligations,
@@ -22,12 +22,12 @@ public sealed record CompensationOverview(
         var open = obligations.Where(item => item.IsOpen).ToList();
         var nearest = open.MinBy(item => item.DueAtGameMinuteExclusive);
         var status = obligations.Any(item => item.Status == WeeklyRestCompensationStatusDto.Overdue)
-            ? ("ZALEGŁE", "#C43636")
+            ? (Localization.UiStrings.Get("CompensationSummary_Overdue"), "#C43636")
             : obligations.Any(item => item.Status == WeeklyRestCompensationStatusDto.PaidLate)
-                ? ("SPŁACONO PO TERMINIE", "#C46B22")
+                ? (Localization.UiStrings.Get("CompensationSummary_PaidLate"), "#C46B22")
                 : open.Count > 0
-                    ? ("W TERMINIE", "#24754D")
-                    : ("BRAK OTWARTYCH", "#5F6874");
+                    ? (Localization.UiStrings.Get("CompensationSummary_OnTime"), "#24754D")
+                    : (Localization.UiStrings.Get("CompensationSummary_NoOpen"), "#5F6874");
 
         return new CompensationOverview(
             open.Count,
@@ -86,29 +86,33 @@ public sealed record RestAllocationChoiceRow(
                 : FormatMinutes(
                     allocation.EndGameMinuteExclusive - allocation.StartGameMinute),
             compensationMinutes > 0
-                ? $"Stary dług: spłata {FormatMinutes(compensationMinutes)}"
-                : "Stary dług: bez spłaty",
+                ? Localization.UiStrings.Format(
+                    "RestAllocation_OldDebtPaymentFormat",
+                    FormatMinutes(compensationMinutes))
+                : Localization.UiStrings.Get("RestAllocation_OldDebtNoPayment"),
             candidate.NewDebtMinutes == 0
-                ? "Nowy dług: brak"
-                : $"Nowy dług: {FormatMinutes(candidate.NewDebtMinutes)}",
+                ? Localization.UiStrings.Get("RestAllocation_NewDebtNone")
+                : Localization.UiStrings.Format(
+                    "RestAllocation_NewDebtFormat",
+                    FormatMinutes(candidate.NewDebtMinutes)),
             candidate.SatisfiesWeeklyRestRequirement
-                ? "Odpoczynek tygodniowy: zaliczony"
-                : "Odpoczynek tygodniowy: niezaliczony");
+                ? Localization.UiStrings.Get("RestAllocation_WeeklyQualified")
+                : Localization.UiStrings.Get("RestAllocation_WeeklyNotQualified"));
     }
 
     private static string PurposeLabel(RestAllocationPurpose purpose) => purpose switch
     {
         RestAllocationPurpose.DailyRestWithCompensation =>
-            "DOBOWY + REKOMPENSATA",
+            Localization.UiStrings.Get("RestAllocationPurpose_DailyRestWithCompensation"),
         RestAllocationPurpose.ReducedWeeklyRestOnly =>
-            "SKRÓCONY TYGODNIOWY",
+            Localization.UiStrings.Get("RestAllocationPurpose_ReducedWeeklyRestOnly"),
         RestAllocationPurpose.ReducedWeeklyRestWithCompensation =>
-            "SKRÓCONY TYGODNIOWY + REKOMPENSATA",
+            Localization.UiStrings.Get("RestAllocationPurpose_ReducedWeeklyRestWithCompensation"),
         RestAllocationPurpose.RegularWeeklyRestOnly =>
-            "REGULARNY TYGODNIOWY",
+            Localization.UiStrings.Get("RestAllocationPurpose_RegularWeeklyRestOnly"),
         RestAllocationPurpose.RegularWeeklyRestWithCompensation =>
-            "REGULARNY TYGODNIOWY + REKOMPENSATA",
-        _ => purpose.ToString().ToUpperInvariant()
+            Localization.UiStrings.Get("RestAllocationPurpose_RegularWeeklyRestWithCompensation"),
+        _ => throw new ArgumentOutOfRangeException(nameof(purpose))
     };
 
     private static string Shorten(string value) => value.Length <= 27
@@ -154,7 +158,9 @@ public sealed record CompensationDetailRow(
             GameClockFormatter.Format(new GameTime(obligation.SourceRestEndGameMinuteExclusive)),
             FormatMinutes(obligation.OriginalOwedMinutes),
             FormatMinutes(obligation.RemainingMinutes),
-            $"Tydzień {obligation.ReductionWeek}",
+            Localization.UiStrings.Format(
+                "Compensation_ReductionWeekFormat",
+                obligation.ReductionWeek),
             obligation.DueAtGameMinuteExclusive,
             GameDeadlineFormatter.FormatFull(new DeadlinePresentation(
                 GameDeadlineSemantic.CompleteBefore,
@@ -183,11 +189,14 @@ public sealed record CompensationDetailRow(
 
     private static string StatusLabel(WeeklyRestCompensationStatusDto status) => status switch
     {
-        WeeklyRestCompensationStatusDto.OpenOnTime => "OTWARTE · W TERMINIE",
-        WeeklyRestCompensationStatusDto.Overdue => "OTWARTE · ZALEGŁE",
-        WeeklyRestCompensationStatusDto.PaidOnTime => "SPŁACONE W TERMINIE",
-        WeeklyRestCompensationStatusDto.PaidLate => "SPŁACONE PO TERMINIE",
-        _ => status.ToString().ToUpperInvariant()
+        WeeklyRestCompensationStatusDto.OpenOnTime =>
+            Localization.UiStrings.Get("CompensationStatus_OpenOnTime"),
+        WeeklyRestCompensationStatusDto.Overdue => Localization.UiStrings.Get("CompensationStatus_Overdue"),
+        WeeklyRestCompensationStatusDto.PaidOnTime =>
+            Localization.UiStrings.Get("CompensationStatus_PaidOnTime"),
+        WeeklyRestCompensationStatusDto.PaidLate =>
+            Localization.UiStrings.Get("CompensationStatus_PaidLate"),
+        _ => throw new ArgumentOutOfRangeException(nameof(status))
     };
 
     private static string StatusColor(WeeklyRestCompensationStatusDto status) => status switch

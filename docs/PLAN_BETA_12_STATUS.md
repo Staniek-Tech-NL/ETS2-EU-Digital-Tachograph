@@ -4,7 +4,7 @@
 **Baza wydaniowa:** `0.1.0-beta.11.1` (GO 2026-07-23)
 **Cel:** `0.1.0-beta.12` — ostatnia beta przed pierwszą szeroką publikacją.
 **Źródło etapów:** `docs/PLAN_BETA_12_M0-M8/` (integralność SHA-256 potwierdzona z `MANIFEST_SHA256.md`).
-**Ostatnia aktualizacja tablicy:** 2026-07-26
+**Ostatnia aktualizacja tablicy:** 2026-07-27
 
 > Ten plik jest żywym pulpitem postępu. Nie zmienia zakresu ani gate'ów planu
 > nadrzędnego — odzwierciedla tylko stan realizacji. Reguła przejścia: następny
@@ -24,7 +24,7 @@
 | **M3.7** | Planer: ergonomia wprowadzania danych | 🟢 automatyka i ręczny gate zielone | GO | M4-0 |
 | **M4-0** | Inwentaryzacja UI + weryfikacja rc4 | 🟢 62/62 pozycji beta.12 PASS | GO | M4 |
 | **M4** | Finalizacja UI + **UI freeze** | 🟢 UI zamrożone | GO | M5 |
-| **M5** | Lokalizacja PL/EN | 🟡 M5.1; paczki 1–9 GO | W TOKU | M6 |
+| **M5** | Lokalizacja PL/EN | 🟡 M5.3 GO; M5.4 rozpoczęte | W TOKU | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
 | M7 | Końcowy smoke beta.12 | ⚪ nie rozpoczęty | — | M8 |
 | M8 | Publikacja | ⚪ nie rozpoczęty | — | — |
@@ -568,6 +568,12 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
   nawigacja, wspólne akcje i nagłówki oraz status telemetrii korzystają
   z wiążących zasobów. Build WPF, 128/128 testów Desktopu oraz osobista
   kontrola wizualna PL/EN są zielone.
+- **M5.3 — paczki 2–12:** **GO**, zamknięte bez pozycji otwartych.
+  Dashboard, tachograf LCD, Historia, wpis manualny, kraje, Rekompensaty,
+  Raporty, Kierowcy, Ustawienia, Planer, dialogi i nakładki są zlokalizowane.
+  Pełna regresja 558/558, regresja Desktop 129/129 oraz osobisty smoke PL/EN
+  są zielone.
+- **M5.4:** rozpoczęte — lokalizacja raportu PDF oraz instrukcji PL/EN.
 - **Zakres językowy:** `pl-PL` i `en-GB`.
 - **Kontrakty chronione:** JSON, techniczny CSV, `.tacho`, SQLite, protokół v3,
   identyfikatory i kody techniczne.

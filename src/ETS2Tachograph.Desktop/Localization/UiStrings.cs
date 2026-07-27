@@ -12,11 +12,11 @@ public static class UiStrings
     public static string Get(string key)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(key);
-        return ResourceManager.GetString(key, CultureInfo.CurrentUICulture)
+        return ResourceManager.GetString(key, UiCulture.Current)
                ?? throw new MissingManifestResourceException(
-                   $"The UI resource '{key}' is missing for culture '{CultureInfo.CurrentUICulture.Name}'.");
+                   $"The UI resource '{key}' is missing for culture '{UiCulture.Current.Name}'.");
     }
 
     public static string Format(string key, params object?[] arguments) =>
-        string.Format(CultureInfo.CurrentCulture, Get(key), arguments);
+        string.Format(UiCulture.Current, Get(key), arguments);
 }

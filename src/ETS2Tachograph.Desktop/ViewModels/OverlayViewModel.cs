@@ -23,7 +23,8 @@ public sealed class OverlayViewModel : INotifyPropertyChanged, IDisposable
     public int Slot { get; }
     public string SlotLabel => $"S{Slot}";
     public string HotkeyLabel => $"ALT+{Slot}";
-    public string WindowTitle => $"ETS2 Tachograph Overlay {SlotLabel}";
+    public string WindowTitle =>
+        Localization.UiStrings.Format("Overlay_WindowTitleFormat", SlotLabel);
 
     public string ActivityText => Slot == 1 ? _source.ActivityText : _source.Driver2ActivityText;
     public string ContinuousDriving => Slot == 1 ? _source.ContinuousDriving : _source.Driver2ContinuousDriving;

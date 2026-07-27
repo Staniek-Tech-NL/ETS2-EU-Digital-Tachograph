@@ -101,6 +101,7 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
         _export;
     private readonly Func<Task> _showGaps;
     private readonly Action<string>? _publishStatus;
+    private readonly Action<string, Exception>? _diagnosticError;
     private readonly AsyncCommand _refreshCommand;
     private readonly AsyncCommand _exportPdfCommand;
     private readonly AsyncCommand _exportJsonCommand;
@@ -115,7 +116,7 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
     private string _fromTime = "00:00";
     private string _toTime = "00:00";
     private string _validationMessage = string.Empty;
-    private string _statusMessage = "Wybierz kierowcę i zakres raportu.";
+    private string _statusMessage = Localization.UiStrings.Get("ReportStatus_SelectDriverAndRange");
     private string _statusDetail = string.Empty;
     private string _statusForeground = "#5F6874";
     private string _rangeDescription = "—";
@@ -148,7 +149,8 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
         int weekEpochOffsetDays,
         Func<ReportDto, ReportExportFormat, CancellationToken, Task<ReportExportResult>> export,
         Func<Task> showGaps,
-        Action<string>? publishStatus = null)
+        Action<string>? publishStatus = null,
+        Action<string, Exception>? diagnosticError = null)
     {
         _reports = reports;
         _currentGameMinute = currentGameMinute;
@@ -156,6 +158,7 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
         _export = export;
         _showGaps = showGaps;
         _publishStatus = publishStatus;
+        _diagnosticError = diagnosticError;
         _refreshCommand = new AsyncCommand(() => RefreshAsync(), () => CanRefresh);
         _exportPdfCommand = ExportCommand(ReportExportFormat.Pdf);
         _exportJsonCommand = ExportCommand(ReportExportFormat.VtcJson);
@@ -226,10 +229,10 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
     public bool IsCustomRange => SelectedPreset == ReportRangePreset.Custom;
     public string PresetDescription => SelectedPreset switch
     {
-        ReportRangePreset.CurrentRegulatoryWeek => "Bieżący tydzień regulacyjny",
-        ReportRangePreset.Last24GameHours => "Ostatnie 24 godziny czasu gry",
-        ReportRangePreset.AllHistory => "Cała dostępna historia karty",
-        _ => "Własny zakres czasu gry"
+        ReportRangePreset.CurrentRegulatoryWeek => Localization.UiStrings.Get("ReportRange_CurrentWeekDescription"),
+        ReportRangePreset.Last24GameHours => Localization.UiStrings.Get("ReportRange_Last24HoursDescription"),
+        ReportRangePreset.AllHistory => Localization.UiStrings.Get("ReportRange_AllHistoryDescription"),
+        _ => Localization.UiStrings.Get("ReportRange_CustomDescription")
     };
     public ReportDayOption? FromDay
     {
@@ -362,7 +365,10 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
                     profile.Id,
                     profile.DisplayName,
                     card.CardNumber,
-                    $"{profile.DisplayName} — karta {card.CardNumber}"));
+                    Localization.UiStrings.Format(
+                        "Report_DriverCardFormat",
+                        profile.DisplayName,
+                        card.CardNumber)));
             }
         }
         _selectedDriver = Drivers.FirstOrDefault(option =>
@@ -372,7 +378,7 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
         if (SelectedDriver is null)
         {
             PreviewStatus = ReportPreviewStatus.NoSelection;
-            StatusMessage = "Brak karty możliwej do raportowania.";
+            StatusMessage = Localization.UiStrings.Get("ReportStatus_NoReportableCard");
             return;
         }
         await SelectPresetAsync(SelectedPreset, cancellationToken);
@@ -397,8 +403,8 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
             Violations.Clear();
             Compensations.Clear();
             PreviewStatus = ReportPreviewStatus.NoSelection;
-            StatusMessage = "Wybrana karta nie ma historii.";
-            StatusDetail = "Eksport jest niedostępny do czasu pojawienia się danych.";
+            StatusMessage = Localization.UiStrings.Get("ReportStatus_SelectedCardNoHistory");
+            StatusDetail = Localization.UiStrings.Get("ReportStatus_ExportUnavailableNoData");
             RangeDescription = "—";
             RaiseProjectionProperties();
             return;
@@ -425,8 +431,8 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
 
         IsLoading = true;
         PreviewStatus = ReportPreviewStatus.Loading;
-        StatusMessage = "PRZELICZANIE PODGLĄDU";
-        StatusDetail = "Trwa odczyt kanonicznej historii karty.";
+        StatusMessage = Localization.UiStrings.Get("ReportStatus_CalculatingPreview");
+        StatusDetail = Localization.UiStrings.Get("ReportStatus_ReadingCanonicalHistory");
         try
         {
             var report = await _reports.CreateAsync(
@@ -435,16 +441,23 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
                 new GameTime(query.ToGameMinuteExclusive),
                 cancellationToken);
             Present(new ReportPreviewSnapshot(query, report, DateTimeOffset.UtcNow));
-            _publishStatus?.Invoke(
-                $"Raport: {report.Records.Count} bloków · zakres {FormatMinutes(report.RangeMinutes)}.");
+            _publishStatus?.Invoke(Localization.UiStrings.Format(
+                Localization.UiPlural.Select(
+                    report.Records.Count,
+                    "Operation_ReportGeneratedOneFormat",
+                    "Operation_ReportGeneratedFewFormat",
+                    "Operation_ReportGeneratedManyFormat"),
+                report.Records.Count,
+                FormatMinutes(report.RangeMinutes)));
         }
         catch (Exception exception)
         {
             PreviewStatus = ReportPreviewStatus.Error;
-            StatusMessage = "BŁĄD PODGLĄDU";
-            StatusDetail = exception.Message;
+            StatusMessage = Localization.UiStrings.Get("ReportStatus_PreviewError");
+            StatusDetail = Localization.UiStrings.Get("ReportStatus_PreviewErrorDetail");
             StatusForeground = "#B3261E";
-            _publishStatus?.Invoke($"Nie udało się wygenerować raportu: {exception.Message}");
+            _diagnosticError?.Invoke("report_preview_failed", exception);
+            _publishStatus?.Invoke(Localization.UiStrings.Get("ReportStatus_PreviewErrorDetail"));
         }
         finally
         {
@@ -470,9 +483,10 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
         var result = await _export(_preview.Report, format, cancellationToken);
         if (result.Saved)
         {
-            var message = result.Path is null
-                ? $"Zapisano eksport {ExportName(format)}."
-                : $"Zapisano eksport {ExportName(format)}: {result.Path}";
+            var message = Localization.UiStrings.Format(
+                "Operation_ReportExportSavedFormat",
+                ExportName(format),
+                result.Path ?? "—");
             _publishStatus?.Invoke(message);
         }
     }
@@ -489,9 +503,10 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
         catch (Exception exception)
         {
             PreviewStatus = ReportPreviewStatus.Error;
-            StatusMessage = "BŁĄD PODGLĄDU";
-            StatusDetail = exception.Message;
+            StatusMessage = Localization.UiStrings.Get("ReportStatus_PreviewError");
+            StatusDetail = Localization.UiStrings.Get("ReportStatus_PreviewErrorDetail");
             StatusForeground = "#B3261E";
+            _diagnosticError?.Invoke("report_reload_failed", exception);
         }
     }
 
@@ -553,7 +568,9 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
             _currentGameMinute() ?? 0);
         var last = (endReference / GameWeek.MinutesPerDay) + 1;
         for (var day = first; day <= last; day++)
-            DayOptions.Add(new ReportDayOption(day, $"Dzień {day}"));
+            DayOptions.Add(new ReportDayOption(
+                day,
+                Localization.UiStrings.Format("GameCalendar_DayFormat", day)));
     }
 
     private bool TryBuildQuery(out ReportQueryDraft query)
@@ -562,7 +579,7 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
         ValidationMessage = string.Empty;
         if (SelectedDriver is null)
         {
-            ValidationMessage = "Wybierz kierowcę i kartę.";
+            ValidationMessage = Localization.UiStrings.Get("ReportValidation_SelectDriverCard");
             return false;
         }
         if (SelectedPreset == ReportRangePreset.Custom)
@@ -574,7 +591,7 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
         }
         if (_resolvedTo <= _resolvedFrom)
         {
-            ValidationMessage = "Koniec zakresu musi być późniejszy niż początek.";
+            ValidationMessage = Localization.UiStrings.Get("ReportValidation_EndAfterStart");
             return false;
         }
         query = new ReportQueryDraft(
@@ -589,11 +606,11 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
     {
         string? error = null;
         if (FromDay is null || ToDay is null)
-            error = "Wybierz dzień początku i końca.";
+            error = Localization.UiStrings.Get("ReportValidation_SelectStartEndDay");
         else if (!TryParseClock(FromTime, out _) || !TryParseClock(ToTime, out _))
-            error = "Godzina musi mieć format HH:MM w zakresie 00:00–23:59.";
+            error = Localization.UiStrings.Get("ReportValidation_TimeFormat");
         else if (ToGameMinute(ToDay.Day, ToTime) <= ToGameMinute(FromDay.Day, FromTime))
-            error = "Koniec zakresu musi być późniejszy niż początek.";
+            error = Localization.UiStrings.Get("ReportValidation_EndAfterStart");
         if (updateMessage)
             ValidationMessage = error ?? string.Empty;
         return error is null;
@@ -613,8 +630,8 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
         if (_preview is not null)
         {
             PreviewStatus = ReportPreviewStatus.OutOfDate;
-            StatusMessage = "PARAMETRY ZOSTAŁY ZMIENIONE";
-            StatusDetail = "Odśwież podgląd przed analizą lub eksportem.";
+            StatusMessage = Localization.UiStrings.Get("ReportStatus_ParametersChanged");
+            StatusDetail = Localization.UiStrings.Get("ReportStatus_RefreshBeforeAnalysisExport");
             StatusForeground = "#C67A00";
         }
         OnPropertyChanged(nameof(CanRefresh));
@@ -632,15 +649,37 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
             ? ReportPreviewStatus.Current
             : ReportPreviewStatus.CurrentIncomplete;
         StatusMessage = report.EvidenceComplete
-            ? "PODGLĄD AKTUALNY"
-            : "RAPORT NIEKOMPLETNY";
+            ? Localization.UiStrings.Get("ReportStatus_PreviewCurrent")
+            : Localization.UiStrings.Get("ReportStatus_ReportIncomplete");
+        var openObligations = report.CompensationObligations.Count(item => item.IsOpen);
+        var pendingAllocations = report.RestAllocations.Count(item => item.IsPending);
         StatusDetail = report.EvidenceComplete
-            ? $"Dane kompletne · {report.Violations.Count} naruszeń · " +
-              $"{report.CompensationObligations.Count(item => item.IsOpen)} otwartych zobowiązań"
-            : $"{report.UnresolvedGapCount} nierozliczonych luk · " +
-              $"{FormatMinutes(report.GapMinutes)} · " +
-              $"{CoverageStatus(report)} · " +
-              $"{report.RestAllocations.Count(item => item.IsPending)} oczekujących alokacji";
+            ? Localization.UiStrings.Format(
+                "ReportStatus_DataCompleteFormat",
+                CountText(
+                    report.Violations.Count,
+                    "ReportStatus_ViolationCountOneFormat",
+                    "ReportStatus_ViolationCountFewFormat",
+                    "ReportStatus_ViolationCountManyFormat"),
+                CountText(
+                    openObligations,
+                    "ReportStatus_OpenObligationCountOneFormat",
+                    "ReportStatus_OpenObligationCountFewFormat",
+                    "ReportStatus_OpenObligationCountManyFormat"))
+            : Localization.UiStrings.Format(
+                "ReportStatus_DataIncompleteFormat",
+                CountText(
+                    report.UnresolvedGapCount,
+                    "ReportStatus_UnresolvedGapCountOneFormat",
+                    "ReportStatus_UnresolvedGapCountFewFormat",
+                    "ReportStatus_UnresolvedGapCountManyFormat"),
+                FormatMinutes(report.GapMinutes),
+                CoverageStatus(report),
+                CountText(
+                    pendingAllocations,
+                    "ReportStatus_PendingAllocationCountOneFormat",
+                    "ReportStatus_PendingAllocationCountFewFormat",
+                    "ReportStatus_PendingAllocationCountManyFormat"));
         StatusForeground = report.EvidenceComplete ? "#258A4B" : "#C67A00";
         Driving = FormatMinutes(report.DrivingMinutes);
         Work = FormatMinutes(report.OtherWorkMinutes);
@@ -655,13 +694,13 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
             $"{Format(calendar, report.FromGameMinute)} → " +
             $"{Format(calendar, report.ToGameMinuteExclusive)}";
         SummaryGeneratedAt = preview.GeneratedAtUtc.ToLocalTime()
-            .ToString("yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
+            .ToString("g", CultureInfo.CurrentCulture);
         CompletenessRange = FormatMinutes(report.RangeMinutes);
         CompletenessActivities = FormatMinutes(report.TotalMinutes);
         CompletenessGaps =
             $"{report.UnresolvedGapCount} · {FormatMinutes(report.GapMinutes)}";
         CompletenessBalance = report.CoverageBalanceText;
-        CompletenessEvidence = report.EvidenceComplete ? "KOMPLETNY" : "NIEKOMPLETNY";
+        CompletenessEvidence = report.EvidenceComplete ? Localization.UiStrings.Get("ReportEvidence_Complete") : Localization.UiStrings.Get("ReportEvidence_Incomplete");
         PendingAllocations = report.RestAllocations.Count(item => item.IsPending)
             .ToString(CultureInfo.InvariantCulture);
 
@@ -673,8 +712,12 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
                 Format(calendar, record.EndExclusive.TotalMinutes),
                 FormatMinutes(record.DurationMinutes),
                 ActivityName(record.Activity),
-                record.Source.ToString(),
-                record.Condition.ToString()));
+                Localization.UiStrings.Format(
+                    "ReportActivity_SourceFormat",
+                    ActivitySourceName(record.Source)),
+                Localization.UiStrings.Format(
+                    "ReportActivity_ConditionFormat",
+                    SpecialConditionName(record.Condition))));
         }
         Violations.Clear();
         foreach (var violation in report.Violations)
@@ -725,12 +768,16 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
             var duration = ToGameMinute(ToDay.Day, ToTime) -
                            ToGameMinute(FromDay.Day, FromTime);
             RangeDescription = duration > 0
-                ? $"Zakres obejmuje: {FormatLongDuration(duration)}"
-                : "Zakres jest nieprawidłowy.";
+                ? Localization.UiStrings.Format(
+                    "ReportRange_DescriptionFormat",
+                    FormatLongDuration(duration))
+                : Localization.UiStrings.Get("ReportRange_Invalid");
             return;
         }
         RangeDescription = _resolvedTo > _resolvedFrom
-            ? $"Zakres obejmuje: {FormatLongDuration(_resolvedTo - _resolvedFrom)}"
+            ? Localization.UiStrings.Format(
+                "ReportRange_DescriptionFormat",
+                FormatLongDuration(_resolvedTo - _resolvedFrom))
             : "—";
     }
 
@@ -785,34 +832,49 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
         var difference = report.RangeMinutes - report.CoveredMinutes;
         return difference switch
         {
-            > 0 => $"Brak pokrycia: {FormatMinutes(difference)}",
-            < 0 => $"Nadmiar pokrycia: {FormatMinutes(-difference)}",
-            _ => "Pokrycie zakresu zgodne"
+            > 0 => Localization.UiStrings.Format(
+                "ReportCoverage_MissingFormat",
+                FormatMinutes(difference)),
+            < 0 => Localization.UiStrings.Format(
+                "ReportCoverage_ExcessFormat",
+                FormatMinutes(-difference)),
+            _ => Localization.UiStrings.Get("ReportCoverage_Matches")
         };
     }
 
-    private static string FormatLongDuration(long minutes) =>
-        $"{minutes / GameWeek.MinutesPerDay} dni {minutes % GameWeek.MinutesPerDay / 60:00}:" +
-        $"{minutes % 60:00}";
+    private static string FormatLongDuration(long minutes)
+    {
+        var days = minutes / GameWeek.MinutesPerDay;
+        var time = $"{minutes % GameWeek.MinutesPerDay / 60:00}:{minutes % 60:00}";
+        return Localization.UiStrings.Format(
+            days == 1 ? "ReportDuration_DayOneFormat" : "ReportDuration_DaysFormat",
+            days,
+            time);
+    }
 
     private static string ActivityName(DriverActivity activity) => activity switch
     {
-        DriverActivity.Driving => "Jazda",
-        DriverActivity.OtherWork => "Inna praca",
-        DriverActivity.Availability => "Dyspozycyjność",
-        DriverActivity.BreakOrRest => "Odpoczynek",
-        DriverActivity.OutOfScope => "Poza zakresem",
-        _ => activity.ToString()
+        DriverActivity.Driving => Localization.UiStrings.Get("Activity_Driving"),
+        DriverActivity.OtherWork => Localization.UiStrings.Get("Activity_OtherWork"),
+        DriverActivity.Availability => Localization.UiStrings.Get("Activity_Availability"),
+        DriverActivity.BreakOrRest => Localization.UiStrings.Get("Activity_Rest"),
+        DriverActivity.OutOfScope => Localization.UiStrings.Get("ReportActivity_OutOfScope"),
+        DriverActivity.Unknown => Localization.UiStrings.Get("Activity_Unknown"),
+        _ => throw new ArgumentOutOfRangeException(nameof(activity), activity, null)
     };
 
     private static string CompensationStatus(
         WeeklyRestCompensationStatusDto status) => status switch
     {
-        WeeklyRestCompensationStatusDto.OpenOnTime => "Otwarte · w terminie",
-        WeeklyRestCompensationStatusDto.Overdue => "Zaległe",
-        WeeklyRestCompensationStatusDto.PaidOnTime => "Spłacone w terminie",
-        WeeklyRestCompensationStatusDto.PaidLate => "Spłacone po terminie",
-        _ => status.ToString()
+        WeeklyRestCompensationStatusDto.OpenOnTime =>
+            Localization.UiStrings.Get("ReportCompensationStatus_OpenOnTime"),
+        WeeklyRestCompensationStatusDto.Overdue =>
+            Localization.UiStrings.Get("ReportCompensationStatus_Overdue"),
+        WeeklyRestCompensationStatusDto.PaidOnTime =>
+            Localization.UiStrings.Get("ReportCompensationStatus_PaidOnTime"),
+        WeeklyRestCompensationStatusDto.PaidLate =>
+            Localization.UiStrings.Get("ReportCompensationStatus_PaidLate"),
+        _ => throw new ArgumentOutOfRangeException(nameof(status), status, null)
     };
 
     private static string ShortId(string? value) =>
@@ -822,11 +884,45 @@ public sealed class ReportsWorkspaceViewModel : INotifyPropertyChanged
 
     private static string ExportName(ReportExportFormat format) => format switch
     {
-        ReportExportFormat.Pdf => "PDF",
-        ReportExportFormat.VtcJson => "VTC JSON",
-        ReportExportFormat.CompensationCsv => "CSV zobowiązań",
-        ReportExportFormat.RawActivityCsv => "surowy CSV aktywności",
-        _ => format.ToString()
+        ReportExportFormat.Pdf => Localization.UiStrings.Get("ReportExport_Pdf"),
+        ReportExportFormat.VtcJson => Localization.UiStrings.Get("ReportExport_VtcJson"),
+        ReportExportFormat.CompensationCsv =>
+            Localization.UiStrings.Get("ReportExport_CompensationCsvName"),
+        ReportExportFormat.RawActivityCsv =>
+            Localization.UiStrings.Get("ReportExport_RawActivityCsvName"),
+        _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
+    };
+
+    private static string CountText(
+        long count,
+        string one,
+        string few,
+        string many) =>
+        Localization.UiStrings.Format(
+            Localization.UiPlural.Select(count, one, few, many),
+            count);
+
+    private static string ActivitySourceName(ActivitySource source) => source switch
+    {
+        ActivitySource.Telemetry => Localization.UiStrings.Get("ActivitySource_Telemetry"),
+        ActivitySource.Manual => Localization.UiStrings.Get("ActivitySource_Manual"),
+        ActivitySource.Reconstructed => Localization.UiStrings.Get("ActivitySource_Reconstructed"),
+        ActivitySource.Mixed => Localization.UiStrings.Get("ActivitySource_Mixed"),
+        ActivitySource.ManualEntry => Localization.UiStrings.Get("ActivitySource_ManualEntry"),
+        ActivitySource.AutomaticCrewReconstruction =>
+            Localization.UiStrings.Get("ActivitySource_AutomaticCrewReconstruction"),
+        _ => throw new ArgumentOutOfRangeException(nameof(source), source, null)
+    };
+
+    private static string SpecialConditionName(SpecialCondition condition) => condition switch
+    {
+        SpecialCondition.None => Localization.UiStrings.Get("SpecialCondition_None"),
+        SpecialCondition.FerryCrossing =>
+            Localization.UiStrings.Get("SpecialCondition_FerryCrossing"),
+        SpecialCondition.Mixed => Localization.UiStrings.Get("SpecialCondition_Mixed"),
+        SpecialCondition.CrewBreakInMotion =>
+            Localization.UiStrings.Get("SpecialCondition_CrewBreakInMotion"),
+        _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, null)
     };
 
     public event PropertyChangedEventHandler? PropertyChanged;

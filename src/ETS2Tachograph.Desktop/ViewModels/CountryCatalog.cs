@@ -49,7 +49,17 @@ public static class CountryCatalog
     private static IReadOnlyList<CountryOption> Load()
     {
         using var catalog = LoadJson("Data.Countries.iso3166-1.json");
-        using var names = LoadJson("Resources.CountryNames.pl.json");
+        var culture = Localization.UiCulture.Current.Name.Equals(
+            Localization.UiCulture.EnglishUnitedKingdom,
+            StringComparison.OrdinalIgnoreCase)
+            ? CultureInfo.GetCultureInfo(Localization.UiCulture.EnglishUnitedKingdom)
+            : CultureInfo.GetCultureInfo(Localization.UiCulture.Polish);
+        var nameResource = culture.Name.Equals(
+            Localization.UiCulture.EnglishUnitedKingdom,
+            StringComparison.OrdinalIgnoreCase)
+            ? "Resources.CountryNames.en-GB.json"
+            : "Resources.CountryNames.pl.json";
+        using var names = LoadJson(nameResource);
 
         var localizedNames = names.RootElement.GetProperty("names")
             .EnumerateObject()
@@ -95,13 +105,13 @@ public static class CountryCatalog
                 $"Katalog ISO musi zawierać {ExpectedIsoCountryCount} unikalnych wpisów.");
         }
 
-        var polish = CultureInfo.GetCultureInfo("pl-PL").CompareInfo;
+        var collation = culture.CompareInfo;
         options.Sort((left, right) =>
         {
-            var byName = polish.Compare(
+            var byName = collation.Compare(
                 left.DisplayName,
                 right.DisplayName,
-                CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace);
+                CompareOptions.IgnoreCase);
             return byName != 0
                 ? byName
                 : StringComparer.Ordinal.Compare(left.IsoAlpha2, right.IsoAlpha2);

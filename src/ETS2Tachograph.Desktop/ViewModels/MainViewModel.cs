@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -23,26 +24,181 @@ namespace ETS2Tachograph.Desktop;
 
 public sealed record RestTargetOption(string Name, string DeviceLabel, int Minutes);
 public sealed record UiCultureOption(string CultureName, string DisplayName);
+public sealed record HistoryActivityRow(
+    Guid Id,
+    string DriverCardId,
+    DriverActivity Activity,
+    GameTime Start,
+    GameTime EndExclusive,
+    ActivitySource Source,
+    SpecialCondition Condition)
+{
+    public string StartGameTimeText => GameClockFormatter.Format(Start);
+    public string EndGameTimeText => GameClockFormatter.Format(EndExclusive);
+    public string ActivityText => ActivityDescription(Activity);
+    public string SourceText => ActivitySourceDescription(Source);
+    public string ConditionText => SpecialConditionDescription(Condition);
+
+    public static HistoryActivityRow From(ActivityRecord record) => new(
+        record.Id,
+        record.DriverCardId,
+        record.Activity,
+        record.Start,
+        record.EndExclusive,
+        record.Source,
+        record.Condition);
+
+    private static string ActivityDescription(DriverActivity activity) => activity switch
+    {
+        DriverActivity.BreakOrRest => Localization.UiStrings.Get("Activity_BreakOrRest"),
+        DriverActivity.Availability => Localization.UiStrings.Get("Activity_Availability"),
+        DriverActivity.OtherWork => Localization.UiStrings.Get("Activity_OtherWork"),
+        DriverActivity.Driving => Localization.UiStrings.Get("Activity_Driving"),
+        DriverActivity.OutOfScope => "OUT",
+        DriverActivity.Unknown => Localization.UiStrings.Get("Activity_Unknown"),
+        _ => throw new ArgumentOutOfRangeException(nameof(activity))
+    };
+
+    internal static string GapReasonDescription(ActivityGapReason reason) => reason switch
+    {
+        ActivityGapReason.CardRemoved => Localization.UiStrings.Get("GapReason_CardRemoved"),
+        ActivityGapReason.ForwardTimeJump => Localization.UiStrings.Get("GapReason_ForwardTimeJump"),
+        ActivityGapReason.TelemetryUnavailable =>
+            Localization.UiStrings.Get("GapReason_TelemetryUnavailable"),
+        _ => throw new ArgumentOutOfRangeException(nameof(reason), reason, null)
+    };
+
+    internal static string ViolationDescription(ViolationType type) => type switch
+    {
+        ViolationType.ContinuousDrivingExceeded =>
+            Localization.UiStrings.Get("Violation_ContinuousDrivingExceeded"),
+        ViolationType.MissingRequiredBreak =>
+            Localization.UiStrings.Get("Violation_MissingRequiredBreak"),
+        ViolationType.DailyDrivingExceeded =>
+            Localization.UiStrings.Get("Violation_DailyDrivingExceeded"),
+        ViolationType.WeeklyDrivingExceeded =>
+            Localization.UiStrings.Get("Violation_WeeklyDrivingExceeded"),
+        ViolationType.FortnightlyDrivingExceeded =>
+            Localization.UiStrings.Get("Violation_FortnightlyDrivingExceeded"),
+        ViolationType.TooManyDailyExtensions =>
+            Localization.UiStrings.Get("Violation_TooManyDailyExtensions"),
+        ViolationType.DailyRestMissing =>
+            Localization.UiStrings.Get("Violation_DailyRestMissing"),
+        ViolationType.TooManyReducedDailyRests =>
+            Localization.UiStrings.Get("Violation_TooManyReducedDailyRests"),
+        ViolationType.WeeklyRestMissing =>
+            Localization.UiStrings.Get("Violation_WeeklyRestMissing"),
+        ViolationType.WeeklyRestPatternInvalid =>
+            Localization.UiStrings.Get("Violation_WeeklyRestPatternInvalid"),
+        ViolationType.WeeklyRestCompensationOverdue =>
+            Localization.UiStrings.Get("Violation_WeeklyRestCompensationOverdue"),
+        _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
+    };
+
+    private static string ActivitySourceDescription(ActivitySource source) => source switch
+    {
+        ActivitySource.Telemetry => Localization.UiStrings.Get("ActivitySource_Telemetry"),
+        ActivitySource.Manual => Localization.UiStrings.Get("ActivitySource_Manual"),
+        ActivitySource.Reconstructed =>
+            Localization.UiStrings.Get("ActivitySource_Reconstructed"),
+        ActivitySource.Mixed => Localization.UiStrings.Get("ActivitySource_Mixed"),
+        ActivitySource.ManualEntry =>
+            Localization.UiStrings.Get("ActivitySource_ManualEntry"),
+        ActivitySource.AutomaticCrewReconstruction =>
+            Localization.UiStrings.Get("ActivitySource_AutomaticCrewReconstruction"),
+        _ => throw new ArgumentOutOfRangeException(nameof(source))
+    };
+
+    private static string SpecialConditionDescription(SpecialCondition condition) =>
+        condition switch
+        {
+            SpecialCondition.None => Localization.UiStrings.Get("SpecialCondition_None"),
+            SpecialCondition.FerryCrossing =>
+                Localization.UiStrings.Get("SpecialCondition_FerryCrossing"),
+            SpecialCondition.Mixed => Localization.UiStrings.Get("SpecialCondition_Mixed"),
+            SpecialCondition.CrewBreakInMotion =>
+                Localization.UiStrings.Get("SpecialCondition_CrewBreakInMotion"),
+            _ => throw new ArgumentOutOfRangeException(nameof(condition))
+        };
+}
+
+public sealed record ActivityGapRow(
+    Guid GapId,
+    string DriverCardId,
+    int Slot,
+    ActivityGapReason Reason,
+    ActivityGapState State,
+    long StartGameMinute,
+    long? EndGameMinute,
+    long DurationMinutes,
+    long? ResolvedAtGameMinute)
+{
+    public bool IsOpen => EndGameMinute is null;
+    public bool IsResolvable => State == ActivityGapState.Unresolved && !IsOpen;
+    public string SlotText => $"S{Slot}";
+    public string StartGameTimeText =>
+        GameClockFormatter.Format(new GameTime(StartGameMinute));
+    public string EndGameTimeText => EndGameMinute is { } end
+        ? GameClockFormatter.Format(new GameTime(end))
+        : Localization.UiStrings.Get("GapState_Ongoing");
+    public string DurationText => $"{DurationMinutes / 60:00}:{DurationMinutes % 60:00}";
+    public string ReasonText => Reason switch
+    {
+        ActivityGapReason.ForwardTimeJump =>
+            Localization.UiStrings.Get("GapReason_ForwardTimeJump"),
+        ActivityGapReason.CardRemoved => Localization.UiStrings.Get("GapReason_CardRemoved"),
+        ActivityGapReason.TelemetryUnavailable =>
+            Localization.UiStrings.Get("GapReason_TelemetryUnavailable"),
+        _ => throw new ArgumentOutOfRangeException(nameof(Reason))
+    };
+    public string StateText => State == ActivityGapState.Resolved
+        ? Localization.UiStrings.Format(
+            "GapState_ResolvedFormat",
+            ResolvedAtGameMinute is { } resolvedAt
+                ? GameClockFormatter.Format(new GameTime(resolvedAt))
+                : "—")
+        : IsOpen
+            ? Localization.UiStrings.Get("GapState_Ongoing")
+            : Localization.UiStrings.Get("GapState_Unresolved");
+    public string OngoingHelpText => IsOpen && Reason == ActivityGapReason.CardRemoved
+        ? Localization.UiStrings.Get("Gap_CardStillRemovedHelp")
+        : string.Empty;
+    public string ActionText => IsResolvable
+        ? Localization.UiStrings.Get("Gap_ResolveAction")
+        : "—";
+
+    public static ActivityGapRow From(ActivityGapListItemDto item) => new(
+        item.GapId,
+        item.DriverCardId,
+        item.Slot,
+        item.Reason,
+        item.State,
+        item.StartGameMinute,
+        item.EndGameMinute,
+        item.DurationMinutes,
+        item.ResolvedAtGameMinute);
+}
 
 public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 {
     private const int PlannerTabIndex = 3;
     private static readonly ManualEntryActivityOption[] AvailableManualEntryActivities =
     [
-        new(DriverActivity.BreakOrRest, "Przerwa / Odpoczynek"),
-        new(DriverActivity.OtherWork, "Inna praca"),
-        new(DriverActivity.Availability, "Dyspozycyjność")
+        new(DriverActivity.BreakOrRest,
+            Localization.UiStrings.Get("ManualEntryActivity_BreakOrRest")),
+        new(DriverActivity.OtherWork, Localization.UiStrings.Get("Activity_OtherWork")),
+        new(DriverActivity.Availability, Localization.UiStrings.Get("Activity_Availability"))
     ];
 
     private static readonly RestTargetOption[] AvailableRestTargets =
     [
-        new("Przerwa 15 min · część 1", "15 MIN CZĘŚĆ 1", 15),
-        new("Przerwa 30 min · część 2", "30 MIN CZĘŚĆ 2", 30),
-        new("Przerwa 45 min · pełna", "45 MIN PEŁNA", 45),
-        new("Odpoczynek dzienny · 9 h", "DZIENNY 9H", 9 * 60),
-        new("Odpoczynek dzienny · 11 h", "DZIENNY 11H", 11 * 60),
-        new("Odpoczynek tygodniowy · 24 h", "TYGODNIOWY 24H", 24 * 60),
-        new("Odpoczynek tygodniowy · 45 h", "TYGODNIOWY 45H", 45 * 60)
+        new(Localization.UiStrings.Get("RestTarget_Break15Part1"), Localization.UiStrings.Get("DeviceRestTarget_Break15Part1"), 15),
+        new(Localization.UiStrings.Get("RestTarget_Break30Part2"), Localization.UiStrings.Get("DeviceRestTarget_Break30Part2"), 30),
+        new(Localization.UiStrings.Get("RestTarget_Break45Full"), Localization.UiStrings.Get("DeviceRestTarget_Break45Full"), 45),
+        new(Localization.UiStrings.Get("RestTarget_Daily9Hours"), Localization.UiStrings.Get("DeviceRestTarget_Daily9Hours"), 9 * 60),
+        new(Localization.UiStrings.Get("RestTarget_Daily11Hours"), Localization.UiStrings.Get("DeviceRestTarget_Daily11Hours"), 11 * 60),
+        new(Localization.UiStrings.Get("RestTarget_Weekly24Hours"), Localization.UiStrings.Get("DeviceRestTarget_Weekly24Hours"), 24 * 60),
+        new(Localization.UiStrings.Get("RestTarget_Weekly45Hours"), Localization.UiStrings.Get("DeviceRestTarget_Weekly45Hours"), 45 * 60)
     ];
 
     public static string ApplicationVersion
@@ -92,7 +248,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private bool _dailyExtensionsExceeded;
     private bool _reducedDailyRestsExceeded;
     private string _weeklyDriving = "00:00";
-    private string _modesText = "Tryb zwykły · pojedyncza obsada";
+    private string _modesText = Localization.UiStrings.Get("OverlayModes_NormalSingle");
     private DriverProfileDto? _selectedProfile;
     private DriverProfileDto? _compensationDriverProfile;
     private string _newDriverName = string.Empty;
@@ -110,13 +266,13 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private string _cardDialogMessage = string.Empty;
     private CountryOption? _selectedCountry;
     private string _cardOwner = "---";
-    private string _cardNumber = "BRAK KARTY";
+    private string _cardNumber = Localization.UiStrings.Get("Card_NoCard");
     private readonly DispatcherTimer _clockTimer;
     private bool _isCard2Inserted;
     private string _card2Owner = "---";
-    private string _card2Number = "BRAK KARTY";
+    private string _card2Number = Localization.UiStrings.Get("Card_NoCard");
     private DriverActivity _driver2Activity = DriverActivity.Availability;
-    private string _driver2ActivityText = "BRAK KARTY";
+    private string _driver2ActivityText = Localization.UiStrings.Get("Card_NoCard");
     private string _driver2ContinuousDriving = "00:00";
     private string _driver2UntilBreak = "04:30";
     private string _driver2DailyDriving = "00:00";
@@ -162,13 +318,13 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private long? _restStartedAtGameMinute;
     private string _restElapsed = "00:00";
     private string _restRemaining = "00:45";
-    private string _restStatus = "OCZEKUJE";
+    private string _restStatus = Localization.UiStrings.Get("RestStatus_Waiting");
     private double _restProgressPercent;
     private RestTargetOption _selectedRestTarget2 = AvailableRestTargets[2];
     private long? _restStartedAtGameMinute2;
     private string _restElapsed2 = "00:00";
     private string _restRemaining2 = "00:45";
-    private string _restStatus2 = "OCZEKUJE";
+    private string _restStatus2 = Localization.UiStrings.Get("RestStatus_Waiting");
     private double _restProgressPercent2;
     private long? _lastLoggedGameTimeJumpMinute;
     private uint? _lastLoggedWorldGeneration;
@@ -257,14 +413,16 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         JourneyPlanner = new JourneyPlannerViewModel(
             new DeliveryPlannerService(crew),
             cardId => FindProfileByCard(cardId)?.DisplayName ?? cardId,
-            JsonJourneyPlannerInputStateStore.CreateDefault());
+            JsonJourneyPlannerInputStateStore.CreateDefault(),
+            (code, exception) => _diagnostics.Error(code, exception));
         ReportsWorkspace = new ReportsWorkspaceViewModel(
             reports,
             () => _crew.Current.Frame?.GameTime.TotalMinutes,
             crew.Engine.WeekEpochOffsetDays,
             ExportWorkspaceReportAsync,
             ShowReportGapsAsync,
-            message => OperationStatus = message);
+            message => OperationStatus = message,
+            (code, exception) => _diagnostics.Error(code, exception));
         foreach (var country in AvailableCountryOptions)
             CountryOptions.Add(country);
         OtherWorkCommand = new RelayCommand(() => SetActivity(DriverActivity.OtherWork));
@@ -272,7 +430,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         RestCommand = new RelayCommand(StartSelectedRest);
         OutCommand = new RelayCommand(ToggleOutMode);
         FerryCommand = new RelayCommand(ToggleFerryMode);
-        CrewCommand = new RelayCommand(() => OperationStatus = "Tryb załogi włącza się automatycznie po włożeniu dwóch kart.");
+        CrewCommand = new RelayCommand(() => OperationStatus = Localization.UiStrings.Get("Operation_CrewModeAutomatic"));
         CreateProfileCommand = new RelayCommand(async () => await CreateProfileAsync());
         ActivateProfileCommand = new RelayCommand(async () => await ActivateProfileAsync());
         SaveSettingsCommand = new RelayCommand(async () => await SaveSettingsAsync());
@@ -325,7 +483,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             () => ManualEntryCanConfirm);
         CancelManualEntryCommand = new RelayCommand(CancelManualEntry);
         OpenOptionalManualEntryCommand = new RelayCommand(OpenOptionalManualEntry);
-        ResolveGapFromHistoryCommand = new RelayCommand<ActivityGapListItemDto>(
+        ResolveGapFromHistoryCommand = new RelayCommand<ActivityGapRow>(
             OpenManualEntryFromHistory,
             gap => gap.IsResolvable);
         CopyIdentifierCommand = new RelayCommand<string>(CopyIdentifier, value =>
@@ -340,13 +498,13 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         UpdateDeviceDisplay();
     }
 
-    public ObservableCollection<ActivityRecord> History { get; } = [];
+    public ObservableCollection<HistoryActivityRow> History { get; } = [];
     public ObservableCollection<DriverProfileDto> Profiles { get; } = [];
     public ObservableCollection<DriverProfileDto> AvailableCardProfiles { get; } = [];
     public ObservableCollection<string> Violations { get; } = [];
     public ObservableCollection<ManualEntrySegmentRow> ManualEntrySegments { get; } = [];
     public ObservableCollection<ManualEntryDayOption> ManualEntryDayOptions { get; } = [];
-    public ObservableCollection<ActivityGapListItemDto> ActivityGaps { get; } = [];
+    public ObservableCollection<ActivityGapRow> ActivityGaps { get; } = [];
     public ObservableCollection<CompensationDetailRow> CompensationDetails { get; } = [];
     public ObservableCollection<RestAllocationChoiceRow> PendingRestAllocationChoices { get; } = [];
     public ObservableCollection<CountryOption> CountryOptions { get; } = [];
@@ -355,8 +513,15 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public ReportsWorkspaceViewModel ReportsWorkspace { get; }
     public bool HasPendingRestAllocations => PendingRestAllocationChoices.Count > 0;
     public string CompensationDetailsHeader => CompensationDetails.Count == 0
-        ? "Brak zobowiązań w bieżących projekcjach kart."
-        : $"Zobowiązania: {CompensationDetails.Count} · otwarte: {CompensationDetails.Count(item => item.IsOpen)}";
+        ? Localization.UiStrings.Get("Compensation_NoObligations")
+        : Localization.UiStrings.Format(
+            "Compensation_DetailsHeaderFormat",
+            CompensationDetails.Count,
+            CompensationDetails.Count(item => item.IsOpen));
+    public string Driver1ButtonTooltip =>
+        Localization.UiStrings.Format("Device_DriverButtonTooltipFormat", 1);
+    public string Driver2ButtonTooltip =>
+        Localization.UiStrings.Format("Device_DriverButtonTooltipFormat", 2);
     public ICommand OtherWorkCommand { get; }
     public ICommand AvailabilityCommand { get; }
     public ICommand RestCommand { get; }
@@ -547,7 +712,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public bool IsCardDialogVisible { get => _isCardDialogVisible; private set => Set(ref _isCardDialogVisible, value); }
     public string CardDialogTitle { get => _cardDialogTitle; private set => Set(ref _cardDialogTitle, value); }
     public string CardDialogMessage { get => _cardDialogMessage; private set => Set(ref _cardDialogMessage, value); }
-    public string CardCountryLabel => _cardDialogIsInsertion ? "Kraj rozpoczęcia" : "Kraj zakończenia";
+    public string CardCountryLabel => _cardDialogIsInsertion ? Localization.UiStrings.Get("CardDialog_StartCountryLabel") : Localization.UiStrings.Get("CardDialog_EndCountryLabel");
     public CountryOption? SelectedCountry
     {
         get => _selectedCountry;
@@ -564,7 +729,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public string Card2Owner { get => _card2Owner; private set => Set(ref _card2Owner, value); }
     public string Card2Number { get => _card2Number; private set => Set(ref _card2Number, value); }
     public string Card2Status => IsCard2Inserted ? "KARTA 2 GOTOWA" : "BRAK KARTY 2";
-    public string CardDialogSlotText => $"{_cardDialogSlot}  KARTA KIEROWCY";
+    public string CardDialogSlotText =>
+        $"{_cardDialogSlot}  {Localization.UiStrings.Get("CardDialog_DriverCardLabel")}";
     public string DeviceLine1 { get => _deviceLine1; private set => Set(ref _deviceLine1, value); }
     public string DeviceLine2 { get => _deviceLine2; private set => Set(ref _deviceLine2, value); }
     public string DeviceLine3 { get => _deviceLine3; private set => Set(ref _deviceLine3, value); }
@@ -582,7 +748,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     }
     public bool CanCancelManualEntry => !IsManualEntryForced;
     public bool HasOptionalManualEntryGap => _optionalManualEntryGap is not null && !IsManualEntryVisible;
-    public string ManualEntryTitle => "ROZLICZ LUKĘ AKTYWNOŚCI";
+    public string ManualEntryTitle => Localization.UiStrings.Get("ManualEntry_Title");
     public string ManualEntrySlotText => $"S{_manualEntrySlot}";
     public string ManualEntryRangeText { get => _manualEntryRangeText; private set => Set(ref _manualEntryRangeText, value); }
     public string ManualEntryDurationText { get => _manualEntryDurationText; private set => Set(ref _manualEntryDurationText, value); }
@@ -621,11 +787,11 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         set => Set(ref _selectedManualEntrySegment, value);
     }
     public string ManualEntryEditorTitle => _editingManualEntrySegment is null
-        ? "DODAJ LUB ZASTĄP SEGMENT"
-        : "EDYTUJ SEGMENT";
+        ? Localization.UiStrings.Get("ManualEntry_AddOrReplaceTitle")
+        : Localization.UiStrings.Get("ManualEntry_EditSegmentTitle");
     public string ManualEntryApplyButtonText => _editingManualEntrySegment is null
-        ? "DODAJ / ZASTĄP SEGMENT"
-        : "ZAPISZ ZMIANY";
+        ? Localization.UiStrings.Get("ManualEntry_AddOrReplaceAction")
+        : Localization.UiStrings.Get("ManualEntry_SaveChangesAction");
     public string ManualEntryFormDurationText
     {
         get
@@ -646,8 +812,22 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             return ManualEntryPlanEditor.FormatDuration(to - from);
         }
     }
-    public string ManualEntrySegmentCountText =>
-        $"{ManualEntrySegments.Count} segmenty · {ManualEntryDurationText.Replace("Długość luki: ", string.Empty)}";
+    public string ManualEntrySegmentCountText
+    {
+        get
+        {
+            var count = ManualEntrySegments.Count;
+            return Localization.UiStrings.Format(
+                Localization.UiPlural.Select(
+                    count,
+                    "ManualEntry_SegmentCountOneFormat",
+                    "ManualEntry_SegmentCountFewFormat",
+                    "ManualEntry_SegmentCountManyFormat"),
+                count,
+                ManualEntryPlanEditor.FormatDuration(
+                    _manualEntryEditor?.GapDuration ?? 0));
+        }
+    }
     public string ManualEntryCoverageText =>
         $"{ManualEntryPlanEditor.FormatDuration(_manualEntryEditor?.CoveredMinutes ?? 0)} / " +
         ManualEntryPlanEditor.FormatDuration(_manualEntryEditor?.GapDuration ?? 0);
@@ -656,11 +836,17 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     public string ManualEntryAvailabilityTotal => ManualEntryPlanEditor.FormatDuration(_manualEntryEditor?.AvailabilityMinutes ?? 0);
     public bool ManualEntryCanConfirm => _manualEntryEditor?.IsComplete == true;
     public string ManualEntryCompletionText => ManualEntryCanConfirm
-        ? "✓ WPIS KOMPLETNY"
-        : $"BRAK: {ManualEntryPlanEditor.FormatDuration(_manualEntryEditor?.UnassignedMinutes ?? 0)}";
+        ? Localization.UiStrings.Get("ManualEntry_Complete")
+        : Localization.UiStrings.Format(
+            "ManualEntry_MissingDurationFormat",
+            ManualEntryPlanEditor.FormatDuration(
+                _manualEntryEditor?.UnassignedMinutes ?? 0));
     public string ManualEntryCoverageDetails =>
-        $"Brak: {ManualEntryPlanEditor.FormatDuration(_manualEntryEditor?.UnassignedMinutes ?? 0)} · " +
-        "Nakładanie: 00:00";
+        Localization.UiStrings.Format(
+            "ManualEntry_CoverageDetailsFormat",
+            ManualEntryPlanEditor.FormatDuration(
+                _manualEntryEditor?.UnassignedMinutes ?? 0),
+            "00:00");
     public string ManualEntryValidationMessage { get => _manualEntryValidationMessage; private set => Set(ref _manualEntryValidationMessage, value); }
     public string ManualEntrySelectionMessage { get => _manualEntrySelectionMessage; private set => Set(ref _manualEntrySelectionMessage, value); }
     public string ManualEntryQualificationMessage { get => _manualEntryQualificationMessage; private set => Set(ref _manualEntryQualificationMessage, value); }
@@ -682,7 +868,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             OnPropertyChanged(nameof(ActivityGapsHeader));
         }
     }
-    public string ActivityGapsHeader => $"LUKI AKTYWNOŚCI · NIEROZLICZONE: {UnresolvedGapCount}";
+    public string ActivityGapsHeader =>
+        Localization.UiStrings.Format("Gap_HeaderFormat", UnresolvedGapCount);
 
     public async Task StartAsync()
     {
@@ -770,7 +957,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         GameTimeText = frame is null ? "Czas gry: --" : $"Czas gry: {GameClockFormatter.Format(frame.GameTime)}";
 
         var driver = snapshot.Driver;
-        ActivityText = driver is null ? "BRAK KARTY" : ActivityDescription(driver.ProvisionalActivity ?? driver.ManualActivity);
+        ActivityText = driver is null ? Localization.UiStrings.Get("Card_NoCard") : ActivityDescription(driver.ProvisionalActivity ?? driver.ManualActivity);
         if (driver is not null)
         {
             var displayedActivity = driver.ProvisionalActivity ?? driver.ManualActivity;
@@ -828,7 +1015,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             OnPropertyChanged(nameof(SelectedRestTarget2));
             OnPropertyChanged(nameof(RestTargetText2));
         }
-        Driver2ActivityText = coDriver is null ? "BRAK KARTY" : ActivityDescription(coDriver.ProvisionalActivity ?? coDriver.ManualActivity);
+        Driver2ActivityText = coDriver is null ? Localization.UiStrings.Get("Card_NoCard") : ActivityDescription(coDriver.ProvisionalActivity ?? coDriver.ManualActivity);
         _driver2Activity = coDriver?.ManualActivity ?? DriverActivity.Availability;
         if (coDriver?.Regulation is { } coRules)
         {
@@ -864,18 +1051,33 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         Violations.Clear();
         if (driver?.Regulation is not null)
             foreach (var violation in driver.Regulation.Violations)
-                Violations.Add($"K1 · {violation.Article}: {violation.Type}");
+                Violations.Add(Localization.UiStrings.Format(
+                    "Dashboard_ViolationAlertFormat",
+                    1,
+                    violation.Article,
+                    HistoryActivityRow.ViolationDescription(violation.Type)));
         if (coDriver?.Regulation is not null)
             foreach (var violation in coDriver.Regulation.Violations)
-                Violations.Add($"K2 · {violation.Article}: {violation.Type}");
+                Violations.Add(Localization.UiStrings.Format(
+                    "Dashboard_ViolationAlertFormat",
+                    2,
+                    violation.Article,
+                    HistoryActivityRow.ViolationDescription(violation.Type)));
         if (snapshot.ManualEntryRequired)
-            Violations.Insert(0, "WPIS MANUALNY WYMAGANY · jazda zablokowana do rozliczenia luki po wyjęciu karty.");
+            Violations.Insert(0, Localization.UiStrings.Get("Dashboard_ManualEntryRequiredAlert"));
 
         foreach (var record in (driver?.CompletedRecords ?? []).Concat(coDriver?.CompletedRecords ?? [])
                      .Where(x => History.All(old => old.Id != x.Id)))
-            History.Add(record);
-        var activeModes = driver is null ? "Tryb zwykły" : driver.OutModeEnabled ? "OUT" : driver.FerryModeEnabled ? "Prom" : "Tryb zwykły";
-        ModesText = $"{activeModes} · {(snapshot.MultiManning ? "podwójna obsada (30 h)" : "pojedyncza obsada (24 h)")}";
+            History.Add(HistoryActivityRow.From(record));
+        ModesText = Localization.UiStrings.Get((driver?.OutModeEnabled, driver?.FerryModeEnabled, snapshot.MultiManning) switch
+        {
+            (true, _, true) => "OverlayModes_OutMulti",
+            (true, _, false) => "OverlayModes_OutSingle",
+            (_, true, true) => "OverlayModes_FerryMulti",
+            (_, true, false) => "OverlayModes_FerrySingle",
+            (_, _, true) => "OverlayModes_NormalMulti",
+            _ => "OverlayModes_NormalSingle"
+        });
         HandleManualEntryState(snapshot);
         UpdateDeviceDisplay();
     }
@@ -913,7 +1115,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         if ((slot == TachographSlot.Driver && !IsCardInserted) ||
             (slot == TachographSlot.CoDriver && !IsCard2Inserted))
         {
-            OperationStatus = $"Włóż kartę kierowcy do czytnika {(int)slot}.";
+            OperationStatus = Localization.UiStrings.Format(
+                "Operation_InsertCardRequiredFormat",
+                (int)slot);
             return;
         }
         try
@@ -926,7 +1130,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         catch (InvalidOperationException exception)
         {
             _diagnostics.Error("MANUAL_ACTIVITY_REJECTED", exception);
-            OperationStatus = exception.Message;
+            OperationStatus = Localization.UiStrings.Get("Operation_ManualActivityRejected");
         }
     }
 
@@ -940,21 +1144,29 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         {
             if (!wasResting && startedAt is not null)
                 _restStartedAtGameMinute = startedAt;
-            OperationStatus = $"Rozpoczęto: {SelectedRestTarget.Name}.";
+            OperationStatus = Localization.UiStrings.Format(
+                "Operation_RestStartedFormat",
+                SelectedRestTarget.Name);
             SaveDeviceState();
         }
     }
 
     private void StartSelectedRest2()
     {
-        if (!IsCard2Inserted) { OperationStatus = "Włóż kartę kierowcy do czytnika 2."; return; }
+        if (!IsCard2Inserted)
+        {
+            OperationStatus = Localization.UiStrings.Format(
+                "Operation_InsertCardRequiredFormat",
+                2);
+            return;
+        }
         try
         {
             if (_crew.Engine.VehicleMoving)
             {
                 if (_crew.Current.CoDriverMovingBreakActive)
                 {
-                    OperationStatus = "Przerwa 45 minut kierowcy 2 jest już w trakcie.";
+                    OperationStatus = Localization.UiStrings.Get("Operation_CoDriverMovingBreakAlreadyActive");
                     return;
                 }
                 _selectedRestTarget2 = AvailableRestTargets.First(x => x.Minutes == CrewTachographEngine.MovingBreakMinutes);
@@ -962,7 +1174,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 OnPropertyChanged(nameof(RestTargetText2));
                 _crew.Engine.StartCoDriverMovingBreak();
                 _diagnostics.Info("CODRIVER_MOVING_BREAK", "Slot 2: rozpoczęto przerwę 45 minut podczas jazdy.");
-                OperationStatus = "Kierowca 2 rozpoczął ciągłą przerwę 45 minut podczas jazdy.";
+                OperationStatus = Localization.UiStrings.Get("Operation_CoDriverMovingBreakStarted");
             }
             else
             {
@@ -972,7 +1184,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 SetActivity(TachographSlot.CoDriver, DriverActivity.BreakOrRest);
                 if (!wasResting && startedAt is not null)
                     _restStartedAtGameMinute2 = startedAt;
-                OperationStatus = $"Kierowca 2 rozpoczął: {SelectedRestTarget2.Name}.";
+                OperationStatus = Localization.UiStrings.Format(
+                    "Operation_CoDriverRestStartedFormat",
+                    SelectedRestTarget2.Name);
             }
             Refresh(_crew.Current);
             SaveDeviceState();
@@ -980,7 +1194,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         catch (InvalidOperationException exception)
         {
             _diagnostics.Error("REST_REJECTED", exception);
-            OperationStatus = exception.Message;
+            OperationStatus = Localization.UiStrings.Get("Operation_RestRejected");
         }
     }
 
@@ -990,7 +1204,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         {
             _restStartedAtGameMinute = null;
             RestElapsed = "00:00"; RestRemaining = Format(SelectedRestTarget.Minutes);
-            RestProgressPercent = 0; RestStatus = "OCZEKUJE";
+            RestProgressPercent = 0; RestStatus = Localization.UiStrings.Get("RestStatus_Waiting");
             return;
         }
         var displayedActivity = snapshot.ProvisionalActivity ?? snapshot.ManualActivity;
@@ -1002,7 +1216,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             RestElapsed = "00:00";
             RestRemaining = Format(SelectedRestTarget.Minutes);
             RestProgressPercent = 0;
-            RestStatus = "OCZEKUJE";
+            RestStatus = Localization.UiStrings.Get("RestStatus_Waiting");
             return;
         }
 
@@ -1027,7 +1241,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             RestElapsed2 = Format(crewSnapshot.CoDriverMovingBreakElapsedMinutes);
             RestRemaining2 = Format(crewSnapshot.CoDriverMovingBreakRemainingMinutes);
             RestProgressPercent2 = crewSnapshot.CoDriverMovingBreakElapsedMinutes * 100d / CrewTachographEngine.MovingBreakMinutes;
-            RestStatus2 = "W TRAKCIE · W RUCHU";
+            RestStatus2 = Localization.UiStrings.Get("RestStatus_InProgressWhileMoving");
             return;
         }
 
@@ -1036,7 +1250,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             RestElapsed2 = Format(CrewTachographEngine.MovingBreakMinutes);
             RestRemaining2 = "00:00";
             RestProgressPercent2 = 100;
-            RestStatus2 = "ZALICZONA · W RUCHU";
+            RestStatus2 = Localization.UiStrings.Get("RestStatus_CompletedWhileMoving");
             return;
         }
 
@@ -1045,7 +1259,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         {
             _restStartedAtGameMinute2 = null;
             RestElapsed2 = "00:00"; RestRemaining2 = Format(SelectedRestTarget2.Minutes);
-            RestProgressPercent2 = 0; RestStatus2 = "OCZEKUJE";
+            RestProgressPercent2 = 0; RestStatus2 = Localization.UiStrings.Get("RestStatus_Waiting");
             return;
         }
 
@@ -1055,7 +1269,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         {
             _restStartedAtGameMinute2 = null;
             RestElapsed2 = "00:00"; RestRemaining2 = Format(SelectedRestTarget2.Minutes);
-            RestProgressPercent2 = 0; RestStatus2 = "OCZEKUJE";
+            RestProgressPercent2 = 0; RestStatus2 = Localization.UiStrings.Get("RestStatus_Waiting");
             return;
         }
         var projection = ProjectRestCounter(snapshot, SelectedRestTarget2.Minutes);
@@ -1079,13 +1293,19 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             Format(elapsed),
             Format(remaining),
             Math.Min(100, elapsed * 100d / targetMinutes),
-            elapsed >= targetMinutes ? "ZALICZONA" : "W TRAKCIE");
+            elapsed >= targetMinutes ? Localization.UiStrings.Get("RestStatus_Completed") : Localization.UiStrings.Get("RestStatus_InProgress"));
     }
 
     private void ToggleOutMode()
     {
         var driver = _crew.Current.Driver;
-        if (driver is null) { OperationStatus = "Włóż kartę do slotu 1."; return; }
+        if (driver is null)
+        {
+            OperationStatus = Localization.UiStrings.Format(
+                "Operation_InsertCardRequiredFormat",
+                1);
+            return;
+        }
         _crew.Engine.SetOutMode(TachographSlot.Driver, !driver.OutModeEnabled);
         _diagnostics.Info("OUT_MODE", $"Slot 1: {(!driver.OutModeEnabled ? "włączono" : "wyłączono")} OUT.");
         Refresh(_crew.Current); SaveDeviceState();
@@ -1094,7 +1314,13 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private void ToggleFerryMode()
     {
         var driver = _crew.Current.Driver;
-        if (driver is null) { OperationStatus = "Włóż kartę do slotu 1."; return; }
+        if (driver is null)
+        {
+            OperationStatus = Localization.UiStrings.Format(
+                "Operation_InsertCardRequiredFormat",
+                1);
+            return;
+        }
         _crew.Engine.SetFerryMode(TachographSlot.Driver, !driver.FerryModeEnabled);
         _diagnostics.Info("FERRY_MODE", $"Slot 1: {(!driver.FerryModeEnabled ? "włączono" : "wyłączono")} tryb promu.");
         Refresh(_crew.Current); SaveDeviceState();
@@ -1102,19 +1328,26 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
     private static string ActivityDescription(DriverActivity activity) => activity switch
     {
-        DriverActivity.Driving => "Jazda",
-        DriverActivity.OtherWork => "Inna praca",
-        DriverActivity.Availability => "Dyspozycyjność",
-        DriverActivity.BreakOrRest => "Przerwa / odpoczynek",
+        DriverActivity.Driving => Localization.UiStrings.Get("Activity_Driving"),
+        DriverActivity.OtherWork => Localization.UiStrings.Get("Activity_OtherWork"),
+        DriverActivity.Availability => Localization.UiStrings.Get("Activity_Availability"),
+        DriverActivity.BreakOrRest => Localization.UiStrings.Get("Activity_BreakOrRest"),
         DriverActivity.OutOfScope => "OUT",
-        _ => activity.ToString()
+        DriverActivity.Unknown => Localization.UiStrings.Get("Activity_Unknown"),
+        _ => throw new ArgumentOutOfRangeException(nameof(activity))
     };
 
     private void OpenCardInsertion() => OpenCardInsertion(1);
     private void OpenCardInsertion(int slot)
     {
-        if ((slot == 1 && IsCardInserted) || (slot == 2 && IsCard2Inserted)) { OperationStatus = $"Czytnik {slot} jest już zajęty."; return; }
-        if (_crew.Engine.VehicleMoving) { OperationStatus = "Nie można wkładać karty podczas jazdy. Zatrzymaj pojazd."; return; }
+        if ((slot == 1 && IsCardInserted) || (slot == 2 && IsCard2Inserted))
+        {
+            OperationStatus = Localization.UiStrings.Format(
+                "Operation_ReaderOccupiedFormat",
+                slot);
+            return;
+        }
+        if (_crew.Engine.VehicleMoving) { OperationStatus = Localization.UiStrings.Get("Operation_CardInsertionWhileMoving"); return; }
         _cardDialogSlot = slot;
         OnPropertyChanged(nameof(CardDialogSlotText));
         var occupiedCard = slot == 1 ? Card2Number : CardNumber;
@@ -1124,11 +1357,13 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             AvailableCardProfiles.Add(profile);
         _cardDialogIsInsertion = true;
         SelectedProfile = AvailableCardProfiles.FirstOrDefault();
-        if (SelectedProfile is null) { OperationStatus = "Najpierw utwórz profil kierowcy."; return; }
+        if (SelectedProfile is null) { OperationStatus = Localization.UiStrings.Get("Operation_CreateProfileFirst"); return; }
         RefreshCountryOptions(SelectedProfile.Cards.FirstOrDefault()?.CardNumber);
         RestoreCountrySelection(SelectedProfile.Cards.FirstOrDefault()?.CardNumber);
-        CardDialogTitle = $"WŁOŻENIE KARTY - CZYTNIK {slot}";
-        CardDialogMessage = "Potwierdź kierowcę i kraj rozpoczęcia zmiany. Karta zostanie przypisana do kierowcy prowadzącego.";
+        CardDialogTitle = Localization.UiStrings.Format(
+            "CardDialog_InsertTitleFormat",
+            slot);
+        CardDialogMessage = Localization.UiStrings.Get("CardDialog_InsertMessage");
         OnPropertyChanged(nameof(CardCountryLabel));
         IsCardDialogVisible = true;
     }
@@ -1136,10 +1371,16 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private void OpenCardEjection() => OpenCardEjection(1);
     private void OpenCardEjection(int slot)
     {
-        if ((slot == 1 && !IsCardInserted) || (slot == 2 && !IsCard2Inserted)) { OperationStatus = $"W czytniku {slot} nie ma karty."; return; }
+        if ((slot == 1 && !IsCardInserted) || (slot == 2 && !IsCard2Inserted))
+        {
+            OperationStatus = Localization.UiStrings.Format(
+                "Operation_ReaderEmptyFormat",
+                slot);
+            return;
+        }
         if (_currentSpeed > 0.5)
         {
-            OperationStatus = "Nie można wyjąć karty podczas jazdy. Zatrzymaj pojazd.";
+            OperationStatus = Localization.UiStrings.Get("Operation_CardEjectionWhileMoving");
             return;
         }
         _cardDialogSlot = slot;
@@ -1154,8 +1395,10 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         }
         RefreshCountryOptions(currentCard);
         RestoreCountrySelection(currentCard);
-        CardDialogTitle = $"WYJĘCIE KARTY - CZYTNIK {slot}";
-        CardDialogMessage = "Wybierz kraj zakończenia zmiany. Dane zostaną zapisane przed wysunięciem karty.";
+        CardDialogTitle = Localization.UiStrings.Format(
+            "CardDialog_EjectTitleFormat",
+            slot);
+        CardDialogMessage = Localization.UiStrings.Get("CardDialog_EjectMessage");
         OnPropertyChanged(nameof(CardCountryLabel));
         IsCardDialogVisible = true;
     }
@@ -1164,7 +1407,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         if (SelectedCountry is not { } selectedCountry)
         {
-            OperationStatus = "Wybierz kraj z listy.";
+            OperationStatus = Localization.UiStrings.Get("Operation_SelectCountry");
             return;
         }
 
@@ -1173,11 +1416,11 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         if (_cardDialogIsInsertion)
         {
             var card = SelectedProfile?.Cards.FirstOrDefault();
-            if (SelectedProfile is null || card is null) { OperationStatus = "Wybrany profil nie ma karty kierowcy."; return; }
+            if (SelectedProfile is null || card is null) { OperationStatus = Localization.UiStrings.Get("Operation_ProfileHasNoCard"); return; }
             var otherCard = _cardDialogSlot == 1 ? Card2Number : CardNumber;
             if (string.Equals(card.CardNumber, otherCard, StringComparison.OrdinalIgnoreCase))
             {
-                OperationStatus = "Ta karta jest już w drugim slocie.";
+                OperationStatus = Localization.UiStrings.Get("Operation_CardAlreadyInOtherSlot");
                 return;
             }
             try
@@ -1190,7 +1433,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             catch (InvalidOperationException exception)
             {
                 _diagnostics.Error("CARD_INSERT_REJECTED", exception);
-                OperationStatus = exception.Message;
+                OperationStatus = Localization.UiStrings.Get("Operation_CardInsertionRejected");
                 return;
             }
             if (_cardDialogSlot == 1)
@@ -1203,7 +1446,10 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 IsCard2Inserted = true; Card2Owner = SelectedProfile.DisplayName; Card2Number = card.CardNumber;
                 RestoreRestStateForSlot(card.CardNumber, 2);
             }
-            OperationStatus = $"Karta odczytana. Kraj rozpoczęcia: {countryCode}, LCD: {tachographCode}. Można rozpocząć jazdę.";
+            OperationStatus = Localization.UiStrings.Format(
+                "Operation_CardInsertedFormat",
+                countryCode,
+                tachographCode);
             _diagnostics.Info("CARD_INSERTED", $"Slot {_cardDialogSlot}: {MaskCard(card.CardNumber)}, ISO {countryCode}, tachograf {tachographCode}.");
             StartCountryIso = countryCode;
             StartCountry = tachographCode;
@@ -1226,17 +1472,20 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                     _crew.Current.Frame?.RecordedAtUtc ?? DateTimeOffset.UtcNow,
                     _cancellation.Token);
                 foreach (var record in result.Snapshot.CompletedRecords.Where(x => History.All(old => old.Id != x.Id)))
-                    History.Add(record);
+                    History.Add(HistoryActivityRow.From(record));
             }
             catch (InvalidOperationException exception)
             {
                 _diagnostics.Error("CARD_EJECT_REJECTED", exception);
-                OperationStatus = exception.Message;
+                OperationStatus = Localization.UiStrings.Get("Operation_CardEjectionRejected");
                 return;
             }
-            if (_cardDialogSlot == 1) { IsCardInserted = false; CardOwner = "---"; CardNumber = "BRAK KARTY"; }
-            else { IsCard2Inserted = false; Card2Owner = "---"; Card2Number = "BRAK KARTY"; }
-            OperationStatus = $"Karta wysunięta. Kraj zakończenia: {countryCode}, LCD: {tachographCode}.";
+            if (_cardDialogSlot == 1) { IsCardInserted = false; CardOwner = "---"; CardNumber = Localization.UiStrings.Get("Card_NoCard"); }
+            else { IsCard2Inserted = false; Card2Owner = "---"; Card2Number = Localization.UiStrings.Get("Card_NoCard"); }
+            OperationStatus = Localization.UiStrings.Format(
+                "Operation_CardEjectedFormat",
+                countryCode,
+                tachographCode);
             _diagnostics.Info("CARD_EJECTED", $"Slot {_cardDialogSlot}: {MaskCard(ejectedCard)}, ISO {countryCode}, tachograf {tachographCode}.");
             EndCountryIso = countryCode;
             EndCountry = tachographCode;
@@ -1261,7 +1510,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             OpenManualEntry(required.Value.Gap, required.Value.Slot, forced: true);
             if (_currentSpeed > _drivingThreshold)
             {
-                var message = $"Jazda zablokowana przez tachograf: rozlicz wpis manualny w slocie {required.Value.Slot}.";
+                var message = Localization.UiStrings.Format(
+                    "Operation_DrivingBlockedByManualEntryFormat",
+                    required.Value.Slot);
                 if (!string.Equals(OperationStatus, message, StringComparison.Ordinal))
                     OperationStatus = message;
             }
@@ -1286,7 +1537,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         {
             IsManualEntryVisible = false;
             _manualEntryGap = null;
-            OperationStatus = "Skok czasu rozpoznany jako załadunek lub rozładunek — luka została wycofana.";
+            OperationStatus = Localization.UiStrings.Get("Operation_OptionalGapWithdrawn");
         }
         OnPropertyChanged(nameof(HasOptionalManualEntryGap));
         if (optional is not null && optional.Value.Gap.Id != _lastOptionalGapWarningId)
@@ -1295,8 +1546,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             _diagnostics.Warning(
                 "OPTIONAL_MANUAL_ENTRY",
                 $"Slot {optional.Value.Slot}: nierozliczona luka po skoku czasu {Format(optional.Value.Gap.DurationMinutes ?? 0)}.");
-            OperationStatus =
-                $"Wykryto lukę po skoku czasu w slocie {optional.Value.Slot}. Wpis jest opcjonalny i nie blokuje jazdy.";
+            OperationStatus = Localization.UiStrings.Format(
+                "Operation_OptionalGapDetectedFormat",
+                optional.Value.Slot);
         }
     }
 
@@ -1310,7 +1562,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         OpenManualEntry(_optionalManualEntryGap, slot, forced: false);
     }
 
-    private void OpenManualEntryFromHistory(ActivityGapListItemDto gap)
+    private void OpenManualEntryFromHistory(ActivityGapRow gap)
     {
         if (!gap.IsResolvable || gap.EndGameMinute is null) return;
         OpenManualEntry(
@@ -1345,16 +1597,14 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _manualEntrySlot = slot;
         IsManualEntryForced = forced;
         ManualEntryRangeText = $"{GameClockFormatter.Format(gap.Start)}  →  {GameClockFormatter.Format(gap.EndExclusive.Value)}";
-        ManualEntryDurationText = $"Długość luki: {Format(gap.DurationMinutes ?? 0)}";
+        ManualEntryDurationText = Localization.UiStrings.Format(
+            "ManualEntry_GapDurationFormat",
+            Format(gap.DurationMinutes ?? 0));
         ManualEntryDriverText =
-            $"{FindProfileByCard(gap.DriverCardId)?.DisplayName ?? "Nieznany kierowca"} · {gap.DriverCardId}";
-        ManualEntryReasonText = gap.Reason switch
-        {
-            ActivityGapReason.CardRemoved => "Przyczyna: karta wyjęta",
-            ActivityGapReason.ForwardTimeJump => "Przyczyna: skok czasu",
-            ActivityGapReason.TelemetryUnavailable => "Przyczyna: brak telemetrii",
-            _ => $"Przyczyna: {gap.Reason}"
-        };
+            $"{FindProfileByCard(gap.DriverCardId)?.DisplayName ?? Localization.UiStrings.Get("ManualEntry_UnknownDriver")} · {gap.DriverCardId}";
+        ManualEntryReasonText = Localization.UiStrings.Format(
+            "ManualEntry_ReasonFormat",
+            HistoryActivityRow.GapReasonDescription(gap.Reason));
         _manualEntryEditor = new ManualEntryPlanEditor(
             gap.Start.TotalMinutes,
             gap.EndExclusive.Value.TotalMinutes);
@@ -1369,7 +1619,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         ResetManualEntryForm();
         RefreshManualEntryPlan();
         ManualEntryValidationMessage = string.Empty;
-        ManualEntryQualificationMessage = "Wpis nie został jeszcze zapisany.";
+        ManualEntryQualificationMessage = Localization.UiStrings.Get("ManualEntry_NotSaved");
         OnPropertyChanged(nameof(ManualEntryTitle));
         OnPropertyChanged(nameof(ManualEntrySlotText));
         OnPropertyChanged(nameof(HasOptionalManualEntryGap));
@@ -1385,11 +1635,11 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             var from = ParseManualEntryDateTime(
                 ManualEntryFromDay,
                 ManualEntryFromTime,
-                "OD");
+                Localization.UiStrings.Get("Common_From"));
             var to = ParseManualEntryDateTime(
                 ManualEntryToDay,
                 ManualEntryToTime,
-                "DO");
+                Localization.UiStrings.Get("Common_To"));
             if (_editingManualEntrySegment is null)
             {
                 _manualEntryEditor.Replace(
@@ -1495,9 +1745,11 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 ManualEntrySegments.Add(segment);
         }
 
-        ManualEntrySelectionMessage =
-            $"Zapis: odpoczynek {ManualEntryRestTotal}, inna praca {ManualEntryWorkTotal}, " +
-            $"dyspozycyjność {ManualEntryAvailabilityTotal}.";
+        ManualEntrySelectionMessage = Localization.UiStrings.Format(
+            "ManualEntry_SelectionSummaryFormat",
+            ManualEntryRestTotal,
+            ManualEntryWorkTotal,
+            ManualEntryAvailabilityTotal);
         OnPropertyChanged(nameof(ManualEntrySegmentCountText));
         OnPropertyChanged(nameof(ManualEntryCoverageText));
         OnPropertyChanged(nameof(ManualEntryRestTotal));
@@ -1515,7 +1767,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         try
         {
             if (_manualEntryEditor is null || !_manualEntryEditor.IsComplete)
-                throw new InvalidOperationException("Wpis musi dokładnie pokrywać całą lukę.");
+                throw new InvalidOperationException(Localization.UiStrings.Get("ManualEntryError_IncompleteCoverage"));
             var segments = _manualEntryEditor.ToSegments();
             ManualEntryValidator.Validate(_manualEntryGap, segments, []);
             var now = _crew.Current.Frame?.GameTime ?? _manualEntryGap.EndExclusive.Value;
@@ -1532,12 +1784,14 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             var qualified = result.Evaluation.QualifiedRests.SingleOrDefault(rest =>
                 rest.SourceGapId == result.Gap.Id);
             ManualEntryQualificationMessage = qualified is null
-                ? "Zakwalifikowano: brak ciągłego odpoczynku 9 h — bez resetu dobowego."
+                ? Localization.UiStrings.Get("ManualEntry_NoQualifiedRest")
                 : QualificationText(qualified);
             _diagnostics.Info(
                 "MANUAL_ENTRY_RESOLVED",
                 $"Slot {_manualEntrySlot}: luka {_manualEntryGap.Id}, {ManualEntrySelectionMessage} {ManualEntryQualificationMessage}");
-            OperationStatus = $"Wpis manualny zapisany. {ManualEntryQualificationMessage}";
+            OperationStatus = Localization.UiStrings.Format(
+                "Operation_ManualEntrySavedFormat",
+                ManualEntryQualificationMessage);
             IsManualEntryVisible = false;
             _manualEntryGap = null;
             _manualEntryEditor = null;
@@ -1551,8 +1805,13 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                    ManualEntryValidationException or
                    InvalidOperationException)
         {
-            ManualEntryValidationMessage = exception.Message;
             _diagnostics.Error("MANUAL_ENTRY_REJECTED", exception);
+            ManualEntryValidationMessage = exception is ManualEntryValidationException validation
+                ? Localization.UiStrings.Get(ManualEntryErrorKey(validation.Error))
+                : exception is FormatException or InvalidOperationException &&
+                  exception is not ManualEntryDraftException
+                    ? exception.Message
+                    : Localization.UiStrings.Get("ManualEntryError_ApplyFailed");
         }
     }
 
@@ -1560,13 +1819,13 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         if (IsManualEntryForced)
         {
-            ManualEntryValidationMessage = "Ta luka powstała po wyjęciu karty i musi zostać rozliczona.";
+            ManualEntryValidationMessage = Localization.UiStrings.Get("ManualEntry_CardRemovalMustResolve");
             return;
         }
         if (_manualEntryIsDirty &&
             MessageBox.Show(
-                "Odrzucić niezapisane zmiany wpisu manualnego?",
-                "Wpis manualny",
+                Localization.UiStrings.Get("Dialog_ManualEntryDiscardMessage"),
+            Localization.UiStrings.Get("ActivitySource_ManualEntry"),
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question) != MessageBoxResult.Yes)
         {
@@ -1586,8 +1845,12 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         if (TryParseManualEntryDateTime(day, value, out var gameMinute))
             return gameMinute;
         if (day is null)
-            throw new FormatException($"Pole {label}: wybierz dzień.");
-        throw new FormatException($"Pole {label}: wpisz godzinę w formacie HH:MM.");
+            throw new FormatException(Localization.UiStrings.Format(
+                "ManualEntryError_SelectDayFormat",
+                label));
+        throw new FormatException(Localization.UiStrings.Format(
+            "ManualEntryError_EnterTimeFormat",
+            label));
     }
 
     private static bool TryParseManualEntryDateTime(
@@ -1614,31 +1877,66 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         return true;
     }
 
-    private static string QualificationText(QualifiedRestPeriod rest)
+    private static string QualificationText(QualifiedRestPeriod rest) =>
+        Localization.UiStrings.Format(
+            (rest.DailyClassification, rest.WeeklyClassification) switch
+            {
+                (DailyRestClassification.Regular, WeeklyRestClassification.Regular) =>
+                    "ManualEntry_QualifiedDailyRegularWeeklyRegularFormat",
+                (DailyRestClassification.Regular, WeeklyRestClassification.Reduced) =>
+                    "ManualEntry_QualifiedDailyRegularWeeklyReducedFormat",
+                (DailyRestClassification.Regular, null) =>
+                    "ManualEntry_QualifiedDailyRegularFormat",
+                (DailyRestClassification.Reduced, WeeklyRestClassification.Regular) =>
+                    "ManualEntry_QualifiedDailyReducedWeeklyRegularFormat",
+                (DailyRestClassification.Reduced, WeeklyRestClassification.Reduced) =>
+                    "ManualEntry_QualifiedDailyReducedWeeklyReducedFormat",
+                (DailyRestClassification.Reduced, null) =>
+                    "ManualEntry_QualifiedDailyReducedFormat",
+                _ => throw new ArgumentOutOfRangeException(nameof(rest))
+            },
+            GameClockFormatter.Format(rest.EndExclusive));
+
+    private static string ManualEntryErrorKey(ManualEntryError error) => error switch
     {
-        var daily = rest.DailyClassification == DailyRestClassification.Regular
-            ? "odpoczynek dobowy regularny"
-            : "odpoczynek dobowy skrócony";
-        var weekly = rest.WeeklyClassification switch
-        {
-            WeeklyRestClassification.Regular => ", tygodniowy regularny",
-            WeeklyRestClassification.Reduced => ", tygodniowy skrócony",
-            _ => string.Empty
-        };
-        return $"Zakwalifikowano: {daily}{weekly}; reset o {GameClockFormatter.Format(rest.EndExclusive)}.";
-    }
+        ManualEntryError.GapNotFound => "ManualEntryError_GapNotFound",
+        ManualEntryError.GapNotCanonical => "ManualEntryError_GapNotCanonical",
+        ManualEntryError.ProjectedGapCannotBeResolved =>
+            "ManualEntryError_ProjectedGapCannotBeResolved",
+        ManualEntryError.GapStillOpen => "ManualEntryError_GapStillOpen",
+        ManualEntryError.InvalidActivity => "ManualEntryError_InvalidActivity",
+        ManualEntryError.InvalidSegment => "ManualEntryError_InvalidSegment",
+        ManualEntryError.IncompleteCoverage => "ManualEntryError_IncompleteCoverage",
+        ManualEntryError.OutsideGap => "ManualEntryError_OutsideGap",
+        ManualEntryError.OverlappingSegments => "ManualEntryError_OverlappingSegments",
+        ManualEntryError.HistoryCollision => "ManualEntryError_HistoryCollision",
+        ManualEntryError.ResolutionConflict => "ManualEntryError_ResolutionConflict",
+        _ => throw new ArgumentOutOfRangeException(nameof(error), error, null)
+    };
 
     private void CycleDriverActivity(int driver)
     {
         if (driver == 1)
         {
-            if (_crew.Engine.VehicleMoving) { OperationStatus = "Podczas jazdy aktywność kierowcy 1 jest ustawiana automatycznie."; return; }
+            if (_crew.Engine.VehicleMoving)
+            {
+                OperationStatus = Localization.UiStrings.Format(
+                    "Operation_DriverActivityAutomaticFormat",
+                    1);
+                return;
+            }
             var current = _crew.Current.Driver?.ManualActivity ?? DriverActivity.OtherWork;
             SetActivity(NextActivity(current));
         }
         else
         {
-            if (!IsCard2Inserted) { OperationStatus = "Włóż kartę do czytnika 2."; return; }
+            if (!IsCard2Inserted)
+            {
+                OperationStatus = Localization.UiStrings.Format(
+                    "Operation_InsertCardRequiredFormat",
+                    2);
+                return;
+            }
             if (_crew.Engine.VehicleMoving)
             {
                 StartSelectedRest2();
@@ -1661,7 +1959,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         if (_crew.Current.ManualEntryRequired)
         {
             HandleManualEntryState(_crew.Current);
-            OperationStatus = "Najpierw zatwierdź wymagany wpis manualny.";
+            OperationStatus = Localization.UiStrings.Get("Operation_ConfirmRequiredManualEntry");
             return;
         }
         if (!_deviceMenuOpen)
@@ -1722,8 +2020,10 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 EndCountryIso = country.IsoAlpha2;
                 EndCountry = country.TachographCode;
             }
-            OperationStatus =
-                $"Zapisano kraj: {country.IsoAlpha2}, LCD: {country.TachographCode}.";
+            OperationStatus = Localization.UiStrings.Format(
+                "Operation_CountrySavedFormat",
+                country.IsoAlpha2,
+                country.TachographCode);
             SaveDeviceState(); CloseDeviceMenu();
         }
         else if (_deviceMenuPage == "modes")
@@ -1738,7 +2038,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         }
         else if (_deviceMenuPage == "settings")
         {
-            OperationStatus = "Ustawienia szczegółowe są dostępne w lewym panelu.";
+            OperationStatus = Localization.UiStrings.Get("Operation_SettingsInLeftPanel");
             CloseDeviceMenu();
         }
         UpdateDeviceDisplay();
@@ -1767,20 +2067,99 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
     private string[] MenuItems() => _deviceMenuPage switch
     {
-        "root" => ["WYDRUK", "WPIS MANUALNY", "PAUZA / ODPOCZ.", "KRAJE", "TRYBY", "LICZNIKI KART", "USTAWIENIA"],
-        "print" => ["24H KIEROWCY 1", "24H POJAZDU"],
-        "manual" => ["INNA PRACA", "DYSPOZYCYJNOŚĆ", "ODPOCZYNEK"],
+        "root" =>
+        [
+            Localization.UiStrings.Get("DeviceMenu_Print"),
+            Localization.UiStrings.Get("DeviceMenu_ManualEntry"),
+            Localization.UiStrings.Get("DeviceMenu_BreakOrRest"),
+            Localization.UiStrings.Get("DeviceMenu_Countries"),
+            Localization.UiStrings.Get("DeviceMenu_Modes"),
+            Localization.UiStrings.Get("DeviceMenu_CardCounters"),
+            Localization.UiStrings.Get("DeviceMenu_Settings")
+        ],
+        "print" => [Localization.UiStrings.Get("DeviceMenu_PrintDriver1Day"), Localization.UiStrings.Get("DeviceMenu_PrintVehicleDay")],
+        "manual" =>
+        [
+            Localization.UiStrings.Get("ActivityUpper_OtherWork"),
+            Localization.UiStrings.Get("ActivityUpper_Availability"),
+            Localization.UiStrings.Get("ActivityUpper_Rest")
+        ],
         "rest-target" => AvailableRestTargets.Select(x => x.DeviceLabel).ToArray(),
-        "countries" => [$"START: {StartCountry}", $"KONIEC: {EndCountry}"],
+        "countries" =>
+        [
+            Localization.UiStrings.Format("DeviceMenu_StartCountryFormat", StartCountry),
+            Localization.UiStrings.Format("DeviceMenu_EndCountryFormat", EndCountry)
+        ],
         "country-start" or "country-end" => CountryCodes,
-        "modes" => [$"OUT {OnOff(_crew.Current.Driver?.OutModeEnabled == true)}", $"PROM {OnOff(_crew.Current.Driver?.FerryModeEnabled == true)}"],
-        "counter-cards" => [$"KARTA 1 {(IsCardInserted ? "GOTOWA" : "BRAK")}", $"KARTA 2 {(IsCard2Inserted ? "GOTOWA" : "BRAK")}"],
-        "counters-1" => [$"PAUZA {RestElapsed}", $"CEL {RestRemaining}", $"CIĄGŁA {ContinuousDriving}", $"DO PRZERWY {UntilBreak}", $"DZIENNA {DailyDrivingWithLimit}", $"PRACA {DailyWorkWithLimit}", $"TYDZIEŃ {WeeklyDriving}", $"2 TYG. {FortnightlyDriving}", $"ODP. DZIENNY {DailyRestDeadline}", $"ODP. TYG. {WeeklyRestDeadline}", $"REKOMPENSATA {CompensationText}", $"WYDŁUŻENIA {DailyExtensionsUsage} · TYDZIEŃ", $"SKRÓCONE {ReducedDailyRestsUsage} · OD ODP. TYG."],
-        "counters-2" => [$"PAUZA {RestElapsed2}", $"CEL {RestRemaining2}", $"CIĄGŁA {Driver2ContinuousDriving}", $"DO PRZERWY {Driver2UntilBreak}", $"DZIENNA {Driver2DailyDrivingWithLimit}", $"PRACA {Driver2DailyWorkWithLimit}", $"TYDZIEŃ {Driver2WeeklyDriving}", $"2 TYG. {Driver2FortnightlyDriving}", $"ODP. DZIENNY {Driver2DailyRestDeadline}", $"ODP. TYG. {Driver2WeeklyRestDeadline}", $"REKOMPENSATA {Driver2CompensationText}", $"WYDŁUŻENIA {Driver2DailyExtensionsUsage} · TYDZIEŃ", $"SKRÓCONE {Driver2ReducedDailyRestsUsage} · OD ODP. TYG."],
-        _ => ["PRÓG PRĘDKOŚCI", "TYDZIEŃ REGULACYJNY"]
+        "modes" =>
+        [
+            Localization.UiStrings.Format(
+                "DeviceMenu_OutModeFormat",
+                OnOff(_crew.Current.Driver?.OutModeEnabled == true)),
+            Localization.UiStrings.Format(
+                "DeviceMenu_FerryModeFormat",
+                OnOff(_crew.Current.Driver?.FerryModeEnabled == true))
+        ],
+        "counter-cards" =>
+        [
+            Localization.UiStrings.Format(
+                "DeviceMenu_CardStatusFormat",
+                1,
+                IsCardInserted
+                    ? Localization.UiStrings.Get("DeviceState_Ready")
+                    : Localization.UiStrings.Get("DeviceState_Missing")),
+            Localization.UiStrings.Format(
+                "DeviceMenu_CardStatusFormat",
+                2,
+                IsCard2Inserted
+                    ? Localization.UiStrings.Get("DeviceState_Ready")
+                    : Localization.UiStrings.Get("DeviceState_Missing"))
+        ],
+        "counters-1" => CounterItems(
+            RestElapsed, RestRemaining, ContinuousDriving, UntilBreak,
+            DailyDrivingWithLimit, DailyWorkWithLimit, WeeklyDriving,
+            FortnightlyDriving, DailyRestDeadline, WeeklyRestDeadline,
+            CompensationText, DailyExtensionsUsage, ReducedDailyRestsUsage),
+        "counters-2" => CounterItems(
+            RestElapsed2, RestRemaining2, Driver2ContinuousDriving, Driver2UntilBreak,
+            Driver2DailyDrivingWithLimit, Driver2DailyWorkWithLimit, Driver2WeeklyDriving,
+            Driver2FortnightlyDriving, Driver2DailyRestDeadline, Driver2WeeklyRestDeadline,
+            Driver2CompensationText, Driver2DailyExtensionsUsage,
+            Driver2ReducedDailyRestsUsage),
+        _ => [Localization.UiStrings.Get("DeviceMenu_SpeedThreshold"), Localization.UiStrings.Get("DeviceMenu_RegulatoryWeek")]
     };
 
-    private static string OnOff(bool enabled) => enabled ? "WŁ." : "WYŁ.";
+    private static string[] CounterItems(
+        string restElapsed,
+        string restRemaining,
+        string continuousDriving,
+        string untilBreak,
+        string dailyDriving,
+        string dailyDuty,
+        string weeklyDriving,
+        string fortnightlyDriving,
+        string dailyRestDeadline,
+        string weeklyRestDeadline,
+        string compensation,
+        string extensionsUsage,
+        string reducedRestsUsage) =>
+    [
+        Localization.UiStrings.Format("DeviceCounter_BreakFormat", restElapsed),
+        Localization.UiStrings.Format("DeviceCounter_TargetFormat", restRemaining),
+        Localization.UiStrings.Format("DeviceCounter_ContinuousDrivingFormat", continuousDriving),
+        Localization.UiStrings.Format("DeviceCounter_TimeToBreakFormat", untilBreak),
+        Localization.UiStrings.Format("DeviceCounter_DailyDrivingFormat", dailyDriving),
+        Localization.UiStrings.Format("DeviceCounter_DailyDutyFormat", dailyDuty),
+        Localization.UiStrings.Format("DeviceCounter_WeeklyDrivingFormat", weeklyDriving),
+        Localization.UiStrings.Format("DeviceCounter_FortnightlyDrivingFormat", fortnightlyDriving),
+        Localization.UiStrings.Format("DeviceCounter_DailyRestDeadlineFormat", dailyRestDeadline),
+        Localization.UiStrings.Format("DeviceCounter_WeeklyRestDeadlineFormat", weeklyRestDeadline),
+        Localization.UiStrings.Format("DeviceCounter_CompensationFormat", compensation),
+        Localization.UiStrings.Format("DeviceCounter_ExtensionsUsageFormat", extensionsUsage),
+        Localization.UiStrings.Format("DeviceCounter_ReducedDailyRestsUsageFormat", reducedRestsUsage)
+    ];
+
+    private static string OnOff(bool enabled) => enabled ? Localization.UiStrings.Get("DeviceState_On") : Localization.UiStrings.Get("DeviceState_Off");
 
     private async Task PrintDailyReportAsync()
     {
@@ -1790,7 +2169,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         var file = Path.Combine(folder, $"wydruk-24h-{DateTime.Now:yyyyMMdd-HHmmss}.pdf");
         await using var stream = File.Create(file);
         await _pdfReports.ExportAsync(report, stream);
-        OperationStatus = $"Wydruk zapisany: {file}";
+        OperationStatus = Localization.UiStrings.Format(
+            "Operation_PrintSavedFormat",
+            file);
     }
 
     private void UpdateDeviceDisplay()
@@ -1799,34 +2180,48 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         DeviceLine2Foreground = "#111A12";
         if (_isCardLoading)
         {
-            DeviceLine1 = $"KARTA {_cardDialogSlot} - ODCZYT";
-            DeviceLine2 = SelectedProfile?.DisplayName?.ToUpperInvariant() ?? "KIEROWCA";
+            DeviceLine1 = Localization.UiStrings.Format(
+                "Device_CardReadingFormat",
+                _cardDialogSlot);
+            DeviceLine2 = SelectedProfile?.DisplayName?.ToUpperInvariant() ??
+                          Localization.UiStrings.Get("Device_DriverFallback");
             DeviceLine3 = "[##########]  OK"; return;
         }
         if (_crew.Current.ManualEntryRequired)
         {
-            DeviceLine1 = "! WPIS MANUALNY !";
-            DeviceLine2 = $"SLOT {_manualEntrySlot}  WYMAGANY";
-            DeviceLine3 = _warningBlink ? "JAZDA ZABLOKOWANA" : "POTWIERDŹ AKTYWNOŚĆ";
+            DeviceLine1 = Localization.UiStrings.Get("Device_ManualEntryRequired");
+            DeviceLine2 = Localization.UiStrings.Format(
+                "Device_RequiredSlotFormat",
+                _manualEntrySlot);
+            DeviceLine3 = _warningBlink ? Localization.UiStrings.Get("Device_DrivingBlocked") : Localization.UiStrings.Get("Device_ConfirmActivity");
             return;
         }
         if (IsPrinting)
         {
-            DeviceLine1 = "DRUKOWANIE..."; DeviceLine2 = "24H KIEROWCY 1"; DeviceLine3 = "[########--]"; return;
+            DeviceLine1 = Localization.UiStrings.Get("Device_Printing"); DeviceLine2 = Localization.UiStrings.Get("DeviceMenu_PrintDriver1Day"); DeviceLine3 = "[########--]"; return;
         }
         if (_deviceMenuOpen)
         {
             var items = MenuItems();
             DeviceLine1 = _deviceMenuPage switch
             {
-                "root" => "MENU GŁÓWNE",
-                "rest-target" => "WYBIERZ PAUZĘ",
-                "counter-cards" => "WYBIERZ KARTĘ",
-                "counters-1" => "LICZNIKI KARTY 1",
-                "counters-2" => "LICZNIKI KARTY 2",
-                "country-start" => "KRAJ START",
-                "country-end" => "KRAJ KONIEC",
-                _ => _deviceMenuPage.ToUpperInvariant()
+                "root" => Localization.UiStrings.Get("DeviceMenu_MainTitle"),
+                "rest-target" => Localization.UiStrings.Get("DeviceMenu_SelectBreakTitle"),
+                "counter-cards" => Localization.UiStrings.Get("DeviceMenu_SelectCardTitle"),
+                "counters-1" => Localization.UiStrings.Format(
+                    "DeviceMenu_CardCountersTitleFormat",
+                    1),
+                "counters-2" => Localization.UiStrings.Format(
+                    "DeviceMenu_CardCountersTitleFormat",
+                    2),
+                "country-start" => Localization.UiStrings.Get("DeviceMenu_StartCountryTitle"),
+                "country-end" => Localization.UiStrings.Get("DeviceMenu_EndCountryTitle"),
+                "manual" => Localization.UiStrings.Get("DeviceMenu_ManualEntry"),
+                "countries" => Localization.UiStrings.Get("DeviceMenu_Countries"),
+                "modes" => Localization.UiStrings.Get("DeviceMenu_Modes"),
+                "print" => Localization.UiStrings.Get("DeviceMenu_Print"),
+                _ => throw new InvalidOperationException(
+                    $"Unknown device menu page: {_deviceMenuPage}.")
             };
             var selectedItem = items[_menuIndex];
             DeviceLine2Foreground = IsExceededCounterItem(selectedItem) ? "#B42318" : "#111A12";
@@ -1838,32 +2233,48 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         var gameClock = _crew.Current.Frame is { } frame
             ? GameClockFormatter.FormatTimeOfDay(frame.GameTime)
             : "--:--";
-        var activity1 = _currentSpeed > 0.5 ? "KIEROWNICA" : driver is null ? "BRAK KARTY" : ActivityLabel(driver.ManualActivity);
-        var activity2 = coDriver is null ? "BRAK KARTY" : ActivityLabel(coDriver.ProvisionalActivity ?? coDriver.ManualActivity);
+        var activity1 = _currentSpeed > 0.5 ? Localization.UiStrings.Get("DeviceActivity_Driving") : driver is null ? Localization.UiStrings.Get("Card_NoCard") : ActivityLabel(driver.ManualActivity);
+        var activity2 = coDriver is null ? Localization.UiStrings.Get("Card_NoCard") : ActivityLabel(coDriver.ProvisionalActivity ?? coDriver.ManualActivity);
         DeviceLine1 = $"{gameClock}       {_currentSpeed,3:0} km/h";
         DeviceLine2 = $"1 {activity1,-11} 2 {activity2}";
         DeviceLine3 = !IsCardInserted && _currentSpeed > 0.5
-            ? (_warningBlink ? "! JAZDA BEZ KARTY !" : "X  BŁĄD KARTY 1  X")
+            ? (_warningBlink
+                ? Localization.UiStrings.Get("Device_DrivingWithoutCard")
+                : Localization.UiStrings.Format("Device_CardErrorFormat", 1))
             : IsCardInserted && _currentSpeed <= 0.5 && driver?.ManualActivity == DriverActivity.BreakOrRest
                 ? $"P {RestElapsed}  > {RestRemaining}"
-                : $"{_odometer:000000.0} km  {(IsCardInserted ? "K1" : "BRAK K1")}";
+                : $"{_odometer:000000.0} km  " +
+                  (IsCardInserted
+                      ? "K1"
+                      : Localization.UiStrings.Format("Device_NoCardShortFormat", 1));
     }
 
     private static string ActivityLabel(DriverActivity activity) => activity switch
     {
-        DriverActivity.BreakOrRest => "ŁÓŻKO",
-        DriverActivity.OtherWork => "MŁOTKI",
-        DriverActivity.Availability => "GOTOWOŚĆ",
-        _ => activity.ToString().ToUpperInvariant()
+        DriverActivity.BreakOrRest => Localization.UiStrings.Get("DeviceActivity_BreakOrRest"),
+        DriverActivity.OtherWork => Localization.UiStrings.Get("DeviceActivity_OtherWork"),
+        DriverActivity.Availability => Localization.UiStrings.Get("DeviceActivity_Availability"),
+        DriverActivity.Driving => Localization.UiStrings.Get("DeviceActivity_Driving"),
+        DriverActivity.OutOfScope => "OUT",
+        DriverActivity.Unknown => Localization.UiStrings.Get("DeviceActivity_Unknown"),
+        _ => throw new ArgumentOutOfRangeException(nameof(activity))
     };
 
     private bool IsExceededCounterItem(string item) =>
-        item.StartsWith("WYDŁUŻENIA", StringComparison.Ordinal) &&
-        (_deviceMenuPage == "counters-1" ? DailyExtensionsExceeded : Driver2DailyExtensionsExceeded) ||
-        item.StartsWith("SKRÓCONE", StringComparison.Ordinal) &&
-        (_deviceMenuPage == "counters-1" ? ReducedDailyRestsExceeded : Driver2ReducedDailyRestsExceeded) ||
-        item.StartsWith("REKOMPENSATA", StringComparison.Ordinal) &&
-        (_deviceMenuPage == "counters-1" ? CompensationOverdue : Driver2CompensationOverdue);
+        _deviceMenuPage is "counters-1" or "counters-2" &&
+        (_menuIndex switch
+        {
+            10 => _deviceMenuPage == "counters-1"
+                ? CompensationOverdue
+                : Driver2CompensationOverdue,
+            11 => _deviceMenuPage == "counters-1"
+                ? DailyExtensionsExceeded
+                : Driver2DailyExtensionsExceeded,
+            12 => _deviceMenuPage == "counters-1"
+                ? ReducedDailyRestsExceeded
+                : Driver2ReducedDailyRestsExceeded,
+            _ => false
+        });
 
     private string CurrentDriverCardId => _crew.Current.DriverCardId ?? _defaultDriverCardId;
     private static string DeviceStatePath => Path.Combine(
@@ -1925,7 +2336,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         }
         catch (Exception exception)
         {
-            OperationStatus = $"Nie udało się odtworzyć stanu urządzenia: {exception.Message}";
+            _diagnostics.Error("DEVICE_STATE_RESTORE_FAILED", exception);
+            OperationStatus = Localization.UiStrings.Get("Operation_DeviceStateRestoreFailed");
         }
     }
 
@@ -1954,7 +2366,8 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         }
         catch (Exception exception)
         {
-            OperationStatus = $"Nie udało się zapisać stanu urządzenia: {exception.Message}";
+            _diagnostics.Error("DEVICE_STATE_SAVE_FAILED", exception);
+            OperationStatus = Localization.UiStrings.Get("Operation_DeviceStateSaveFailed");
         }
     }
 
@@ -2055,16 +2468,20 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             foreach (var card in profile.Cards)
                 await _crew.RegisterCardAsync(card.CardNumber, _cancellation.Token);
             NewDriverName = string.Empty; NewCardNumber = string.Empty;
-            OperationStatus = "Profil utworzony.";
+            OperationStatus = Localization.UiStrings.Get("Operation_ProfileCreated");
         }
-        catch (Exception ex) { OperationStatus = ex.Message; }
+        catch (Exception exception)
+        {
+            _diagnostics.Error("PROFILE_CREATE_FAILED", exception);
+            OperationStatus = Localization.UiStrings.Get("Operation_ProfileCreateFailed");
+        }
     }
 
     private async Task ActivateProfileAsync()
     {
         if (SelectedProfile is null) return;
         await _drivers.SetActiveProfileAsync(SelectedProfile.Id);
-        OperationStatus = "Profil zapisany. Uruchom aplikację ponownie, aby rozpocząć jego sesję.";
+        OperationStatus = Localization.UiStrings.Get("Operation_ProfileActivatedRestart");
     }
 
     private async Task SaveSettingsAsync()
@@ -2115,26 +2532,53 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private async Task ExportAsync()
     {
         var cardId = CurrentDriverCardId;
-        var dialog = new SaveFileDialog { Filter = "Sesja tachografu (*.tacho)|*.tacho", FileName = $"{cardId}.tacho" };
+        var dialog = new SaveFileDialog
+        {
+            Filter = $"{Localization.UiStrings.Get("FileDialog_TachographSession")} (*.tacho)|*.tacho",
+            FileName = $"{cardId}.tacho"
+        };
         if (dialog.ShowDialog() != true) return;
-        await using var stream = File.Create(dialog.FileName);
-        await _export.ExportSessionAsync(cardId, stream);
-        OperationStatus = "Eksport zakończony.";
+        try
+        {
+            await using var stream = File.Create(dialog.FileName);
+            await _export.ExportSessionAsync(cardId, stream);
+            OperationStatus = Localization.UiStrings.Get("Operation_TachographSessionExported");
+        }
+        catch (Exception exception)
+        {
+            _diagnostics.Error("TACHOGRAPH_SESSION_EXPORT_FAILED", exception);
+            OperationStatus =
+                Localization.UiStrings.Get("Operation_TachographSessionExportFailed");
+        }
     }
 
     private async Task ImportAsync()
     {
-        var dialog = new OpenFileDialog { Filter = "Sesja tachografu (*.tacho)|*.tacho" };
+        var dialog = new OpenFileDialog
+        {
+            Filter = $"{Localization.UiStrings.Get("FileDialog_TachographSession")} (*.tacho)|*.tacho"
+        };
         if (dialog.ShowDialog() != true) return;
         try
         {
             await using var stream = File.OpenRead(dialog.FileName);
             var count = await _import.ImportSessionAsync(stream);
             await ReloadHistoryAsync(_cancellation.Token);
-            OperationStatus = $"Zaimportowano {count} rekordów.";
+            OperationStatus = Localization.UiStrings.Format(
+                Localization.UiPlural.Select(
+                    count,
+                    "Operation_ImportRecordCountOneFormat",
+                    "Operation_ImportRecordCountFewFormat",
+                    "Operation_ImportRecordCountManyFormat"),
+                count);
             await ReportsWorkspace.RefreshAsync(_cancellation.Token);
         }
-        catch (Exception ex) { OperationStatus = ex.Message; }
+        catch (Exception exception)
+        {
+            _diagnostics.Error("TACHOGRAPH_SESSION_IMPORT_FAILED", exception);
+            OperationStatus =
+                Localization.UiStrings.Get("Operation_TachographSessionImportFailed");
+        }
     }
 
     private async Task ShowReportGapsAsync()
@@ -2156,13 +2600,21 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         var (filter, extension, label) = format switch
         {
             ReportExportFormat.Pdf =>
-                ("Raport PDF (*.pdf)|*.pdf", "pdf", "PDF"),
+                ($"{Localization.UiStrings.Get("ReportExport_Pdf")} (*.pdf)|*.pdf",
+                    "pdf",
+                    Localization.UiStrings.Get("ReportExport_Pdf")),
             ReportExportFormat.VtcJson =>
-                ("VTC JSON (*.json)|*.json", "json", "VTC JSON"),
+                ($"{Localization.UiStrings.Get("ReportExport_VtcJson")} (*.json)|*.json",
+                    "json",
+                    Localization.UiStrings.Get("ReportExport_VtcJson")),
             ReportExportFormat.CompensationCsv =>
-                ("CSV zobowiązań (*.csv)|*.csv", "csv", "CSV zobowiązań"),
+                ($"{Localization.UiStrings.Get("ReportExport_CompensationCsvName")} (*.csv)|*.csv",
+                    "csv",
+                    Localization.UiStrings.Get("ReportExport_CompensationCsvName")),
             ReportExportFormat.RawActivityCsv =>
-                ("Surowy CSV aktywności (*.csv)|*.csv", "csv", "surowy CSV"),
+                ($"{Localization.UiStrings.Get("ReportExport_RawActivityCsvName")} (*.csv)|*.csv",
+                    "csv",
+                    Localization.UiStrings.Get("ReportExport_RawActivityCsvName")),
             _ => throw new ArgumentOutOfRangeException(nameof(format))
         };
         var dialog = new SaveFileDialog
@@ -2191,13 +2643,18 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                     await _reports.ExportCsvAsync(report, stream, cancellationToken);
                     break;
             }
-            OperationStatus = $"Zapisano {label}: {dialog.FileName}";
+            OperationStatus = Localization.UiStrings.Format(
+                "Operation_ReportExportSavedFormat",
+                label,
+                dialog.FileName);
             return new ReportExportResult(true, dialog.FileName);
         }
         catch (Exception exception)
         {
             _diagnostics.Error("REPORT_EXPORT_FAILED", exception);
-            OperationStatus = $"Nie udało się zapisać {label}: {exception.Message}";
+            OperationStatus = Localization.UiStrings.Format(
+                "Operation_ReportExportFailedFormat",
+                label);
             return new ReportExportResult(false);
         }
     }
@@ -2206,8 +2663,12 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     {
         var dialog = new SaveFileDialog
         {
-            Filter = "Raport diagnostyczny ZIP (*.zip)|*.zip",
-            FileName = $"ets2-tachograph-diagnostics-{DateTime.Now:yyyyMMdd-HHmmss}.zip"
+            Filter =
+                $"{Localization.UiStrings.Get("FileDialog_DiagnosticReportZip")} (*.zip)|*.zip",
+            FileName = string.Format(
+                CultureInfo.InvariantCulture,
+                "ets2-tachograph-diagnostics-{0:yyyyMMdd-HHmmss}.zip",
+                DateTime.Now)
         };
         if (dialog.ShowDialog() != true) return;
 
@@ -2228,12 +2689,14 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 Violations.Count);
             await using var stream = File.Create(dialog.FileName);
             await _diagnostics.CreateReportAsync(stream, snapshot, _cancellation.Token);
-            OperationStatus = $"Zapisano raport diagnostyczny: {dialog.FileName}";
+            OperationStatus = Localization.UiStrings.Format(
+                "Operation_DiagnosticReportSavedFormat",
+                dialog.FileName);
         }
         catch (Exception exception)
         {
             _diagnostics.Error("DIAGNOSTIC_REPORT_FAILED", exception);
-            OperationStatus = $"Nie udało się utworzyć raportu diagnostycznego: {exception.Message}";
+            OperationStatus = Localization.UiStrings.Get("Operation_DiagnosticReportFailed");
         }
     }
 
@@ -2244,7 +2707,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             records.AddRange(await _crew.LoadDriverHistoryAsync(card.CardNumber, cancellationToken: cancellationToken));
         History.Clear();
         foreach (var record in records.OrderBy(x => x.Start).ThenBy(x => x.DriverCardId))
-            History.Add(record);
+            History.Add(HistoryActivityRow.From(record));
     }
 
     private async Task RefreshActivityGapsSafelyAsync()
@@ -2257,7 +2720,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         catch (Exception exception)
         {
             _diagnostics.Error("ACTIVITY_GAPS_REFRESH_FAILED", exception);
-            OperationStatus = $"Nie udało się odświeżyć listy luk: {exception.Message}";
+            OperationStatus = Localization.UiStrings.Get("Operation_GapListRefreshFailed");
         }
     }
 
@@ -2269,7 +2732,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             cancellationToken: cancellationToken);
         ActivityGaps.Clear();
         foreach (var gap in list.Items)
-            ActivityGaps.Add(gap);
+            ActivityGaps.Add(ActivityGapRow.From(gap));
         UnresolvedGapCount = list.UnresolvedCount;
     }
 
@@ -2306,7 +2769,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             PendingRestAllocationChoices.Clear();
             foreach (var row in projection.CompensationObligations
                          .Select(item => CompensationDetailRow.From(
-                             "KARTA",
+                             Localization.UiStrings.Get("History_CardHeader"),
                              item,
                              _gameCalendar))
                          .OrderBy(item => item.IsOpen ? 0 : 1)
@@ -2328,13 +2791,17 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
             OnPropertyChanged(nameof(CompensationDetailsHeader));
             OnPropertyChanged(nameof(HasPendingRestAllocations));
             OperationStatus = CompensationDetails.Count == 0
-                ? "Wybrana karta nie ma zobowiązań rekompensaty."
-                : $"Wczytano pełny ślad {CompensationDetails.Count} zobowiązań rekompensaty.";
+                ? Localization.UiStrings.Get("Operation_NoCompensationObligations")
+                : Localization.UiStrings.Format(
+                    CompensationDetails.Count == 1
+                        ? "Operation_CompensationLoadedOneFormat"
+                        : "Operation_CompensationLoadedManyFormat",
+                    CompensationDetails.Count);
         }
         catch (Exception exception)
         {
             _diagnostics.Error("COMPENSATION_DETAILS_REFRESH_FAILED", exception);
-            OperationStatus = $"Nie udało się wczytać szczegółów rekompensaty: {exception.Message}";
+            OperationStatus = Localization.UiStrings.Get("Operation_CompensationDetailsFailed");
         }
     }
 
@@ -2360,13 +2827,12 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                 _cancellation.Token);
             await ReportsWorkspace.RefreshAsync(_cancellation.Token);
             await RefreshCompensationDetailsAsync();
-            OperationStatus = "Zapisano audytowaną decyzję rozliczenia odpoczynku.";
+            OperationStatus = Localization.UiStrings.Get("Operation_RestAllocationSaved");
         }
         catch (Exception exception)
         {
             _diagnostics.Error("REST_ALLOCATION_DECISION_FAILED", exception);
-            OperationStatus =
-                $"Nie udało się zapisać decyzji rozliczenia: {exception.Message}";
+            OperationStatus = Localization.UiStrings.Get("Operation_RestAllocationFailed");
         }
     }
 
@@ -2375,12 +2841,12 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         try
         {
             Clipboard.SetText(value);
-            OperationStatus = "Skopiowano pełny identyfikator do schowka.";
+            OperationStatus = Localization.UiStrings.Get("Operation_IdentifierCopied");
         }
         catch (Exception exception)
         {
             _diagnostics.Error("CLIPBOARD_COPY_FAILED", exception);
-            OperationStatus = $"Nie udało się skopiować identyfikatora: {exception.Message}";
+            OperationStatus = Localization.UiStrings.Get("Operation_IdentifierCopyFailed");
         }
     }
 
@@ -2406,7 +2872,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
 
         var count = summary.Count > 1 ? $" ({summary.Count})" : string.Empty;
         var status = summary.HasOverdue
-            ? "PRZETERMINOWANA"
+            ? Localization.UiStrings.Get("DeviceCompensation_Overdue")
             : $"DO TYG. {summary.NearestDueByEndOfWeek!.Value.Index}";
         return $"{Format(summary.TotalOwedMinutes)}{count} · {status}";
     }
@@ -2422,7 +2888,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
     private static string MaskCard(string? cardNumber)
     {
         if (string.IsNullOrWhiteSpace(cardNumber) || cardNumber.StartsWith("BRAK", StringComparison.OrdinalIgnoreCase))
-            return "BRAK KARTY";
+            return Localization.UiStrings.Get("Card_NoCard");
         return cardNumber.Length <= 4 ? "****" : $"****{cardNumber[^4..]}";
     }
     private bool Set<T>(ref T field, T value, [CallerMemberName] string? name = null)
