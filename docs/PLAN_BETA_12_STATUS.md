@@ -24,7 +24,7 @@
 | **M3.7** | Planer: ergonomia wprowadzania danych | 🟢 automatyka i ręczny gate zielone | GO | M4-0 |
 | **M4-0** | Inwentaryzacja UI + weryfikacja rc4 | 🟢 62/62 pozycji beta.12 PASS | GO | M4 |
 | **M4** | Finalizacja UI + **UI freeze** | 🟢 UI zamrożone | GO | M5 |
-| **M5** | Lokalizacja PL/EN | 🟡 M5.1; paczka 1 GO | W TOKU | M6 |
+| **M5** | Lokalizacja PL/EN | 🟡 M5.1; paczki 1–4 GO | W TOKU | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
 | M7 | Końcowy smoke beta.12 | ⚪ nie rozpoczęty | — | M8 |
 | M8 | Publikacja | ⚪ nie rozpoczęty | — | — |
@@ -485,18 +485,26 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
 - **Punkt wejściowy:** `2d8a760`.
 - **Gałąź:** `codex/m5-localization-pl-en`.
 - **Stan:** M5.1 — inwentaryzacja tekstów, kontraktów i ryzyk przepełnień;
-  paczki 1–3 zamknięte wynikiem GO.
+  paczki 1–4 zamknięte wynikiem GO.
 - **Artefakt:** `docs/LOCALIZATION_STRING_INVENTORY.md`.
 - **Paczka 1:** elementy wspólne, powłoka i nawigacja — 33 wiążące klucze,
   0 pozycji otwartych.
 - **Paczka 2:** Dashboard — 58 wiążących kluczy, 0 pozycji otwartych.
 - **Paczka 3:** wirtualny tachograf — 79 wiążących kluczy,
   0 pozycji otwartych.
-- **Katalog łączny:** 170 kluczy, 170 unikalnych nazw; jawna lista
-  5 oczekiwanych duplikatów wartości między różnymi rolami.
+- **Paczka 4:** Historia, luki i wpis manualny — 87 wiążących kluczy,
+  0 pozycji otwartych.
+- **Katalog łączny:** 257 kluczy, 257 unikalnych nazw; jawna lista
+  12 dozwolonych par powtórzonych wartości między różnymi rolami.
 - **X-01:** wspólne formatery czasu i terminów — obszar do rozpisania;
-  warunek pełnej kompletności wartości terminów na Dashboardzie oraz wspólne
-  wejście dla Planera, Raportów i `WeeklyRestWindowFormatter`.
+  warunek kompletności Dashboardu i listy dni w modalu wpisu manualnego oraz
+  wspólne wejście dla Planera, Raportów i `WeeklyRestWindowFormatter`.
+- **Pozostałe obszary M5.1:** `X-01`, `UI-04`, `UI-05`, `UI-06`, `UI-07`,
+  `UI-08`, `UI-09`, `UI-10` i `PDF-01`; `DOC-01/02` pozostają odłożone
+  do M5.4.
+- **Przejęte zobowiązania:** `UI-09` obejmuje szczegółowe komunikaty błędów,
+  `OperationStatus` i potwierdzenia. `UI-08` i `PDF-01` pozostają obszarami
+  o największej liczbie kandydatów i najwyższym ryzyku przepełnień EN.
 - **Zmiany wykonawcze:** brak zmian w kodzie i XAML; dotychczasowe paczki M5.1
   są wyłącznie kontraktem dokumentacyjnym przed M5.2.
 - **Zakres językowy:** `pl-PL` i `en-GB`.

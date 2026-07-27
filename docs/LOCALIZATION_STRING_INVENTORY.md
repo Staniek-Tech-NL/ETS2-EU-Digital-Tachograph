@@ -4,7 +4,7 @@
 
 **Data rozpoczęcia:** 2026-07-27
 
-**Status:** **W TOKU — PACZKI 1–3 GO**
+**Status:** **W TOKU — PACZKI 1–4 GO**
 
 **Języki:** `pl-PL`, `en-GB`
 
@@ -47,7 +47,7 @@ Powtarzające się etykiety wspólne mają korzystać z jednego klucza semantycz
 |---|---|---|---|---|---|
 | UI-01 | Powłoka, tytuł, nawigacja i wspólne akcje | `MainWindow.xaml`, `App.xaml.cs`, `MainViewModel.cs` | U/T/D/O | `UiStrings.Common_*`, `UiStrings.Navigation_*`, `UiStrings.Shell_*` | GO — katalog wiążący |
 | UI-02 | Dashboard i wirtualny tachograf | `MainWindow.xaml`, `MainViewModel.cs` | U/P | zasoby + presentery aktywności, trybów i stanu kart | Dashboard GO w paczce 2; urządzenie GO w paczce 3; pełne terminy zależne od X-01 |
-| UI-03 | Historia, luki i wpis manualny | `MainWindow.xaml`, `MainViewModel.cs`, `ManualEntryPlanEditor.cs` | U/P | zasoby + presentery aktywności, przyczyn i stanów luk | do rozpisania |
+| UI-03 | Historia, luki i wpis manualny | `MainWindow.xaml`, `MainViewModel.cs`, `ManualEntryPlanEditor.cs` | U/P | zasoby + presentery aktywności, źródeł, warunków, przyczyn, stanów luk i walidacji | GO w paczce 4 |
 | UI-04 | Kraje i kody tachografowe | `CountryCatalog.cs`, JSON | U/T | osobne nazwy PL/EN; zapis nadal przez ISO | do rozpisania |
 | UI-05 | Rekompensaty | `MainWindow.xaml`, `CompensationPresentation.cs` | U/P/T | zasoby + presenter statusu; identyfikatory bez zmian | do rozpisania |
 | UI-06 | Raporty w Desktop | `MainWindow.xaml`, `ReportsWorkspaceViewModel.cs` | U/P/T | zasoby + presentery; formaty eksportu bez zmian | do rozpisania |
@@ -454,9 +454,9 @@ wspólne formatery czasu i terminów. Pełna kompletność EN Dashboardu zależy
 GO `X-01`.
 
 `X-01` obejmie 12 nowych kluczy: 7 pełnych nazw dni, 4 nieurządzeniowe prefiksy
-`GameDeadlineSemantic` i etykietę `Dzień` / `Day`. Ponownie użyje 7 skrótów
-`Weekday_Short_*` zatwierdzanych w paczce 3. Te same zasoby obsłużą Dashboard,
-Planer, Raporty i `WeeklyRestWindowFormatter`.
+`GameDeadlineSemantic` i `GameCalendar_DayFormat` (`Dzień {0}` / `Day {0}`).
+Ponownie użyje 7 skrótów `Weekday_Short_*` zatwierdzanych w paczce 3. Te same
+zasoby obsłużą Dashboard, Planer, Raporty i `WeeklyRestWindowFormatter`.
 
 ## Paczka 3 — wirtualny tachograf
 
@@ -510,9 +510,9 @@ względem obecnego XAML, bez zmiany znaczenia ani zachowania przycisku.
 | `DeviceMenu_Settings` | USTAWIENIA | SETTINGS | U |
 | `DeviceMenu_PrintDriver1Day` | 24H KIEROWCY 1 | 24H DRIVER 1 | U/T |
 | `DeviceMenu_PrintVehicleDay` | 24H POJAZDU | 24H VEHICLE | U/T |
-| `DeviceMenu_OtherWork` | INNA PRACA | OTHER WORK | P |
-| `DeviceMenu_Availability` | DYSPOZYCYJNOŚĆ | AVAILABILITY | P |
-| `DeviceMenu_Rest` | ODPOCZYNEK | REST | P |
+| `ActivityUpper_OtherWork` | INNA PRACA | OTHER WORK | P |
+| `ActivityUpper_Availability` | DYSPOZYCYJNOŚĆ | AVAILABILITY | P |
+| `ActivityUpper_Rest` | ODPOCZYNEK | REST | P |
 | `DeviceMenu_StartCountryFormat` | START: {0} | START: {0} | U/T |
 | `DeviceMenu_EndCountryFormat` | KONIEC: {0} | END: {0} | U/T |
 | `DeviceMenu_OutModeFormat` | OUT {0} | OUT {0} | U/T |
@@ -698,9 +698,9 @@ Test duplikatów wartości musi używać jawnej listy dozwolonych par. Dla katal
 
 | Wartość EN | Klucze | Decyzja |
 |---|---|---|
-| `OTHER WORK` | `DeviceMenu_OtherWork`, `DeviceActivity_OtherWork` | zamierzone; pozycja menu i etykieta aktywności są odrębnymi rolami, a PL zachowuje `INNA PRACA` / `MŁOTKI` |
-| `AVAILABILITY` | `DeviceMenu_Availability`, `DeviceActivity_Availability` | zamierzone; odrębne role, PL zachowuje `DYSPOZYCYJNOŚĆ` / `GOTOWOŚĆ` |
-| `REST` | `DeviceMenu_Rest`, `DeviceActivity_BreakOrRest` | zamierzone; odrębne role, PL zachowuje `ODPOCZYNEK` / `ŁÓŻKO` |
+| `OTHER WORK` | `ActivityUpper_OtherWork`, `DeviceActivity_OtherWork` | zamierzone; pozycja menu i etykieta aktywności są odrębnymi rolami, a PL zachowuje `INNA PRACA` / `MŁOTKI` |
+| `AVAILABILITY` | `ActivityUpper_Availability`, `DeviceActivity_Availability` | zamierzone; odrębne role, PL zachowuje `DYSPOZYCYJNOŚĆ` / `GOTOWOŚĆ` |
+| `REST` | `ActivityUpper_Rest`, `DeviceActivity_BreakOrRest` | zamierzone; odrębne role, PL zachowuje `ODPOCZYNEK` / `ŁÓŻKO` |
 | `FROM` | `Common_From`, `DeviceDeadline_AvailableFromPrefix` | osobne klucze są wymagane mimo identycznego `OD` / `FROM`: granica zakresu i semantyka terminu „dostępne od” nie są tą samą rolą |
 | `OVERDUE` | `CompensationSummary_Overdue`, `DeviceCompensation_Overdue` | wspólny termin EN; PL świadomie zachowuje `ZALEGŁE` na Dashboardzie i urządzeniowe `PRZETERMINOWANA` na LCD zgodnie z UI freeze |
 
@@ -726,6 +726,297 @@ M5 nie zmienia zatwierdzonej polskiej treści urządzenia.
 
 **GO — paczka 3 zatwierdzona.** Łączny katalog paczek 1–3 zawiera 170
 wiążących kluczy bez powtórzeń nazw. `X-01` pozostaje obszarem do rozpisania.
+
+## Paczka 4 — Historia, luki i wpis manualny
+
+**Zakres:** tabela historii aktywności, rejestr luk, modal planu wpisu manualnego,
+podsumowanie kwalifikacji oraz wszystkie walidacje domenowe dochodzące do
+`ManualEntryValidationMessage`.
+
+**Stan:** **ZAMKNIĘTA — GO**
+
+**Data zatwierdzenia:** 2026-07-27
+
+**Pozycje otwarte:** 0
+
+**Katalog:** 87 nowych kluczy — 14 etykiet Historii i luk, 18 wartości
+prezenterów Historii, 20 etykiet modala, 18 formatów podsumowań i kwalifikacji
+oraz 17 komunikatów walidacji.
+
+### Granica paczki
+
+Paczka obejmuje `MainWindow.xaml:174-245`, modal wpisu manualnego
+z `MainWindow.xaml:850-1048`, wartości bindowane z `MainViewModel`,
+`ActivityGapListItemDto` i `ManualEntryPlanEditor`.
+
+Potwierdzenie odrzucenia niezapisanych zmian w `MessageBox`, komunikaty
+`OperationStatus` oraz błędy eksportu i importu należą do UI-09. Nazwy krajów
+i dialog karty pozostają w UI-04/UI-09. `ManualEntryDayOption.DisplayName`
+użyje planowanego w `X-01` formatu `GameCalendar_DayFormat` (`Dzień {0}` /
+`Day {0}`), dlatego kompletność listy dni zależy od GO `X-01`.
+
+`ResolveGapStatus` i `ManualEntryPersistenceStatus` sterują przepływem i nie są
+wyświetlane użytkownikowi. Nie otrzymują kluczy. Nieaktywna obecnie ścieżka
+`ManualEntryWizardDraft` również nie tworzy kandydatów; jej surowe wyjątki nie
+mogą zostać podłączone do UI bez osobnej decyzji lokalizacyjnej.
+
+### Historia i rejestr luk — etykiety
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `History_Title` | HISTORIA AKTYWNOŚCI · WSZYSTKIE KARTY | ACTIVITY HISTORY · ALL CARDS | U |
+| `History_ExportDriver1TachoAction` | Eksportuj .tacho kierowcy 1 | Export driver 1 .tacho | U/T |
+| `History_ImportTachoAction` | Importuj .tacho | Import .tacho | U/T |
+| `History_CardHeader` | KARTA | CARD | U |
+| `History_FromGameTimeHeader` | OD · CZAS GRY | FROM · GAME TIME | U |
+| `History_ToGameTimeHeader` | DO · CZAS GRY | TO · GAME TIME | U |
+| `Common_ActivityHeader` | AKTYWNOŚĆ | ACTIVITY | U |
+| `History_ConditionHeader` | WARUNEK | CONDITION | U |
+| `Gap_ShowResolved` | Pokaż rozliczone | Show resolved | U |
+| `Gap_HeaderFormat` | LUKI AKTYWNOŚCI · NIEROZLICZONE: {0} | ACTIVITY GAPS · UNRESOLVED: {0} | U/T |
+| `Gap_SlotHeader` | SLOT | SLOT | U/T |
+| `Gap_DurationHeader` | DŁUGOŚĆ | DURATION | U |
+| `Gap_CauseHeader` | PRZYCZYNA | CAUSE | U |
+| `Gap_StateHeader` | STAN | STATE | U |
+
+Historia ponownie używa `Navigation_History`, `Common_SourceHeader`,
+`Common_From`, `Common_To` i `Common_ActionHeader`. Modal ponownie używa
+`Common_ActivityHeader`; rola jest neutralna i nie wymaga drugiego klucza.
+
+### Presentery Historii i luk
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `ActivitySource_Telemetry` | Telemetria | Telemetry | P |
+| `ActivitySource_Manual` | Ręcznie | Manual | P |
+| `ActivitySource_Reconstructed` | Odtworzona | Reconstructed | P |
+| `ActivitySource_Mixed` | Mieszane | Mixed | P |
+| `ActivitySource_ManualEntry` | Wpis manualny | Manual entry | P |
+| `ActivitySource_AutomaticCrewReconstruction` | Automatyczne odtworzenie załogi | Automatic crew reconstruction | P |
+| `SpecialCondition_None` | Brak | None | P |
+| `SpecialCondition_FerryCrossing` | Przeprawa promowa | Ferry crossing | P |
+| `SpecialCondition_Mixed` | Mieszany | Mixed | P |
+| `SpecialCondition_CrewBreakInMotion` | Przerwa załogi w ruchu | Crew break in motion | P |
+| `GapReason_ForwardTimeJump` | Skok czasu | Time jump | P |
+| `GapReason_CardRemoved` | Karta wyjęta | Card withdrawn | P |
+| `GapReason_TelemetryUnavailable` | Brak telemetrii | Telemetry unavailable | P |
+| `GapState_ResolvedFormat` | ROZLICZONA · {0} | RESOLVED · {0} | P/T |
+| `GapState_Ongoing` | TRWA | ONGOING | P |
+| `GapState_Unresolved` | NIEROZLICZONA | UNRESOLVED | P |
+| `Gap_CardStillRemovedHelp` | karta nadal wyjęta | card still withdrawn | U |
+| `Gap_ResolveAction` | Rozlicz | Resolve | U |
+
+`DriverActivity` w tabeli Historii ponownie używa pięciu `Activity_*` z paczki 2
+oraz technicznego `OUT`. `ActivitySource` ma 6 wartości, `SpecialCondition`
+4 wartości, `ActivityGapReason` 3 wartości, a `ActivityGapState` 2 wartości —
+wszystkie mają jawne mapowanie bez `ToString()`. `GapState_Ongoing` jest używany
+również zamiast końca otwartej luki.
+
+Obecne bindowanie `ActivityRecord.Activity`, `Source` i `Condition` wyświetla
+nazwy enumów przez domyślne `ToString()`. M5.2 musi wprowadzić w Desktop wiersz
+prezentacyjny. Tak samo polskie właściwości prezentacyjne nie powinny pozostawać
+w `ActivityGapListItemDto`; DTO zachowuje wartości domenowe, a tekst tworzy
+lokalny presenter Desktop.
+
+### Modal wpisu manualnego — etykiety i akcje
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `ManualEntry_Title` | ROZLICZ LUKĘ AKTYWNOŚCI | RESOLVE ACTIVITY GAP | U |
+| `ManualEntry_Description` | Uzupełnij okres, w którym tachograf nie rejestrował aktywności. | Complete the period in which the tachograph did not record activity. | U |
+| `ManualEntry_DriverLabel` | KIEROWCA | DRIVER | U |
+| `ManualEntry_QuickChoiceTitle` | SZYBKI WYBÓR DLA CAŁEJ LUKI | QUICK CHOICE FOR THE ENTIRE GAP | U |
+| `ManualEntry_QuickChoiceHelp` | Kliknięcie zastąpi cały plan jednym segmentem. | Clicking replaces the entire plan with one segment. | U |
+| `ManualEntry_BreakOrRestAction` | PRZERWA / ODPOCZYNEK | BREAK / REST | U |
+| `ManualEntryActivity_BreakOrRest` | Przerwa / Odpoczynek | Break / rest | P |
+| `ManualEntry_PlanTitle` | PLAN WPISU | ENTRY PLAN | U |
+| `ManualEntry_TimeHeader` | CZAS | TIME | U |
+| `ManualEntry_FromDayLabel` | OD — DZIEŃ | FROM — DAY | U |
+| `ManualEntry_HourLabel` | GODZINA | TIME | U |
+| `ManualEntry_ToDayLabel` | DO — DZIEŃ | TO — DAY | U |
+| `ManualEntry_AddOrReplaceTitle` | DODAJ LUB ZASTĄP SEGMENT | ADD OR REPLACE SEGMENT | U |
+| `ManualEntry_EditSegmentTitle` | EDYTUJ SEGMENT | EDIT SEGMENT | U |
+| `ManualEntry_AddOrReplaceAction` | DODAJ / ZASTĄP SEGMENT | ADD / REPLACE SEGMENT | U |
+| `ManualEntry_SaveChangesAction` | ZAPISZ ZMIANY | SAVE CHANGES | U |
+| `ManualEntry_SummaryTitle` | PODSUMOWANIE I WALIDACJA | SUMMARY AND VALIDATION | U |
+| `ManualEntry_CoverageLabel` | Pokrycie: | Coverage: | U |
+| `ManualEntry_RestoreDefaultAction` | PRZYWRÓĆ DOMYŚLNY WPIS | RESTORE DEFAULT ENTRY | U |
+| `ManualEntry_ConfirmAction` | ZATWIERDŹ WPIS | CONFIRM ENTRY | U |
+
+Etykieta `WPIS MANUALNY` ponownie używa `DeviceMenu_ManualEntry`. Szybkie akcje
+i sumy ponownie używają neutralnych `ActivityUpper_OtherWork`,
+`ActivityUpper_Availability` i `ActivityUpper_Rest`; akcja odpoczynku ma osobny
+pełny tekst. Tabela planu
+ponownie używa `Common_From`, `Common_To`, `Common_ActivityHeader`,
+`Common_ActionsHeader`, `Common_EditAction` i `Common_RemoveAction`.
+Przycisk anulowania używa `Common_CancelAction`, a znak `×` pozostaje T.
+Opcje i wiersze wpisu ponownie używają `Activity_OtherWork` oraz
+`Activity_Availability`. Odpoczynek ma osobny `ManualEntryActivity_BreakOrRest`,
+aby zachować zatwierdzoną w istniejącym modalu pisownię `Przerwa / Odpoczynek`
+bez zmiany polskiego tekstu po UI freeze.
+
+### Separatory etykiet i wartości
+
+`ManualEntry_CoverageLabel`, `ActivityUpper_Rest`, `ActivityUpper_OtherWork`
+i `ActivityUpper_Availability` nie zawierają spacji końcowych. W czterech
+wierszach modala obecne podwójne spacje są jedynym separatorem przed
+wartością bindowaną, dlatego M5.2 musi przenieść je do XAML jako osobny,
+niezależny od języka `Run`, na przykład `Text="&#x00A0;&#x00A0;"`, pomiędzy
+etykietą zasobową i wartością.
+
+Nie wolno przenosić separatora do `.resx`, polegać na końcowej spacji ani
+sklejać etykiety bez odstępu. To czysto prezentacyjna korekta dopuszczalna
+przez UI freeze; po wdrożeniu wymaga kontroli wszystkich czterech miejsc w PL
+i EN.
+
+### Podsumowania i kwalifikacja wpisu
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `ManualEntry_GapDurationFormat` | Długość luki: {0} | Gap duration: {0} | U/T |
+| `ManualEntry_UnknownDriver` | Nieznany kierowca | Unknown driver | U |
+| `ManualEntry_ReasonFormat` | Przyczyna: {0} | Cause: {0} | U |
+| `ManualEntry_SegmentCountOneFormat` | {0} segment · {1} | {0} segment · {1} | U/T |
+| `ManualEntry_SegmentCountFewFormat` | {0} segmenty · {1} | {0} segments · {1} | U/T |
+| `ManualEntry_SegmentCountManyFormat` | {0} segmentów · {1} | {0} segments · {1} | U/T |
+| `ManualEntry_Complete` | ✓ WPIS KOMPLETNY | ✓ ENTRY COMPLETE | U |
+| `ManualEntry_MissingDurationFormat` | BRAK: {0} | MISSING: {0} | U/T |
+| `ManualEntry_CoverageDetailsFormat` | Brak: {0} · Nakładanie: {1} | Missing: {0} · Overlap: {1} | U/T |
+| `ManualEntry_SelectionSummaryFormat` | Zapis: odpoczynek {0}, inna praca {1}, dyspozycyjność {2}. | Entry: rest {0}, other work {1}, availability {2}. | U/T |
+| `ManualEntry_NotSaved` | Wpis nie został jeszcze zapisany. | The entry has not been saved yet. | U |
+| `ManualEntry_NoQualifiedRest` | Zakwalifikowano: brak ciągłego odpoczynku 9 h — bez resetu dobowego. | Qualified: no continuous 9 h rest — no daily reset. | U/T |
+| `ManualEntry_QualifiedDailyReducedFormat` | Zakwalifikowano: odpoczynek dobowy skrócony; reset o {0}. | Qualified: reduced daily rest period; reset at {0}. | U/T |
+| `ManualEntry_QualifiedDailyRegularFormat` | Zakwalifikowano: odpoczynek dobowy regularny; reset o {0}. | Qualified: regular daily rest period; reset at {0}. | U/T |
+| `ManualEntry_QualifiedDailyReducedWeeklyReducedFormat` | Zakwalifikowano: odpoczynek dobowy skrócony, tygodniowy skrócony; reset o {0}. | Qualified: reduced daily rest period, reduced weekly rest period; reset at {0}. | U/T |
+| `ManualEntry_QualifiedDailyReducedWeeklyRegularFormat` | Zakwalifikowano: odpoczynek dobowy skrócony, tygodniowy regularny; reset o {0}. | Qualified: reduced daily rest period, regular weekly rest period; reset at {0}. | U/T |
+| `ManualEntry_QualifiedDailyRegularWeeklyReducedFormat` | Zakwalifikowano: odpoczynek dobowy regularny, tygodniowy skrócony; reset o {0}. | Qualified: regular daily rest period, reduced weekly rest period; reset at {0}. | U/T |
+| `ManualEntry_QualifiedDailyRegularWeeklyRegularFormat` | Zakwalifikowano: odpoczynek dobowy regularny, tygodniowy regularny; reset o {0}. | Qualified: regular daily rest period, regular weekly rest period; reset at {0}. | U/T |
+
+Trzy formaty liczby segmentów wymagają jawnego pluralizera `pl-PL`: forma
+pojedyncza, forma dla liczb kończących się na 2–4 z wyjątkami 12–14 oraz forma
+pozostała. EN używa liczby pojedynczej tylko dla 1. Presenter kwalifikacji
+obsługuje pełny iloczyn 2 wartości `DailyRestClassification` i 3 stanów
+`WeeklyRestClassification?`, bez sklejania przetłumaczonych fragmentów zdań.
+
+Pluralizer jest świadomą naprawą istniejącego błędu tekstowego: obecny kod
+wyświetla stałe `segmenty` także dla 1 i dla 5. Zmiana nie modyfikuje danych ani
+przepływu, lecz zmienia polską treść po UI freeze, dlatego podlega osobnemu
+testowi dla co najmniej `1`, `2`, `5`, `12`, `22` i `25`.
+
+Nazwy kierowcy i numer karty pozostają O/T i są wstawiane do neutralnego układu
+`{nazwa} · {numer}`. Zakres, godzina resetu i wszystkie czasy trwania są
+formatowane przed przekazaniem do zasobu.
+
+### Walidacja wpisu manualnego
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `ManualEntryError_GapNotFound` | Nie znaleziono luki aktywności. | The activity gap was not found. | U |
+| `ManualEntryError_GapNotCanonical` | Można rozliczyć tylko lukę z kanonicznej osi czasu gry. | Only a gap from the canonical game-time branch can be resolved. | U |
+| `ManualEntryError_ProjectedGapCannotBeResolved` | Nie można rozliczyć projekcji luki. | A projected gap cannot be resolved. | U |
+| `ManualEntryError_GapStillOpen` | Nie można rozliczyć trwającej luki aktywności. | An ongoing activity gap cannot be resolved. | U |
+| `ManualEntryError_InvalidActivity` | Ta aktywność nie jest dostępna we wpisie manualnym. | This activity is not available in a manual entry. | U |
+| `ManualEntryError_InvalidSegment` | Segment wpisu musi mieć dodatnią długość. | An entry segment must have a positive duration. | U |
+| `ManualEntryError_IncompleteCoverage` | Wpis musi dokładnie pokrywać całą lukę. | The entry must cover the entire gap exactly. | U |
+| `ManualEntryError_OutsideGap` | Zakres segmentu musi mieścić się w rozliczanej luce. | The segment range must stay within the gap being resolved. | U |
+| `ManualEntryError_OverlappingSegments` | Segmenty wpisu nie mogą się nakładać. | Entry segments cannot overlap. | U |
+| `ManualEntryError_HistoryCollision` | Wpis koliduje z istniejącą historią aktywności. | The entry conflicts with existing activity history. | U |
+| `ManualEntryError_ResolutionConflict` | Luka została już rozliczona innym wpisem manualnym. | The gap has already been resolved with a different manual entry. | U |
+| `ManualEntryError_EditedSegmentMissing` | Edytowany segment nie należy już do planu. | The edited segment is no longer part of the plan. | U |
+| `ManualEntryError_RemovedSegmentMissing` | Usuwany segment nie należy już do planu. | The segment being removed is no longer part of the plan. | U |
+| `ManualEntryError_DefaultRestCannotBeRemoved` | Odpoczynek jest domyślnym wypełnieniem luki. | Rest is the default gap allocation and cannot be removed. | U |
+| `ManualEntryError_SelectDayFormat` | Pole {0}: wybierz dzień. | Field {0}: select a day. | U |
+| `ManualEntryError_EnterTimeFormat` | Pole {0}: wpisz godzinę w formacie HH:MM. | Field {0}: enter a time in HH:MM format. | U/T |
+| `ManualEntryError_ApplyFailed` | Nie udało się zastosować wpisu manualnego. Szczegóły zapisano w logu diagnostycznym. | The manual entry could not be applied. Details were written to the diagnostic log. | U |
+
+Wszystkie 11 wartości `ManualEntryError` mapuje się 1:1 na pierwszych
+11 kluczy. Błędy lokalnego edytora korzystają z tych samych kluczy, gdy
+semantyka jest równa (`InvalidActivity`, `InvalidSegment`,
+`IncompleteCoverage`, `OutsideGap`, `OverlappingSegments`), oraz z trzech
+kluczy dla stanów specyficznych dla edycji. `{0}` w dwóch formatach pola jest
+lokalizowaną etykietą `Common_From` albo `Common_To`.
+
+`ManualEntryValidationException.Error` jest źródłem decyzji prezentera.
+Angielskie `exception.Message` z warstwy Application i polskie komunikaty
+`InvalidOperationException` z edytora nie mogą być bezpośrednio przypisywane do
+`ManualEntryValidationMessage`. Szczegóły techniczne, identyfikatory rekordów
+i pełny wyjątek trafiają wyłącznie do diagnostyki. Nieoczekiwane odrzucenie
+podczas zastosowania wyniku w silniku używa ogólnego
+`ManualEntryError_ApplyFailed`, dzięki czemu angielskie wyjątki Engine nie
+przeciekają do polskiego UI.
+
+### Mapowanie źródeł
+
+| Źródło | Obecna wartość / rodzina | Decyzja |
+|---|---|---|
+| `MainWindow.xaml:174-245` | Historia, dwie tabele, filtr luk | klucze Historii i luk + ponowne użycie zatwierdzonego katalogu |
+| `MainWindow.xaml:850-1048` | modal wpisu manualnego | 20 kluczy modala + wspólne akcje i etykiety |
+| `ActivityRecord` wiązany w Historii | `DriverActivity`, `ActivitySource`, `SpecialCondition` przez `ToString()` | Desktop row presenter; istniejące enumy i zapis bez zmian |
+| `ActivityGapDtos.cs:20-43` | polskie przyczyny, stany, pomoc i akcja w DTO | presenter Desktop; DTO pozostaje domenowe |
+| `MainViewModel.cs:597-638` | tytuły edytora, liczba segmentów, pokrycie | klucze i pluralizer paczki 4 |
+| `MainViewModel.cs:659` | licznik nierozliczonych luk | `Gap_HeaderFormat` |
+| `MainViewModel.cs:1316-1341` | zakres, długość, kierowca, przyczyna i stan początkowy | formaty paczki 4; dzień → `X-01` |
+| `MainViewModel.cs:1466-1510,1569-1581` | podsumowanie i kwalifikacja | 12 formatów podsumowania + 6 wariantów kwalifikacji |
+| `MainViewModel.cs:1355-1452,1517-1555` | surowe wyjątki lokalnego edytora | jawne klucze walidacji, bez `exception.Message` |
+| `ManualEntryService.cs:31-174` | 11 wartości `ManualEntryError`, angielskie komunikaty | presenter kodu błędu w Desktop; surowa treść tylko do logu |
+| `ManualEntryPlanEditor.cs:7-234` | dzień, aktywności i wyjątki edytora | `X-01`, ponowne użycie `Activity_*`, klucze walidacji |
+
+`ManualEntrySegmentCountText` nie może po lokalizacji usuwać polskiego prefiksu
+przez `ManualEntryDurationText.Replace("Długość luki: ", string.Empty)`.
+M5.2 przekaże do formatu liczby segmentów bezpośrednio surową, sformatowaną
+wartość czasu trwania luki; logika nie może parsować tekstu zasobu.
+
+### Elementy świadomie bez lokalizacji
+
+| Element | Kategoria | Uzasadnienie |
+|---|---|---|
+| `.tacho` | T | format kontraktowy |
+| numer karty, identyfikator luki i rekordu | T/O | dane oraz identyfikatory audytowe |
+| `S{0}`, numery slotów | T | zwarty identyfikator slotu |
+| `HH:MM`, strzałka zakresu, `·`, `✓`, `×`, `—` | T | format czasu i symbole interfejsu |
+| kolory aktywności | T | prezentacja niezależna od języka |
+| `ResolveGapStatus`, `ManualEntryPersistenceStatus` | T | wewnętrzne sterowanie przepływem |
+| treść diagnostyki | D | nie jest tekstem interfejsu |
+
+### Oczekiwane identyczne wartości PL/EN
+
+- `Gap_SlotHeader`;
+- `ManualEntry_SegmentCountOneFormat`.
+
+### Nowe oczekiwane duplikaty wartości między kluczami
+
+Paczka 4 dodaje siedem dozwolonych par do pięciu zapisanych po paczce 3.
+Globalna lista dla katalogu paczek 1–4 ma zatem 12 pozycji:
+
+| Wartość | Klucze | Decyzja |
+|---|---|---|
+| PL `TRWA` | `Dashboard_ElapsedLabel`, `GapState_Ongoing` | różne semantyki: czas, który upłynął, oraz trwająca luka |
+| PL/EN `KIEROWCA` / `DRIVER` | `Device_DriverFallback`, `ManualEntry_DriverLabel` | wartość zastępcza LCD i etykieta pola modala są odrębnymi rolami |
+| EN `BREAK / REST` | `DeviceMenu_BreakOrRest`, `ManualEntry_BreakOrRestAction` | odrębna pozycja menu urządzenia i pełna akcja modala; PL ma różne brzmienie |
+| EN `Break / rest` | `Activity_BreakOrRest`, `ManualEntryActivity_BreakOrRest` | osobne klucze zachowują różną zatwierdzoną pisownię PL |
+| EN `Mixed` | `ActivitySource_Mixed`, `SpecialCondition_Mixed` | dwa różne enumy domenowe; PL rozróżnia rodzaj gramatyczny |
+| EN `TIME` | `ManualEntry_TimeHeader`, `ManualEntry_HourLabel` | czas trwania i godzina są odmiennymi polami; PL je rozróżnia |
+| EN `{0} segments · {1}` | `ManualEntry_SegmentCountFewFormat`, `ManualEntry_SegmentCountManyFormat` | EN ma jedną formę mnogą, PL wymaga dwóch |
+
+### Kontrola paczki
+
+- [x] wszystkie literały Historii i modala mają klucz, ponowne użycie albo jawnego właściciela;
+- [x] sprawdzono cały katalog 170 kluczy z paczek 1–3 przed utworzeniem nowych nazw;
+- [x] wszystkie 6 `DriverActivity`, 6 `ActivitySource`, 4 `SpecialCondition`, 3 `ActivityGapReason` i 2 `ActivityGapState` ma decyzję;
+- [x] wszystkie 11 wartości `ManualEntryError` ma jawny komunikat użytkowy;
+- [x] wszystkie 6 kombinacji kwalifikacji odpoczynku ma pełny format bez sklejania fragmentów;
+- [x] wszystkie formaty mają zgodne zbiory placeholderów PL/EN;
+- [x] cztery końcowe separatory spacji mają decyzję przeniesienia z zasobów do XAML w M5.2;
+- [x] surowe `ToString()` i `exception.Message` nie należą do docelowej ścieżki UI;
+- [x] dane audytowe, enumy, DTO, `.tacho`, SQLite i logika rozliczenia pozostają bez zmian;
+- [x] potwierdzenie odrzucenia zmian i `OperationStatus` mają właściciela w UI-09;
+- [x] `GameCalendar_DayFormat` ma właściciela w `X-01`.
+
+### Werdykt
+
+**GO — paczka 4 zatwierdzona.** Zamknięta bez pozycji otwartych. Łączny,
+wiążący katalog paczek 1–4 zawiera 257 unikalnych nazw i 12 jawnie dozwolonych
+par powtórzonych wartości.
 
 ## Słownik domenowy PL/EN — część 1
 
