@@ -4,7 +4,12 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status początkowy:** **NIE ROZPOCZĘTY**  
+**Status bieżący:** **ZAMKNIĘTY — GO / UI FREEZE**
+
+**Data rozpoczęcia:** 27 lipca 2026
+
+**Data zakończenia:** 27 lipca 2026
+
 **Kryterium wejścia:** Formalne **GO M4-0** po zatwierdzeniu kompletnej
 inwentaryzacji UI i osobistej weryfikacji rozpakowanego rc4.
 **Kryterium wyjścia:** Wszystkie funkcje UI zakończone i formalny **UI freeze**.  
@@ -16,26 +21,69 @@ inwentaryzacji UI i osobistej weryfikacji rozpakowanego rc4.
 jest `M4_0_INWENTARYZACJA_UI.md`; M4 nie tworzy ani nie rozszerza własnej
 inwentaryzacji.
 
+## Otwarcie etapu
+
+- **Wejście:** spełnione — M4-0 zamknięte wynikiem GO.
+- **Wynik inwentaryzacji:** 62/62 pozycji `beta.12` PASS, 4 pozycje poza
+  zakresem N/D, 0 pozycji przypisanych do naprawy w M4.
+- **Artefakt dowodowy:** rozpakowany
+  `ETS2Tachograph-0.1.0-beta.12-rc4-win-x64.zip`, commit źródłowy
+  `a1b8a486b52ee244984016efe268562690d4fbc4`.
+- **Dryf kodu:** 0 zmian w `src/`, `tests/`, `native/`, `tools/` i rozwiązaniu
+  między commitem rc4 a punktem rozpoczęcia M4.
+- **Build Release:** 0 błędów, 0 ostrzeżeń.
+- **Testy automatyczne:** 538/538 PASS.
+- **Decyzja otwarcia:** M4 realizuje walidację gotowego interfejsu i formalny
+  freeze; brak podstaw do zmian funkcjonalnych lub zmian XAML na starcie.
+
 ### Zadania
 
-- [ ] Zamknąć wszystkie pozycje z inwentaryzacji UI.
-- [ ] Ujednolicić nawigację, skróty, potwierdzenia i błędy.
-- [ ] Ujednolicić Dashboard, urządzenie i nakładki.
-- [ ] Sprawdzić wszystkie puste stany i stany błędów.
-- [ ] Sprawdzić oba sloty we wszystkich kluczowych przepływach.
-- [ ] Sprawdzić restart i trwałość ustawień.
-- [ ] Sprawdzić raporty, wydruki i eksporty.
-- [ ] Sprawdzić minimalny rozmiar okna i skalowanie.
-- [ ] Usunąć błędy bindingów i nieużywane elementy.
-- [ ] Wprowadzić zamrożenie układu UI.
+- [x] Zamknąć wszystkie pozycje z inwentaryzacji UI.
+- [x] Ujednolicić nawigację, skróty, potwierdzenia i błędy.
+- [x] Ujednolicić Dashboard, urządzenie i nakładki.
+- [x] Sprawdzić wszystkie puste stany i stany błędów.
+- [x] Sprawdzić oba sloty we wszystkich kluczowych przepływach.
+- [x] Sprawdzić restart i trwałość ustawień.
+- [x] Sprawdzić raporty, wydruki i eksporty.
+- [x] Sprawdzić minimalny rozmiar okna i skalowanie.
+- [x] Potwierdzić brak błędów bindingów i nieużywanych elementów.
+- [x] Wprowadzić zamrożenie układu UI.
 
 ### Gate M4
 
-- wszystkie funkcje UI zakończone;
-- brak otwartych P0/P1;
-- brak nieprzypisanych elementów z inwentaryzacji;
-- pełna checklista XAML zielona;
-- formalny **UI freeze**.
+- [x] wszystkie funkcje UI zakończone;
+- [x] brak otwartych P0/P1;
+- [x] brak nieprzypisanych elementów z inwentaryzacji;
+- [x] pełna checklista XAML zielona;
+- [x] formalny **UI freeze**.
+
+## Walidacja gate'u
+
+| Warunek | Wynik | Dowód |
+|---|---|---|
+| Gotowe funkcje UI | PASS | M4-0: 62/62 pozycji `beta.12` PASS na rozpakowanym rc4 |
+| P0/P1 | PASS | 0/0 w zatwierdzonej inwentaryzacji |
+| Przypisanie elementów | PASS | 62 `beta.12`, 4 N/D, 0 bez decyzji i 0 przypisanych do naprawy M4 |
+| Checklista XAML | PASS | rc4: minimalny rozmiar, skalowanie, klawiatura, oba sloty, nakładki, restart, puste stany oraz log bindingów zielone |
+| Brak dryfu po rc4 | PASS | 0 zmian w kodzie i testach między `a1b8a486` a punktem rozpoczęcia M4 |
+| Kompilacja i automatyka | PASS | Release 0 błędów / 0 ostrzeżeń; 538/538 testów |
+| Audyt statyczny UI | PASS | 3/3 XAML poprawne, 8/8 procedur zdarzeń istnieje, 0 placeholderów i 0 statycznie wyłączonych lub ukrytych martwych bloków |
+| UI freeze | PASS | formalna zgoda właściciela 2026-07-27; M4 zamknięte wynikiem GO |
+
+## Decyzja końcowa
+
+- **Data zakończenia:** 2026-07-27.
+- **Wynik:** **GO — UI FREEZE**.
+- **Punkt przywracania:** commit zamykający M4.
+- **Build Release:** 0 błędów, 0 ostrzeżeń.
+- **Testy automatyczne:** 538/538 PASS.
+- **Testy manualne / dowody:** 62/62 pozycji `beta.12` PASS na uruchomionym,
+  rozpakowanym rc4; 4 pozycje poza zakresem N/D.
+- **Otwarte błędy P0:** 0.
+- **Otwarte błędy P1:** 0.
+- **Decyzja:** układ oraz istniejące przepływy UI zostają zamrożone. Od tego
+  punktu obowiązuje polityka zmian po freeze opisana poniżej.
+- **Następny etap:** M5 odblokowany.
 
 ---
 
@@ -83,16 +131,17 @@ Każda zmiana XAML po freeze nadal wymaga pełnej checklisty regresji.
 
 ## Szablon aktualizacji statusu
 
-- **Data rozpoczęcia:**
-- **Data zakończenia:**
-- **Wynik:** `GO` / `FIX` / `HOLD` / `NIE DOTYCZY`
-- **Commit / punkt przywracania:**
-- **Build Release:**
-- **Testy automatyczne:**
-- **Testy manualne / dowody:**
-- **Otwarte błędy P0:**
-- **Otwarte błędy P1:**
-- **Uwagi do następnego etapu:**
+- **Data rozpoczęcia:** 2026-07-27
+- **Data zakończenia:** 2026-07-27
+- **Wynik:** **GO — UI FREEZE**
+- **Commit / punkt przywracania:** commit zamykający M4
+- **Build Release:** 0 błędów, 0 ostrzeżeń
+- **Testy automatyczne:** 538/538 PASS
+- **Testy manualne / dowody:** rc4, 62/62 pozycji `beta.12` PASS; 4 N/D
+- **Otwarte błędy P0:** 0
+- **Otwarte błędy P1:** 0
+- **Uwagi do następnego etapu:** M5 odblokowany; zmiany UI podlegają polityce
+  freeze i nie mogą dodawać nowych przepływów.
 
 ---
 

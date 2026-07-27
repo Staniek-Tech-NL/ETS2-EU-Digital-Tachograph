@@ -23,8 +23,8 @@
 | **M3.6** | Wewnętrzny smoke checkpoint | 🟢 smoke rc3 zielony | GO | M3.7 |
 | **M3.7** | Planer: ergonomia wprowadzania danych | 🟢 automatyka i ręczny gate zielone | GO | M4-0 |
 | **M4-0** | Inwentaryzacja UI + weryfikacja rc4 | 🟢 62/62 pozycji beta.12 PASS | GO | M4 |
-| M4 | Finalizacja UI + **UI freeze** | ⚪ odblokowany; nie rozpoczęty | ODBLOKOWANE | M5 |
-| M5 | Lokalizacja PL/EN | ⚪ nie rozpoczęty | — | M6 |
+| **M4** | Finalizacja UI + **UI freeze** | 🟢 UI zamrożone | GO | M5 |
+| M5 | Lokalizacja PL/EN | ⚪ odblokowany; nie rozpoczęty | ODBLOKOWANE | M6 |
 | M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty | — | M7 |
 | M7 | Końcowy smoke beta.12 | ⚪ nie rozpoczęty | — | M8 |
 | M8 | Publikacja | ⚪ nie rozpoczęty | — | — |
@@ -450,11 +450,35 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
 - **Otwarte P0/P1:** 0/0; pozycji przypisanych do naprawy w M4: 0.
 - **Gate:** wykaz zatwierdzony, wszystkie obserwacje przypisane, formalne
   **GO M4-0**.
-- **Wpływ:** właściwe M4 jest odblokowane, ale jeszcze nierozpoczęte.
+- **Wpływ:** właściwe M4 rozpoczęto 2026-07-27.
 
 ---
 
-## M4–M8 — do rozpoczęcia
+## M4 — Finalizacja UI i UI freeze (ZAMKNIĘTY — GO)
+
+- **Data rozpoczęcia:** 2026-07-27.
+- **Wejście:** GO M4-0; 62/62 pozycji `beta.12` PASS, 4 N/D i 0 pozycji
+  przypisanych do naprawy w M4.
+- **Punkt rozpoczęcia:** `9a127c9`.
+- **Dryf względem rc4:** 0 zmian w kodzie źródłowym i testach od
+  `a1b8a486b52ee244984016efe268562690d4fbc4`.
+- **Build Release:** 0 błędów, 0 ostrzeżeń.
+- **Testy automatyczne:** 538/538 PASS.
+- **Audyt statyczny UI:** 3/3 XAML poprawne, 8/8 procedur zdarzeń istnieje,
+  0 placeholderów oraz 0 statycznie wyłączonych lub ukrytych martwych bloków.
+- **Zakres:** walidacja gotowego UI oraz formalny freeze; bez nowych
+  funkcji, bez tłumaczeń M5 i bez pełnego PROM art. 9.
+- **Data zakończenia:** 2026-07-27.
+- **Wynik:** **GO — UI FREEZE**.
+- **Otwarte P0/P1:** 0/0.
+- **Gate:** wszystkie warunki zielone; formalna zgoda właściciela udzielona
+  2026-07-27.
+- **Wpływ:** M5 odblokowany. Od commita zamykającego M4 obowiązuje polityka
+  UI freeze z dokumentu etapu.
+
+---
+
+## M5 odblokowany; M6–M8 do rozpoczęcia
 
 Każdy etap otwieramy dopiero po **GO** poprzedniego. Szczegółowe zadania i gate'y
 w `docs/PLAN_BETA_12_M0-M8/`. Poniżej rejestr decyzji wypełniany przy zamykaniu
@@ -462,8 +486,8 @@ kolejnych etapów (szablon: data start/koniec, wynik, commit, build, testy auto,
 dowody manualne, P0, P1, uwagi).
 
 - **M4-0** — inwentaryzacja UI + osobista weryfikacja rc4. — *GO*
-- **M4** — realizacja zatwierdzonej inwentaryzacji + formalny **UI freeze**. — *odblokowany; nie rozpoczęty*
-- **M5** — pełne `pl-PL` i `en-GB`, zielone regresje obu języków. — *nie rozpoczęty*
+- **M4** — realizacja zatwierdzonej inwentaryzacji + formalny **UI freeze**. — *GO*
+- **M5** — pełne `pl-PL` i `en-GB`, zielone regresje obu języków. — *odblokowany; nie rozpoczęty*
 - **M6** — niezmienny RC beta.12: numer + commit + SHA-256, ZIP zamrożony. — *nie rozpoczęty*
 - **M7** — smoke na rozpakowanym ZIP-ie (istniejąca + czysta baza) → GO/FIX/HOLD. — *nie rozpoczęty*
 - **M8** — publikacja dokładnie artefaktu z GO + checksuma + dokumentacja PL/EN. — *nie rozpoczęty*

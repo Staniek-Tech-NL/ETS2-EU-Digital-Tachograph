@@ -37,8 +37,8 @@ M0 stabilizacja
 | M3.6 | GO — SMOKE RC3 ZIELONY | [M3.6 — Wewnętrzny smoke checkpoint](M3_6_WEWNETRZNY_SMOKE_CHECKPOINT.md) |
 | M3.7 | GO — AUTOMATYKA I RĘCZNY GATE ZIELONE | [M3.7 — Planer: ergonomia wprowadzania danych](M3_7_PLANER_ERGONOMIA_WEJSCIA.md) |
 | M4-0 | GO — 62/62 POZYCJI BETA.12 PASS | [M4-0 — Inwentaryzacja UI](M4_0_INWENTARYZACJA_UI.md) |
-| M4 | ODBLOKOWANY — NIE ROZPOCZĘTY | [M4 — Finalizacja całego interfejsu i UI freeze](M4_FINALIZACJA_UI_I_UI_FREEZE.md) |
-| M5 | NIE ROZPOCZĘTY | [M5 — Lokalizacja PL/EN](M5_LOKALIZACJA_PL_EN.md) |
+| M4 | GO — UI FREEZE | [M4 — Finalizacja całego interfejsu i UI freeze](M4_FINALIZACJA_UI_I_UI_FREEZE.md) |
+| M5 | ODBLOKOWANY — NIE ROZPOCZĘTY | [M5 — Lokalizacja PL/EN](M5_LOKALIZACJA_PL_EN.md) |
 | M6 | NIE ROZPOCZĘTY | [M6 — Release Candidate `0.1.0-beta.12`](M6_RELEASE_CANDIDATE_BETA_12.md) |
 | M7 | NIE ROZPOCZĘTY | [M7 — Końcowy smoke test beta.12](M7_SMOKE_TEST_BETA_12.md) |
 | M8 | NIE ROZPOCZĘTY | [M8 — Publikacja](M8_PUBLIKACJA.md) |
