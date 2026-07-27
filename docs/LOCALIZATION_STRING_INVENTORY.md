@@ -4,7 +4,7 @@
 
 **Data rozpoczęcia:** 2026-07-27
 
-**Status:** **W TOKU — PACZKI 1–2 GO**
+**Status:** **W TOKU — PACZKI 1–3 GO**
 
 **Języki:** `pl-PL`, `en-GB`
 
@@ -46,7 +46,7 @@ Powtarzające się etykiety wspólne mają korzystać z jednego klucza semantycz
 | ID | Obszar | Źródła | Kategoria | Docelowa obsługa | Stan |
 |---|---|---|---|---|---|
 | UI-01 | Powłoka, tytuł, nawigacja i wspólne akcje | `MainWindow.xaml`, `App.xaml.cs`, `MainViewModel.cs` | U/T/D/O | `UiStrings.Common_*`, `UiStrings.Navigation_*`, `UiStrings.Shell_*` | GO — katalog wiążący |
-| UI-02 | Dashboard i wirtualny tachograf | `MainWindow.xaml`, `MainViewModel.cs` | U/P | zasoby + presentery aktywności, trybów i stanu kart | Dashboard GO w paczce 2; urządzenie pozostaje do paczki 3 |
+| UI-02 | Dashboard i wirtualny tachograf | `MainWindow.xaml`, `MainViewModel.cs` | U/P | zasoby + presentery aktywności, trybów i stanu kart | Dashboard GO w paczce 2; urządzenie GO w paczce 3; pełne terminy zależne od X-01 |
 | UI-03 | Historia, luki i wpis manualny | `MainWindow.xaml`, `MainViewModel.cs`, `ManualEntryPlanEditor.cs` | U/P | zasoby + presentery aktywności, przyczyn i stanów luk | do rozpisania |
 | UI-04 | Kraje i kody tachografowe | `CountryCatalog.cs`, JSON | U/T | osobne nazwy PL/EN; zapis nadal przez ISO | do rozpisania |
 | UI-05 | Rekompensaty | `MainWindow.xaml`, `CompensationPresentation.cs` | U/P/T | zasoby + presenter statusu; identyfikatory bez zmian | do rozpisania |
@@ -55,6 +55,7 @@ Powtarzające się etykiety wspólne mają korzystać z jednego klucza semantycz
 | UI-08 | Planer | `MainWindow.xaml`, `JourneyPlannerViewModel.cs` | U/P/T | zasoby + presentery faz, powodów, statusów i ostrzeżeń | do rozpisania |
 | UI-09 | Dialogi, potwierdzenia i komunikaty błędów | `App.xaml.cs`, `MainViewModel.cs`, view-modele | U/D/T | tekst UI w zasobach; logi i kody bez zmian | do rozpisania |
 | UI-10 | Nakładki S1/S2 | `OverlayWindow.xaml`, `OverlayViewModel.cs` | U/P/T | zasoby; `S1`, `S2`, `HH:MM` bez zmian | do rozpisania |
+| X-01 | Wspólne formatery czasu i terminów | `GameCalendarFormatter.cs`, `WeeklyRestWindowFormatter.cs` i konsumenci bindingów | U/P/T | wspólne nazwy dni i prefiksy terminów; bez duplikowania per ekran | do rozpisania — warunek kompletności Dashboardu |
 | PDF-01 | Raport PDF | `PdfReportExporter.cs`, `ReportPresentationBuilder.cs` | U/P/T/O | `ReportStrings`; dane i identyfikatory bez zmian | do rozpisania |
 | DOC-01 | Instrukcja instalacji PL/EN | dokumentacja użytkowa | U | dwa jawne dokumenty językowe | późniejszy etap M5.4 |
 | DOC-02 | Instrukcja podstawowa PL/EN | dokumentacja użytkowa | U | dwa jawne dokumenty językowe | późniejszy etap M5.4 |
@@ -441,6 +442,290 @@ artykuł, a `{2}` wynik lokalnego presentera `ViolationType`. Pole
 
 **GO — paczka 2 zatwierdzona.** Katalog 58 nowych kluczy jest wiążący dla
 paczki 3 i kolejnych.
+
+### Zależność kompletności Dashboardu
+
+GO paczki 2 zatwierdza jej katalog, ale nie oznacza jeszcze pełnego pokrycia
+wszystkich wartości dochodzących do Dashboardu przez bindingi.
+`CompensationOverview.NearestDueText` i `NearestDueCompactText` korzystają
+z `GameCalendarFormatter` i zawierają lokalizowane prefiksy terminu, nazwy dni
+oraz etykietę dnia gry. Ich właścicielem jest przekrojowa paczka `X-01` —
+wspólne formatery czasu i terminów. Pełna kompletność EN Dashboardu zależy od
+GO `X-01`.
+
+`X-01` obejmie 12 nowych kluczy: 7 pełnych nazw dni, 4 nieurządzeniowe prefiksy
+`GameDeadlineSemantic` i etykietę `Dzień` / `Day`. Ponownie użyje 7 skrótów
+`Weekday_Short_*` zatwierdzanych w paczce 3. Te same zasoby obsłużą Dashboard,
+Planer, Raporty i `WeeklyRestWindowFormatter`.
+
+## Paczka 3 — wirtualny tachograf
+
+**Zakres:** rama urządzenia, podpowiedzi pól kierowców, trzy linie LCD, wszystkie
+strony menu, skrócone cele odpoczynku, liczniki kart, stany drukowania i wpisu
+manualnego na LCD oraz urządzeniowy presenter aktywności.
+
+**Stan:** **ZAMKNIĘTA — GO**
+
+**Data zatwierdzenia:** 2026-07-27
+
+**Pozycje otwarte:** 0
+
+**Katalog:** 79 nowych kluczy — 51 etykiet ramy i menu, 10 komunikatów LCD,
+5 etykiet aktywności urządzenia, 2 statusy skrótu rekompensaty oraz
+4 urządzeniowe prefiksy terminów i 7 współdzielonych skrótów dni tygodnia.
+
+### Granica paczki
+
+Paczka obejmuje wyłącznie powierzchnię wirtualnego urządzenia z
+`MainWindow.xaml:72-87` i teksty budujące `DeviceLine1-3`. Modal wkładania
+i wyjmowania karty z `MainWindow.xaml:802-824`, jego etykiety krajów,
+potwierdzenia, walidacje i `OperationStatus` należą do UI-09 oraz UI-04.
+Nieużywane obecnie właściwości `CardStatus` i `Card2Status` nie są tekstem
+widocznym i nie otrzymują osobnych kluczy.
+
+`Card_NoCard` z paczki 2 jest ponownie używany na LCD. `OUT`, kody krajów,
+numery slotów, czas `HH:MM`, prędkość, przebieg i symbole urządzenia pozostają
+wartościami technicznymi.
+
+### Rama urządzenia
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Device_CurrentViewTitle` | BIEŻĄCY PODGLĄD TACHOGRAFU | CURRENT TACHOGRAPH VIEW | U |
+| `Device_DriverButtonTooltipFormat` | Kierowca {0}: kliknij, przytrzymaj 3 s, aby wyjąć kartę | Driver {0}: click and hold for 3 s to withdraw the card | U/T |
+
+Przecinek przed `aby` w polskiej podpowiedzi jest świadomą korektą gramatyczną
+względem obecnego XAML, bez zmiany znaczenia ani zachowania przycisku.
+
+### Pozycje menu i stany wyboru
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `DeviceMenu_Print` | WYDRUK | PRINT | U |
+| `DeviceMenu_ManualEntry` | WPIS MANUALNY | MANUAL ENTRY | U |
+| `DeviceMenu_BreakOrRest` | PAUZA / ODPOCZ. | BREAK / REST | U |
+| `DeviceMenu_Countries` | KRAJE | COUNTRIES | U |
+| `DeviceMenu_Modes` | TRYBY | MODES | U |
+| `DeviceMenu_CardCounters` | LICZNIKI KART | CARD COUNTERS | U |
+| `DeviceMenu_Settings` | USTAWIENIA | SETTINGS | U |
+| `DeviceMenu_PrintDriver1Day` | 24H KIEROWCY 1 | 24H DRIVER 1 | U/T |
+| `DeviceMenu_PrintVehicleDay` | 24H POJAZDU | 24H VEHICLE | U/T |
+| `DeviceMenu_OtherWork` | INNA PRACA | OTHER WORK | P |
+| `DeviceMenu_Availability` | DYSPOZYCYJNOŚĆ | AVAILABILITY | P |
+| `DeviceMenu_Rest` | ODPOCZYNEK | REST | P |
+| `DeviceMenu_StartCountryFormat` | START: {0} | START: {0} | U/T |
+| `DeviceMenu_EndCountryFormat` | KONIEC: {0} | END: {0} | U/T |
+| `DeviceMenu_OutModeFormat` | OUT {0} | OUT {0} | U/T |
+| `DeviceMenu_FerryModeFormat` | PROM {0} | FERRY {0} | U/T |
+| `DeviceState_On` | WŁ. | ON | U |
+| `DeviceState_Off` | WYŁ. | OFF | U |
+| `DeviceMenu_CardStatusFormat` | KARTA {0} {1} | CARD {0} {1} | U/T |
+| `DeviceState_Ready` | GOTOWA | READY | U |
+| `DeviceState_Missing` | BRAK | MISSING | U |
+| `DeviceMenu_SpeedThreshold` | PRÓG PRĘDKOŚCI | SPEED THRESHOLD | U |
+| `DeviceMenu_RegulatoryWeek` | TYDZIEŃ REGULACYJNY | REGULATORY WEEK | U |
+
+Nazwy `DeviceMenu_Print`, `DeviceMenu_ManualEntry`, `DeviceMenu_Countries`,
+`DeviceMenu_Modes` i `DeviceMenu_Settings` są używane zarówno jako pozycja
+menu głównego, jak i tytuł odpowiadającej jej strony. Semantyka i pisownia są
+w obu rolach identyczne, więc nie powstają duplikaty `*Title`.
+
+### Skrócone cele odpoczynku LCD
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `DeviceRestTarget_Break15Part1` | 15 MIN CZĘŚĆ 1 | 15 MIN PART 1 | U |
+| `DeviceRestTarget_Break30Part2` | 30 MIN CZĘŚĆ 2 | 30 MIN PART 2 | U |
+| `DeviceRestTarget_Break45Full` | 45 MIN PEŁNA | 45 MIN FULL | U |
+| `DeviceRestTarget_Daily9Hours` | DZIENNY 9H | DAILY 9H | U |
+| `DeviceRestTarget_Daily11Hours` | DZIENNY 11H | DAILY 11H | U |
+| `DeviceRestTarget_Weekly24Hours` | TYGODNIOWY 24H | WEEKLY 24H | U |
+| `DeviceRestTarget_Weekly45Hours` | TYGODNIOWY 45H | WEEKLY 45H | U |
+
+To osobne, zwarte wartości `DeviceLabel`; nie zastępują pełnych `RestTarget_*`
+z paczki 2. Wszystkie siedem musi wejść do zasobów, aby LCD w wersji EN nie
+pozostał częściowo polski.
+
+### Liczniki kart
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `DeviceCounter_BreakFormat` | PAUZA {0} | BREAK {0} | U/T |
+| `DeviceCounter_TargetFormat` | CEL {0} | TARGET {0} | U/T |
+| `DeviceCounter_ContinuousDrivingFormat` | CIĄGŁA {0} | CONTINUOUS {0} | U/T |
+| `DeviceCounter_TimeToBreakFormat` | DO PRZERWY {0} | TO BREAK {0} | U/T |
+| `DeviceCounter_DailyDrivingFormat` | DZIENNA {0} | DAILY {0} | U/T |
+| `DeviceCounter_DailyDutyFormat` | PRACA {0} | DUTY {0} | U/T |
+| `DeviceCounter_WeeklyDrivingFormat` | TYDZIEŃ {0} | WEEK {0} | U/T |
+| `DeviceCounter_FortnightlyDrivingFormat` | 2 TYG. {0} | 2 WKS {0} | U/T |
+| `DeviceCounter_DailyRestDeadlineFormat` | ODP. DZIENNY {0} | DAILY REST {0} | U/T |
+| `DeviceCounter_WeeklyRestDeadlineFormat` | ODP. TYG. {0} | WEEKLY REST {0} | U/T |
+| `DeviceCounter_CompensationFormat` | REKOMPENSATA {0} | COMPENSATION {0} | U/T |
+| `DeviceCounter_ExtensionsUsageFormat` | WYDŁUŻENIA {0} · TYDZIEŃ | EXTENSIONS {0} · WEEK | U/T |
+| `DeviceCounter_ReducedDailyRestsUsageFormat` | SKRÓCONE {0} · OD ODP. TYG. | REDUCED {0} · SINCE WEEKLY REST | U/T |
+
+Oba sloty używają tych samych 13 formatów. Wartości `{0}` są gotowymi,
+niezależnie sformatowanymi licznikami. Obecne `IsExceededCounterItem` rozpoznaje
+rodzaj licznika po polskim prefiksie. Implementacja M5.2 musi zastąpić to
+porównaniem semantycznego identyfikatora pozycji przed podłączeniem zasobów;
+logika koloru nie może zależeć od aktywnego języka.
+
+### Tytuły stron menu
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `DeviceMenu_MainTitle` | MENU GŁÓWNE | MAIN MENU | U |
+| `DeviceMenu_SelectBreakTitle` | WYBIERZ PAUZĘ | SELECT BREAK | U |
+| `DeviceMenu_SelectCardTitle` | WYBIERZ KARTĘ | SELECT CARD | U |
+| `DeviceMenu_CardCountersTitleFormat` | LICZNIKI KARTY {0} | CARD {0} COUNTERS | U/T |
+| `DeviceMenu_StartCountryTitle` | KRAJ START | START COUNTRY | U |
+| `DeviceMenu_EndCountryTitle` | KRAJ KONIEC | END COUNTRY | U |
+
+Fallback `_deviceMenuPage.ToUpperInvariant()` nie może być presenterem.
+Wszystkie siedem stron głównych i sześć tytułów specjalnych mają jawne
+mapowanie; techniczne identyfikatory `root`, `print`, `manual`, `rest-target`,
+`countries`, `modes`, `counter-cards`, `counters-1`, `counters-2`,
+`country-start`, `country-end` i `settings` nie trafiają do LCD.
+
+### Komunikaty LCD
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `Device_CardReadingFormat` | KARTA {0} - ODCZYT | CARD {0} - READING | U/T |
+| `Device_DriverFallback` | KIEROWCA | DRIVER | U |
+| `Device_ManualEntryRequired` | ! WPIS MANUALNY ! | ! MANUAL ENTRY ! | U |
+| `Device_RequiredSlotFormat` | SLOT {0} WYMAGANY | SLOT {0} REQUIRED | U/T |
+| `Device_DrivingBlocked` | JAZDA ZABLOKOWANA | DRIVING BLOCKED | U |
+| `Device_ConfirmActivity` | POTWIERDŹ AKTYWNOŚĆ | CONFIRM ACTIVITY | U |
+| `Device_Printing` | DRUKOWANIE... | PRINTING... | U |
+| `Device_DrivingWithoutCard` | ! JAZDA BEZ KARTY ! | ! DRIVING WITHOUT CARD ! | U |
+| `Device_CardErrorFormat` | X  BŁĄD KARTY {0}  X | X  CARD {0} ERROR  X | U/T |
+| `Device_NoCardShortFormat` | BRAK K{0} | NO C{0} | U/T |
+
+Paski postępu, `OK`, `C`, strzałki, `P`, `>`, `K1`, maska przebiegu, `km/h`
+i `km` są symbolami albo jednostkami technicznymi i pozostają bez lokalizacji.
+`DeviceMenu_PrintDriver1Day` jest ponownie używany podczas drukowania.
+
+### Urządzeniowy presenter aktywności
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `DeviceActivity_Driving` | KIEROWNICA | DRIVING | P |
+| `DeviceActivity_OtherWork` | MŁOTKI | OTHER WORK | P |
+| `DeviceActivity_Availability` | GOTOWOŚĆ | AVAILABILITY | P |
+| `DeviceActivity_BreakOrRest` | ŁÓŻKO | REST | P |
+| `DeviceActivity_Unknown` | NIEZNANA | UNKNOWN | P |
+
+`DriverActivity.OutOfScope` pozostaje technicznym `OUT`. Drugi presenter musi
+jawnie obsłużyć wszystkie sześć wartości i nie może kończyć się
+`activity.ToString().ToUpperInvariant()`. `Card_NoCard` z paczki 2 obsługuje
+brak kierowcy w obu slotach. Polska kolumna zachowuje opisy piktogramów
+z istniejącego LCD, natomiast angielska konsekwentnie używa terminologii
+aktywności tachografowych; nie koliduje dzięki temu z `DeviceState_Ready`.
+
+### Skrót rekompensaty na LCD
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `DeviceCompensation_Overdue` | PRZETERMINOWANA | OVERDUE | P |
+| `DeviceCompensation_DueByWeekFormat` | DO TYG. {0} | DUE WK {0} | P/T |
+
+Kwota `HH:MM`, opcjonalna liczba zobowiązań i separator ` · ` są formatowane
+niezależnie od tekstowego statusu. Ten presenter jest odrębny od czterech
+statusów `CompensationSummary_*` na Dashboardzie.
+
+### Terminy i dni tygodnia na LCD
+
+| Klucz | Polski | English | Kategoria |
+|---|---|---|---|
+| `DeviceDeadline_CompleteByPrefix` | KONIEC≤ | END≤ | P |
+| `DeviceDeadline_StartNoLaterThanPrefix` | START≤ | START≤ | P |
+| `DeviceDeadline_CompleteBeforePrefix` | PRZED | BEFORE | P |
+| `DeviceDeadline_AvailableFromPrefix` | OD | FROM | P |
+| `Weekday_Short_Monday` | PON | MON | P |
+| `Weekday_Short_Tuesday` | WT | TUE | P |
+| `Weekday_Short_Wednesday` | ŚR | WED | P |
+| `Weekday_Short_Thursday` | CZW | THU | P |
+| `Weekday_Short_Friday` | PT | FRI | P |
+| `Weekday_Short_Saturday` | SOB | SAT | P |
+| `Weekday_Short_Sunday` | NDZ | SUN | P |
+
+Urządzeniowy wariant `GameDeadlineFormatter.FormatDevice` korzysta ze wszystkich
+11 wartości tej tabeli. Siedem `Weekday_Short_*` jest jednak neutralne,
+ponieważ `GameWeekdayNames.Abbreviated` zasila również `FormatCompact` na
+Dashboardzie, w Planerze i Raportach. `X-01` ponownie użyje tych skrótów oraz
+doda pełne nazwy dni, nieurządzeniowe prefiksy i etykietę dnia gry.
+`D{0}`, numer dnia, godzina i okres `n/6` pozostają techniczne.
+
+### Mapowanie źródeł
+
+| Źródło | Obecna wartość / rodzina | Decyzja |
+|---|---|---|
+| `MainWindow.xaml:72-87` | tytuł i dwie podpowiedzi kierowców | `Device_CurrentViewTitle`, wspólny format podpowiedzi |
+| `MainViewModel.cs:35-44` | 7 polskich `DeviceLabel` | 7 kluczy `DeviceRestTarget_*` |
+| `MainViewModel.cs:1737-1750` | wszystkie pozycje menu | jawne klucze menu, stanów i 13 liczników |
+| `MainViewModel.cs:1752` | `WŁ.` / `WYŁ.` | `DeviceState_On` / `DeviceState_Off` |
+| `MainViewModel.cs:1765-1819` | tytuły stron i komunikaty `DeviceLine1-3` | klucze `DeviceMenu_*` i `Device_*`; wartości T pozostają bez zmian |
+| `MainViewModel.cs:1821-1827` | drugi presenter `DriverActivity` | 5 `DeviceActivity_*` + techniczne `OUT`; bez fallbacku |
+| `MainViewModel.cs:1829-1835` | wykrywanie przekroczeń po polskim prefiksie | zastąpić semantycznym identyfikatorem pozycji |
+| `MainViewModel.cs:2332-2342` | skrót rekompensaty | 2 klucze `DeviceCompensation_*` |
+| `GameCalendarFormatter.cs:5-77` | skróty dni współdzielone przez `FormatCompact` i `FormatDevice`; prefiksy urządzenia | 7 `Weekday_Short_*` + 4 `DeviceDeadline_*Prefix`; pozostałe formaty → `X-01` |
+| `WeeklyRestWindowFormatter.cs:25-44` | okres `n/6` + termin urządzeniowy | okres T, termin przez urządzeniowy presenter |
+
+### Elementy świadomie bez lokalizacji
+
+| Element | Kategoria | Uzasadnienie |
+|---|---|---|
+| `OUT`, ISO i kod tachografowy kraju | T | stabilne kody urządzenia |
+| identyfikatory stron menu | T | sterują logiką, nie są tekstem UI |
+| numery slotów i kart | T | wartości przekazywane do formatów |
+| `HH:MM`, `D{0}`, `n/6`, prędkość i przebieg | T | dane i formaty urządzenia |
+| `km/h`, `km`, `24H` | T | jednostki i zwarty zapis urządzenia |
+| `▲`, `▼`, `OK`, `C`, `P`, `>`, `K1`, `X`, nawiasy i paski postępu | T | symbole fizycznego interfejsu |
+| nazwa kierowcy | O | dane użytkownika; nie jest tłumaczona ani wymuszana na uppercase przez kulturę |
+| nazwa i ścieżka pliku wydruku | T | kontrakt systemu plików, nie etykieta UI |
+
+### Oczekiwane identyczne wartości PL/EN
+
+- `DeviceMenu_StartCountryFormat`;
+- `DeviceMenu_OutModeFormat`;
+- `DeviceDeadline_StartNoLaterThanPrefix`.
+
+### Oczekiwane duplikaty wartości między różnymi kluczami
+
+Test duplikatów wartości musi używać jawnej listy dozwolonych par. Dla katalogu
+170 kluczy lista zawiera dokładnie pięć pozycji:
+
+| Wartość EN | Klucze | Decyzja |
+|---|---|---|
+| `OTHER WORK` | `DeviceMenu_OtherWork`, `DeviceActivity_OtherWork` | zamierzone; pozycja menu i etykieta aktywności są odrębnymi rolami, a PL zachowuje `INNA PRACA` / `MŁOTKI` |
+| `AVAILABILITY` | `DeviceMenu_Availability`, `DeviceActivity_Availability` | zamierzone; odrębne role, PL zachowuje `DYSPOZYCYJNOŚĆ` / `GOTOWOŚĆ` |
+| `REST` | `DeviceMenu_Rest`, `DeviceActivity_BreakOrRest` | zamierzone; odrębne role, PL zachowuje `ODPOCZYNEK` / `ŁÓŻKO` |
+| `FROM` | `Common_From`, `DeviceDeadline_AvailableFromPrefix` | osobne klucze są wymagane mimo identycznego `OD` / `FROM`: granica zakresu i semantyka terminu „dostępne od” nie są tą samą rolą |
+| `OVERDUE` | `CompensationSummary_Overdue`, `DeviceCompensation_Overdue` | wspólny termin EN; PL świadomie zachowuje `ZALEGŁE` na Dashboardzie i urządzeniowe `PRZETERMINOWANA` na LCD zgodnie z UI freeze |
+
+Wariant LCD `PRZETERMINOWANA` nie tworzy odrębnego pojęcia domenowego. Ewentualne
+ujednolicenie polskiego brzmienia można rozważyć dopiero po zdjęciu UI freeze;
+M5 nie zmienia zatwierdzonej polskiej treści urządzenia.
+
+### Kontrola paczki
+
+- [x] wszystkie 3 statyczne literały urządzenia w XAML mają klucz;
+- [x] wszystkie 7 stron menu głównego, podstrony i 13 liczników mają jawne mapowanie;
+- [x] wszystkie 7 skróconych `DeviceLabel` ma wersję EN;
+- [x] wszystkie stany budujące `DeviceLine1-3` mają klucz albo decyzję T/O;
+- [x] wszystkie 6 wartości `DriverActivity` ma decyzję w drugim presenterze;
+- [x] wszystkie 4 wartości `GameDeadlineSemantic` i 7 dni tygodnia ma wariant LCD;
+- [x] wszystkie formaty mają identyczne zbiory placeholderów PL/EN;
+- [x] sprawdzono cały zatwierdzony katalog paczek 1–2; ponownie użyto `Card_NoCard`;
+- [x] wskazano zależność koloru od polskich prefiksów i wymagane rozdzielenie semantyki od tekstu;
+- [x] modal karty i komunikaty operacyjne mają jawnego właściciela w UI-04/UI-09;
+- [x] nie zmienia się sterowanie urządzeniem, JSON stanu, PDF, SQLite ani telemetria.
+
+### Werdykt
+
+**GO — paczka 3 zatwierdzona.** Łączny katalog paczek 1–3 zawiera 170
+wiążących kluczy bez powtórzeń nazw. `X-01` pozostaje obszarem do rozpisania.
 
 ## Słownik domenowy PL/EN — część 1
 

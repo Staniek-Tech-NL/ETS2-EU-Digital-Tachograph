@@ -485,10 +485,20 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
 - **Punkt wejściowy:** `2d8a760`.
 - **Gałąź:** `codex/m5-localization-pl-en`.
 - **Stan:** M5.1 — inwentaryzacja tekstów, kontraktów i ryzyk przepełnień;
-  paczka 1 zamknięta wynikiem GO.
+  paczki 1–3 zamknięte wynikiem GO.
 - **Artefakt:** `docs/LOCALIZATION_STRING_INVENTORY.md`.
 - **Paczka 1:** elementy wspólne, powłoka i nawigacja — 33 wiążące klucze,
   0 pozycji otwartych.
+- **Paczka 2:** Dashboard — 58 wiążących kluczy, 0 pozycji otwartych.
+- **Paczka 3:** wirtualny tachograf — 79 wiążących kluczy,
+  0 pozycji otwartych.
+- **Katalog łączny:** 170 kluczy, 170 unikalnych nazw; jawna lista
+  5 oczekiwanych duplikatów wartości między różnymi rolami.
+- **X-01:** wspólne formatery czasu i terminów — obszar do rozpisania;
+  warunek pełnej kompletności wartości terminów na Dashboardzie oraz wspólne
+  wejście dla Planera, Raportów i `WeeklyRestWindowFormatter`.
+- **Zmiany wykonawcze:** brak zmian w kodzie i XAML; dotychczasowe paczki M5.1
+  są wyłącznie kontraktem dokumentacyjnym przed M5.2.
 - **Zakres językowy:** `pl-PL` i `en-GB`.
 - **Kontrakty chronione:** JSON, techniczny CSV, `.tacho`, SQLite, protokół v3,
   identyfikatory i kody techniczne.
