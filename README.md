@@ -12,10 +12,11 @@ kierowców i wylicza liczniki zgodnie z zaimplementowanym zakresem reguł.
 - opublikowaną bazą wersjonowaną pozostaje `0.1.0-beta.11.1`;
 - końcowy smoke beta.11.1 z aktywną telemetrią zaliczony 23 lipca 2026 —
   wszystkie testy zielone, decyzja **GO**;
-- bieżące zmiany UI oraz hotfix licznika pauzy 44/45 są wdrożone wyłącznie
-  lokalnie i nie tworzą nowej wersji beta;
-- lokalny gate: **338/338 testów**, build Release 0 błędów i 0 ostrzeżeń;
-- aplikacja została uruchomiona diagnostycznie po ostatnich zmianach XAML.
+- kandydat `0.1.0-beta.12` jest przygotowywany w M6 i nie został jeszcze
+  opublikowany ani dopuszczony do M7;
+- przygotowawczy gate M6: **569/569 testów**, build Release 0 błędów
+  i 0 ostrzeżeń, `FileVersion 0.1.12.0`;
+- checkpoint poprawności i wydajności startu M5.2-P ma wynik **GO**.
 
 ## Podgląd
 

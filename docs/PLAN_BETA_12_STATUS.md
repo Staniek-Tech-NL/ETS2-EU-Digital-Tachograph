@@ -25,7 +25,7 @@
 | **M4-0** | Inwentaryzacja UI + weryfikacja rc4 | 🟢 62/62 pozycji beta.12 PASS | GO | M4 |
 | **M4** | Finalizacja UI + **UI freeze** | 🟢 UI zamrożone | GO | M5 |
 | **M5** | Lokalizacja PL/EN | 🟢 M5.1–M5.4 zamknięte | GO | M6 |
-| M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty — gotowy do startu | — | M7 |
+| **M6** | Release Candidate `0.1.0-beta.12` | 🟡 w toku — automatyka zielona, walidacje RC oczekują | — | M7 |
 | M7 | Końcowy smoke beta.12 | ⚪ nie rozpoczęty | — | M8 |
 | M8 | Publikacja | ⚪ nie rozpoczęty | — | — |
 
@@ -610,7 +610,7 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
 
 ---
 
-## M6–M8 — do rozpoczęcia
+## M6–M8
 
 Każdy etap otwieramy dopiero po **GO** poprzedniego. Szczegółowe zadania i gate'y
 w `docs/PLAN_BETA_12_M0-M8/`. Poniżej rejestr decyzji wypełniany przy zamykaniu
@@ -621,7 +621,14 @@ dowody manualne, P0, P1, uwagi).
 - **M4** — realizacja zatwierdzonej inwentaryzacji + formalny **UI freeze**. — *GO*
 - **M5** — pełne `pl-PL` i `en-GB`, zielone regresje obu języków.
   — *GO*
-- **M6** — niezmienny RC beta.12: numer + commit + SHA-256, ZIP zamrożony. — *nie rozpoczęty*
+- **M6** — niezmienny RC beta.12: numer + commit + SHA-256, ZIP zamrożony.
+  — *rozpoczęty 2026-07-28 na gałęzi `codex/m6-release-candidate-beta-12`;
+  ustawiono `Version 0.1.0-beta.12`, `FileVersion 0.1.12.0` i
+  `InformationalVersion 0.1.0-beta.12`; przygotowawczy gate: 569/569 testów
+  PASS, Release 0 błędów / 0 ostrzeżeń, metadane binarne zgodne. Finalny gate
+  zostanie powtórzony z commita źródłowego RC. README, release notes,
+  known issues i plan testów zaktualizowane; nota licencyjna Unicode CLDR
+  i SCS SDK dodana do `docs/THIRD_PARTY_NOTICES.md`.*
 - **M7** — smoke na rozpakowanym ZIP-ie (istniejąca + czysta baza) → GO/FIX/HOLD. — *nie rozpoczęty*
 - **M8** — publikacja dokładnie artefaktu z GO + checksuma + dokumentacja PL/EN. — *nie rozpoczęty*
 

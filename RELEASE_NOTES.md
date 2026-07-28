@@ -1,32 +1,36 @@
-# Zmiany lokalne — nieopublikowane
+# ETS2 EU Digital Tachograph 0.1.0-beta.12 — kandydat M6
 
-Ten zakres nie jest nową wersją beta. Numer aplikacji pozostaje
-`0.1.0-beta.11.1`, a poniższe zmiany istnieją wyłącznie w bieżącym katalogu
-roboczym:
+Ostatnia beta przed pierwszą szeroką publikacją. Wydanie nie jest jeszcze
+opublikowane; M6 przygotowuje niezmienny ZIP do końcowego smoke M7.
 
-- licznik `ODP. TYG.` pokazuje bieżący okres 24 h w skali `1/6–6/6+` oraz
-  stały termin rozpoczęcia odpoczynku w `game_time`, np. `4/6 (D141 22:55)`;
-- ręczne pole kraju zastąpiono przeszukiwalną listą 249 pozycji ISO 3166-1
-  alpha-2 z polskimi nazwami i osobnym kodem tachografowym;
-- wdrożono wariant B wpisu manualnego z pełnym planem, trzema aktywnościami,
-  szybkim zastępowaniem całej luki, edycją, usuwaniem oraz automatycznym
-  dzieleniem i scalaniem segmentów;
-- podsumowanie wpisu pokazuje pokrycie i sumy aktywności, a zapis jest dostępny
-  tylko dla kompletnego planu;
-- naprawiono błąd startowy WPF spowodowany dwukierunkowymi powiązaniami
-  właściwości tylko do odczytu;
-- poprawiono kontrast tekstu list rozwijanych edytora segmentu;
-- naprawiono licznik celu pauzy 44/45: Dashboard, urządzenie i overlay odczytują
-  długość bieżącego, ciągłego bloku `BreakOrRest` z RuleEngine zamiast czasu od
-  kliknięcia; dedykowana przerwa slotu 2 podczas jazdy pozostaje bez zmian.
+## Najważniejsze zmiany
 
-## Weryfikacja lokalna
+- pełny interfejs `pl-PL` i `en-GB`, wybór języka w Ustawieniach stosowany
+  po restarcie oraz lokalizowane raporty PDF;
+- Planer tras z obsługą dwóch kierowców, zdarzeń, terminów w czasie gry,
+  ostrzeżeń i zapamiętywaniem formularza;
+- rozszerzone Raporty i statystyki, eksporty PDF/CSV/JSON oraz czytelne
+  zobowiązania rekompensaty;
+- wariant B wpisu manualnego: plan całej luki, edycja segmentów i blokada
+  niepełnego zapisu;
+- katalog 249 krajów ISO 3166-1 z nazwami PL/EN i kodami tachografowymi;
+- finalizacja Dashboardu, wirtualnego urządzenia, obu nakładek i stanów błędów
+  przy zachowaniu UI freeze;
+- poprawiony licznik pauzy 44/45 oraz prezentacja `ODP. TYG.`;
+- szybszy start na istniejącej bazie i hotfix projekcji hot/warm po wczytaniu
+  starszego zapisu gry.
 
-- 338/338 testów automatycznych;
-- RuleEngine 70/70, Desktop 48/48;
+## Weryfikacja kandydata
+
+- 569/569 testów automatycznych;
 - build Release: 0 błędów, 0 ostrzeżeń;
-- rzeczywisty start aplikacji potwierdzony diagnostycznie;
-- nie utworzono ani nie opublikowano nowej paczki beta.
+- `FileVersion 0.1.12.0`;
+- poprawność i wydajność checkpointu M5.2-P: GO;
+- starty, restarty, pełne PL/EN i zamrożony ZIP oczekują na końcową walidację
+  M6/M7.
+
+Nazwy krajów wykorzystują dane Unicode CLDR. Wymagane informacje licencyjne
+znajdują się w `docs/THIRD_PARTY_NOTICES.md`.
 
 ---
 

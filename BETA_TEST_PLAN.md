@@ -1,8 +1,8 @@
-# Plan testów — beta.11.1 i bieżące zmiany lokalne
+# Plan testów — kandydat `0.1.0-beta.12`
 
-Sekcje terenowe zachowują kontrakt paczki beta.11.1. Checklista UI obejmuje
-również bieżące, nieopublikowane zmiany lokalne. Nie wolno na jej podstawie
-tworzyć ani publikować nowej paczki beta bez osobnej decyzji.
+Plan jest wiążącą checklistą M6/M7 dla niezmiennego artefaktu beta.12.
+Historyczny wynik beta.11.1 pozostaje zapisany w osobnej sekcji i nie zastępuje
+ponownej walidacji kandydata.
 
 ## Przygotowanie
 
@@ -12,7 +12,7 @@ tworzyć ani publikować nowej paczki beta bez osobnej decyzji.
    `Euro Truck Simulator 2\bin\win_x64\plugins\`, zastępując poprzednią wersję,
    i uruchom ETS2 ponownie.
 4. Uruchom `app\ETS2Tachograph.Desktop.exe`, a następnie ETS2.
-5. Zachowaj `%LocalAppData%\ETS2Tachograph\tachograph.db`. Beta.11.1 ma pracować na
+5. Zachowaj `%LocalAppData%\ETS2Tachograph\tachograph.db`. Beta.12 ma pracować na
    dotychczasowej historii; aplikacja nadal wykonuje kopię bazy przed migracją.
 
 ## Checklista regresji UI — po każdej zmianie w XAML
@@ -276,7 +276,21 @@ Procedura powtórzenia:
 9. W JSON sprawdź pełne `compensationObligations`; sekcja `compensation` musi
    pozostać zgodnym podsumowaniem pochodnym.
 
-## Końcowy smoke test terenowy artefaktu beta.11.1
+## Checklista RC `0.1.0-beta.12` — M6/M7
+
+- [ ] Start na kopii istniejącej bazy, migracja, backup i dwa restarty.
+- [ ] Start na czystej bazie i utworzenie domyślnego profilu.
+- [ ] Pełna nawigacja, Dashboard, urządzenie i nakładki w `pl-PL`.
+- [ ] Pełna nawigacja, Dashboard, urządzenie i nakładki w `en-GB`.
+- [ ] Historia, wpis manualny, rekompensaty, Raporty, Kierowcy, Ustawienia
+      i Planer w obu językach.
+- [ ] PDF PL i EN mają te same dane, identyfikatory, minuty oraz zakres.
+- [ ] CSV, JSON, `.tacho` i SQLite zachowują kontrakty maszynowe niezależnie
+      od języka UI.
+- [ ] Plugin v3 z ZIP-a łączy się po pełnym restarcie ETS2.
+- [ ] Numer, commit, zawartość ZIP-a i SHA-256 są zgodne z rejestrem M6.
+
+## Historyczny smoke test terenowy artefaktu beta.11.1
 
 - [x] Staniek: `1253 min / 20:53` w Dashboardzie, szczegółach i eksportach.
 - [x] Doboś: `1192 min / 19:52` w Dashboardzie, szczegółach i eksportach.

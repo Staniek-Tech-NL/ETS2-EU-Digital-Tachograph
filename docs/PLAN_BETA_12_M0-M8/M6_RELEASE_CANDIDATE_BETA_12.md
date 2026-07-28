@@ -4,7 +4,8 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status początkowy:** **NIE ROZPOCZĘTY**  
+**Status:** **W TOKU**
+**Data rozpoczęcia:** 28 lipca 2026
 **Kryterium wejścia:** Pełna regresja funkcjonalna i lokalizacyjna PL/EN jest zielona.  
 **Kryterium wyjścia:** Niezmienny, identyfikowalny artefakt gotowy do końcowego smoke testu.  
 **Następny etap:** M7
@@ -15,16 +16,16 @@
 
 ### Zadania
 
-- [ ] Ustawić numer `0.1.0-beta.12` we wszystkich wymaganych metadanych.
-- [ ] Wykonać pełny build Release.
-- [ ] Uruchomić pełny pakiet testów automatycznych.
+- [x] Ustawić numer `0.1.0-beta.12` we wszystkich wymaganych metadanych.
+- [x] Wykonać pełny build Release.
+- [x] Uruchomić pełny pakiet testów automatycznych.
 - [ ] Sprawdzić start na istniejącej bazie użytkownika.
 - [ ] Sprawdzić start na czystej bazie.
 - [ ] Sprawdzić migracje, backup i dwa restarty.
 - [ ] Wykonać pełną regresję funkcjonalną PL.
 - [ ] Wykonać pełną regresję funkcjonalną EN.
 - [ ] Porównać dane raportów PL/EN.
-- [ ] Zaktualizować README, release notes, known issues i plan testów.
+- [x] Zaktualizować README, release notes, known issues i plan testów.
 - [ ] Przygotować self-contained `win-x64`.
 - [ ] Dołączyć właściwą DLL pluginu v3.
 - [ ] Utworzyć ZIP.
@@ -91,16 +92,24 @@ Liczba testów nie jest zamrożona na 310. Warunkiem jest 100% wymaganych testó
 
 ## Szablon aktualizacji statusu
 
-- **Data rozpoczęcia:**
+- **Data rozpoczęcia:** 2026-07-28
 - **Data zakończenia:**
-- **Wynik:** `GO` / `FIX` / `HOLD` / `NIE DOTYCZY`
-- **Commit / punkt przywracania:**
-- **Build Release:**
-- **Testy automatyczne:**
-- **Testy manualne / dowody:**
-- **Otwarte błędy P0:**
-- **Otwarte błędy P1:**
-- **Uwagi do następnego etapu:**
+- **Wynik:** `W TOKU`
+- **Commit / punkt przywracania:** `9f61da5` — wejście do M6;
+  gałąź `codex/m6-release-candidate-beta-12`
+- **Build Release:** przygotowawczy gate 0 błędów / 0 ostrzeżeń;
+  `FileVersion 0.1.12.0`,
+  `ProductVersion 0.1.0-beta.12+9f61da5235e1293656dab4edb43dbb65401c898d`.
+  Do powtórzenia z finalnego commita źródłowego.
+- **Testy automatyczne:** 569/569 PASS. Do powtórzenia z finalnego commita
+  źródłowego przed publikacją self-contained.
+- **Testy manualne / dowody:** checkpoint M5.2-P GO; walidacje RC jeszcze
+  niewykonane
+- **Otwarte błędy P0:** 0
+- **Otwarte błędy P1:** 0
+- **Uwagi do następnego etapu:** M7 nie rozpoczyna się przed zamrożeniem ZIP-a
+  i zapisaniem commita oraz SHA-256. Paczka musi zawierać
+  `docs/THIRD_PARTY_NOTICES.md` z notami Unicode CLDR i SCS SDK.
 
 ---
 

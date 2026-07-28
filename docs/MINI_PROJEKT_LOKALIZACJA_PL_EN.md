@@ -697,7 +697,7 @@ Warunki:
 - [ ] plugin v3 bez zmian;
 - [ ] restart zachowuje język;
 - [ ] dokumentacja instalacyjna PL/EN gotowa;
-- [ ] pakiet publikacyjny zawiera wymaganą notę licencyjną Unicode CLDR dla
+- [x] pakiet publikacyjny zawiera wymaganą notę licencyjną Unicode CLDR dla
       redystrybuowanych danych `CountryNames.pl.json`
       i `CountryNames.en-GB.json`;
 - [ ] repozytorium czyste;
