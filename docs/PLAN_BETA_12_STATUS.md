@@ -25,7 +25,7 @@
 | **M4-0** | Inwentaryzacja UI + weryfikacja rc4 | 🟢 62/62 pozycji beta.12 PASS | GO | M4 |
 | **M4** | Finalizacja UI + **UI freeze** | 🟢 UI zamrożone | GO | M5 |
 | **M5** | Lokalizacja PL/EN | 🟢 M5.1–M5.4 zamknięte | GO | M6 |
-| **M6** | Release Candidate `0.1.0-beta.12` | 🟡 w toku — automatyka zielona, walidacje RC oczekują | — | M7 |
+| **M6** | Release Candidate `0.1.0-beta.12` | 🟢 RC zamrożony i identyfikowalny | GO | M7 |
 | M7 | Końcowy smoke beta.12 | ⚪ nie rozpoczęty | — | M8 |
 | M8 | Publikacja | ⚪ nie rozpoczęty | — | — |
 
@@ -622,16 +622,18 @@ dowody manualne, P0, P1, uwagi).
 - **M5** — pełne `pl-PL` i `en-GB`, zielone regresje obu języków.
   — *GO*
 - **M6** — niezmienny RC beta.12: numer + commit + SHA-256, ZIP zamrożony.
-  — *rozpoczęty 2026-07-28 na gałęzi `codex/m6-release-candidate-beta-12`;
+  — *GO 2026-07-28 na gałęzi `codex/m6-release-candidate-beta-12`;
   ustawiono `Version 0.1.0-beta.12`, `FileVersion 0.1.12.0` i
   `InformationalVersion 0.1.0-beta.12`. Pierwszy self-contained z `47cc9e5`
   został unieważniony przed utworzeniem ZIP-a: walidacja EN wykryła polskie
   `Dzień` w widocznych wartościach czasu gry w Historii i Rekompensatach.
-  Dodano test regresyjny i lokalny presenter Desktopu; gate po poprawce:
-  570/570 testów PASS, Release 0 błędów / 0 ostrzeżeń. Finalny gate zostanie
-  powtórzony z nowego commita źródłowego RC. README, release notes,
-  known issues i plan testów zaktualizowane; nota licencyjna Unicode CLDR
-  i SCS SDK dodana do `docs/THIRD_PARTY_NOTICES.md`.*
+  Finalny commit źródłowy `ffe6f7f`: 570/570 testów PASS, Release 0 błędów /
+  0 ostrzeżeń, smoke 7/7 PL i 7/7 EN, czysta baza oraz świeża kopia aktualnej
+  bazy użytkownika przechodzą start, backup i restart. ZIP
+  `ETS2Tachograph-0.1.0-beta.12-win-x64.zip` ma SHA-256
+  `A2B8F949E100F8683225B7A0D5A76E5C7E3434AD95AEC9596006C4A5E41F5E78`;
+  kontrolne rozpakowanie 450/450. Oryginalna baza użytkownika pozostała
+  niezmieniona. M7 odblokowany.*
 - **M7** — smoke na rozpakowanym ZIP-ie (istniejąca + czysta baza) → GO/FIX/HOLD. — *nie rozpoczęty*
 - **M8** — publikacja dokładnie artefaktu z GO + checksuma + dokumentacja PL/EN. — *nie rozpoczęty*
 

@@ -4,8 +4,9 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status:** **W TOKU**
+**Status:** **GO**
 **Data rozpoczęcia:** 28 lipca 2026
+**Data zakończenia:** 28 lipca 2026
 **Kryterium wejścia:** Pełna regresja funkcjonalna i lokalizacyjna PL/EN jest zielona.  
 **Kryterium wyjścia:** Niezmienny, identyfikowalny artefakt gotowy do końcowego smoke testu.  
 **Następny etap:** M7
@@ -19,19 +20,19 @@
 - [x] Ustawić numer `0.1.0-beta.12` we wszystkich wymaganych metadanych.
 - [x] Wykonać pełny build Release.
 - [x] Uruchomić pełny pakiet testów automatycznych.
-- [ ] Sprawdzić start na istniejącej bazie użytkownika.
-- [ ] Sprawdzić start na czystej bazie.
-- [ ] Sprawdzić migracje, backup i dwa restarty.
-- [ ] Wykonać pełną regresję funkcjonalną PL.
-- [ ] Wykonać pełną regresję funkcjonalną EN.
-- [ ] Porównać dane raportów PL/EN.
+- [x] Sprawdzić start na istniejącej bazie użytkownika.
+- [x] Sprawdzić start na czystej bazie.
+- [x] Sprawdzić migracje, backup i dwa restarty.
+- [x] Wykonać pełną regresję funkcjonalną PL.
+- [x] Wykonać pełną regresję funkcjonalną EN.
+- [x] Porównać dane raportów PL/EN.
 - [x] Zaktualizować README, release notes, known issues i plan testów.
-- [ ] Przygotować self-contained `win-x64`.
-- [ ] Dołączyć właściwą DLL pluginu v3.
-- [ ] Utworzyć ZIP.
-- [ ] Obliczyć SHA-256.
-- [ ] Zapisać commit/tag źródłowy artefaktu.
-- [ ] Potwierdzić czyste repozytorium.
+- [x] Przygotować self-contained `win-x64`.
+- [x] Dołączyć właściwą DLL pluginu v3.
+- [x] Utworzyć ZIP.
+- [x] Obliczyć SHA-256.
+- [x] Zapisać commit/tag źródłowy artefaktu.
+- [x] Potwierdzić czyste repozytorium w zakresie wydania.
 
 ### Gate M6
 
@@ -103,32 +104,41 @@ presenter Desktopu używający `GameCalendar_DayFormat`. Test regresyjny
 `Visible_game_clock_values_use_selected_ui_culture` przeszedł najpierw na
 czerwono (`Dzień 2, 00:00` zamiast `Day 2, 00:00`), a po poprawce na zielono.
 Pełna regresja po poprawce: 570/570 PASS; Release: 0 błędów / 0 ostrzeżeń.
-Nowy self-contained musi zostać zbudowany i zweryfikowany z nowego commita
-źródłowego.
+Nowy self-contained został zbudowany i zweryfikowany z commita źródłowego
+`ffe6f7f`.
 
 ## Szablon aktualizacji statusu
 
 - **Data rozpoczęcia:** 2026-07-28
-- **Data zakończenia:**
-- **Wynik:** `W TOKU`
+- **Data zakończenia:** 2026-07-28
+- **Wynik:** **GO**
 - **Commit / punkt przywracania:** `9f61da5` — wejście do M6;
   `47cc9e5` — pierwszy kandydat unieważniony po walidacji EN;
+  `ffe6f7fad2c4fccfad8fc12f1a93675cc5d13c78` — commit źródłowy
+  zamrożonego RC;
   gałąź `codex/m6-release-candidate-beta-12`
-- **Build Release:** przygotowawczy gate 0 błędów / 0 ostrzeżeń;
+- **Build Release:** 0 błędów / 0 ostrzeżeń;
   `FileVersion 0.1.12.0`,
-  `ProductVersion 0.1.0-beta.12+47cc9e5a8aecda4bcfde8c35801d84f2496b43f9`.
-  Do powtórzenia z finalnego commita źródłowego.
-- **Testy automatyczne:** 570/570 PASS po poprawce lokalizacji czasu gry.
-  Do powtórzenia z finalnego commita
-  źródłowego przed publikacją self-contained.
-- **Testy manualne / dowody:** checkpoint M5.2-P GO; pierwszy smoke
-  self-contained wykrył i zatrzymał pozostałość `Dzień` w EN; kandydat
-  `47cc9e5` unieważniony
+  `ProductVersion 0.1.0-beta.12+ffe6f7fad2c4fccfad8fc12f1a93675cc5d13c78`.
+- **Testy automatyczne:** 570/570 PASS z commita źródłowego.
+- **Testy manualne / dowody:** użytkownik zatwierdził pełny test jako zielony;
+  smoke siedmiu ekranów PL 7/7 i EN 7/7; `Day`/`Dzień` poprawne; dane raportów
+  PL/EN zgodne. Start i restart PASS na czystej bazie oraz na świeżej kopii
+  aktualnej bazy użytkownika. Oryginał bazy nie został zmieniony:
+  SHA-256 przed i po
+  `F9C55358C860EE74C002908AD9BABB7BC3E010BC209704411C91102D43095387`.
+- **Artefakt:** `ETS2Tachograph-0.1.0-beta.12-win-x64.zip`;
+  450 plików po rozpakowaniu; `67 029 279` bajtów.
+- **SHA-256 ZIP-a:**
+  `A2B8F949E100F8683225B7A0D5A76E5C7E3434AD95AEC9596006C4A5E41F5E78`.
+- **Plugin v3 SHA-256:**
+  `BB4F0A70B566A0F870CA4F64652761C6E0371FBEADA6CA9CF98B007F2D6E280D`.
+- **Integralność:** manifest M0–M8 16/16; kontrolne rozpakowanie 450/450;
+  w paczce brak baz i uruchamiaczy testowych; obecne noty Unicode CLDR i SCS.
 - **Otwarte błędy P0:** 0
 - **Otwarte błędy P1:** 0
-- **Uwagi do następnego etapu:** M7 nie rozpoczyna się przed zamrożeniem ZIP-a
-  i zapisaniem commita oraz SHA-256. Paczka musi zawierać
-  `docs/THIRD_PARTY_NOTICES.md` z notami Unicode CLDR i SCS SDK.
+- **Uwagi do następnego etapu:** M7 używa wyłącznie powyższego ZIP-a i sumy.
+  Jakakolwiek zmiana paczki unieważnia GO M6.
 
 ---
 

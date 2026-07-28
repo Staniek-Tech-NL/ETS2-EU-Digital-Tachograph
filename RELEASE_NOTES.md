@@ -1,7 +1,7 @@
 # ETS2 EU Digital Tachograph 0.1.0-beta.12 — kandydat M6
 
 Ostatnia beta przed pierwszą szeroką publikacją. Wydanie nie jest jeszcze
-opublikowane; M6 przygotowuje niezmienny ZIP do końcowego smoke M7.
+opublikowane; niezmienny ZIP z GO M6 oczekuje na końcowy smoke M7.
 
 ## Najważniejsze zmiany
 
@@ -28,8 +28,11 @@ opublikowane; M6 przygotowuje niezmienny ZIP do końcowego smoke M7.
 - build Release: 0 błędów, 0 ostrzeżeń;
 - `FileVersion 0.1.12.0`;
 - poprawność i wydajność checkpointu M5.2-P: GO;
-- starty, restarty, pełne PL/EN i zamrożony ZIP oczekują na końcową walidację
-  M6/M7.
+- starty i restarty czystej oraz aktualnej bazy: PASS;
+- pełne PL/EN: GO;
+- ZIP M6: SHA-256
+  `A2B8F949E100F8683225B7A0D5A76E5C7E3434AD95AEC9596006C4A5E41F5E78`;
+- końcowy smoke M7 pozostaje do wykonania.
 
 Nazwy krajów wykorzystują dane Unicode CLDR. Wymagane informacje licencyjne
 znajdują się w `docs/THIRD_PARTY_NOTICES.md`.
