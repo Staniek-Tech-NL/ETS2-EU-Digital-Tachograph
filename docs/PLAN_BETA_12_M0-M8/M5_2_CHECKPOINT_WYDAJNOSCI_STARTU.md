@@ -2,11 +2,12 @@
 
 **Projekt:** ETS2 EU Digital Tachograph
 **Wydanie docelowe:** `0.1.0-beta.12`
-**Data:** 27 lipca 2026
-**Status:** **WYDAJNOŚĆ GO — POPRAWNOŚĆ HOLD**
+**Data:** 28 lipca 2026
+**Status:** **WYDAJNOŚĆ GO WARUNKOWE — POPRAWNOŚĆ GO**
 
 Checkpoint ma dwie niezależne bramki. Bramka wydajnościowa jest spełniona
-warunkowo. Bramka zgodności projekcji jest otwarta i wstrzymuje M6.
+warunkowo. Bramka zgodności projekcji została zamknięta hotfixem i nie
+wstrzymuje już M6.
 
 ## Powód
 
@@ -46,6 +47,15 @@ historii.
 2. Zapytania dotyczące samych luk nie materializują rekordów aktywności.
 3. Kontekst rozliczenia luki pobiera rekordy rozliczenia bezpośrednim
    zapytaniem i korzysta z istniejącej projekcji historii hot/warm.
+4. Nowa gałąź sesji zakotwiczona poniżej progu warm atomowo unieważnia
+   pochodną projekcję ciepłą: usuwa bloki warm i przywraca surowe rekordy
+   do odbudowy. Synchronizacja obejmuje również długo żyjący `ChangeTracker`,
+   aby stary stan nie został ponownie zapisany.
+5. Przy braku bloków warm odczyt używa dokładnej kotwicy sesji, nie maksimum
+   kotwicy i progu warm.
+6. Projekcja złożona ma kontrolę nachodzenia. Dla zastanego, historycznie
+   niespójnego stanu zapisuje zdarzenie diagnostyczne i bezpiecznie schodzi
+   do projekcji surowej.
 
 ## Wynik pomiaru
 
@@ -67,7 +77,7 @@ Pomiar potwierdza wynik domenowy dla ścieżki odczytu i **nie** potwierdza go d
 ścieżki zmienionej w punkcie 3 powyżej. Wcześniejsza wersja tego dokumentu
 wyciągała z niego wniosek szerszy, niż na to pozwalał.
 
-## Znalezisko poprawnościowe
+## Znalezisko poprawnościowe — zamknięte hotfixem
 
 Punkt 3 zmiany technicznej przełączył `CanonicalRecords` w kontekście luki
 z projekcji surowej na projekcję hot/warm. Strumień ten trafia bezpośrednio do
@@ -102,7 +112,10 @@ Błąd działa na jego korzyść, więc nie zgłasza się sam.
 Samo nachodzenie w projekcji hot/warm istniało przed checkpointem i dotyczy
 również Dashboardu. Checkpoint nie stworzył tego defektu, natomiast zdjął
 ochronę z jedynego miejsca, które ją miało — ścieżki rozliczania luk.
-Pozycja aktywna w `KNOWN_ISSUES.md`.
+Pozycja została zamknięta 28 lipca 2026. Naprawa unieważnia projekcję pochodną
+przy cofnięciu gałęzi, a kontrola nachodzenia chroni także bazy, w których
+niespójny stan powstał przed hotfixem. Zdarzenia diagnostyczne:
+`WARM_PROJECTION_INVALIDATED` i `CANONICAL_PROJECTION_FALLBACK`.
 
 ## Niezmienniki
 
@@ -113,29 +126,49 @@ Potwierdzone pomiarem i testami:
 - praca startowa nie jest przenoszona w tło i nie jest pomijana;
 - schemat SQLite oraz formaty zewnętrzne pozostają bez zmian;
 - w zwykłej strefie warm, bez gałęzi poniżej progu, kontekst luki pokrywa te
-  same minuty co projekcja surowa i daje identyczny `RegulationState`.
+  same minuty co projekcja surowa i daje identyczny `RegulationState`;
+- mapa minuta → aktywność projekcji hot/warm jest identyczna z mapą projekcji
+  surowej również dla gałęzi zakotwiczonej poniżej progu warm;
+- kolejność i semantyka gałęzi sesji są identyczne po unieważnieniu i odbudowie
+  projekcji pochodnej;
+- dwa kolejne przebiegi retencji dają identyczny stan.
 
-Obalone:
+## Automatyka i dowód danych
 
-- niezmiennik „wynik projekcji kanonicznej historii pozostaje identyczny”
-  nie obowiązuje przy gałęzi zakotwiczonej poniżej progu warm;
-- niezmiennik „kolejność i semantyka gałęzi sesji pozostają identyczne”
-  nie obowiązuje z tego samego powodu — obie projekcje obcinają gałąź
-  w innym miejscu.
-
-## Automatyka
-
-- 24/24 testy projekcji kanonicznej i retencji: PASS;
-- 14/14 testów automatycznej korekty załogi i wpisu manualnego: PASS;
-- 55/55 testów infrastruktury: PASS;
-- pełna regresja rozwiązania w chwili zamknięcia M5: 564/564 PASS;
+- 7/7 testów gałęzi wstecznej i rozliczania luk w strefie warm: PASS;
+- 62/62 testy infrastruktury: PASS;
+- 63/63 testy aplikacji: PASS;
+- pełna regresja rozwiązania: 569/569 PASS;
+- build Release: 0 błędów, 0 ostrzeżeń;
 - test regresyjny historii 12 000 rekordów minutowych wymaga projekcji
   poniżej 1 sekundy;
 - `WarmZoneGapResolutionTests` przypina zgodność kontekstu luki z projekcją
   surową w zwykłej strefie warm oraz ciągłość odpoczynku przy drugiej
   rozliczonej luce z rzędu;
-- `BackwardBranchProjectionTests` odtwarza znalezisko i pozostaje czerwony
-  do czasu naprawy.
+- `BackwardBranchProjectionTests` przypina unieważnianie, odbudowę,
+  idempotencję, brak utraty danych i bezpieczny fallback dla zastanego
+  nachodzenia;
+- testy diagnostyki przypinają oba nowe zdarzenia ostrzegawcze.
+
+Złoty zrzut wykonano na kopii realnej bazy: 29 599 rekordów aktywności,
+40 luk i 59 bloków warm. Przed i po hotfixie były identyczne: projekcja
+kanoniczna, wszystkie luki, bloki warm, raport, rekompensaty i przydziały
+odpoczynku. Baza użytkownika nie została zmieniona.
+
+Pomiar na trzech rozmiarach potwierdził zgodność surowej i logicznej mapy
+aktywności, stabilność rekordów surowych oraz idempotencję dwóch kolejnych
+przebiegów:
+
+| Rozmiar | Rekordy | Rekordy największej karty | Pierwsza archiwizacja | Druga archiwizacja |
+|---|---:|---:|---:|---:|
+| 1× | 29 599 | 15 594 | 1,20 s | 1,01 s |
+| 3× | 89 599 | 60 000 | 7,64 s | 7,64 s |
+| 10× | 299 599 | 270 000 | 142,64 s | 138,69 s |
+
+Wiersz 10× potwierdza istniejący koszt liniowy `ArchiveWarmAsync`. Nie jest
+regresją hotfixu: pełne unieważnienie wykonuje się tylko przy rzadkim utworzeniu
+gałęzi poniżej progu warm. Stałe ograniczenie kosztu pozostaje zadaniem
+po beta.12.
 
 ## Bramka wydajnościowa — GO warunkowe
 
@@ -156,23 +189,22 @@ Warunek obowiązywania:
 Stałe ograniczenie kosztu wymaga osobnego zadania po beta.12: inkrementalnej
 przebudowy warm albo wdrożenia cold retention. Plan: `docs/PLAN_OPTYMALIZACJI_STARTU.md`.
 
-## Bramka zgodności projekcji — HOLD
+## Bramka zgodności projekcji — GO
 
-Bramka jest otwarta i wstrzymuje zamrożenie RC w M6. Zamknięcie wymaga:
-
-- mapa minuta → aktywność z projekcji hot/warm jest identyczna z mapą
-  z projekcji surowej w każdym stanie bazy, w tym przy sesji zakotwiczonej
-  poniżej progu warm;
-- projekcja hot/warm ma własną kontrolę nachodzenia z zapisem diagnostycznym
-  i bezpiecznym zejściem do projekcji surowej;
-- unieważnianie projekcji warm przy kotwicy poniżej progu jest zaimplementowane
+- [x] mapa minuta → aktywność z projekcji hot/warm jest identyczna z mapą
+  z projekcji surowej, także przy sesji zakotwiczonej poniżej progu warm;
+- [x] kontrola nachodzenia zapisuje diagnostykę i bezpiecznie schodzi do
+  projekcji surowej;
+- [x] unieważnianie projekcji warm przy kotwicy poniżej progu jest atomowe
   i pokryte testami gałęzi sesji;
-- `BackwardBranchProjectionTests` jest zielony;
-- złoty zrzut na kopii realnej bazy zgodny przed i po zmianie, test
-  idempotencji retencji zielony, pomiar na trzech rozmiarach bazy wykonany;
-- pełna regresja zielona i build Release bez ostrzeżeń.
+- [x] `BackwardBranchProjectionTests` jest zielony;
+- [x] złoty zrzut na kopii realnej bazy jest zgodny, retencja idempotentna,
+  a pomiar trzech rozmiarów wykonany;
+- [x] pełna regresja jest zielona, a build Release nie ma ostrzeżeń.
 
-Dopiero po zamknięciu obu bramek M6 może zamrozić RC.
+M6 jest odblokowany poprawnościowo. Przed zamrożeniem RC pozostaje powtórzenie
+warunkowej bramki wydajnościowej na bazie wydaniowej i osobisty pomiar
+`APP_START` → `APP_READY`.
 
 ## Osobiste potwierdzenie
 

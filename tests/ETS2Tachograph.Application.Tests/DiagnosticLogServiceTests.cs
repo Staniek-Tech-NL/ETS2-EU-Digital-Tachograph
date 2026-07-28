@@ -66,6 +66,47 @@ public sealed class DiagnosticLogServiceTests
         }
     }
 
+    [Fact]
+    public void Warm_projection_repair_and_fallback_are_written_as_diagnostic_warnings()
+    {
+        var folder = Path.Combine(
+            Path.GetTempPath(),
+            $"ets2-tacho-warm-projection-test-{Guid.NewGuid():N}");
+        try
+        {
+            var service = new DiagnosticLogService(folder);
+            var previous = Record(DriverActivity.BreakOrRest);
+            var current = previous with
+            {
+                Id = Guid.NewGuid(),
+                Start = new GameTime(150),
+                EndExclusive = new GameTime(200)
+            };
+
+            service.RecordWarmProjectionInvalidated(
+                "CARD-TEST",
+                100,
+                500,
+                4,
+                600);
+            service.RecordCanonicalProjectionFallback(
+                "CARD-TEST",
+                previous,
+                current);
+
+            var log = File.ReadAllText(service.CurrentLogPath);
+            Assert.Contains("WARM_PROJECTION_INVALIDATED", log);
+            Assert.Contains("kotwica=100", log);
+            Assert.Contains("przywrócono rekordy raw=600", log);
+            Assert.Contains("CANONICAL_PROJECTION_FALLBACK", log);
+            Assert.Contains("Użyto projekcji raw", log);
+        }
+        finally
+        {
+            if (Directory.Exists(folder)) Directory.Delete(folder, recursive: true);
+        }
+    }
+
     private static ActivityRecord Record(DriverActivity activity) => new()
     {
         Id = Guid.NewGuid(),

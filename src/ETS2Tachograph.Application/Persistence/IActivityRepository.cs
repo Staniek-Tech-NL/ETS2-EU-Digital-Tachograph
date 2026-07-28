@@ -28,6 +28,22 @@ public interface IActivityPersistenceDiagnostics
         int sessionIndex,
         ActivityRecord existing,
         ActivityRecord incoming);
+
+    void RecordWarmProjectionInvalidated(
+        string driverCardId,
+        long branchAnchorGameMinute,
+        long warmThresholdGameMinute,
+        int removedWarmBlocks,
+        int restoredRawRecords)
+    {
+    }
+
+    void RecordCanonicalProjectionFallback(
+        string driverCardId,
+        ActivityRecord previous,
+        ActivityRecord current)
+    {
+    }
 }
 
 public interface IActivityRepository

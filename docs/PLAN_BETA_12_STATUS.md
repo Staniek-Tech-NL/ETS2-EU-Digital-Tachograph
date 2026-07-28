@@ -4,7 +4,7 @@
 **Baza wydaniowa:** `0.1.0-beta.11.1` (GO 2026-07-23)
 **Cel:** `0.1.0-beta.12` — ostatnia beta przed pierwszą szeroką publikacją.
 **Źródło etapów:** `docs/PLAN_BETA_12_M0-M8/` (integralność SHA-256 potwierdzona z `MANIFEST_SHA256.md`).
-**Ostatnia aktualizacja tablicy:** 2026-07-27
+**Ostatnia aktualizacja tablicy:** 2026-07-28
 
 > Ten plik jest żywym pulpitem postępu. Nie zmienia zakresu ani gate'ów planu
 > nadrzędnego — odzwierciedla tylko stan realizacji. Reguła przejścia: następny
@@ -25,7 +25,7 @@
 | **M4-0** | Inwentaryzacja UI + weryfikacja rc4 | 🟢 62/62 pozycji beta.12 PASS | GO | M4 |
 | **M4** | Finalizacja UI + **UI freeze** | 🟢 UI zamrożone | GO | M5 |
 | **M5** | Lokalizacja PL/EN | 🟢 M5.1–M5.4 zamknięte | GO | M6 |
-| M6 | Release Candidate `0.1.0-beta.12` | 🔴 HOLD poprawnościowy — P1 projekcji hot/warm | HOLD | M7 |
+| M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty — odblokowany po hotfixie | — | M7 |
 | M7 | Końcowy smoke beta.12 | ⚪ nie rozpoczęty | — | M8 |
 | M8 | Publikacja | ⚪ nie rozpoczęty | — | — |
 
@@ -549,27 +549,34 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
   Na świeżej kopii bieżącej bazy automatyczna korekta luk spadła z 30,84 s
   do 1,31 s, archiwizacja trzech kart z około 16,35 s do 4,01 s, a łączna
   praca repozytorium z około 49 s do 5,36 s. Automat nadal pozostawił te same
-  4 nierozliczone luki. Status: **wydajność GO warunkowe, poprawność HOLD**.
+  4 nierozliczone luki. Status: **wydajność GO warunkowe, poprawność GO**.
   Wydajność warunkowo, ponieważ archiwizacja nadal czyta całą surową historię,
   a cold retention nie jest zaimplementowane; osobisty pomiar tworzy bazę
   odniesienia, a przed M6 pomiar jest powtarzany i musi pozostać poniżej 10 s
   pracy repozytorium oraz bez wzrostu `APP_START` → `APP_READY` większego
   niż 50%. Szczegóły:
   `docs/PLAN_BETA_12_M0-M8/M5_2_CHECKPOINT_WYDAJNOSCI_STARTU.md`.
-- **P1 poprawnościowy z M5.2-P:** pomiar rozliczył 0 luk, więc nie objął
+- **Hotfix poprawnościowy M5.2-P:** pomiar rozliczył 0 luk, więc nie objął
   ścieżki rozliczania luki. Kontrola wykazała, że projekcja hot/warm nie
   przycina bloku ciepłego do kotwicy sesji leżącej poniżej progu warm i
   pozwala na nachodzenie, czego projekcja surowa nie dopuszcza. RuleEngine
   przesuwa wtedy reset dobowy — `LastDailyRestResetAt` 600 → 1300 i
   `MinutesUntilDailyRestDeadline` 740 → 1440, czyli około 12 godzin więcej
-  do terminu odpoczynku. Defekt istniał przed checkpointem i obejmuje
-  Dashboard; checkpoint zdjął ochronę ze ścieżki wpisu manualnego. Pozycja
-  aktywna w `KNOWN_ISSUES.md`, test odtwarzający `BackwardBranchProjectionTests`.
-- **Następny krok:** M6 pozostaje wstrzymany do zamknięcia bramki zgodności
-  projekcji. Przed zamrożeniem RC: naprawa nachodzenia, zielony
-  `BackwardBranchProjectionTests`, złoty zrzut, idempotencja retencji, trzy
-  rozmiary bazy, pełna regresja oraz powtórzony pomiar M5.2-P zgodnie z jego
-  progami.
+  do terminu odpoczynku. Defekt istniał przed checkpointem i obejmował
+  Dashboard; checkpoint zdjął ochronę ze ścieżki wpisu manualnego. Hotfix
+  atomowo unieważnia pochodną projekcję warm przy gałęzi poniżej progu,
+  synchronizuje `ChangeTracker` oraz dodaje kontrolę nachodzenia z diagnostyką
+  i bezpiecznym fallbackiem do projekcji surowej.
+- **Dowód hotfixu:** `BackwardBranchProjectionTests` i testy strefy warm 7/7,
+  infrastruktura 62/62, aplikacja 63/63, pełna regresja 569/569, Release
+  0 błędów / 0 ostrzeżeń. Złoty zrzut realnej bazy 29 599 rekordów jest
+  identyczny przed i po dla projekcji, luk, warm, raportu, rekompensat
+  i przydziałów odpoczynku. Pomiar 1×/3×/10× potwierdził zgodność mapy
+  aktywności oraz idempotencję; zachowany liniowy koszt archiwizacji pozostaje
+  długiem po beta.12.
+- **Następny krok:** M6 jest odblokowany poprawnościowo. Przed zamrożeniem RC
+  należy powtórzyć pomiar M5.2-P na bazie wydaniowej zgodnie z progiem 10 s
+  oraz zapisać osobisty czas `APP_START` → `APP_READY`.
 - **Jawny wyjątek od UI freeze:** M5.2 dodaje dokładnie jedną nową kontrolkę
   do zamrożonego interfejsu — wybór `pl-PL` / `en-GB` w Ustawieniach.
   Jest wymagana planem M5, nie wprowadza dynamicznej zmiany bez restartu

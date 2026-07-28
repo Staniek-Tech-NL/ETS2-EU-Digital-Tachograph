@@ -81,15 +81,30 @@ public sealed class ActivityRepository :
             cancellationToken);
         if (!exists)
         {
-            context.ActivitySessions.Add(new ActivitySessionEntity
+            await using var transaction =
+                await context.Database.BeginTransactionAsync(cancellationToken);
+            try
             {
-                Id = Guid.NewGuid(),
-                DriverCardId = driverCardId,
-                SessionIndex = sessionIndex,
-                StartedAtGameMinute = startedAt.TotalMinutes,
-                CreatedAtUtc = DateTimeOffset.UtcNow
-            });
-            await context.SaveChangesAsync(cancellationToken);
+                await InvalidateWarmProjectionForNewBranchAsync(
+                    driverCardId,
+                    startedAt.TotalMinutes,
+                    cancellationToken);
+                context.ActivitySessions.Add(new ActivitySessionEntity
+                {
+                    Id = Guid.NewGuid(),
+                    DriverCardId = driverCardId,
+                    SessionIndex = sessionIndex,
+                    StartedAtGameMinute = startedAt.TotalMinutes,
+                    CreatedAtUtc = DateTimeOffset.UtcNow
+                });
+                await context.SaveChangesAsync(cancellationToken);
+                await transaction.CommitAsync(cancellationToken);
+            }
+            catch
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
         }
     }
 
@@ -154,6 +169,10 @@ public sealed class ActivityRepository :
                         cancellationToken);
                 if (session is null)
                 {
+                    await InvalidateWarmProjectionForNewBranchAsync(
+                        write.DriverCardId,
+                        write.StartedAt.TotalMinutes,
+                        cancellationToken);
                     session = new ActivitySessionEntity
                     {
                         Id = Guid.NewGuid(),
@@ -268,6 +287,67 @@ public sealed class ActivityRepository :
             await transaction.RollbackAsync(cancellationToken);
             throw;
         }
+    }
+
+    private async Task InvalidateWarmProjectionForNewBranchAsync(
+        string driverCardId,
+        long branchAnchorGameMinute,
+        CancellationToken cancellationToken)
+    {
+        var highWaterMark = await context.ActivityRetentionStates
+            .Where(state => state.DriverCardId == driverCardId)
+            .Select(state => (long?)state.HighWaterMarkGameMinute)
+            .SingleOrDefaultAsync(cancellationToken);
+        if (highWaterMark is null)
+            return;
+
+        var warmThreshold =
+            highWaterMark.Value - ActivityRetentionPolicy.HotWindowMinutes;
+        if (branchAnchorGameMinute >= warmThreshold)
+            return;
+
+        var removedWarmBlocks = await context.WarmActivityBlocks
+            .Where(block => block.DriverCardId == driverCardId)
+            .ExecuteDeleteAsync(cancellationToken);
+        var sessionIds = (await context.ActivitySessions
+                .Where(session => session.DriverCardId == driverCardId)
+                .Select(session => session.Id)
+                .ToListAsync(cancellationToken))
+            .ToHashSet();
+        var restoredRawRecords = sessionIds.Count == 0
+            ? 0
+            : await context.ActivityRecords
+                .Where(record =>
+                    record.IsArchivedToWarm &&
+                    sessionIds.Contains(record.ActivitySessionId))
+                .ExecuteUpdateAsync(
+                    setters => setters.SetProperty(
+                        record => record.IsArchivedToWarm,
+                        false),
+                    cancellationToken);
+
+        // ExecuteDelete/ExecuteUpdate bypass the long-lived EF change tracker.
+        // Synchronize tracked derived entities so a later SaveChanges or archive
+        // cannot revive the invalidated cache or keep stale archive flags in memory.
+        foreach (var entry in context.ChangeTracker.Entries<WarmActivityBlockEntity>()
+                     .Where(entry => entry.Entity.DriverCardId == driverCardId)
+                     .ToList())
+            entry.State = EntityState.Detached;
+        foreach (var entry in context.ChangeTracker.Entries<ActivityRecordEntity>()
+                     .Where(entry => sessionIds.Contains(entry.Entity.ActivitySessionId)))
+        {
+            entry.Entity.IsArchivedToWarm = false;
+            entry.Property(record => record.IsArchivedToWarm).OriginalValue = false;
+            entry.Property(record => record.IsArchivedToWarm).IsModified = false;
+        }
+
+        if (removedWarmBlocks > 0 || restoredRawRecords > 0)
+            diagnostics?.RecordWarmProjectionInvalidated(
+                driverCardId,
+                branchAnchorGameMinute,
+                warmThreshold,
+                removedWarmBlocks,
+                restoredRawRecords);
     }
 
     private Dictionary<long, ActivityRecord> NormalizeIncoming(ActivitySessionWrite write)
@@ -570,6 +650,7 @@ public sealed class ActivityRepository :
                 .ToListAsync(cancellationToken))
             .Select(MapWarm)
             .ToList();
+        var hasWarmProjection = combined.Count > 0;
 
         var sessionInfos = await context.ActivitySessions.AsNoTracking()
             .Where(x => x.DriverCardId == driverCardId)
@@ -599,20 +680,37 @@ public sealed class ActivityRepository :
                 // The canonical warm projection already contains every historical
                 // branch operation. Replay the branch only against the hot tail;
                 // otherwise an empty historical session can delete valid warm blocks.
-                var truncateAt = Math.Max(
-                    session.StartedAtGameMinute,
-                    warmThreshold);
+                var truncateAt = hasWarmProjection
+                    ? Math.Max(session.StartedAtGameMinute, warmThreshold)
+                    : session.StartedAtGameMinute;
                 TruncateAfter(combined, new GameTime(truncateAt));
             }
 
             combined.AddRange(sessionRows.Select(x => Map(x, driverCardId)));
         }
 
-        return combined
+        var projected = combined
             .Where(x => x.EndExclusive.TotalMinutes > fromMinute &&
                         x.Start.TotalMinutes < toMinute)
             .OrderBy(x => x.Start)
             .ToList();
+        try
+        {
+            EnsureNoOverlap(projected);
+            return projected;
+        }
+        catch (InvalidCanonicalHistoryException exception)
+        {
+            diagnostics?.RecordCanonicalProjectionFallback(
+                driverCardId,
+                exception.Previous,
+                exception.Current);
+            return await LoadRawDriverHistoryAsync(
+                driverCardId,
+                from,
+                toExclusive,
+                cancellationToken);
+        }
     }
 
     public async Task<IReadOnlyList<ActivityRecord>> LoadRawDriverHistoryAsync(

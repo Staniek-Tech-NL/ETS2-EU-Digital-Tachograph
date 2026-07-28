@@ -52,6 +52,25 @@ public sealed class DiagnosticLogService : IActivityPersistenceDiagnostics, IMan
             $"Karta={driverCardId}, sesja={sessionIndex}, minuta={incoming.Start.TotalMinutes}; " +
             $"zachowano: {Describe(existing)}; odrzucono: {Describe(incoming)}.");
 
+    public void RecordWarmProjectionInvalidated(
+        string driverCardId,
+        long branchAnchorGameMinute,
+        long warmThresholdGameMinute,
+        int removedWarmBlocks,
+        int restoredRawRecords) => Warning(
+        "WARM_PROJECTION_INVALIDATED",
+        $"Karta={driverCardId}, kotwica={branchAnchorGameMinute}, " +
+        $"próg warm={warmThresholdGameMinute}; usunięto bloki warm={removedWarmBlocks}, " +
+        $"przywrócono rekordy raw={restoredRawRecords}.");
+
+    public void RecordCanonicalProjectionFallback(
+        string driverCardId,
+        ActivityRecord previous,
+        ActivityRecord current) => Warning(
+        "CANONICAL_PROJECTION_FALLBACK",
+        $"Karta={driverCardId}; wykryto nachodzenie projekcji hot/warm: " +
+        $"{Describe(previous)} oraz {Describe(current)}. Użyto projekcji raw.");
+
     public void RecordResolutionConflict(
         Guid gapId,
         IReadOnlyList<ActivityRecord> existing,

@@ -1,12 +1,10 @@
-// CZERWONY TEST — odtwarza otwarty P1 opisany w KNOWN_ISSUES.md i w bramce
-// zgodności projekcji checkpointu M5.2-P. Pozostaje czerwony do czasu naprawy;
-// jego zzielenienie jest jednym z warunków zdjęcia HOLD z M6.
+// Test regresyjny P1 opisanego w KNOWN_ISSUES.md i w bramce zgodności
+// projekcji checkpointu M5.2-P.
 //
 // Scenariusz: karta ma historię zarchiwizowaną do warm, po czym pojawia się NOWA sesja
 // zakotwiczona poniżej progu warm (skok czasu w tył o więcej niż 14 dni gry, czyli
-// wczytanie starszego zapisu gry). LoadDriverHistoryAsync obcina wtedy gałąź na
-// Math.Max(anchor, warmThreshold), więc blok warm sprzed kotwicy nie zostaje przycięty
-// i nachodzi na rekordy nowej sesji. Ta projekcja nie ma strażnika EnsureNoOverlap.
+// wczytanie starszego zapisu gry). Nowa gałąź musi unieważnić pochodną projekcję
+// warm, a odczyt ma zachować strażnik i bezpieczny fallback do projekcji raw.
 //
 // Zmierzony wynik (2026-07-27, przed poprawką):
 //   raw     = [0-600), [660-700), [700-800)     <- poprawne, gałąź przycięta na 700
@@ -53,6 +51,11 @@ public sealed class BackwardBranchProjectionTests
                     (int)record.DurationMinutes))
                 .ToList();
             Assert.Equal(minutes.Count, minutes.Distinct().Count());
+            Assert.Empty(await context.WarmActivityBlocks.AsNoTracking().ToListAsync());
+            Assert.Equal(
+                0,
+                await context.ActivityRecords.CountAsync(record =>
+                    record.IsArchivedToWarm));
         }
     }
 
@@ -78,6 +81,55 @@ public sealed class BackwardBranchProjectionTests
                 now,
                 gapContext!.CanonicalRecords));
             Assert.Equal(raw.State, fromContext.State);
+        }
+    }
+
+    [Fact]
+    public async Task Rebuilt_warm_projection_after_backward_branch_is_idempotent_and_lossless()
+    {
+        var (connection, context) = await CreateDatabaseAsync();
+        await using (connection)
+        await using (context)
+        {
+            var repository = await ArchivedHistoryWithBackwardBranchAsync(context);
+            var before = MinuteMap(await repository.LoadRawDriverHistoryAsync(Card));
+
+            var first = await repository.ArchiveWarmAsync(Card);
+            context.ChangeTracker.Clear();
+            var afterFirst = MinuteMap(await repository.LoadDriverHistoryAsync(Card));
+            var second = await repository.ArchiveWarmAsync(Card);
+            context.ChangeTracker.Clear();
+            var afterSecond = MinuteMap(await repository.LoadDriverHistoryAsync(Card));
+
+            Assert.Equal(first, second);
+            Assert.Equal(before, afterFirst);
+            Assert.Equal(before, afterSecond);
+            Assert.NotEmpty(await context.WarmActivityBlocks.AsNoTracking().ToListAsync());
+            Assert.True(await context.ActivityRecords.AnyAsync(record =>
+                record.IsArchivedToWarm));
+        }
+    }
+
+    [Fact]
+    public async Task Existing_overlapping_warm_projection_falls_back_to_raw_history()
+    {
+        var (connection, context) = await CreateDatabaseAsync();
+        await using (connection)
+        await using (context)
+        {
+            var diagnostics = new RecordingDiagnostics();
+            var repository = await ArchivedHistoryWithLegacyBackwardBranchAsync(
+                context,
+                diagnostics);
+
+            var logical = MinuteMap(await repository.LoadDriverHistoryAsync(Card));
+            var raw = MinuteMap(await repository.LoadRawDriverHistoryAsync(Card));
+
+            Assert.Equal(raw, logical);
+            Assert.Single(diagnostics.Fallbacks);
+            Assert.NotEmpty(await context.WarmActivityBlocks.AsNoTracking().ToListAsync());
+            Assert.True(await context.ActivityRecords.AnyAsync(record =>
+                record.IsArchivedToWarm));
         }
     }
 
@@ -110,13 +162,58 @@ public sealed class BackwardBranchProjectionTests
             Card,
             new GameTime(1300 + ActivityRetentionPolicy.HotWindowMinutes));
         await repository.ArchiveWarmAsync(Card);
-        context.ChangeTracker.Clear();
 
         // Backward jump: the new session anchors more than a hot window below the mark.
         await repository.EnsureSessionAsync(Card, 1, new GameTime(700));
         await repository.AppendAsync(Card, 1, [Span(700, 800)]);
-        context.ChangeTracker.Clear();
         return repository;
+    }
+
+    private static async Task<ActivityRepository> ArchivedHistoryWithLegacyBackwardBranchAsync(
+        TachographDbContext context,
+        RecordingDiagnostics diagnostics)
+    {
+        var repository = new ActivityRepository(context);
+        await repository.ApplySessionWritesAsync(
+        [
+            new ActivitySessionWrite(
+                Card,
+                0,
+                new GameTime(0),
+                [Span(0, 600), Span(660, 1300)])
+        ]);
+        await repository.ObserveGameTimeAsync(
+            Card,
+            new GameTime(1300 + ActivityRetentionPolicy.HotWindowMinutes));
+        await repository.ArchiveWarmAsync(Card);
+        context.ChangeTracker.Clear();
+
+        // Simulates a database created before the hotfix: the backward session already
+        // exists, so the new-session invalidation hook cannot run during this process.
+        context.ActivitySessions.Add(new ActivitySessionEntity
+        {
+            Id = Guid.NewGuid(),
+            DriverCardId = Card,
+            SessionIndex = 1,
+            StartedAtGameMinute = 700,
+            CreatedAtUtc = Epoch.AddDays(1),
+            Records =
+            [
+                new ActivityRecordEntity
+                {
+                    Id = Guid.NewGuid(),
+                    Activity = DriverActivity.BreakOrRest,
+                    StartGameMinute = 700,
+                    EndGameMinuteExclusive = 800,
+                    RecordedAtUtc = Epoch.AddMinutes(700),
+                    Source = ActivitySource.Telemetry,
+                    Condition = SpecialCondition.None
+                }
+            ]
+        });
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+        return new ActivityRepository(context, diagnostics);
     }
 
     private static ActivityRecord Span(long start, long endExclusive) => new()
@@ -130,6 +227,14 @@ public sealed class BackwardBranchProjectionTests
         Source = ActivitySource.Telemetry,
         Condition = SpecialCondition.None
     };
+
+    private static IReadOnlyList<(long Minute, DriverActivity Activity)> MinuteMap(
+        IEnumerable<ActivityRecord> records) => records
+        .SelectMany(record => Enumerable.Range(
+                (int)record.Start.TotalMinutes,
+                (int)record.DurationMinutes)
+            .Select(minute => ((long)minute, record.Activity)))
+        .ToList();
 
     private static async Task<(SqliteConnection Connection, TachographDbContext Context)>
         CreateDatabaseAsync()
@@ -157,5 +262,25 @@ public sealed class BackwardBranchProjectionTests
         });
         await context.SaveChangesAsync();
         return (connection, context);
+    }
+
+    private sealed class RecordingDiagnostics : IActivityPersistenceDiagnostics
+    {
+        public List<(string CardId, ActivityRecord Previous, ActivityRecord Current)>
+            Fallbacks { get; } = [];
+
+        public void RecordConflict(
+            string driverCardId,
+            int sessionIndex,
+            ActivityRecord existing,
+            ActivityRecord incoming)
+        {
+        }
+
+        public void RecordCanonicalProjectionFallback(
+            string driverCardId,
+            ActivityRecord previous,
+            ActivityRecord current) =>
+            Fallbacks.Add((driverCardId, previous, current));
     }
 }

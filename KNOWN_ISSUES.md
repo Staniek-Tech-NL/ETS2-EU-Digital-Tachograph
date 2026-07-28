@@ -7,7 +7,8 @@
 Opublikowaną bazą pozostaje beta.11.1. Bieżący kod zawiera również
 nieopublikowane zmiany lokalne UI: wariant B wpisu manualnego, katalog krajów
 ISO, korektę prezentacji `ODP. TYG.` oraz hotfix licznika pauzy 44/45.
-Lokalny gate wynosi 338/338, a build Release ma 0 błędów i 0 ostrzeżeń.
+Lokalna pełna regresja i build Release są weryfikowane przed każdym commitem
+wydaniowym.
 Artefakt beta.11.1 przeszedł końcowy smoke z aktywną telemetrią 23 lipca 2026;
 wszystkie testy były zielone, a decyzja wydaniowa brzmi **GO**.
 Nowe błędy z testów należy dopisywać razem ze statusem `lokalne` albo numerem
@@ -15,6 +16,12 @@ wydanej paczki i raportem diagnostycznym.
 
 ## Naprawione lokalnie po beta.11.1
 
+- Hotfix projekcji hot/warm usuwa błąd po wczytaniu zapisu starszego o ponad
+  14 dni gry. Gałąź poniżej progu atomowo unieważnia pochodne bloki warm
+  i przywraca rekordy surowe do odbudowy. Kontrola nachodzenia zapisuje
+  diagnostykę i bezpiecznie używa projekcji surowej również dla bazy
+  niespójnej przed hotfixem. `BackwardBranchProjectionTests` potwierdza
+  zgodność `RegulationState`, brak utraty danych, odbudowę i idempotencję.
 - `ODP. TYG.` nie odlicza już błędnie okresów w dół i nie pokazuje surowego
   czasu pozostałego. Wspólny formatter S1/S2 prezentuje bieżący okres
   `1/6–6/6+` oraz stały termin rozpoczęcia odpoczynku w `game_time`, np.
@@ -90,21 +97,6 @@ wydanej paczki i raportem diagnostycznym.
 
 ## Historia, retencja i raporty
 
-- **P1 aktywny — nachodzenie projekcji hot/warm po skoku czasu w tył.**
-  Jeżeli nowa sesja zakotwiczy się poniżej progu ciepłej retencji, czyli po
-  wczytaniu zapisu starszego o ponad 14 dni gry, projekcja hot/warm nie
-  przycina bloku ciepłego do kotwicy i blok nachodzi na rekordy nowej sesji.
-  Ta ścieżka nie ma kontroli nachodzenia, którą ma projekcja surowa.
-  Skutek: RuleEngine widzi zdublowane minuty i przesuwa reset dobowy w przód.
-  W zmierzonym przypadku `LastDailyRestResetAt` przechodzi z 600 na 1300,
-  a `MinutesUntilDailyRestDeadline` z 740 na 1440 — blisko 12 godzin więcej
-  do terminu odpoczynku dobowego, niż kierowcy przysługuje. Błąd działa na
-  jego korzyść, więc nie zgłasza się sam. Obejmuje Dashboard oraz rozliczanie
-  luk; od commita `25f1358` również przeliczenie po wpisie manualnym, które
-  wcześniej było chronione projekcją surową. M6 ma z tego powodu HOLD
-  poprawnościowy i RC nie zostaje zamrożone przed naprawą. Test odtwarzający:
-  `BackwardBranchProjectionTests`. Po naprawie pozycja przechodzi do sekcji
-  napraw przed beta.12 i nie zostaje ograniczeniem wydania.
 - Zimna warstwa retencji, czyli dobowe podsumowania danych starszych niż 365 dni
   gry, ma tylko hak architektoniczny i nie jest jeszcze implementowana.
 - Nie ma jeszcze przycisku świadomego usuwania historii starszej niż wybrana liczba

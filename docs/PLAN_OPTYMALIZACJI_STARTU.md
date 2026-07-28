@@ -65,16 +65,16 @@ pomiaru ani testu.
 
 Wchodzi przed beta.12. Jest warunkiem wiarygodności wszystkiego dalej.
 
-- [ ] Test rozliczający lukę leżącą w strefie warm, porównujący ocenę
+- [x] Test rozliczający lukę leżącą w strefie warm, porównujący ocenę
       RuleEngine przed podmianą źródła `CanonicalRecords` i po niej.
       Uzasadnienie: `LoadGapContextAsync` przestało budować `CanonicalRecords`
       z surowej projekcji, a zaczęło z projekcji hot/warm, która scala bloki
       i inaczej obcina gałąź sesji. Ten strumień idzie prosto do RuleEngine
       w `ManualEntryService`. Pomiar checkpointu rozliczył zero luk, więc tej
       ścieżki nie dotknął.
-- [ ] Test drugiej rozliczonej luki z rzędu — obszar otwartego znaleziska
+- [x] Test drugiej rozliczonej luki z rzędu — obszar otwartego znaleziska
       o ciągłości odpoczynku z beta.10.
-- [ ] Poprawka dokumentu `M5_2_CHECKPOINT_WYDAJNOSCI_STARTU.md`: niezmiennik
+- [x] Poprawka dokumentu `M5_2_CHECKPOINT_WYDAJNOSCI_STARTU.md`: niezmiennik
       o identycznej projekcji kanonicznej jest w obecnym brzmieniu sprzeczny
       z opisem zmiany technicznej w tym samym dokumencie. Do przeformułowania
       na stan faktyczny.
