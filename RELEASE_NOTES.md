@@ -18,11 +18,13 @@ opublikowane; M6 przygotowuje niezmienny ZIP do końcowego smoke M7.
   przy zachowaniu UI freeze;
 - poprawiony licznik pauzy 44/45 oraz prezentacja `ODP. TYG.`;
 - szybszy start na istniejącej bazie i hotfix projekcji hot/warm po wczytaniu
-  starszego zapisu gry.
+  starszego zapisu gry;
+- lokalizowane widoczne wartości czasu gry (`Dzień` / `Day`) w Historii,
+  Rekompensatach i wpisie manualnym.
 
 ## Weryfikacja kandydata
 
-- 569/569 testów automatycznych;
+- 570/570 testów automatycznych;
 - build Release: 0 błędów, 0 ostrzeżeń;
 - `FileVersion 0.1.12.0`;
 - poprawność i wydajność checkpointu M5.2-P: GO;

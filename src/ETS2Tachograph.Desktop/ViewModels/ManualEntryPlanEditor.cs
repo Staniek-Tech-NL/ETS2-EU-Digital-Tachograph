@@ -19,8 +19,8 @@ public sealed record ManualEntrySegmentRow(
     long ToGameMinuteExclusive,
     DriverActivity Activity)
 {
-    public string FromText => GameClockFormatter.Format(new GameTime(FromGameMinute));
-    public string ToText => GameClockFormatter.Format(new GameTime(ToGameMinuteExclusive));
+    public string FromText => UiGameClockFormatter.Format(new GameTime(FromGameMinute));
+    public string ToText => UiGameClockFormatter.Format(new GameTime(ToGameMinuteExclusive));
     public string ActivityText => ManualEntryPlanEditor.ActivityLabel(Activity);
     public string ActivityBackground => Activity switch
     {

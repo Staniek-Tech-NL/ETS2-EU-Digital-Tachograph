@@ -90,21 +90,40 @@ Liczba testów nie jest zamrożona na 310. Warunkiem jest 100% wymaganych testó
 - pominięcie startu na istniejącej albo czystej bazie;
 - pozostawienie P0/P1 przed smoke.
 
+## Unieważniony pierwszy kandydat
+
+Pierwszy self-contained z commita `47cc9e5` został uruchomiony na kopii
+istniejącej bazy. Start PL, przejście przez siedem głównych ekranów, przełączenie
+na `en-GB` i ponowny start były poprawne, ale Historia oraz Rekompensaty nadal
+wyświetlały polskie `Dzień` w widocznych wartościach czasu gry.
+
+Kandydat `47cc9e5` jest **unieważniony**: nie utworzono z niego ZIP-a i nie może
+być wejściem do M7. Poprawka przenosi widoczne wartości czasu gry na lokalny
+presenter Desktopu używający `GameCalendar_DayFormat`. Test regresyjny
+`Visible_game_clock_values_use_selected_ui_culture` przeszedł najpierw na
+czerwono (`Dzień 2, 00:00` zamiast `Day 2, 00:00`), a po poprawce na zielono.
+Pełna regresja po poprawce: 570/570 PASS; Release: 0 błędów / 0 ostrzeżeń.
+Nowy self-contained musi zostać zbudowany i zweryfikowany z nowego commita
+źródłowego.
+
 ## Szablon aktualizacji statusu
 
 - **Data rozpoczęcia:** 2026-07-28
 - **Data zakończenia:**
 - **Wynik:** `W TOKU`
 - **Commit / punkt przywracania:** `9f61da5` — wejście do M6;
+  `47cc9e5` — pierwszy kandydat unieważniony po walidacji EN;
   gałąź `codex/m6-release-candidate-beta-12`
 - **Build Release:** przygotowawczy gate 0 błędów / 0 ostrzeżeń;
   `FileVersion 0.1.12.0`,
-  `ProductVersion 0.1.0-beta.12+9f61da5235e1293656dab4edb43dbb65401c898d`.
+  `ProductVersion 0.1.0-beta.12+47cc9e5a8aecda4bcfde8c35801d84f2496b43f9`.
   Do powtórzenia z finalnego commita źródłowego.
-- **Testy automatyczne:** 569/569 PASS. Do powtórzenia z finalnego commita
+- **Testy automatyczne:** 570/570 PASS po poprawce lokalizacji czasu gry.
+  Do powtórzenia z finalnego commita
   źródłowego przed publikacją self-contained.
-- **Testy manualne / dowody:** checkpoint M5.2-P GO; walidacje RC jeszcze
-  niewykonane
+- **Testy manualne / dowody:** checkpoint M5.2-P GO; pierwszy smoke
+  self-contained wykrył i zatrzymał pozostałość `Dzień` w EN; kandydat
+  `47cc9e5` unieważniony
 - **Otwarte błędy P0:** 0
 - **Otwarte błędy P1:** 0
 - **Uwagi do następnego etapu:** M7 nie rozpoczyna się przed zamrożeniem ZIP-a

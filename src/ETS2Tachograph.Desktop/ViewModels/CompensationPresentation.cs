@@ -78,8 +78,8 @@ public sealed record RestAllocationChoiceRow(
             candidate.CandidateId,
             allocation.DriverCardId,
             allocation.EndGameMinuteExclusive,
-            $"{GameClockFormatter.Format(new GameTime(allocation.StartGameMinute))} – " +
-            GameClockFormatter.Format(new GameTime(allocation.EndGameMinuteExclusive)),
+            $"{UiGameClockFormatter.Format(new GameTime(allocation.StartGameMinute))} – " +
+            UiGameClockFormatter.Format(new GameTime(allocation.EndGameMinuteExclusive)),
             PurposeLabel(candidate.Purpose),
             compensationMinutes > 0
                 ? $"{FormatMinutes(candidate.HostMinimumMinutes)} + {FormatMinutes(compensationMinutes)}"
@@ -155,7 +155,7 @@ public sealed record CompensationDetailRow(
             Shorten(obligation.ObligationId),
             obligation.SourceRestBlockId,
             Shorten(obligation.SourceRestBlockId),
-            GameClockFormatter.Format(new GameTime(obligation.SourceRestEndGameMinuteExclusive)),
+            UiGameClockFormatter.Format(new GameTime(obligation.SourceRestEndGameMinuteExclusive)),
             FormatMinutes(obligation.OriginalOwedMinutes),
             FormatMinutes(obligation.RemainingMinutes),
             Localization.UiStrings.Format(
@@ -173,12 +173,12 @@ public sealed record CompensationDetailRow(
             obligation.PaymentRestBlockId is not null,
             obligation.PaymentRange is null
                 ? "—"
-                : $"{GameClockFormatter.Format(new GameTime(obligation.PaymentRange.StartGameMinute))} – " +
-                  $"{GameClockFormatter.Format(new GameTime(obligation.PaymentRange.EndGameMinuteExclusive))} " +
+                : $"{UiGameClockFormatter.Format(new GameTime(obligation.PaymentRange.StartGameMinute))} – " +
+                  $"{UiGameClockFormatter.Format(new GameTime(obligation.PaymentRange.EndGameMinuteExclusive))} " +
                   $"({FormatMinutes(obligation.PaymentRange.DurationMinutes)})",
             obligation.SettledAtGameMinute is null
                 ? "—"
-                : GameClockFormatter.Format(new GameTime(obligation.SettledAtGameMinute.Value)));
+                : UiGameClockFormatter.Format(new GameTime(obligation.SettledAtGameMinute.Value)));
 
     private static string Shorten(string value) => value.Length <= 27
         ? value

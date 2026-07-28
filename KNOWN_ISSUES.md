@@ -6,7 +6,7 @@
 
 Opublikowaną bazą pozostaje beta.11.1. Bieżący kod jest kandydatem
 `0.1.0-beta.12` przygotowywanym w M6; nie został jeszcze opublikowany.
-Przygotowawczy gate wynosi 569/569 testów, a build Release ma 0 błędów
+Przygotowawczy gate wynosi 570/570 testów, a build Release ma 0 błędów
 i 0 ostrzeżeń.
 Artefakt beta.11.1 przeszedł końcowy smoke z aktywną telemetrią 23 lipca 2026;
 wszystkie testy były zielone, a decyzja wydaniowa brzmi **GO**.

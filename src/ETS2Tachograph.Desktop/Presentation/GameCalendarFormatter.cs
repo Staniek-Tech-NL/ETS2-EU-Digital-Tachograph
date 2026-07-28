@@ -3,6 +3,19 @@ using ETS2Tachograph.Core.Time;
 
 namespace ETS2Tachograph.Desktop;
 
+internal static class UiGameClockFormatter
+{
+    public static string Format(GameTime time)
+    {
+        var day = (time.TotalMinutes / GameClockFormatter.MinutesPerDay) + 1;
+        var minuteOfDay = time.TotalMinutes % GameClockFormatter.MinutesPerDay;
+        return string.Create(
+            CultureInfo.InvariantCulture,
+            $"{Localization.UiStrings.Format("GameCalendar_DayFormat", day)}, " +
+            $"{minuteOfDay / 60:00}:{minuteOfDay % 60:00}");
+    }
+}
+
 internal static class GameWeekdayNames
 {
     public static string Full(GameWeekday weekday) => weekday switch

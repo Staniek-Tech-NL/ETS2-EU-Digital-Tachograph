@@ -624,9 +624,12 @@ dowody manualne, P0, P1, uwagi).
 - **M6** — niezmienny RC beta.12: numer + commit + SHA-256, ZIP zamrożony.
   — *rozpoczęty 2026-07-28 na gałęzi `codex/m6-release-candidate-beta-12`;
   ustawiono `Version 0.1.0-beta.12`, `FileVersion 0.1.12.0` i
-  `InformationalVersion 0.1.0-beta.12`; przygotowawczy gate: 569/569 testów
-  PASS, Release 0 błędów / 0 ostrzeżeń, metadane binarne zgodne. Finalny gate
-  zostanie powtórzony z commita źródłowego RC. README, release notes,
+  `InformationalVersion 0.1.0-beta.12`. Pierwszy self-contained z `47cc9e5`
+  został unieważniony przed utworzeniem ZIP-a: walidacja EN wykryła polskie
+  `Dzień` w widocznych wartościach czasu gry w Historii i Rekompensatach.
+  Dodano test regresyjny i lokalny presenter Desktopu; gate po poprawce:
+  570/570 testów PASS, Release 0 błędów / 0 ostrzeżeń. Finalny gate zostanie
+  powtórzony z nowego commita źródłowego RC. README, release notes,
   known issues i plan testów zaktualizowane; nota licencyjna Unicode CLDR
   i SCS SDK dodana do `docs/THIRD_PARTY_NOTICES.md`.*
 - **M7** — smoke na rozpakowanym ZIP-ie (istniejąca + czysta baza) → GO/FIX/HOLD. — *nie rozpoczęty*

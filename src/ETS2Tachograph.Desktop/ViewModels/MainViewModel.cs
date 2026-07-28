@@ -33,8 +33,8 @@ public sealed record HistoryActivityRow(
     ActivitySource Source,
     SpecialCondition Condition)
 {
-    public string StartGameTimeText => GameClockFormatter.Format(Start);
-    public string EndGameTimeText => GameClockFormatter.Format(EndExclusive);
+    public string StartGameTimeText => UiGameClockFormatter.Format(Start);
+    public string EndGameTimeText => UiGameClockFormatter.Format(EndExclusive);
     public string ActivityText => ActivityDescription(Activity);
     public string SourceText => ActivitySourceDescription(Source);
     public string ConditionText => SpecialConditionDescription(Condition);
@@ -137,9 +137,9 @@ public sealed record ActivityGapRow(
     public bool IsResolvable => State == ActivityGapState.Unresolved && !IsOpen;
     public string SlotText => $"S{Slot}";
     public string StartGameTimeText =>
-        GameClockFormatter.Format(new GameTime(StartGameMinute));
+        UiGameClockFormatter.Format(new GameTime(StartGameMinute));
     public string EndGameTimeText => EndGameMinute is { } end
-        ? GameClockFormatter.Format(new GameTime(end))
+        ? UiGameClockFormatter.Format(new GameTime(end))
         : Localization.UiStrings.Get("GapState_Ongoing");
     public string DurationText => $"{DurationMinutes / 60:00}:{DurationMinutes % 60:00}";
     public string ReasonText => Reason switch
@@ -155,7 +155,7 @@ public sealed record ActivityGapRow(
         ? Localization.UiStrings.Format(
             "GapState_ResolvedFormat",
             ResolvedAtGameMinute is { } resolvedAt
-                ? GameClockFormatter.Format(new GameTime(resolvedAt))
+                ? UiGameClockFormatter.Format(new GameTime(resolvedAt))
                 : "—")
         : IsOpen
             ? Localization.UiStrings.Get("GapState_Ongoing")
@@ -1596,7 +1596,9 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
         _manualEntryGap = gap;
         _manualEntrySlot = slot;
         IsManualEntryForced = forced;
-        ManualEntryRangeText = $"{GameClockFormatter.Format(gap.Start)}  →  {GameClockFormatter.Format(gap.EndExclusive.Value)}";
+        ManualEntryRangeText =
+            $"{UiGameClockFormatter.Format(gap.Start)}  →  " +
+            $"{UiGameClockFormatter.Format(gap.EndExclusive.Value)}";
         ManualEntryDurationText = Localization.UiStrings.Format(
             "ManualEntry_GapDurationFormat",
             Format(gap.DurationMinutes ?? 0));
@@ -1895,7 +1897,7 @@ public sealed class MainViewModel : INotifyPropertyChanged, IDisposable
                     "ManualEntry_QualifiedDailyReducedFormat",
                 _ => throw new ArgumentOutOfRangeException(nameof(rest))
             },
-            GameClockFormatter.Format(rest.EndExclusive));
+            UiGameClockFormatter.Format(rest.EndExclusive));
 
     private static string ManualEntryErrorKey(ManualEntryError error) => error switch
     {

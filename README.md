@@ -14,7 +14,7 @@ kierowców i wylicza liczniki zgodnie z zaimplementowanym zakresem reguł.
   wszystkie testy zielone, decyzja **GO**;
 - kandydat `0.1.0-beta.12` jest przygotowywany w M6 i nie został jeszcze
   opublikowany ani dopuszczony do M7;
-- przygotowawczy gate M6: **569/569 testów**, build Release 0 błędów
+- przygotowawczy gate M6: **570/570 testów**, build Release 0 błędów
   i 0 ostrzeżeń, `FileVersion 0.1.12.0`;
 - checkpoint poprawności i wydajności startu M5.2-P ma wynik **GO**.
 
