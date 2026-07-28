@@ -3,11 +3,11 @@
 **Projekt:** ETS2 EU Digital Tachograph
 **Wydanie docelowe:** `0.1.0-beta.12`
 **Data:** 28 lipca 2026
-**Status:** **WYDAJNOŚĆ GO WARUNKOWE — POPRAWNOŚĆ GO**
+**Status:** **WYDAJNOŚĆ GO — POPRAWNOŚĆ GO**
 
 Checkpoint ma dwie niezależne bramki. Bramka wydajnościowa jest spełniona
-warunkowo. Bramka zgodności projekcji została zamknięta hotfixem i nie
-wstrzymuje już M6.
+dla bazy wydaniowej. Bramka zgodności projekcji została zamknięta hotfixem.
+Checkpoint nie wstrzymuje już M6.
 
 ## Powód
 
@@ -170,17 +170,16 @@ regresją hotfixu: pełne unieważnienie wykonuje się tylko przy rzadkim utworz
 gałęzi poniżej progu warm. Stałe ograniczenie kosztu pozostaje zadaniem
 po beta.12.
 
-## Bramka wydajnościowa — GO warunkowe
+## Bramka wydajnościowa — GO
 
 - praca repozytorium na kopii bieżącej bazy: mniej niż 10 sekund;
 - pełna regresja zielona;
 - brak zmiany schematu i kontraktów zewnętrznych.
 
-Warunek obowiązywania:
+Kontrola przed M6:
 
-- przy kontroli przed M6 praca repozytorium na kopii bazy wydaniowej pozostaje
-  poniżej 10 sekund;
-- osobisty pomiar `APP_START` → `APP_READY` zostaje zapisany jako nowa baza
+- [x] praca repozytorium na kopii bazy wydaniowej pozostaje poniżej 10 sekund;
+- [x] osobisty pomiar `APP_START` → `APP_READY` zapisano jako zieloną bazę
   odniesienia;
 - bramka zostaje ponownie otwarta, jeżeli praca repozytorium przekroczy
   10 sekund albo czas `APP_START` → `APP_READY` wzrośnie o więcej niż 50%
@@ -202,15 +201,17 @@ przebudowy warm albo wdrożenia cold retention. Plan: `docs/PLAN_OPTYMALIZACJI_S
   a pomiar trzech rozmiarów wykonany;
 - [x] pełna regresja jest zielona, a build Release nie ma ostrzeżeń.
 
-M6 jest odblokowany poprawnościowo. Przed zamrożeniem RC pozostaje powtórzenie
-warunkowej bramki wydajnościowej na bazie wydaniowej i osobisty pomiar
-`APP_START` → `APP_READY`.
+M6 jest odblokowany poprawnościowo.
 
 ## Osobiste potwierdzenie
 
-Na uruchomionej aplikacji z tą samą bazą należy potwierdzić:
+28 lipca 2026 osoba prowadząca wykonała pomiar na uruchomionej aplikacji
+z bazą wydaniową i wydała werdykt **GO**:
 
-- wyraźne skrócenie czasu od startu procesu do gotowego okna;
-- poprawne odtworzenie obu kart i bieżącego stanu;
-- brak nowo rozliczonych albo utraconych luk;
-- brak błędu startu w logu diagnostycznym.
+- [x] wyraźne skrócenie czasu od startu procesu do gotowego okna;
+- [x] poprawne odtworzenie obu kart i bieżącego stanu;
+- [x] brak nowo rozliczonych albo utraconych luk;
+- [x] brak błędu startu w logu diagnostycznym.
+
+Dokładna liczba sekund nie została przekazana do dokumentacji; wiążący jest
+werdykt osoby prowadzącej, że pomiar mieści się w zatwierdzonych progach.

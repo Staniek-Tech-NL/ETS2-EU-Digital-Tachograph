@@ -25,7 +25,7 @@
 | **M4-0** | Inwentaryzacja UI + weryfikacja rc4 | 🟢 62/62 pozycji beta.12 PASS | GO | M4 |
 | **M4** | Finalizacja UI + **UI freeze** | 🟢 UI zamrożone | GO | M5 |
 | **M5** | Lokalizacja PL/EN | 🟢 M5.1–M5.4 zamknięte | GO | M6 |
-| M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty — odblokowany po hotfixie | — | M7 |
+| M6 | Release Candidate `0.1.0-beta.12` | ⚪ nie rozpoczęty — gotowy do startu | — | M7 |
 | M7 | Końcowy smoke beta.12 | ⚪ nie rozpoczęty | — | M8 |
 | M8 | Publikacja | ⚪ nie rozpoczęty | — | — |
 
@@ -485,8 +485,8 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
 - **Wejście:** GO M4 i aktywny UI freeze.
 - **Punkt wejściowy:** `2d8a760`.
 - **Gałąź:** `codex/m5-localization-pl-en`.
-- **Stan:** **GO**; M5.1–M5.4 zamknięte bez pozycji otwartych. M6 odblokowany
-  z zachowaniem obowiązku ponownego pomiaru M5.2-P przed zamrożeniem RC.
+- **Stan:** **GO**; M5.1–M5.4 i checkpoint M5.2-P zamknięte bez pozycji
+  otwartych. M6 gotowy do rozpoczęcia.
 - **Artefakt:** `docs/LOCALIZATION_STRING_INVENTORY.md`.
 - **Paczka 1:** elementy wspólne, powłoka i nawigacja — 33 wiążące klucze,
   0 pozycji otwartych.
@@ -549,12 +549,11 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
   Na świeżej kopii bieżącej bazy automatyczna korekta luk spadła z 30,84 s
   do 1,31 s, archiwizacja trzech kart z około 16,35 s do 4,01 s, a łączna
   praca repozytorium z około 49 s do 5,36 s. Automat nadal pozostawił te same
-  4 nierozliczone luki. Status: **wydajność GO warunkowe, poprawność GO**.
-  Wydajność warunkowo, ponieważ archiwizacja nadal czyta całą surową historię,
-  a cold retention nie jest zaimplementowane; osobisty pomiar tworzy bazę
-  odniesienia, a przed M6 pomiar jest powtarzany i musi pozostać poniżej 10 s
-  pracy repozytorium oraz bez wzrostu `APP_START` → `APP_READY` większego
-  niż 50%. Szczegóły:
+  4 nierozliczone luki. Status: **wydajność GO, poprawność GO**. Osobisty
+  pomiar przed M6 na bazie wydaniowej został zatwierdzony jako zielony
+  i utworzył bazę odniesienia `APP_START` → `APP_READY`. Archiwizacja nadal
+  czyta całą surową historię, a cold retention nie jest zaimplementowane;
+  ten liniowy koszt pozostaje długiem po beta.12. Szczegóły:
   `docs/PLAN_BETA_12_M0-M8/M5_2_CHECKPOINT_WYDAJNOSCI_STARTU.md`.
 - **Hotfix poprawnościowy M5.2-P:** pomiar rozliczył 0 luk, więc nie objął
   ścieżki rozliczania luki. Kontrola wykazała, że projekcja hot/warm nie
@@ -574,9 +573,7 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
   i przydziałów odpoczynku. Pomiar 1×/3×/10× potwierdził zgodność mapy
   aktywności oraz idempotencję; zachowany liniowy koszt archiwizacji pozostaje
   długiem po beta.12.
-- **Następny krok:** M6 jest odblokowany poprawnościowo. Przed zamrożeniem RC
-  należy powtórzyć pomiar M5.2-P na bazie wydaniowej zgodnie z progiem 10 s
-  oraz zapisać osobisty czas `APP_START` → `APP_READY`.
+- **Następny krok:** rozpoczęcie M6. Obie bramki M5.2-P są zielone.
 - **Jawny wyjątek od UI freeze:** M5.2 dodaje dokładnie jedną nową kontrolkę
   do zamrożonego interfejsu — wybór `pl-PL` / `en-GB` w Ustawieniach.
   Jest wymagana planem M5, nie wprowadza dynamicznej zmiany bez restartu

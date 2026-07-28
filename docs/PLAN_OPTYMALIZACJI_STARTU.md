@@ -78,7 +78,7 @@ Wchodzi przed beta.12. Jest warunkiem wiarygodności wszystkiego dalej.
       o identycznej projekcji kanonicznej jest w obecnym brzmieniu sprzeczny
       z opisem zmiany technicznej w tym samym dokumencie. Do przeformułowania
       na stan faktyczny.
-- [ ] Zapis bazy odniesienia `APP_START` → `APP_READY` z osobistego
+- [x] Zapis bazy odniesienia `APP_START` → `APP_READY` z osobistego
       uruchomienia.
 
 ## Faza 1 — instrumentacja i stanowisko pomiarowe
