@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and test (.NET 9)
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET 9
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Restore dependencies
+        run: dotnet restore ETS2Tachograph.sln
+
+      - name: Build
+        run: dotnet build ETS2Tachograph.sln --configuration Release --no-restore
+
+      - name: Test with coverage
+        run: >-
+          dotnet test ETS2Tachograph.sln
+          --configuration Release
+          --no-build
+          --collect:"XPlat Code Coverage"
+          --logger "trx;LogFilePrefix=test-results"
+          --results-directory TestResults
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults/**/*.trx
+          if-no-files-found: error
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: TestResults/**/coverage.cobertura.xml
+          if-no-files-found: error
