@@ -1,5 +1,7 @@
 # Podstawowa instrukcja użytkowa - ETS2 Digital Tachograph
 
+[Polski](USER_GUIDE_PL.md) | [English](USER_GUIDE_EN.md)
+
 ## Zanim rozpoczniesz jazdę
 
 1. Uruchom ETS2 i wczytaj profil.

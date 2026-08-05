@@ -1,5 +1,7 @@
 # ETS2 EU Digital Tachograph
 
+[Polski](README.md) | [English](README_EN.md)
+
 Symulator europejskiego tachografu cyfrowego dla Euro Truck Simulator 2. Aplikacja
 czyta oficjalną telemetrię SCS, buduje historię w czasie gry, obsługuje dwie karty
 kierowców i wylicza liczniki zgodnie z zaimplementowanym zakresem reguł.
@@ -68,6 +70,7 @@ oddzielnie i przywracane po kolejnym uruchomieniu.
 
 Pełne instrukcje:
 
+- [indeks dokumentacji PL/EN](docs/DOCUMENTATION.md);
 - [instalacja po polsku](docs/INSTALLATION_PL.md);
 - [installation in English](docs/INSTALLATION_EN.md);
 - [podstawowa instrukcja użytkowa po polsku](docs/USER_GUIDE_PL.md);
@@ -223,7 +226,8 @@ Plugin należy zbudować jako `Release|x64` z projektu
 
 ## Ograniczenia
 
-Aktualna lista znajduje się w [KNOWN_ISSUES.md](KNOWN_ISSUES.md). Przed zgłoszeniem
+Aktualna lista znajduje się w [KNOWN_ISSUES.md](KNOWN_ISSUES.md); dostępna jest
+również [wersja angielska](KNOWN_ISSUES_EN.md). Przed zgłoszeniem
 błędu warto wygenerować w aplikacji **Raport diagnostyczny** i dołączyć ZIP.
 
 ## Wsparcie i zgłoszenia

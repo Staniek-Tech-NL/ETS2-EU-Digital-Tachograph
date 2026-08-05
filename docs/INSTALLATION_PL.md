@@ -1,5 +1,7 @@
 # Instalacja - ETS2 Digital Tachograph
 
+[Polski](INSTALLATION_PL.md) | [English](INSTALLATION_EN.md)
+
 ## Wymagania
 
 - Windows x64;

@@ -1,5 +1,7 @@
 # Znane ograniczenia i problemy
 
+[Polski](KNOWN_ISSUES.md) | [English](KNOWN_ISSUES_EN.md)
+
 > Protokół v3 wymaga jednoczesnej aktualizacji aplikacji i DLL. Po podmianie
 > pluginu trzeba całkowicie uruchomić ETS2 ponownie; ponowne wczytanie zapisu nie
 > przeładuje biblioteki natywnej.
@@ -12,7 +14,7 @@ wszystkie testy były zielone i pozostaje on zachowaną wersją historyczną.
 Nowe błędy z testów należy dopisywać razem ze statusem `lokalne` albo numerem
 wydanej paczki i raportem diagnostycznym.
 
-## Naprawione lokalnie po beta.11.1
+## Naprawione w beta.12
 
 - Hotfix projekcji hot/warm usuwa błąd po wczytaniu zapisu starszego o ponad
   14 dni gry. Gałąź poniżej progu atomowo unieważnia pochodne bloki warm

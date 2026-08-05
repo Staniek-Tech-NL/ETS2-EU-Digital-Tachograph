@@ -1,5 +1,7 @@
 # Basic user guide - ETS2 Digital Tachograph
 
+[Polski](USER_GUIDE_PL.md) | [English](USER_GUIDE_EN.md)
+
 ## Before driving
 
 1. Start ETS2 and load a profile.
