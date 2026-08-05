@@ -215,7 +215,7 @@ scenariuszem referencyjnym `41 min reconstructed + 3 min telemetry = 44 min`:
 Dashboard, urządzenie oraz overlay slotów 1 i 2 pokazują `00:44`, `00:01` do celu
 i status `W TRAKCIE`; 45. minuta daje `ZALICZONA` z resetem licznika jazdy
 ciągłej. Regresja pokryta testami automatycznymi granicy 44/45 (gate 315/315,
-raport `docs/BUGFIX_REPORT_QUALIFIED_BREAK_COUNTER_2026-07-24.md`). Pozostaje
+raport `docs/internal-development-history/BUGFIX_REPORT_QUALIFIED_BREAK_COUNTER_2026-07-24.md`). Pozostaje
 wizualne potwierdzenie granicy in-game w ramach smoke (M7).
 
 Procedura powtórzenia:

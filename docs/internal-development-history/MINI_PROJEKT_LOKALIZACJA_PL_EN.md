@@ -452,7 +452,7 @@ Zadania:
 Artefakt:
 
 ```text
-docs/LOCALIZATION_STRING_INVENTORY.md
+docs/internal-development-history/LOCALIZATION_STRING_INVENTORY.md
 ```
 
 Gate:

@@ -57,7 +57,7 @@ BRAK WIARYGODNYCH DANYCH
 
 Normatywną referencją wizualną jest:
 
-[`ChatGPT Image 24 lip 2026, 17_15_10.png`](../images/ChatGPT%20Image%2024%20lip%202026%2C%2017_15_10.png)
+[`journey-planner-mockup.png`](../../images/journey-planner-mockup.png)
 
 Z makiety przyjmujemy:
 

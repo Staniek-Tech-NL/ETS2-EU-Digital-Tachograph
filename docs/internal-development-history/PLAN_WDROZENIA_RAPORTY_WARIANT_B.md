@@ -8,7 +8,7 @@
 **Baza wydaniowa:** `0.1.0-beta.11.1`  
 **Stan bieżącego drzewa przed rozpoczęciem:** zmiany lokalne po beta.11.1, `315/315` testów Release, build `0 błędów / 0 ostrzeżeń`  
 **Docelowy gate:** testy z IDE i smoke test kandydata beta.12  
-**Makieta referencyjna:** `raporty_i_statystyki_tachografu.png`
+**Makieta referencyjna:** `docs/images/reports-dashboard.png`
 
 ---
 

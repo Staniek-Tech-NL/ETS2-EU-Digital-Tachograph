@@ -34,7 +34,7 @@ wydanej paczki i raportem diagnostycznym.
   `00:44`, `00:01` do celu i status `W TRAKCIE`; 45. minuta daje `ZALICZONA`.
 - Dedykowana przerwa slotu 2 podczas jazdy nadal korzysta z osobnej logiki
   `CrewTachographEngine` i nie została zmieniona.
-- Raport naprawy: `docs/BUGFIX_REPORT_QUALIFIED_BREAK_COUNTER_2026-07-24.md`.
+- Raport naprawy: `docs/internal-development-history/BUGFIX_REPORT_QUALIFIED_BREAK_COUNTER_2026-07-24.md`.
 
 ## Naprawione w beta.11.1
 

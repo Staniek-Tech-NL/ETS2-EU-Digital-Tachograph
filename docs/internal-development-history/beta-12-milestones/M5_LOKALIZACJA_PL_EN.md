@@ -22,14 +22,14 @@
 - **Wejście:** spełnione — M4 zamknięte wynikiem GO, UI freeze obowiązuje.
 - **Punkt wejściowy:** `2d8a760` — commit zamykający M4.
 - **Gałąź:** `codex/m5-localization-pl-en`.
-- **Pierwszy artefakt:** `docs/LOCALIZATION_STRING_INVENTORY.md`.
+- **Pierwszy artefakt:** `docs/internal-development-history/LOCALIZATION_STRING_INVENTORY.md`.
 - **Granica:** lokalizowana jest wyłącznie prezentacja; JSON, techniczny CSV,
   `.tacho`, SQLite, protokół v3, identyfikatory i kody pozostają niezmienne.
 - **Kolejność:** kompletna inwentaryzacja i słownik przed wdrożeniem `.resx`.
 
 ### Etap M5.1 — inwentaryzacja
 
-- [x] Utworzyć `docs/LOCALIZATION_STRING_INVENTORY.md`.
+- [x] Utworzyć `docs/internal-development-history/LOCALIZATION_STRING_INVENTORY.md`.
 - [x] Sklasyfikować każdy tekst jako użytkowy, techniczny, diagnostyczny, domenowy lub własny.
 - [x] Zidentyfikować statusy i enumy wymagające presenterów.
 - [x] Zidentyfikować ekrany narażone na przepełnienie.
