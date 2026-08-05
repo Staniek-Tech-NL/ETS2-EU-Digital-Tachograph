@@ -1,5 +1,7 @@
 # ETS2 EU Digital Tachograph
 
+[![CI](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/actions/workflows/ci.yml)
+
 [Polski](README.md) | [English](README_EN.md)
 
 A European digital tachograph simulator for Euro Truck Simulator 2. The
@@ -206,6 +208,10 @@ dotnet restore
 dotnet build ETS2Tachograph.sln --configuration Release
 dotnet test ETS2Tachograph.sln --configuration Release
 ```
+
+Current test results and coverage reports are published as artifacts by the
+[CI workflow](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/actions/workflows/ci.yml).
+The `570/570` result in the status section records the M6 release gate.
 
 The native plugin must be built as `Release|x64` from
 `native/ETS2Tachograph.ScsPlugin/ETS2Tachograph.ScsPlugin.vcxproj`.

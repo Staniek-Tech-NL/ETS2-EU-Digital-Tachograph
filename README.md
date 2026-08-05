@@ -1,5 +1,7 @@
 # ETS2 EU Digital Tachograph
 
+[![CI](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/actions/workflows/ci.yml)
+
 [Polski](README.md) | [English](README_EN.md)
 
 Symulator europejskiego tachografu cyfrowego dla Euro Truck Simulator 2. Aplikacja
@@ -200,13 +202,9 @@ dotnet build ETS2Tachograph.sln --configuration Release
 dotnet test ETS2Tachograph.sln --configuration Release
 ```
 
-Aktualny podział testów:
-
-```text
-Core 33 · Telemetry.Scs 8 · Engine 69 · RuleEngine 62
-Application 50 · Reports 9 · Infrastructure 51 · Desktop 28
-Razem 310
-```
+Bieżące wyniki testów i raporty pokrycia są publikowane jako artefakty workflow
+[CI](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/actions/workflows/ci.yml).
+Wynik `570/570` w sekcji statusu jest zapisem bramki wydania M6.
 
 Plugin należy zbudować jako `Release|x64` z projektu
 `native/ETS2Tachograph.ScsPlugin/ETS2Tachograph.ScsPlugin.vcxproj`.
