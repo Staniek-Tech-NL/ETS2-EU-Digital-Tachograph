@@ -175,4 +175,3 @@ public sealed partial class ActivityRepository
             pair.First.SourceGapId == pair.Second.SourceGapId);
 
 }
-
