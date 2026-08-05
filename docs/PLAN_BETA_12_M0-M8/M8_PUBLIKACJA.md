@@ -4,8 +4,9 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status:** **W TOKU**
+**Status:** **GO**
 **Data rozpoczęcia:** 5 sierpnia 2026
+**Data zakończenia:** 5 sierpnia 2026
 **Kryterium wejścia:** Decyzja **GO** po końcowym smoke teście M7.  
 **Kryterium wyjścia:** Opublikowany dokładnie ten artefakt, który przeszedł smoke, wraz z dokumentacją i checksumą.  
 **Następny etap:** Zamknięcie pierwszej publikacji i przejście do backlogu popublikacyjnego
@@ -19,16 +20,16 @@
 - [x] Zamrozić commit źródłowy.
 - [x] Potwierdzić zgodność SHA-256 z artefaktem smoke.
 - [x] Ustalić publiczny numer/tag wydania bazujący na zatwierdzonym kodzie beta.12.
-- [ ] Nie dodawać funkcji między GO a publikacją.
-- [ ] Opublikować paczkę aplikacji i pluginu.
-- [ ] Opublikować checksumę SHA-256.
-- [ ] Opublikować instrukcję instalacji PL i EN.
-- [ ] Opublikować known issues.
-- [ ] Opublikować release notes.
-- [ ] Opublikować informację, że aplikacja jest symulatorem, a nie certyfikowanym tachografem.
+- [x] Nie dodawać funkcji między GO a publikacją.
+- [x] Opublikować paczkę aplikacji i pluginu.
+- [x] Opublikować checksumę SHA-256.
+- [x] Opublikować instrukcję instalacji PL i EN.
+- [x] Opublikować known issues.
+- [x] Opublikować release notes.
+- [x] Opublikować informację, że aplikacja jest symulatorem, a nie certyfikowanym tachografem.
 - [x] Opisać sposób zgłaszania błędów i generowania raportu diagnostycznego.
-- [ ] Zachować `0.1.0-beta.11.1` jako historyczną bazę.
-- [ ] Oznaczyć `0.1.0-beta.12` jako ostatnią betę.
+- [x] Zachować `0.1.0-beta.11.1` jako historyczną bazę.
+- [x] Oznaczyć `0.1.0-beta.12` jako ostatnią betę.
 
 ### Stan rozpoczęcia M8 — 5 sierpnia 2026
 
@@ -64,8 +65,34 @@
 - **Dystrybucja:** self-contained ZIP `win-x64`; instalator, podpis kodu
   i auto-update pozostają poza zakresem beta.12.
 
-Pakiet decyzji jest zamknięty. M8 pozostaje **W TOKU** do utworzenia publicznego
-repozytorium, publikacji niezmienionych assetów i kontrolnego pobrania ZIP-a.
+Pakiet decyzji jest zamknięty i został wykonany.
+
+### Wynik publikacji — GO 5 sierpnia 2026
+
+- **Repozytorium:**
+  <https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph> — publiczne,
+  domyślna gałąź `main`.
+- **Wydanie:**
+  <https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v0.1.0-beta.12>
+  — publiczne pre-release.
+- **Tag:** opisany tag `v0.1.0-beta.12`; zdalna dereferencja `^{}` wskazuje
+  dokładnie `ffe6f7fad2c4fccfad8fc12f1a93675cc5d13c78`.
+- **Assety:** dokładny ZIP z GO M7 oraz plik `.sha256`; GitHub potwierdza rozmiar
+  ZIP-a `67 029 279` bajtów i digest
+  `sha256:a2b8f949e100f8683225b7a0d5a76e5c7e3434ad95aec9596006c4a5e41f5e78`.
+- **Kontrola po przesłaniu:** oba assety pobrano z draft release; ponownie
+  pobrany ZIP ma SHA-256
+  `A2B8F949E100F8683225B7A0D5A76E5C7E3434AD95AEC9596006C4A5E41F5E78`.
+- **Kanały projektu:** Issues i Discussions są włączone; Private vulnerability
+  reporting aktywne; formularz `Bug report`, MIT, `SUPPORT.md` i `SECURITY.md`
+  są opublikowane na `main`.
+- **Integralność zakresu:** między GO M7 a publikacją nie zmieniono kodu,
+  pluginu ani zatwierdzonego ZIP-a. Zmiany obejmowały wyłącznie dokumentację,
+  licencję i konfigurację społecznościową GitHub.
+- **Otwarte P0/P1:** 0/0.
+
+**Decyzja M8: GO.** Kryterium wyjścia zostało spełnione; łańcuch M0–M8 jest
+zamknięty, a backlog popublikacyjny został odblokowany.
 
 ### Gate publikacji
 
@@ -78,15 +105,15 @@ repozytorium, publikacji niezmienionych assetów i kontrolnego pobrania ZIP-a.
 
 ---
 
-## Decyzje wymagane przed publikacją
+## Decyzje zamknięte przed publikacją
 
-- publiczny numer lub tag bazujący na zatwierdzonym kodzie beta.12;
-- miejsce publikacji paczki;
-- widoczność repozytorium;
-- licencja;
-- model wsparcia i kanał zgłoszeń;
-- potwierdzenie dystrybucji jako self-contained ZIP `win-x64`;
-- potwierdzenie, że instalator, podpis i auto-update pozostają poza zakresem.
+- [x] publiczny numer i tag bazujący na zatwierdzonym kodzie beta.12;
+- [x] miejsce publikacji paczki;
+- [x] widoczność repozytorium;
+- [x] licencja;
+- [x] model wsparcia i kanał zgłoszeń;
+- [x] dystrybucja jako self-contained ZIP `win-x64`;
+- [x] instalator, podpis i auto-update poza zakresem.
 
 ## Pakiet publikacyjny
 
@@ -122,18 +149,18 @@ Między GO a publikacją nie wolno dodawać funkcji ani zmieniać zawartości ar
 ## Szablon aktualizacji statusu
 
 - **Data rozpoczęcia:** 2026-08-05
-- **Data zakończenia:**
-- **Wynik:** **W TOKU**
+- **Data zakończenia:** 2026-08-05
+- **Wynik:** **GO**
 - **Commit / punkt przywracania:** RC `ffe6f7fad2c4fccfad8fc12f1a93675cc5d13c78`;
   GO M7 `55ea567918e2223e88b6d2c5f18a6cd0c3b66a64`
 - **Build Release:** 0 błędów / 0 ostrzeżeń; nie przebudowywano po GO M7
 - **Testy automatyczne:** 570/570 PASS z zamrożonego RC
 - **Testy manualne / dowody:** M7 GO; ponowna zgodność SHA-256 i audyt
-  450 pozycji ZIP-a
+  450 pozycji ZIP-a; pobranie assetów z GitHub i zgodność SHA-256 PASS
 - **Otwarte błędy P0:** 0
 - **Otwarte błędy P1:** 0
-- **Uwagi do następnego etapu:** zamknąć decyzje publikacyjne, następnie
-  opublikować dokładny ZIP z GO M7, checksumę i dokumentację
+- **Uwagi do następnego etapu:** łańcuch M0–M8 zamknięty; przejść do backlogu
+  popublikacyjnego bez zmiany historycznego artefaktu beta.12
 
 ---
 

@@ -1,11 +1,10 @@
 # PROJECT HANDOFF — ETS2 EU Digital Tachograph
 
-**Baza wydaniowa:** 0.1.0-beta.11.1 — bez nowej publikacji
+**Baza wydaniowa:** 0.1.0-beta.12 — GO M8, publiczne pre-release
 **Data przygotowania dokumentu:** 20 lipca 2026
-**Ostatnia aktualizacja:** 24 lipca 2026 — lokalne hotfixy licznika pauzy 44/45 i `ODP. TYG.`
-**Bieżący stan lokalny:** wariant B wpisu manualnego, katalog ISO i korekta
-`ODP. TYG.` oraz hotfix licznika pauzy wdrożone; 338/338 testów, build Release
-0/0
+**Ostatnia aktualizacja:** 5 sierpnia 2026 — publikacja `0.1.0-beta.12`, GO M8
+**Bieżący stan:** publiczne pre-release; 570/570 testów, build Release 0/0,
+końcowy smoke M7 zielony, brak P0/P1
 **Przeznaczenie:** pakiet startowy dla nowej sesji AI / nowego okna kontekstowego
 
 ---
@@ -18,14 +17,13 @@ Projekt powstał jako reakcja na niedociągnięcia istniejących na rynku narzę
 
 Użytkownikiem docelowym jest gracz ETS2 ceniący realizm (w tym społeczność VTC), a autor projektu jest jednocześnie jego głównym testerem i deweloperem (samouk, korzysta z Claude Code / Codex jako wsparcia).
 
-**Aktualny etap:** opublikowaną bazą pozostaje **0.1.0-beta.11.1**.
-Późniejsze zmiany są lokalne i nie stanowią nowej bety. Obejmują wariant B
-wpisu manualnego, pełny katalog ISO 3166-1, osobny kod tachografowy i
-formatowanie `ODP. TYG.` oraz hotfix licznika pauzy 44/45. Stan automatyczny
-bieżącego drzewa: `338/338`, build Release 0 błędów i 0 ostrzeżeń. Końcowy
-smoke artefaktu beta.11.1 z aktywną telemetrią został zaliczony 23 lipca 2026;
-decyzja wydaniowa: **GO**. Hotfix nie został dołączony do zamrożonego artefaktu.
-Planer pozostaje wstrzymany do osobnej decyzji o rozpoczęciu prac.
+**Aktualny etap:** `0.1.0-beta.12` zostało opublikowane 5 sierpnia 2026 jako
+publiczne GitHub pre-release z decyzją **GO M8**. Tag `v0.1.0-beta.12` wskazuje
+commit źródłowy `ffe6f7fad2c4fccfad8fc12f1a93675cc5d13c78`, a opublikowany ZIP
+zachował SHA-256 `A2B8F949E100F8683225B7A0D5A76E5C7E3434AD95AEC9596006C4A5E41F5E78`.
+Gate wynosi `570/570`, build Release 0 błędów i 0 ostrzeżeń, a końcowy smoke M7
+jest zielony bez P0/P1. Łańcuch M0–M8 jest zamknięty; odblokowany został backlog
+popublikacyjny. `0.1.0-beta.11.1` pozostaje zachowaną wersją historyczną.
 
 ---
 

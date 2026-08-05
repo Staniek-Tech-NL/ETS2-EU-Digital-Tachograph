@@ -1,7 +1,7 @@
-# ETS2 EU Digital Tachograph 0.1.0-beta.12 — kandydat z GO M7
+# ETS2 EU Digital Tachograph 0.1.0-beta.12 — wydanie z GO M8
 
-Ostatnia beta przed pierwszą szeroką publikacją. Wydanie nie jest jeszcze
-opublikowane; niezmienny ZIP uzyskał GO M7 5 sierpnia 2026, a M8 jest w toku.
+Ostatnia beta przed pierwszą szeroką publikacją. Niezmienny ZIP uzyskał GO M7,
+a 5 sierpnia 2026 został opublikowany jako GitHub pre-release z decyzją GO M8.
 
 ## Najważniejsze zmiany
 

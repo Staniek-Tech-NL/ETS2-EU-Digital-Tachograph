@@ -9,12 +9,10 @@ kierowców i wylicza liczniki zgodnie z zaimplementowanym zakresem reguł.
 
 ## Aktualny stan
 
-- opublikowaną bazą wersjonowaną pozostaje `0.1.0-beta.11.1`;
-- końcowy smoke beta.11.1 z aktywną telemetrią zaliczony 23 lipca 2026 —
-  wszystkie testy zielone, decyzja **GO**;
-- kandydat `0.1.0-beta.12` uzyskał **GO M7** 5 sierpnia 2026 — wszystkie
-  pozycje końcowego smoke są zielone; M8 jest w toku, wydanie nie zostało
-  jeszcze opublikowane;
+- bieżące wydanie to [`0.1.0-beta.12`](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v0.1.0-beta.12),
+  opublikowane jako pre-release 5 sierpnia 2026 z decyzją **GO M8**;
+- końcowy smoke M7 był w całości zielony, bez otwartych P0/P1;
+- `0.1.0-beta.11.1` pozostaje zachowaną wersją historyczną;
 - gate M6: **570/570 testów**, build Release 0 błędów i 0 ostrzeżeń,
   `FileVersion 0.1.12.0`;
 - checkpoint poprawności i wydajności startu M5.2-P ma wynik **GO**.
