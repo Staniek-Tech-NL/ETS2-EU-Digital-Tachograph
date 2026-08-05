@@ -4,7 +4,7 @@
 
 | Obszar / Area | Polski | English |
 |---|---|---|
-| Strona projektu / Project overview | [README](../README.md) | [README](../README_EN.md) |
+| Strona projektu / Project overview | [README PL](../README_PL.md) | [README EN](../README.md) |
 | Instalacja / Installation | [PL](INSTALLATION_PL.md) | [EN](INSTALLATION_EN.md) |
 | Instrukcja użytkownika / User guide | [PL](USER_GUIDE_PL.md) | [EN](USER_GUIDE_EN.md) |
 | Znane problemy / Known issues | [PL](../KNOWN_ISSUES.md) | [EN](../KNOWN_ISSUES_EN.md) |
