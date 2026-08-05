@@ -126,8 +126,9 @@ Two files accumulated more responsibility than is comfortable:
 - `MainViewModel` coordinates too many desktop features and should be split
   into shell, dashboard, driver-card, crew, manual-entry, rest, settings, and
   history view models;
-- the broad repository implementation should be separated by driver, activity,
-  session, gap, and retention concerns.
+- persistence types now live in focused files, while the broad
+  `ActivityRepository` should be separated further by session, gap,
+  projection, and retention concerns.
 
 These are maintenance costs rather than hidden correctness claims. Documenting
 them makes the next refactor deliberate and preserves the reasoning behind the
