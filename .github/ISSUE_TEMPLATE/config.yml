@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions, help, and ideas
+    url: https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/discussions
+    about: Use GitHub Discussions for questions, user help, and feature ideas.
+  - name: Security vulnerability
+    url: https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/security/advisories/new
+    about: Report suspected vulnerabilities privately. Do not open a public issue.

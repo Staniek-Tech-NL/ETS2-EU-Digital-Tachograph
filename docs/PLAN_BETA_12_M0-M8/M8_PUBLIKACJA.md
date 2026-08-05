@@ -4,7 +4,8 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status początkowy:** **NIE ROZPOCZĘTY**  
+**Status:** **W TOKU**
+**Data rozpoczęcia:** 5 sierpnia 2026
 **Kryterium wejścia:** Decyzja **GO** po końcowym smoke teście M7.  
 **Kryterium wyjścia:** Opublikowany dokładnie ten artefakt, który przeszedł smoke, wraz z dokumentacją i checksumą.  
 **Następny etap:** Zamknięcie pierwszej publikacji i przejście do backlogu popublikacyjnego
@@ -15,9 +16,9 @@
 
 ### Zadania
 
-- [ ] Zamrozić commit źródłowy.
-- [ ] Potwierdzić zgodność SHA-256 z artefaktem smoke.
-- [ ] Ustalić publiczny numer/tag wydania bazujący na zatwierdzonym kodzie beta.12.
+- [x] Zamrozić commit źródłowy.
+- [x] Potwierdzić zgodność SHA-256 z artefaktem smoke.
+- [x] Ustalić publiczny numer/tag wydania bazujący na zatwierdzonym kodzie beta.12.
 - [ ] Nie dodawać funkcji między GO a publikacją.
 - [ ] Opublikować paczkę aplikacji i pluginu.
 - [ ] Opublikować checksumę SHA-256.
@@ -25,9 +26,46 @@
 - [ ] Opublikować known issues.
 - [ ] Opublikować release notes.
 - [ ] Opublikować informację, że aplikacja jest symulatorem, a nie certyfikowanym tachografem.
-- [ ] Opisać sposób zgłaszania błędów i generowania raportu diagnostycznego.
+- [x] Opisać sposób zgłaszania błędów i generowania raportu diagnostycznego.
 - [ ] Zachować `0.1.0-beta.11.1` jako historyczną bazę.
 - [ ] Oznaczyć `0.1.0-beta.12` jako ostatnią betę.
+
+### Stan rozpoczęcia M8 — 5 sierpnia 2026
+
+- **Commit źródłowy artefaktu:**
+  `ffe6f7fad2c4fccfad8fc12f1a93675cc5d13c78` — zamrożony RC z GO M6/M7.
+- **Commit dokumentujący GO M7:**
+  `55ea567918e2223e88b6d2c5f18a6cd0c3b66a64`.
+- **Artefakt:** `ETS2Tachograph-0.1.0-beta.12-win-x64.zip`, 67 029 279 bajtów,
+  450 pozycji po kontrolnym odczycie.
+- **SHA-256:**
+  `A2B8F949E100F8683225B7A0D5A76E5C7E3434AD95AEC9596006C4A5E41F5E78`
+  — ponownie potwierdzone przy wejściu do M8.
+- **Zawartość obowiązkowa:** aplikacja, plugin v3, instrukcje i przewodniki PL/EN
+  oraz `THIRD_PARTY_NOTICES.md` są obecne w zatwierdzonym ZIP-ie.
+- **Plik checksumy:** gotowy obok ZIP-a w katalogu `output/releases`.
+- **Kod po GO M7:** brak zmian funkcjonalnych; rozpoczęcie M8 zmienia wyłącznie
+  dokumentację procesu publikacji.
+
+### Decyzje właściciela — przyjęte 5 sierpnia 2026
+
+- **Miejsce publikacji:** GitHub Releases w publicznym repozytorium
+  `Staniek-Tech-NL/ETS2-EU-Digital-Tachograph`.
+- **Tag:** `v0.1.0-beta.12`, wskazujący bezpośrednio commit źródłowy artefaktu
+  `ffe6f7fad2c4fccfad8fc12f1a93675cc5d13c78`.
+- **Typ wydania:** pre-release.
+- **Licencja kodu własnego:** MIT; komponenty zewnętrzne zachowują licencje
+  opisane w `docs/THIRD_PARTY_NOTICES.md`.
+- **Kanał błędów:** GitHub Issues z formularzem `Bug report`.
+- **Pytania i pomysły:** GitHub Discussions.
+- **Podatności:** GitHub Private vulnerability reporting.
+- **Model wsparcia:** best effort, bez SLA i bez wsparcia przez prywatne
+  wiadomości; P0/P1 mają pierwszeństwo przed nowymi funkcjami.
+- **Dystrybucja:** self-contained ZIP `win-x64`; instalator, podpis kodu
+  i auto-update pozostają poza zakresem beta.12.
+
+Pakiet decyzji jest zamknięty. M8 pozostaje **W TOKU** do utworzenia publicznego
+repozytorium, publikacji niezmienionych assetów i kontrolnego pobrania ZIP-a.
 
 ### Gate publikacji
 
@@ -83,16 +121,19 @@ Między GO a publikacją nie wolno dodawać funkcji ani zmieniać zawartości ar
 
 ## Szablon aktualizacji statusu
 
-- **Data rozpoczęcia:**
+- **Data rozpoczęcia:** 2026-08-05
 - **Data zakończenia:**
-- **Wynik:** `GO` / `FIX` / `HOLD` / `NIE DOTYCZY`
-- **Commit / punkt przywracania:**
-- **Build Release:**
-- **Testy automatyczne:**
-- **Testy manualne / dowody:**
-- **Otwarte błędy P0:**
-- **Otwarte błędy P1:**
-- **Uwagi do następnego etapu:**
+- **Wynik:** **W TOKU**
+- **Commit / punkt przywracania:** RC `ffe6f7fad2c4fccfad8fc12f1a93675cc5d13c78`;
+  GO M7 `55ea567918e2223e88b6d2c5f18a6cd0c3b66a64`
+- **Build Release:** 0 błędów / 0 ostrzeżeń; nie przebudowywano po GO M7
+- **Testy automatyczne:** 570/570 PASS z zamrożonego RC
+- **Testy manualne / dowody:** M7 GO; ponowna zgodność SHA-256 i audyt
+  450 pozycji ZIP-a
+- **Otwarte błędy P0:** 0
+- **Otwarte błędy P1:** 0
+- **Uwagi do następnego etapu:** zamknąć decyzje publikacyjne, następnie
+  opublikować dokładny ZIP z GO M7, checksumę i dokumentację
 
 ---
 

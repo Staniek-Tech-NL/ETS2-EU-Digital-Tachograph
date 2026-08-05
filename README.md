@@ -13,7 +13,8 @@ kierowców i wylicza liczniki zgodnie z zaimplementowanym zakresem reguł.
 - końcowy smoke beta.11.1 z aktywną telemetrią zaliczony 23 lipca 2026 —
   wszystkie testy zielone, decyzja **GO**;
 - kandydat `0.1.0-beta.12` uzyskał **GO M7** 5 sierpnia 2026 — wszystkie
-  pozycje końcowego smoke są zielone; nie został jeszcze opublikowany;
+  pozycje końcowego smoke są zielone; M8 jest w toku, wydanie nie zostało
+  jeszcze opublikowane;
 - gate M6: **570/570 testów**, build Release 0 błędów i 0 ostrzeżeń,
   `FileVersion 0.1.12.0`;
 - checkpoint poprawności i wydajności startu M5.2-P ma wynik **GO**.
@@ -226,3 +227,20 @@ Plugin należy zbudować jako `Release|x64` z projektu
 
 Aktualna lista znajduje się w [KNOWN_ISSUES.md](KNOWN_ISSUES.md). Przed zgłoszeniem
 błędu warto wygenerować w aplikacji **Raport diagnostyczny** i dołączyć ZIP.
+
+## Wsparcie i zgłoszenia
+
+- błędy: GitHub Issues przez formularz **Bug report**;
+- pytania, pomoc użytkowa i pomysły: GitHub Discussions;
+- podatności: prywatne zgłoszenie w zakładce Security;
+- model wsparcia: best effort, bez gwarantowanego czasu odpowiedzi ani SLA.
+
+Szczegóły znajdują się w [SUPPORT.md](SUPPORT.md) i [SECURITY.md](SECURITY.md).
+
+## Licencja
+
+Oryginalny kod źródłowy projektu jest udostępniany na licencji MIT — zobacz
+[LICENSE](LICENSE). Licencja MIT dotyczy wyłącznie oryginalnego kodu źródłowego
+projektu. Komponenty zewnętrzne podlegają własnym licencjom wskazanym w
+[THIRD_PARTY_NOTICES.md](docs/THIRD_PARTY_NOTICES.md). Nazwy oraz znaki towarowe
+stron trzecich pozostają własnością ich odpowiednich właścicieli.

@@ -1,0 +1,90 @@
+name: Bug report
+description: Report a reproducible ETS2 EU Digital Tachograph problem
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a problem. Please check KNOWN_ISSUES.md first and do not publish sensitive data.
+  - type: input
+    id: app_version
+    attributes:
+      label: Application version
+      description: The version shown by the application, for example 0.1.0-beta.12.
+      placeholder: 0.1.0-beta.12
+    validations:
+      required: true
+  - type: dropdown
+    id: ui_language
+    attributes:
+      label: UI language
+      options:
+        - Polish (pl-PL)
+        - English (en-GB)
+    validations:
+      required: true
+  - type: input
+    id: ets2_version
+    attributes:
+      label: ETS2 version
+      description: Include the full game version shown by Steam or ETS2.
+    validations:
+      required: true
+  - type: dropdown
+    id: database_state
+    attributes:
+      label: Database state
+      options:
+        - Existing database
+        - Clean database
+        - Both
+        - Unknown
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      description: List the exact actions, card/slot, activity, and relevant game time.
+      placeholder: |
+        1. Start ETS2 and the application
+        2. Insert a card into slot ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+    validations:
+      required: true
+  - type: dropdown
+    id: restart
+    attributes:
+      label: Does the problem remain after restarting ETS2 and the application?
+      options:
+        - "Yes"
+        - "No"
+        - Not tested
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Logs and diagnostic report
+      description: Drag the diagnostic ZIP or relevant logs here after checking that they contain no data you do not want to publish.
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: I checked KNOWN_ISSUES.md and removed credentials or other sensitive data from attachments.
+          required: true

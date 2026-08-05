@@ -27,7 +27,7 @@
 | **M5** | Lokalizacja PL/EN | 🟢 M5.1–M5.4 zamknięte | GO | M6 |
 | **M6** | Release Candidate `0.1.0-beta.12` | 🟢 RC zamrożony i identyfikowalny | GO | M7 |
 | **M7** | Końcowy smoke beta.12 | 🟢 pełna checklista zielona | GO | M8 |
-| M8 | Publikacja | ⚪ odblokowany, nie rozpoczęty | — | — |
+| **M8** | Publikacja | 🟡 w toku; decyzje publikacyjne zamknięte | W TOKU | — |
 
 Legenda: ⚪ nie rozpoczęty · 🟡 w toku · 🟢 GO · 🔴 FIX/HOLD
 
@@ -639,7 +639,11 @@ dowody manualne, P0, P1, uwagi).
   brak P0/P1. Decyzja dotyczy zamrożonego ZIP-a o SHA-256
   `A2B8F949E100F8683225B7A0D5A76E5C7E3434AD95AEC9596006C4A5E41F5E78`.*
 - **M8** — publikacja dokładnie artefaktu z GO + checksuma + dokumentacja PL/EN.
-  — *odblokowany, nie rozpoczęty*
+  — *rozpoczęty 2026-08-05; SHA-256 zatwierdzonego ZIP-a ponownie zgodne,
+  450 pozycji pakietu oraz wymagane dokumenty PL/EN i plugin v3 potwierdzone.
+  Przyjęto GitHub Releases, publiczne repozytorium, tag `v0.1.0-beta.12` na
+  `ffe6f7f`, MIT, GitHub Issues/Discussions, prywatne zgłaszanie podatności oraz
+  wsparcie best effort bez SLA. Pozostaje wykonanie i kontrola publikacji.*
 
 ---
 
