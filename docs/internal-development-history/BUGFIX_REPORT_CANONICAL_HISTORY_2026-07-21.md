@@ -33,7 +33,7 @@ Wpisy w logu `%LocalAppData%\ETS2Tachograph\logs\tachograph-2026-07-21.log`:
 Ścieżka wywołań z logu:
 
 ```
-ActivityRepository.ArchiveWarmAsync        (Repositories.cs:776)
+ActivityRepository.ArchiveWarmAsync        (ActivityRepository.cs)
 CrewTachographService.RegisterCardAsync    (CrewTachographService.cs:29)
 MainViewModel.StartAsync                   (MainViewModel.cs:495)
 App.OnStartup                              (App.xaml.cs:120)
@@ -99,7 +99,7 @@ wobec kotwicy wyglądają identycznie.
 
 ## 4. Przyczyna źródłowa
 
-`Canonicalize` w [Repositories.cs](../../src/ETS2Tachograph.Infrastructure/Persistence/Repositories.cs)
+`Canonicalize` w [ActivityRepository.cs](../../src/ETS2Tachograph.Infrastructure/Persistence/ActivityRepository.cs)
 składa historię z kolejnych sesji, traktując je jako gałęzie czasu gry. Dla każdej sesji
 wywoływał `TruncateAfter`, przycinając **poprzednią** historię do kotwicy nowej sesji, po czym
 dopisywał **wszystkie** rekordy nowej sesji bez żadnej kontroli.
