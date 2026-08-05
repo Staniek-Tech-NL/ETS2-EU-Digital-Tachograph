@@ -21,7 +21,7 @@
   <a href="README_PL.md">Polski</a> · <strong>English</strong>
 </p>
 
-![ETS2 EU Digital Tachograph portfolio preview](docs/images/social-preview.png)
+![ETS2 EU Digital Tachograph portfolio preview](docs/images/social-preview.jpg)
 
 > [!IMPORTANT]
 > This project is an ETS2 simulator. It is not a certified tachograph and must
