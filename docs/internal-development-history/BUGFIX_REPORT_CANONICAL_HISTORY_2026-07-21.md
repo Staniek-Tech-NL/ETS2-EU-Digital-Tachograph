@@ -99,7 +99,7 @@ wobec kotwicy wyglądają identycznie.
 
 ## 4. Przyczyna źródłowa
 
-`Canonicalize` w [Repositories.cs](../src/ETS2Tachograph.Infrastructure/Persistence/Repositories.cs)
+`Canonicalize` w [Repositories.cs](../../src/ETS2Tachograph.Infrastructure/Persistence/Repositories.cs)
 składa historię z kolejnych sesji, traktując je jako gałęzie czasu gry. Dla każdej sesji
 wywoływał `TruncateAfter`, przycinając **poprzednią** historię do kotwicy nowej sesji, po czym
 dopisywał **wszystkie** rekordy nowej sesji bez żadnej kontroli.

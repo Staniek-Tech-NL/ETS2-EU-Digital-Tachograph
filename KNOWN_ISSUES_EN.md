@@ -35,7 +35,7 @@ the `local` status and a diagnostic report.
   `00:01` remaining, and an in-progress status; minute 45 qualifies the break.
 - The dedicated slot-2 break while moving still uses separate
   `CrewTachographEngine` logic and was not changed.
-- Detailed fix report: `docs/BUGFIX_REPORT_QUALIFIED_BREAK_COUNTER_2026-07-24.md`.
+- Detailed fix report: `docs/internal-development-history/BUGFIX_REPORT_QUALIFIED_BREAK_COUNTER_2026-07-24.md`.
 
 ## Fixed in beta.11.1
 

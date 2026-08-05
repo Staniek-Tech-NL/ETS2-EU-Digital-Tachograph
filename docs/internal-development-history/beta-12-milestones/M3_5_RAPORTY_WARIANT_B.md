@@ -23,7 +23,7 @@ Pełny plan zadań, kontrakty funkcjonalne, macierz testów, ręczna regresja z 
 i kryteria akceptacji znajdują się w:
 
 ```text
-docs/PLAN_WDROZENIA_RAPORTY_WARIANT_B.md
+docs/internal-development-history/PLAN_WDROZENIA_RAPORTY_WARIANT_B.md
 ```
 
 Ten dokument etapu jest cienką warstwą wpinającą tamten plan w łańcuch M0–M8. W
@@ -84,7 +84,7 @@ granice powtórzone dla jednoznaczności:
 
 ## Stan wykonania 2026-07-24
 
-- Etap 0: **PASS** — wynik w `docs/M3_5_ETAP_0_AUDYT_RAPORTOW.md`.
+- Etap 0: **PASS** — wynik w `docs/internal-development-history/M3_5_ETAP_0_AUDYT_RAPORTOW.md`.
 - Wydzielono `ReportsWorkspaceViewModel`; `MainViewModel` odpowiada wyłącznie za
   integrację, nawigację i wybór pliku.
 - Działają cztery presety `game_time`, jawny pusty stan, walidacja własnego

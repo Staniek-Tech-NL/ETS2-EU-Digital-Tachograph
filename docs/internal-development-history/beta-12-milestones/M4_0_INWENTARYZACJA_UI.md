@@ -120,7 +120,7 @@ Podstawowe źródła:
   `OverlayViewModel` i `ManualEntryPlanEditor` — stan, komendy, walidacja oraz
   komunikaty;
 - zatwierdzona makieta M3:
-  `docs/images/ChatGPT Image 24 lip 2026, 17_15_10.png`.
+  `docs/images/journey-planner-mockup.png`.
 
 ## Osobista checklista rc4
 

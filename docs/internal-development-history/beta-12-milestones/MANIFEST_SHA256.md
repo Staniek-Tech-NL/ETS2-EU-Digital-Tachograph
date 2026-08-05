@@ -6,11 +6,11 @@ Wartość SHA-256 dotyczy surowych bajtów bloba Git zapisanego w commicie, a ni
 kopii roboczej po checkoutcie. Weryfikacja pojedynczego wpisu:
 
 ```bash
-git show HEAD:docs/PLAN_BETA_12_M0-M8/NAZWA_PLIKU.md | sha256sum
+git show HEAD:docs/internal-development-history/beta-12-milestones/NAZWA_PLIKU.md | sha256sum
 ```
 
 Podczas generowania manifestu przed commitem należy hashować odpowiadający blob
-z indeksu (`git show :docs/PLAN_BETA_12_M0-M8/NAZWA_PLIKU.md`). Po commicie
+z indeksu (`git show :docs/internal-development-history/beta-12-milestones/NAZWA_PLIKU.md`). Po commicie
 wynik musi być ponownie potwierdzony względem `HEAD`.
 
 Repozytorium wymusza dla dokumentów Markdown zakończenia linii LF przez

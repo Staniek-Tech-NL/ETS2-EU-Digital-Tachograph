@@ -1,5 +1,10 @@
 # Dokumentacja / Documentation
 
+## Portfolio / Engineering
+
+- [Architecture](ARCHITECTURE.md)
+- [Engineering case study](ENGINEERING_CASE_STUDY.md)
+
 ## Dla użytkowników / For users
 
 | Obszar / Area | Polski | English |
@@ -20,3 +25,5 @@ Nie są wymagane do instalacji ani używania aplikacji.
 Planning documents, regression reports, and the M0–M8 milestone history record
 the internal development process and remain in the language in which they were
 maintained. They are not required to install or use the application.
+
+They are preserved in the [internal development history](internal-development-history/README.md).

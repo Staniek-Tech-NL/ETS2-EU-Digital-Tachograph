@@ -186,7 +186,7 @@ Kontrola przed M6:
   względem zatwierdzonej bazy odniesienia.
 
 Stałe ograniczenie kosztu wymaga osobnego zadania po beta.12: inkrementalnej
-przebudowy warm albo wdrożenia cold retention. Plan: `docs/PLAN_OPTYMALIZACJI_STARTU.md`.
+przebudowy warm albo wdrożenia cold retention. Plan: `docs/internal-development-history/PLAN_OPTYMALIZACJI_STARTU.md`.
 
 ## Bramka zgodności projekcji — GO
 

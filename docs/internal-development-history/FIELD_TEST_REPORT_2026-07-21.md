@@ -55,7 +55,7 @@ zostać zbudowany w jadącym pojeździe, zgodnie z Art. 8(8) rozporządzenia 561
 
 Mechanizm potwierdzony również w kodzie: pierwsza klatka telemetrii z prędkością powyżej
 progu cofa start przerwy załogowej do początku odpoczynku
-([CrewTachographEngine.cs:290](../src/ETS2Tachograph.Engine/CrewTachographEngine.cs)),
+([CrewTachographEngine.cs:290](../../src/ETS2Tachograph.Engine/CrewTachographEngine.cs)),
 przekracza limit 45 minut i przełącza slot 2 na `Dyspozycyjność`, zanim zdąży wejść
 jakiekolwiek działanie użytkownika. UI w gałęzi „pojazd jedzie" nie pozwala wybrać innego
 celu pauzy niż 45 minut.

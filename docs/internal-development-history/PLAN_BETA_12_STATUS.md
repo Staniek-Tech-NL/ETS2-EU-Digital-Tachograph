@@ -3,7 +3,7 @@
 **Projekt:** ETS2 EU Digital Tachograph
 **Baza wydaniowa:** `0.1.0-beta.11.1` (GO 2026-07-23)
 **Cel:** `0.1.0-beta.12` — ostatnia beta przed pierwszą szeroką publikacją.
-**Źródło etapów:** `docs/PLAN_BETA_12_M0-M8/` (integralność SHA-256 potwierdzona z `MANIFEST_SHA256.md`).
+**Źródło etapów:** `docs/internal-development-history/beta-12-milestones/` (integralność SHA-256 potwierdzona z `MANIFEST_SHA256.md`).
 **Ostatnia aktualizacja tablicy:** 2026-08-05
 
 > Ten plik jest żywym pulpitem postępu. Nie zmienia zakresu ani gate'ów planu
@@ -185,7 +185,7 @@ poniedziałek 00:00 w kalendarzu gry przesuniętym przez surowy
 - **Implementacja:** **ZAKOŃCZONA — GO**
 - **Zakres pierwszej tury:** `ODP. DZIENNY`, `ODP. TYG.`, terminy rekompensat
 - **Poza pierwszą turą:** `DO PRZERWY`, Planer rynku, problem 44/45
-- **Dokument:** `docs/PLAN_BETA_12_M0-M8/M3A_GAME_CALENDAR_AND_DEADLINE_PRESENTATION.md`
+- **Dokument:** `docs/internal-development-history/beta-12-milestones/M3A_GAME_CALENDAR_AND_DEADLINE_PRESENTATION.md`
 
 M3A nie dodaje nowego anchoru, nie zmienia znaczenia offsetu i nie normalizuje
 wartości `-6…6`. Core ma pozostać jednym źródłem kanonicznych granic tygodnia.
@@ -230,7 +230,7 @@ wyniku. Testy Application: 59/59; pełna regresja Release: 491/491.
 `M3-P0-08` wykrył i zamknął rozjazd offsetu tygodnia w ścieżce M2-CREW:
 lokalne obliczenie zostało zastąpione kanonicznym `GameWeek` z M3A.
 UI ma być wzorowane na makiecie
-`docs/images/ChatGPT Image 24 lip 2026, 17_15_10.png`, z polami wynikającymi
+`docs/images/journey-planner-mockup.png`, z polami wynikającymi
 z nowego kontraktu, a nie ze starego formularza. Następny krok: M3-R3 UI.
 
 M3-R3 jest automatycznie zielone: nowy ViewModel i XAML obsługują oba przypadki
@@ -299,8 +299,8 @@ jest ponowny test ręczny użytkownika. Naprawa rekompensaty: `af97b39`.
 **Kryterium wejścia:** formalny wynik GO dla M3 — spełnione. **Stan:** M3.5
 zakończone wynikiem GO po akceptacji właściciela 2026-07-24.
 
-- **Dokument etapu:** `docs/PLAN_BETA_12_M0-M8/M3_5_RAPORTY_WARIANT_B.md`
-- **Plan wykonawczy:** `docs/PLAN_WDROZENIA_RAPORTY_WARIANT_B.md`
+- **Dokument etapu:** `docs/internal-development-history/beta-12-milestones/M3_5_RAPORTY_WARIANT_B.md`
+- **Plan wykonawczy:** `docs/internal-development-history/PLAN_WDROZENIA_RAPORTY_WARIANT_B.md`
 - **Zakres:** przebudowa ekranu Raporty do wariantu B; bez zmian `RuleEngine`,
   historii kanonicznej, migracji SQLite i kontraktów PDF/JSON/CSV.
 - **Audyt Etapu 0:** PASS; zachowano półotwarty zakres `[from, toExclusive)`,
@@ -375,7 +375,7 @@ zakończone wynikiem GO po akceptacji właściciela 2026-07-24.
 - **Pełny smoke `rc2`:** FAIL; `rc2` unieważniony.
 - **Artefakty historyczne:** `rc0`, `rc1` i `rc2` pozostają unieważnione.
 
-- **Dokument etapu:** `docs/PLAN_BETA_12_M0-M8/M3_6_WEWNETRZNY_SMOKE_CHECKPOINT.md`
+- **Dokument etapu:** `docs/internal-development-history/beta-12-milestones/M3_6_WEWNETRZNY_SMOKE_CHECKPOINT.md`
 - **Charakter:** korekta przed kolejnym zamrożonym artefaktem wewnętrznym;
   **niepublikowana**, nie uruchamia bramki M8 i nie tworzy osobnego wydania
   `beta.11.5`.
@@ -391,7 +391,7 @@ zakończone wynikiem GO po akceptacji właściciela 2026-07-24.
 ## M3.7 — Planer: ergonomia wprowadzania danych (ZAMKNIĘTY — GO)
 
 Etap wstawiony między M3.6 a M4 decyzją właściciela z 2026-07-26. Szczegóły
-w `docs/PLAN_BETA_12_M0-M8/M3_7_PLANER_ERGONOMIA_WEJSCIA.md`.
+w `docs/internal-development-history/beta-12-milestones/M3_7_PLANER_ERGONOMIA_WEJSCIA.md`.
 
 **Kryterium wejścia:** formalny wynik GO dla M3.6. **Stan:** spełnione
 2026-07-27.
@@ -443,7 +443,7 @@ wynikiem GO; właściwe M4 jest odblokowane.
 Etap przygotowawczy dodany decyzją właściciela 2026-07-27, ponieważ M0
 deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
 
-- **Dokument:** `docs/PLAN_BETA_12_M0-M8/M4_0_INWENTARYZACJA_UI.md`
+- **Dokument:** `docs/internal-development-history/beta-12-milestones/M4_0_INWENTARYZACJA_UI.md`
 - **Metoda:** kompletność z XAML i view-modeli; stan faktyczny wyłącznie z
   osobistej weryfikacji właściciela na rozpakowanym rc4.
 - **Wynik rc4:** 62/62 pozycji `beta.12` — PASS; 4 pozycje poza zakresem — N/D.
@@ -487,7 +487,7 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
 - **Gałąź:** `codex/m5-localization-pl-en`.
 - **Stan:** **GO**; M5.1–M5.4 i checkpoint M5.2-P zamknięte bez pozycji
   otwartych. M6 gotowy do rozpoczęcia.
-- **Artefakt:** `docs/LOCALIZATION_STRING_INVENTORY.md`.
+- **Artefakt:** `docs/internal-development-history/LOCALIZATION_STRING_INVENTORY.md`.
 - **Paczka 1:** elementy wspólne, powłoka i nawigacja — 33 wiążące klucze,
   0 pozycji otwartych.
 - **Paczka 2:** Dashboard — 58 wiążących kluczy, 0 pozycji otwartych.
@@ -554,7 +554,7 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
   i utworzył bazę odniesienia `APP_START` → `APP_READY`. Archiwizacja nadal
   czyta całą surową historię, a cold retention nie jest zaimplementowane;
   ten liniowy koszt pozostaje długiem po beta.12. Szczegóły:
-  `docs/PLAN_BETA_12_M0-M8/M5_2_CHECKPOINT_WYDAJNOSCI_STARTU.md`.
+  `docs/internal-development-history/beta-12-milestones/M5_2_CHECKPOINT_WYDAJNOSCI_STARTU.md`.
 - **Hotfix poprawnościowy M5.2-P:** pomiar rozliczył 0 luk, więc nie objął
   ścieżki rozliczania luki. Kontrola wykazała, że projekcja hot/warm nie
   przycina bloku ciepłego do kotwicy sesji leżącej poniżej progu warm i
@@ -613,7 +613,7 @@ deklarowało zieloną inwentaryzację bez zachowania źródłowego wykazu.
 ## M6–M8
 
 Każdy etap otwieramy dopiero po **GO** poprzedniego. Szczegółowe zadania i gate'y
-w `docs/PLAN_BETA_12_M0-M8/`. Poniżej rejestr decyzji wypełniany przy zamykaniu
+w `docs/internal-development-history/beta-12-milestones/`. Poniżej rejestr decyzji wypełniany przy zamykaniu
 kolejnych etapów (szablon: data start/koniec, wynik, commit, build, testy auto,
 dowody manualne, P0, P1, uwagi).
 
