@@ -8,6 +8,29 @@ updates:
       time: "06:00"
       timezone: Europe/Warsaw
     open-pull-requests-limit: 5
+    groups:
+      ef-core:
+        patterns:
+          - Microsoft.EntityFrameworkCore*
+          - dotnet-ef
+        update-types:
+          - minor
+          - patch
+      test-tooling:
+        patterns:
+          - coverlet.collector
+          - Microsoft.NET.Test.Sdk
+          - xunit*
+        update-types:
+          - minor
+          - patch
+    ignore:
+      - dependency-name: Microsoft.EntityFrameworkCore*
+        update-types:
+          - version-update:semver-major
+      - dependency-name: dotnet-ef
+        update-types:
+          - version-update:semver-major
     labels:
       - dependencies
   - package-ecosystem: github-actions
@@ -18,5 +41,9 @@ updates:
       time: "06:30"
       timezone: Europe/Warsaw
     open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        patterns:
+          - "*"
     labels:
       - dependencies
