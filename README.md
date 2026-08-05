@@ -1,246 +1,151 @@
 # ETS2 EU Digital Tachograph
 
-[![CI](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/actions/workflows/ci.yml)
+<p align="center">
+  <strong>A Windows desktop application and native telemetry plugin that turns live Euro Truck Simulator 2 data into an auditable driver-activity history, EU-style driving-time analysis, and printable reports.</strong>
+</p>
 
-[Polski](README.md) | [English](README_EN.md)
+<p align="center">
+  <a href="https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/actions/workflows/ci.yml/badge.svg?branch=main"></a>
+  <a href="https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph?include_prereleases&label=release"></a>
+  <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-2ea44f"></a>
+</p>
 
-Symulator europejskiego tachografu cyfrowego dla Euro Truck Simulator 2. Aplikacja
-czyta oficjalną telemetrię SCS, buduje historię w czasie gry, obsługuje dwie karty
-kierowców i wylicza liczniki zgodnie z zaimplementowanym zakresem reguł.
+<p align="center">
+  <a href="https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/latest"><strong>Download</strong></a>
+  · <a href="docs/DOCUMENTATION.md"><strong>Documentation</strong></a>
+  · <a href="docs/ARCHITECTURE.md"><strong>Architecture</strong></a>
+  · <a href="docs/ENGINEERING_CASE_STUDY.md"><strong>Engineering case study</strong></a>
+</p>
 
-> Projekt jest symulatorem do ETS2. Nie jest certyfikowanym tachografem ani
-> narzędziem do rozliczania rzeczywistego czasu pracy kierowcy.
+<p align="center">
+  <a href="README_PL.md">Polski</a> · <strong>English</strong>
+</p>
 
-## Aktualny stan
+![ETS2 EU Digital Tachograph portfolio preview](docs/images/social-preview.png)
 
-- bieżące wydanie to [`0.1.0-beta.12`](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v0.1.0-beta.12),
-  opublikowane jako pre-release 5 sierpnia 2026 z decyzją **GO M8**;
-- końcowy smoke M7 był w całości zielony, bez otwartych P0/P1;
-- `0.1.0-beta.11.1` pozostaje zachowaną wersją historyczną;
-- gate M6: **570/570 testów**, build Release 0 błędów i 0 ostrzeżeń,
-  `FileVersion 0.1.12.0`;
-- checkpoint poprawności i wydajności startu M5.2-P ma wynik **GO**.
+> [!IMPORTANT]
+> This project is an ETS2 simulator. It is not a certified tachograph and must
+> not be used to account for the working time of real drivers.
 
-## Podgląd
+## Why I built this
 
-### Panel główny
+I wanted to build a desktop product around a genuinely difficult engineering
+problem: combining live native telemetry, time-based domain rules, durable
+history, and an interface that remains useful during gameplay. The result is a
+mixed C# and C++ system rather than a conventional CRUD application.
 
-![Panel główny](docs/images/dashboard.png)
+## Engineering highlights
 
-### Nakładka w grze - slot 1
+- Mixed C#/.NET 9 and native C++ solution using the official SCS SDK 1.14.
+- Versioned 32-byte shared-memory protocol with explicit compatibility checks.
+- Event-driven reconstruction of driver activity across game-time rollbacks.
+- Rule engine for continuous driving, breaks, daily/weekly rest, and
+  multi-manning within the simulator's implemented scope.
+- SQLite and EF Core persistence with migrations and pre-migration backups.
+- Layered retention model: minute-level recent history and compact older blocks.
+- PDF, CSV, `.tacho`, and VTC JSON reporting.
+- 570-test M6 release gate covering domain, application, persistence,
+  telemetry, reporting, and UI-facing behaviour.
+- Windows GitHub Actions pipeline with Release build, tests, TRX results, and
+  Cobertura coverage artifacts.
 
-![Nakładka S1](docs/images/overlay-s1.png)
+## What the application does
 
-### Czytelny raport PDF
+| Capability | Implementation |
+|---|---|
+| Live activity capture | Reads official ETS2 telemetry and detects driving automatically. |
+| Two-driver operation | Models two card slots, card swaps, and multi-manning scenarios. |
+| Driving-time analysis | Calculates continuous, daily, weekly, and fortnightly counters. |
+| History reconstruction | Preserves one logical timeline through clock rollbacks and world reloads. |
+| Durable storage | Stores activity in SQLite and protects migrations with automatic backups. |
+| Reporting | Produces readable PDF blocks plus diagnostic CSV and JSON exports. |
 
-![Raport PDF](docs/images/report-pdf.png)
-
-## Najważniejsze funkcje
-
-- telemetria z oficjalnego SCS SDK 1.14;
-- automatyczne wykrywanie jazdy oraz ręczny wybór pracy, dyspozycyjności i odpoczynku;
-- dwa sloty kart oraz zmiana kierowcy przez wyjęcie i włożenie kart do przeciwnych slotów;
-- 45-minutowa przerwa drugiego kierowcy podczas jazdy;
-- liczniki jazdy ciągłej, dziennej, tygodniowej i dwutygodniowej;
-- odpoczynek dzienny, tygodniowy, tryb podwójnej obsady, OUT i prom;
-- przeszukiwalny wybór kraju rozpoczęcia i zakończenia z pełnego katalogu
-  ISO 3166-1 alpha-2; historia przechowuje ISO, a LCD używa osobnego kodu
-  tachografowego;
-- wizualny edytor wpisu manualnego: pełny plan luki, szybkie akcje, segmenty
-  odpoczynku, pracy i dyspozycyjności, automatyczne dzielenie oraz scalanie;
-- licznik `ODP. TYG.` pokazujący numer bieżącego okresu 24 h oraz stały termin
-  rozpoczęcia odpoczynku w `game_time`, np. `4/6 (D141 22:55)`;
-- licznik celu pauzy na Dashboardzie, urządzeniu i overlay korzysta z bieżącego,
-  ciągłego bloku `BreakOrRest` zakwalifikowanego przez RuleEngine;
-- nakładki `S1` i `S2`, zapamiętujące osobne położenie;
-- trwała baza SQLite, import/eksport `.tacho`, surowy CSV, VTC JSON i raport PDF;
-- raport diagnostyczny ZIP do beta-testów;
-- automatyczny backup bazy przed każdą migracją;
-- blokada uruchomienia drugiej instancji aplikacji i monitora;
-- alarm przy niezgodnej wersji protokołu pluginu.
-
-## Skróty nakładek
-
-- `Alt+1` - pokaż lub ukryj liczniki karty w slocie 1 (`S1`);
-- `Alt+2` - pokaż lub ukryj liczniki karty w slocie 2 (`S2`);
-- `Alt+Q` - dodatkowy skrót dla `S1`.
-
-Nakładkę można przeciągnąć za górny pasek. Pozycje obu nakładek są zapisywane
-oddzielnie i przywracane po kolejnym uruchomieniu.
-
-## Instalacja
-
-Pełne instrukcje:
-
-- [indeks dokumentacji PL/EN](docs/DOCUMENTATION.md);
-- [instalacja po polsku](docs/INSTALLATION_PL.md);
-- [installation in English](docs/INSTALLATION_EN.md);
-- [podstawowa instrukcja użytkowa po polsku](docs/USER_GUIDE_PL.md);
-- [basic user guide in English](docs/USER_GUIDE_EN.md).
-
-### 1. Plugin SCS
-
-1. Zamknij ETS2.
-2. Znajdź `ETS2Tachograph.ScsPlugin.dll` w katalogu `plugin` paczki.
-3. Jeżeli DLL pochodzi z pobranego ZIP-a, kliknij plik prawym przyciskiem,
-   wybierz **Właściwości**, zaznacz **Odblokuj** i zatwierdź.
-4. Skopiuj DLL do:
-
-   ```text
-   Euro Truck Simulator 2\bin\win_x64\plugins\
-   ```
-
-5. Uruchom ETS2 i zaakceptuj komunikat o użyciu SDK.
-
-Najczęstsza ścieżka Steam:
-
-```text
-C:\Program Files (x86)\Steam\steamapps\common\Euro Truck Simulator 2\bin\win_x64\plugins\
-```
-
-Po podmianie pluginu trzeba ponownie uruchomić grę. Dewelopersko można użyć
-polecenia konsoli `sdk reload`.
-
-### 2. Aplikacja
-
-Uruchom `ETS2Tachograph.Desktop.exe` z katalogu aplikacji. Jest to publikacja
-self-contained, dlatego tester nie musi osobno instalować .NET.
-
-Jeżeli aplikacja wykryje inną wersję protokołu pluginu, pokaże błąd zawierający
-wersję wykrytą i oczekiwaną. Nie należy wtedy kontynuować testu na starej DLL.
-
-## Dane użytkownika
-
-Aplikacja przechowuje dane w:
-
-```text
-%LocalAppData%\ETS2Tachograph\
-```
-
-Najważniejsze pliki i katalogi:
-
-- `tachograph.db` - główna baza SQLite;
-- `tachograph.db.bak.RRRRMMDD-GGMMSS-fff` - automatyczne kopie sprzed migracji;
-- `Logs\tachograph-RRRR-MM-DD.log` - logi diagnostyczne;
-- `Printouts\` - wydruki urządzenia;
-- ustawienia nakładek są zapisywane osobno dla `S1` i `S2`.
-
-## Czas gry i cofanie zegara
-
-Cała historia działa na `game_time` z ETS2, a nie na zegarze Windows. Sen,
-`g_set_time` i niektóre korekty pozycji mogą przesunąć czas gry do przodu lub do
-tyłu. Cofnięcie tworzy kolejną sesję historii.
-
-Historia logiczna jest składana metodą `truncate-and-append`:
+## System at a glance
 
 ```mermaid
 flowchart LR
-    A["Sesja 0: zapis pierwotny"] --> B["Cofnięcie game_time"]
-    B --> C["Zachowaj historię przed punktem cofnięcia"]
-    C --> D["Odetnij porzuconą, nakładającą się przyszłość"]
-    D --> E["Dołącz rekordy z nowej sesji"]
-    E --> F["Jedna historia logiczna bez podwójnego liczenia"]
+    ETS2["Euro Truck Simulator 2"] --> SDK["Native C++ SCS plugin"]
+    SDK --> SHM["Shared memory protocol v3"]
+    SHM --> TEL[".NET telemetry reader"]
+    TEL --> ENG["Activity engine"]
+    ENG --> RULES["Rule engine"]
+    ENG --> DB[("SQLite / EF Core")]
+    RULES --> APP["Application services"]
+    DB --> APP
+    APP --> UI["WPF desktop UI and overlays"]
+    APP --> OUT["PDF / CSV / JSON exports"]
 ```
 
-Przykład regresyjny: pierwsza gałąź zawiera `03:53` jazdy, a druga dopisuje
-`01:34` po cofnięciu. Wynik logiczny wynosi `05:27`, bez utraty wcześniejszej
-historii i bez podwójnego policzenia nakładania.
+See the [architecture document](docs/ARCHITECTURE.md) for component boundaries,
+data flow, invariants, and failure handling.
 
-## Retencja historii
+## Product preview
 
-Baza pozostaje źródłem prawdy o minutach gry. Dane są prezentowane warstwowo:
+### Dashboard
 
-- ostatnie 14 dni gry - pełne rekordy minutowe używane przez RuleEngine;
-- starsze dane - ciągłe bloki tej samej aktywności; zmiana źródła daje `Mixed`,
-  ale nie rozcina bloku;
-- warstwa dobowa po 365 dniach ma przygotowany hak architektoniczny, lecz nie jest
-  jeszcze implementowana.
+![Dashboard](docs/images/dashboard.png)
 
-Próg 14 dni jest liczony od monotonicznego `highWaterMark`, więc cofnięcie czasu
-gry nie odmładza zarchiwizowanych rekordów. PDF pokazuje bloki, natomiast surowy
-CSV pozostaje minutowy do diagnostyki.
+### In-game overlay
 
-## Historia najważniejszych problemów
+![Slot 1 overlay](docs/images/overlay-s1.png)
 
-- Stara DLL pluginu potrafiła wyglądać jak poprawnie działająca telemetria. Dlatego
-  protokół ma wersję, a niezgodność jest teraz zgłaszana wprost.
-- Cofnięcie czasu powodowało kiedyś utratę pierwszej części jazdy i wynik `01:34`
-  zamiast `05:27`. Model sesji i test `truncate-and-append` chronią tę regresję.
-- Raport minuta po minucie tworzył ponad 40 stron na dobę gry. Baza nadal zachowuje
-  minuty, ale PDF agreguje je w czytelne bloki.
-- Ramki z `running == 0` mogły zawierać `game_time = 0`. Są ignorowane przez zapis,
-  high-water mark i konsolowy monitor.
+### Readable PDF report
 
-## Protokół telemetrii v3
+![PDF report](docs/images/report-pdf.png)
 
-Blok shared memory v3 ma 32 bajty i publikuje `world_generation`. Plugin zwiększa
-go po fladze SCS `frame_start.timer_restart`. Pierwsza wartość jest tylko punktem
-odniesienia; późniejsza zmiana tworzy wspólną granicę sesji obu kart, również gdy
-wczytany czas gry jest identyczny albo późniejszy. Zmiana zauważona podczas pauzy
-jest zapisywana na pierwszej aktywnej ramce.
+## Download and installation
 
-Pole `cargo_operation_generation` jest zwiększane po załadunku i rozładunku na
-podstawie oficjalnych zdarzeń SCS. Dzięki temu kontrolowany skok czasu gry jest
-zapisywany według aktywności wybranej na danej karcie, zamiast jako nierozliczona
-luka.
+The current public build is
+[`0.1.0-beta.12`](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v0.1.0-beta.12),
+published as a self-contained Windows x64 pre-release.
 
-Nowa mapa nazywa się `Local\ETS2Tachograph.Telemetry.v3`. Czytnik sprawdza też
-starszą mapę `.v2`, aby zgłosić czytelny błąd niezgodnej DLL.
+1. Download the application package from [Releases](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/latest).
+2. Copy `ETS2Tachograph.ScsPlugin.dll` to the ETS2 `bin\win_x64\plugins`
+   directory.
+3. Run `ETS2Tachograph.Desktop.exe` from the application directory.
 
-## Budowanie i testy
+Read the complete [English installation guide](docs/INSTALLATION_EN.md) or the
+[Polish installation guide](docs/INSTALLATION_PL.md) before first use.
 
-Wymagania deweloperskie:
+## Build and test
 
-- .NET SDK 9;
-- Visual Studio 2022 z komponentem **Desktop development with C++**;
+Requirements:
+
+- .NET SDK `9.0.311`;
+- Visual Studio 2022 with **Desktop development with C++**;
 - Windows SDK;
-- oficjalne nagłówki SCS SDK 1.14 znajdujące się w `third_party/scs_sdk_1_14`.
+- official SCS SDK 1.14 headers under `third_party/scs_sdk_1_14`.
 
 ```powershell
-dotnet restore
-dotnet build ETS2Tachograph.sln --configuration Release
-dotnet test ETS2Tachograph.sln --configuration Release
+dotnet restore ETS2Tachograph.sln
+dotnet build ETS2Tachograph.sln --configuration Release --no-restore
+dotnet test ETS2Tachograph.sln --configuration Release --no-build
 ```
 
-Bieżące wyniki testów i raporty pokrycia są publikowane jako artefakty workflow
-[CI](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/actions/workflows/ci.yml).
-Wynik `570/570` w sekcji statusu jest zapisem bramki wydania M6.
-
-Plugin należy zbudować jako `Release|x64` z projektu
+The native plugin is built separately as `Release|x64` from
 `native/ETS2Tachograph.ScsPlugin/ETS2Tachograph.ScsPlugin.vcxproj`.
 
-## Struktura
+## Documentation
 
-- `src/ETS2Tachograph.Core` - model domenowy i reguła jednej minuty;
-- `src/ETS2Tachograph.Telemetry.Scs` - odczyt shared memory;
-- `src/ETS2Tachograph.Engine` - przetwarzanie ramek i historia;
-- `src/ETS2Tachograph.RuleEngine` - liczniki i naruszenia;
-- `src/ETS2Tachograph.Infrastructure` - SQLite, EF Core i retencja;
-- `src/ETS2Tachograph.Application` - serwisy aplikacyjne;
-- `src/ETS2Tachograph.Reports` - raporty i eksport;
-- `src/ETS2Tachograph.Desktop` - WPF i nakładki;
-- `native/ETS2Tachograph.ScsPlugin` - natywny plugin SCS x64;
-- `tests` - testy jednostkowe, integracyjne i regresyjne.
+- [Documentation index](docs/DOCUMENTATION.md)
+- [Architecture](docs/ARCHITECTURE.md)
+- [Engineering case study](docs/ENGINEERING_CASE_STUDY.md)
+- [English user guide](docs/USER_GUIDE_EN.md)
+- [Known issues](KNOWN_ISSUES_EN.md)
+- [Security policy](SECURITY.md)
+- [Support](SUPPORT.md)
 
-## Ograniczenia
+## Technical debt and next steps
 
-Aktualna lista znajduje się w [KNOWN_ISSUES.md](KNOWN_ISSUES.md); dostępna jest
-również [wersja angielska](KNOWN_ISSUES_EN.md). Przed zgłoszeniem
-błędu warto wygenerować w aplikacji **Raport diagnostyczny** i dołączyć ZIP.
+The product is deliberately presented with its current trade-offs. The largest
+maintenance items are splitting the oversized `MainViewModel` into feature
+view models and separating the broad persistence repository file into focused
+repositories. These refactors are planned, but they are not required to hide a
+known correctness problem in the current release.
 
-## Wsparcie i zgłoszenia
+## License
 
-- błędy: GitHub Issues przez formularz **Bug report**;
-- pytania, pomoc użytkowa i pomysły: GitHub Discussions;
-- podatności: prywatne zgłoszenie w zakładce Security;
-- model wsparcia: best effort, bez gwarantowanego czasu odpowiedzi ani SLA.
-
-Szczegóły znajdują się w [SUPPORT.md](SUPPORT.md) i [SECURITY.md](SECURITY.md).
-
-## Licencja
-
-Oryginalny kod źródłowy projektu jest udostępniany na licencji MIT — zobacz
-[LICENSE](LICENSE). Licencja MIT dotyczy wyłącznie oryginalnego kodu źródłowego
-projektu. Komponenty zewnętrzne podlegają własnym licencjom wskazanym w
-[THIRD_PARTY_NOTICES.md](docs/THIRD_PARTY_NOTICES.md). Nazwy oraz znaki towarowe
-stron trzecich pozostają własnością ich odpowiednich właścicieli.
+Original project code is licensed under the [MIT License](LICENSE). Third-party
+components remain subject to their own terms listed in
+[THIRD_PARTY_NOTICES.md](docs/THIRD_PARTY_NOTICES.md). Third-party names and
+trademarks remain the property of their respective owners.

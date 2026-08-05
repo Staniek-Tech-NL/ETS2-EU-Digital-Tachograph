@@ -407,4 +407,4 @@ First versioned package for controlled beta tests.
 
 Remove the old plugin DLL from `bin\win_x64\plugins`, copy the DLL from this
 package, and restart ETS2 completely. Installation details and known
-limitations are available in `README_EN.md` and `KNOWN_ISSUES_EN.md`.
+limitations are available in `README.md` and `KNOWN_ISSUES_EN.md`.
