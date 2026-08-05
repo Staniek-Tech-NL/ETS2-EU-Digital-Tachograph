@@ -4,10 +4,10 @@
 > pluginu trzeba całkowicie uruchomić ETS2 ponownie; ponowne wczytanie zapisu nie
 > przeładuje biblioteki natywnej.
 
-Opublikowaną bazą pozostaje beta.11.1. Bieżący kod jest kandydatem
-`0.1.0-beta.12` z decyzją GO M6; nie został jeszcze opublikowany i oczekuje
-na końcowy smoke M7. Gate wynosi 570/570 testów, a build Release ma 0 błędów
-i 0 ostrzeżeń.
+Opublikowaną bazą pozostaje beta.11.1. Kandydat `0.1.0-beta.12` uzyskał decyzję
+GO M7 5 sierpnia 2026; wszystkie pozycje końcowego smoke są zielone, ale
+wydanie nie zostało jeszcze opublikowane. Gate wynosi 570/570 testów, a build
+Release ma 0 błędów i 0 ostrzeżeń.
 Artefakt beta.11.1 przeszedł końcowy smoke z aktywną telemetrią 23 lipca 2026;
 wszystkie testy były zielone, a decyzja wydaniowa brzmi **GO**.
 Nowe błędy z testów należy dopisywać razem ze statusem `lokalne` albo numerem

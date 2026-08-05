@@ -278,17 +278,20 @@ Procedura powtórzenia:
 
 ## Checklista RC `0.1.0-beta.12` — M6/M7
 
-- [ ] Start na kopii istniejącej bazy, migracja, backup i dwa restarty.
-- [ ] Start na czystej bazie i utworzenie domyślnego profilu.
-- [ ] Pełna nawigacja, Dashboard, urządzenie i nakładki w `pl-PL`.
-- [ ] Pełna nawigacja, Dashboard, urządzenie i nakładki w `en-GB`.
-- [ ] Historia, wpis manualny, rekompensaty, Raporty, Kierowcy, Ustawienia
+- [x] Start na kopii istniejącej bazy, migracja, backup i dwa restarty.
+- [x] Start na czystej bazie i utworzenie domyślnego profilu.
+- [x] Pełna nawigacja, Dashboard, urządzenie i nakładki w `pl-PL`.
+- [x] Pełna nawigacja, Dashboard, urządzenie i nakładki w `en-GB`.
+- [x] Historia, wpis manualny, rekompensaty, Raporty, Kierowcy, Ustawienia
       i Planer w obu językach.
-- [ ] PDF PL i EN mają te same dane, identyfikatory, minuty oraz zakres.
-- [ ] CSV, JSON, `.tacho` i SQLite zachowują kontrakty maszynowe niezależnie
+- [x] PDF PL i EN mają te same dane, identyfikatory, minuty oraz zakres.
+- [x] CSV, JSON, `.tacho` i SQLite zachowują kontrakty maszynowe niezależnie
       od języka UI.
-- [ ] Plugin v3 z ZIP-a łączy się po pełnym restarcie ETS2.
-- [ ] Numer, commit, zawartość ZIP-a i SHA-256 są zgodne z rejestrem M6.
+- [x] Plugin v3 z ZIP-a łączy się po pełnym restarcie ETS2.
+- [x] Numer, commit, zawartość ZIP-a i SHA-256 są zgodne z rejestrem M6.
+
+**Wynik z 5 sierpnia 2026:** wszystkie testy RC zielone. Decyzja: **GO M7**;
+M8 odblokowany.
 
 ## Historyczny smoke test terenowy artefaktu beta.11.1
 

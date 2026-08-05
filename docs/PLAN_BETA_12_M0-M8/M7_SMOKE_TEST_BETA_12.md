@@ -4,7 +4,9 @@
 **Wydanie docelowe:** `0.1.0-beta.12`  
 **Baza:** `0.1.0-beta.11.1`  
 **Data planu:** 24 lipca 2026  
-**Status początkowy:** **NIE ROZPOCZĘTY**  
+**Status:** **GO**
+**Data rozpoczęcia:** 5 sierpnia 2026
+**Data zakończenia:** 5 sierpnia 2026
 **Kryterium wejścia:** Istnieje niezmienny ZIP beta.12 z numerem, commitem i SHA-256.  
 **Kryterium wyjścia:** Formalna decyzja **GO / FIX / HOLD** dla dokładnego artefaktu beta.12.  
 **Następny etap:** M8
@@ -15,45 +17,45 @@
 
 ### Przygotowanie
 
-- [ ] Rozpakować ZIP do nowego katalogu.
-- [ ] Nie uruchamiać z IDE ani bezpośrednio z ZIP-a.
-- [ ] Zainstalować DLL pluginu z tej samej paczki.
-- [ ] Całkowicie uruchomić ETS2 ponownie.
-- [ ] Zachować kopię istniejącej bazy.
-- [ ] Zapisać hash testowanego ZIP-a.
+- [x] Rozpakować ZIP do nowego katalogu.
+- [x] Nie uruchamiać z IDE ani bezpośrednio z ZIP-a.
+- [x] Zainstalować DLL pluginu z tej samej paczki.
+- [x] Całkowicie uruchomić ETS2 ponownie.
+- [x] Zachować kopię istniejącej bazy.
+- [x] Zapisać hash testowanego ZIP-a.
 
 ### Smoke — istniejąca baza
 
-- [ ] Start aplikacji bez błędów.
-- [ ] Odtworzenie profili, kart, ustawień i historii.
-- [ ] Poprawne rekompensaty i decyzje alokacji.
-- [ ] Oba sloty działają.
-- [ ] Aktywna telemetria v3.
-- [ ] Ruch automatycznie ustawia Jazdę.
-- [ ] Blokady zależne od ruchu działają.
-- [ ] Tryby OUT i Prom działają.
-- [ ] Załadunek/rozładunek nie tworzy fałszywej luki.
-- [ ] Wpis manualny wariant B działa.
-- [ ] Kraje i `ODP. TYG.` działają.
-- [ ] Granica pauzy 44/45 jest poprawna.
-- [ ] Planer tworzy legalny harmonogram i poprawnie unieważnia stale snapshot.
-- [ ] Nakładki S1/S2 są zgodne z Dashboardem.
-- [ ] PDF, CSV, JSON i `.tacho` działają.
-- [ ] Raport diagnostyczny ZIP działa.
-- [ ] Zmiana języka PL/EN utrzymuje się po restarcie.
-- [ ] Aplikacja zamyka się czysto.
-- [ ] Ponowny start odtwarza identyczne dane.
-- [ ] Logi nie zawierają nowych wyjątków ani błędów bindingów.
+- [x] Start aplikacji bez błędów.
+- [x] Odtworzenie profili, kart, ustawień i historii.
+- [x] Poprawne rekompensaty i decyzje alokacji.
+- [x] Oba sloty działają.
+- [x] Aktywna telemetria v3.
+- [x] Ruch automatycznie ustawia Jazdę.
+- [x] Blokady zależne od ruchu działają.
+- [x] Tryby OUT i Prom działają.
+- [x] Załadunek/rozładunek nie tworzy fałszywej luki.
+- [x] Wpis manualny wariant B działa.
+- [x] Kraje i `ODP. TYG.` działają.
+- [x] Granica pauzy 44/45 jest poprawna.
+- [x] Planer tworzy legalny harmonogram i poprawnie unieważnia stale snapshot.
+- [x] Nakładki S1/S2 są zgodne z Dashboardem.
+- [x] PDF, CSV, JSON i `.tacho` działają.
+- [x] Raport diagnostyczny ZIP działa.
+- [x] Zmiana języka PL/EN utrzymuje się po restarcie.
+- [x] Aplikacja zamyka się czysto.
+- [x] Ponowny start odtwarza identyczne dane.
+- [x] Logi nie zawierają nowych wyjątków ani błędów bindingów.
 
 ### Smoke — czysta baza
 
-- [ ] Pierwszy start tworzy bazę i ustawienia.
-- [ ] Utworzenie profilu i karty działa.
-- [ ] Włożenie/wyjęcie karty działa.
-- [ ] Podstawowy przepływ telemetrii działa.
-- [ ] Planer działa z minimalnym poprawnym stanem.
-- [ ] Wybór języka działa po restarcie.
-- [ ] Raport i eksport podstawowy działają.
+- [x] Pierwszy start tworzy bazę i ustawienia.
+- [x] Utworzenie profilu i karty działa.
+- [x] Włożenie/wyjęcie karty działa.
+- [x] Podstawowy przepływ telemetrii działa.
+- [x] Planer działa z minimalnym poprawnym stanem.
+- [x] Wybór języka działa po restarcie.
+- [x] Raport i eksport podstawowy działają.
 
 ### Reguła unieważnienia smoke
 
@@ -67,6 +69,12 @@ unieważnia dotychczasowy smoke
 ```
 
 ### Decyzja M7
+
+**GO — 5 sierpnia 2026.** Użytkownik potwierdził, że wszystkie pozycje
+końcowego smoke testu są zielone. Brak otwartych błędów P0/P1. M8 jest
+odblokowany. Decyzja dotyczy wyłącznie niezmiennego artefaktu
+`ETS2Tachograph-0.1.0-beta.12-win-x64.zip` o SHA-256
+`A2B8F949E100F8683225B7A0D5A76E5C7E3434AD95AEC9596006C4A5E41F5E78`.
 
 **GO** — wszystkie kryteria spełnione, brak P0/P1.  
 **FIX** — potwierdzony błąd z minimalną poprawką, testem regresyjnym i nowym artefaktem.  
@@ -106,16 +114,19 @@ P2 może przejść dalej wyłącznie jako jawnie opisane ograniczenie bez wpływ
 
 ## Szablon aktualizacji statusu
 
-- **Data rozpoczęcia:**
-- **Data zakończenia:**
-- **Wynik:** `GO` / `FIX` / `HOLD` / `NIE DOTYCZY`
-- **Commit / punkt przywracania:**
-- **Build Release:**
-- **Testy automatyczne:**
-- **Testy manualne / dowody:**
-- **Otwarte błędy P0:**
-- **Otwarte błędy P1:**
-- **Uwagi do następnego etapu:**
+- **Data rozpoczęcia:** 2026-08-05
+- **Data zakończenia:** 2026-08-05
+- **Wynik:** **GO**
+- **Commit / punkt przywracania:** `ffe6f7fad2c4fccfad8fc12f1a93675cc5d13c78`
+  — źródło zamrożonego RC
+- **Build Release:** 0 błędów / 0 ostrzeżeń; `FileVersion 0.1.12.0`
+- **Testy automatyczne:** 570/570 PASS z bramki M6
+- **Testy manualne / dowody:** użytkownik potwierdził pełną checklistę M7 jako
+  zieloną na rozpakowanym ZIP-ie, dla istniejącej i czystej bazy
+- **Otwarte błędy P0:** 0
+- **Otwarte błędy P1:** 0
+- **Uwagi do następnego etapu:** M8 odblokowany; opublikować dokładnie ZIP
+  zatwierdzony w M7 wraz z checksumą i dokumentacją PL/EN
 
 ---
 

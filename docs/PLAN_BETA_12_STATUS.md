@@ -4,7 +4,7 @@
 **Baza wydaniowa:** `0.1.0-beta.11.1` (GO 2026-07-23)
 **Cel:** `0.1.0-beta.12` — ostatnia beta przed pierwszą szeroką publikacją.
 **Źródło etapów:** `docs/PLAN_BETA_12_M0-M8/` (integralność SHA-256 potwierdzona z `MANIFEST_SHA256.md`).
-**Ostatnia aktualizacja tablicy:** 2026-07-28
+**Ostatnia aktualizacja tablicy:** 2026-08-05
 
 > Ten plik jest żywym pulpitem postępu. Nie zmienia zakresu ani gate'ów planu
 > nadrzędnego — odzwierciedla tylko stan realizacji. Reguła przejścia: następny
@@ -26,8 +26,8 @@
 | **M4** | Finalizacja UI + **UI freeze** | 🟢 UI zamrożone | GO | M5 |
 | **M5** | Lokalizacja PL/EN | 🟢 M5.1–M5.4 zamknięte | GO | M6 |
 | **M6** | Release Candidate `0.1.0-beta.12` | 🟢 RC zamrożony i identyfikowalny | GO | M7 |
-| M7 | Końcowy smoke beta.12 | ⚪ nie rozpoczęty | — | M8 |
-| M8 | Publikacja | ⚪ nie rozpoczęty | — | — |
+| **M7** | Końcowy smoke beta.12 | 🟢 pełna checklista zielona | GO | M8 |
+| M8 | Publikacja | ⚪ odblokowany, nie rozpoczęty | — | — |
 
 Legenda: ⚪ nie rozpoczęty · 🟡 w toku · 🟢 GO · 🔴 FIX/HOLD
 
@@ -634,8 +634,12 @@ dowody manualne, P0, P1, uwagi).
   `A2B8F949E100F8683225B7A0D5A76E5C7E3434AD95AEC9596006C4A5E41F5E78`;
   kontrolne rozpakowanie 450/450. Oryginalna baza użytkownika pozostała
   niezmieniona. M7 odblokowany.*
-- **M7** — smoke na rozpakowanym ZIP-ie (istniejąca + czysta baza) → GO/FIX/HOLD. — *nie rozpoczęty*
-- **M8** — publikacja dokładnie artefaktu z GO + checksuma + dokumentacja PL/EN. — *nie rozpoczęty*
+- **M7** — smoke na rozpakowanym ZIP-ie (istniejąca + czysta baza) → GO/FIX/HOLD.
+  — *GO 2026-08-05; użytkownik potwierdził wszystkie pozycje jako zielone,
+  brak P0/P1. Decyzja dotyczy zamrożonego ZIP-a o SHA-256
+  `A2B8F949E100F8683225B7A0D5A76E5C7E3434AD95AEC9596006C4A5E41F5E78`.*
+- **M8** — publikacja dokładnie artefaktu z GO + checksuma + dokumentacja PL/EN.
+  — *odblokowany, nie rozpoczęty*
 
 ---
 

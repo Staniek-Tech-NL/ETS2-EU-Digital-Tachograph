@@ -42,8 +42,8 @@ M0 stabilizacja
 | M5 | GO — M5.1–M5.4 ZAMKNIĘTE | [M5 — Lokalizacja PL/EN](M5_LOKALIZACJA_PL_EN.md) |
 | M5.2-P | WYDAJNOŚĆ GO — POPRAWNOŚĆ GO | [M5.2-P — Checkpoint wydajności uruchamiania](M5_2_CHECKPOINT_WYDAJNOSCI_STARTU.md) |
 | M6 | GO — RC ZAMROŻONY, SHA-256 ZAPISANE | [M6 — Release Candidate `0.1.0-beta.12`](M6_RELEASE_CANDIDATE_BETA_12.md) |
-| M7 | NIE ROZPOCZĘTY | [M7 — Końcowy smoke test beta.12](M7_SMOKE_TEST_BETA_12.md) |
-| M8 | NIE ROZPOCZĘTY | [M8 — Publikacja](M8_PUBLIKACJA.md) |
+| M7 | GO — KOŃCOWY SMOKE ZIELONY | [M7 — Końcowy smoke test beta.12](M7_SMOKE_TEST_BETA_12.md) |
+| M8 | ODBLOKOWANY — NIE ROZPOCZĘTY | [M8 — Publikacja](M8_PUBLIKACJA.md) |
 
 
 ## Zasady przejścia
