@@ -138,11 +138,11 @@ The native plugin is built separately as `Release|x64` from
 ## Technical debt and next steps
 
 The product is deliberately presented with its current trade-offs. The largest
-maintenance items are splitting the oversized `MainViewModel` into feature
-view models and progressively separating `ActivityRepository` by session, gap,
-projection, and retention concerns. Persistence types already live in focused
-files; the remaining refactors are planned, but they are not required to hide
-a known correctness problem in the current release.
+remaining maintenance item is splitting the oversized `MainViewModel` into
+feature view models. `ActivityRepository` has already been separated into
+focused files for sessions, gaps, canonical projection, retention, manual
+entries, and writes. The remaining UI refactor is planned, but it is not needed
+to hide a known correctness problem in the current release.
 
 ## License
 
