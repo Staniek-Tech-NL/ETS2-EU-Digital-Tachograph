@@ -54,3 +54,32 @@ jobs:
           name: coverage-reports
           path: TestResults/**/coverage.cobertura.xml
           if-no-files-found: error
+
+  native-build:
+    name: Build native plugin (Release x64)
+    runs-on: windows-2022
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v3
+        with:
+          vs-version: '[17.0,18.0)'
+          msbuild-architecture: x64
+
+      - name: Build native plugin
+        run: >-
+          msbuild native\ETS2Tachograph.ScsPlugin\ETS2Tachograph.ScsPlugin.vcxproj
+          /m
+          /t:Build
+          /p:Configuration=Release
+          /p:Platform=x64
+
+      - name: Upload native plugin
+        uses: actions/upload-artifact@v7
+        with:
+          name: native-plugin-win-x64
+          path: native/ETS2Tachograph.ScsPlugin/x64/Release/ETS2Tachograph.ScsPlugin.dll
+          if-no-files-found: error
