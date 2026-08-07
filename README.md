@@ -6,12 +6,12 @@
 
 <p align="center">
   <a href="https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/actions/workflows/ci.yml/badge.svg?branch=main"></a>
-  <a href="https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph?include_prereleases&label=release"></a>
+  <a href="https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v0.1.0-beta.12"><img alt="Latest release" src="https://img.shields.io/github/v/release/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph?include_prereleases&label=release"></a>
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-2ea44f"></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/latest"><strong>Download</strong></a>
+  <a href="https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v0.1.0-beta.12"><strong>Download</strong></a>
   · <a href="docs/DOCUMENTATION.md"><strong>Documentation</strong></a>
   · <a href="docs/ARCHITECTURE.md"><strong>Architecture</strong></a>
   · <a href="docs/ENGINEERING_CASE_STUDY.md"><strong>Engineering case study</strong></a>
@@ -99,7 +99,7 @@ The current public build is
 [`0.1.0-beta.12`](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v0.1.0-beta.12),
 published as a self-contained Windows x64 pre-release.
 
-1. Download the application package from [Releases](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/latest).
+1. Download the application package from [Releases](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v0.1.0-beta.12).
 2. Copy `ETS2Tachograph.ScsPlugin.dll` to the ETS2 `bin\win_x64\plugins`
    directory.
 3. Run `ETS2Tachograph.Desktop.exe` from the application directory.
