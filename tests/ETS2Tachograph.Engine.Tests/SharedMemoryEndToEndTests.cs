@@ -21,17 +21,22 @@ public sealed class SharedMemoryEndToEndTests
         using var source = new ScsTelemetrySource(reader, TimeSpan.FromMilliseconds(2));
         var engine = new TachographEngine("PL-E2E");
         var processor = new TelemetryProcessor(source, engine);
-        using var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+        using var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 
         var processing = processor.RunAsync(cancellation.Token);
         Write(view, sequence: 2, gameMinute: 100, speedMps: 20, worldGeneration: 3);
-        await Task.Delay(30, cancellation.Token);
+        await WaitUntilAsync(
+            () => engine.Current.GameTime?.TotalMinutes == 100,
+            cancellation.Token);
         Write(view, sequence: 4, gameMinute: 101, speedMps: 20, worldGeneration: 3);
-        await Task.Delay(30, cancellation.Token);
+        await WaitUntilAsync(
+            () => engine.Current.GameTime?.TotalMinutes == 101,
+            cancellation.Token);
         Write(view, sequence: 6, gameMinute: 102, speedMps: 20, worldGeneration: 3);
 
         await WaitUntilAsync(
-            () => engine.Current.LastClosedRecord is not null,
+            () => engine.Current.GameTime?.TotalMinutes == 102 &&
+                engine.Current.LastClosedRecord is not null,
             cancellation.Token);
         await cancellation.CancelAsync();
         await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await processing);
