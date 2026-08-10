@@ -1,4 +1,19 @@
-# Plan testów — kandydat `0.1.0-beta.12`
+# Plan testów — hotfix `0.1.0-beta.12.1`
+
+## Gate hotfixu licznika pauzy
+
+- [x] Czerwony test odtwarza sesję 8:57 odpoczynku po rekonstrukcji i zmianę
+      na „Inna praca”.
+- [x] Po poprawce `ProvisionalActivity` jest natychmiast czyszczona.
+- [x] Pełna regresja: 571/571 PASS.
+- [x] Build Release: 0 błędów, 0 ostrzeżeń.
+- [ ] Smoke dokładnego artefaktu: Dashboard, LCD i overlay nie doliczają
+      odpoczynku po zmianie aktywności.
+- [ ] Kontrola restartu i zgodności PL/EN dokładnego artefaktu.
+
+---
+
+## Historyczny plan beta.12
 
 Plan jest wiążącą checklistą M6/M7 dla niezmiennego artefaktu beta.12.
 Historyczny wynik beta.11.1 pozostaje zapisany w osobnej sekcji i nie zastępuje

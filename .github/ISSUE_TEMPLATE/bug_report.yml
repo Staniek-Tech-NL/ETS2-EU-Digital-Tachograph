@@ -12,8 +12,8 @@ body:
     id: app_version
     attributes:
       label: Application version
-      description: The version shown by the application, for example 0.1.0-beta.12.
-      placeholder: 0.1.0-beta.12
+      description: The version shown by the application, for example 0.1.0-beta.12.1.
+      placeholder: 0.1.0-beta.12.1
     validations:
       required: true
   - type: dropdown

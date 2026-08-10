@@ -1,3 +1,31 @@
+# ETS2 EU Digital Tachograph 0.1.0-beta.12.1 — hotfix licznika pauzy
+
+[Polski](RELEASE_NOTES.md) | [English](RELEASE_NOTES_EN.md)
+
+Wąskie wydanie naprawcze beta.12. Nie zmienia reguł tachografu, XAML,
+protokołu telemetrii v3 ani pluginu.
+
+## Naprawa
+
+- ręczna zmiana aktywności po rekonstruowanym odpoczynku natychmiast usuwa
+  nieaktualną `ProvisionalActivity`;
+- Dashboard, LCD i nakładka nie mogą już doliczać poprzedniego odpoczynku po
+  przełączeniu na „Inna praca”;
+- test regresyjny odtwarza wadliwą sesję: 8:57 odpoczynku, skok czasu i zmianę
+  na inną pracę.
+
+## Weryfikacja
+
+- 571/571 testów automatycznych;
+- build Release: 0 błędów, 0 ostrzeżeń;
+- `FileVersion 0.1.12.1`;
+- brak zmian schematu SQLite i kontraktów zewnętrznych.
+
+Pełny raport:
+`docs/internal-development-history/BUGFIX_REPORT_STALE_PROVISIONAL_REST_2026-08-10.md`.
+
+---
+
 # ETS2 EU Digital Tachograph 0.1.0-beta.12 — wydanie z GO M8
 
 [Polski](RELEASE_NOTES.md) | [English](RELEASE_NOTES_EN.md)

@@ -158,6 +158,26 @@ public sealed class TachographEngineTests
     }
 
     [Fact]
+    public void Manual_work_after_reconstructed_8h57_break_clears_stale_provisional_rest()
+    {
+        var engine = new TachographEngine("PL-TEST");
+        engine.SetManualActivity(DriverActivity.BreakOrRest);
+
+        engine.ProcessFrame(Frame(237_382, 0, 0));
+        engine.ProcessFrame(Frame(237_383, 1, 0));
+        engine.ProcessFrame(Frame(237_918, 2, 0));
+        var resting = engine.ProcessFrame(Frame(237_919, 3, 0));
+
+        Assert.Equal(537, resting.Regulation!.State.CurrentContinuousBreakMinutes);
+        Assert.Equal(DriverActivity.BreakOrRest, resting.ProvisionalActivity);
+
+        engine.SetManualActivity(DriverActivity.OtherWork);
+
+        Assert.Equal(DriverActivity.OtherWork, engine.Current.ManualActivity);
+        Assert.Null(engine.Current.ProvisionalActivity);
+    }
+
+    [Fact]
     public void Live_backward_jump_keeps_history_before_the_new_branch()
     {
         var engine = new TachographEngine("PL-TEST");
