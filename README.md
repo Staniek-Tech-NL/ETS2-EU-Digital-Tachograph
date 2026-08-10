@@ -15,6 +15,7 @@
   · <a href="docs/DOCUMENTATION.md"><strong>Documentation</strong></a>
   · <a href="docs/ARCHITECTURE.md"><strong>Architecture</strong></a>
   · <a href="docs/ENGINEERING_CASE_STUDY.md"><strong>Engineering case study</strong></a>
+  · <a href="docs/portfolio/README.md"><strong>Portfolio</strong></a>
 </p>
 
 <p align="center">
@@ -53,6 +54,23 @@ mixed C# and C++ system rather than a conventional CRUD application.
   telemetry, reporting, and UI-facing behaviour.
 - Windows GitHub Actions pipeline with Release build, tests, TRX results, and
   Cobertura coverage artifacts.
+
+## Portfolio case studies
+
+The application is also documented through three focused module case studies.
+Each one presents a different engineering problem while remaining part of this
+single real project:
+
+- [Journey Planner](docs/portfolio/journey-planner.md) — deterministic driving,
+  break, rest, and delivery planning from an immutable driver-state snapshot.
+- [Activity Gap Reconstruction](docs/portfolio/activity-gap-reconstruction.md) —
+  segmented manual entry, defense-in-depth validation, and transactional history
+  reconstruction.
+- [Reporting & Analytics](docs/portfolio/reporting-analytics.md) — canonical
+  range aggregation, completeness evidence, PDF reporting, CSV, and JSON.
+
+Platform-neutral descriptions, covers, and publishing assets are indexed in the
+[portfolio documentation](docs/portfolio/README.md).
 
 ## What the application does
 

@@ -61,6 +61,23 @@ kierowców i wylicza liczniki zgodnie z zaimplementowanym zakresem reguł.
 - blokada uruchomienia drugiej instancji aplikacji i monitora;
 - alarm przy niezgodnej wersji protokołu pluginu.
 
+## Portfolio — case studies
+
+Projekt został również opisany w trzech wyspecjalizowanych case studies. Każdy
+dokument pokazuje inny problem inżynierski, ale wszystkie moduły pozostają
+częścią jednej rzeczywistej aplikacji:
+
+- [Journey Planner](docs/portfolio/journey-planner.md) — deterministyczne
+  planowanie jazdy, przerw, odpoczynków i terminu dostawy;
+- [Activity Gap Reconstruction](docs/portfolio/activity-gap-reconstruction.md) —
+  segmentowy wpis manualny, wielopoziomowa walidacja i transakcyjna rekonstrukcja
+  historii;
+- [Reporting & Analytics](docs/portfolio/reporting-analytics.md) — agregacja
+  historii kanonicznej, kontrola kompletności, raporty PDF, CSV i JSON.
+
+Uniwersalne opisy, covery i materiały publikacyjne znajdują się w
+[dokumentacji portfolio](docs/portfolio/README.md).
+
 ## Skróty nakładek
 
 - `Alt+1` - pokaż lub ukryj liczniki karty w slocie 1 (`S1`);

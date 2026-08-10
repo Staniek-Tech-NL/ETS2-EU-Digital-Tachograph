@@ -22,3 +22,11 @@ Ready-to-paste titles, descriptions, technology tags, gallery order, and links
 for all four projects are collected in [Platform-neutral portfolio copy](platform-portfolio-copy.md).
 The shared art direction and final image-generation prompt set are recorded in
 [Portfolio cover prompts](cover-prompts.md).
+
+## Portable publishing kit
+
+Short, medium, and extended descriptions in Polish and English, public links,
+an asset manifest, and a reproducible package builder are available in the
+[publishing kit](publishing-kit/README.md). The builder creates one local folder
+and ZIP archive containing all selected texts, covers, and screenshots without
+duplicating the image files in Git history.
