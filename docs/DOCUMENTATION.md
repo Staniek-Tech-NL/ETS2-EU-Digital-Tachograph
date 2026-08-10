@@ -4,6 +4,10 @@
 
 - [Architecture](ARCHITECTURE.md)
 - [Engineering case study](ENGINEERING_CASE_STUDY.md)
+- [Portfolio case studies](portfolio/README.md)
+- [Journey Planner](portfolio/journey-planner.md)
+- [Activity Gap Reconstruction](portfolio/activity-gap-reconstruction.md)
+- [Reporting & Analytics](portfolio/reporting-analytics.md)
 
 ## Dla użytkowników / For users
 
