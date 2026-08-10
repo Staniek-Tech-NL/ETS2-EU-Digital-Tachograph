@@ -6,13 +6,19 @@
 > pluginu trzeba całkowicie uruchomić ETS2 ponownie; ponowne wczytanie zapisu nie
 > przeładuje biblioteki natywnej.
 
-Obowiązującym wydaniem jest `0.1.0-beta.12`, opublikowane jako pre-release
-5 sierpnia 2026 z decyzją GO M8. Wszystkie pozycje końcowego smoke M7 są
-zielone. Gate wynosi 570/570 testów, a build Release ma 0 błędów i 0 ostrzeżeń.
+Obowiązującym wydaniem jest `0.1.0-beta.12.1`, naprawcze pre-release z
+10 sierpnia 2026. Gate wynosi 571/571 testów, a build Release ma 0 błędów
+i 0 ostrzeżeń.
 Artefakt beta.11.1 przeszedł końcowy smoke z aktywną telemetrią 23 lipca 2026;
 wszystkie testy były zielone i pozostaje on zachowaną wersją historyczną.
 Nowe błędy z testów należy dopisywać razem ze statusem `lokalne` albo numerem
 wydanej paczki i raportem diagnostycznym.
+
+## Naprawione w beta.12.1
+
+- Po ręcznym przełączeniu z odpoczynku na inną aktywność silnik natychmiast
+  usuwa nieaktualną aktywność tymczasową. UI nie dolicza już poprzedniego
+  odpoczynku, np. nie pokazuje 9:01, gdy kanoniczna przerwa trwała 8:57.
 
 ## Naprawione w beta.12
 

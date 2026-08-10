@@ -6,14 +6,20 @@
 > ETS2 completely after replacing the plugin; reloading a save does not reload
 > the native library.
 
-The current release is `0.1.0-beta.12`, published as a pre-release on
-5 August 2026 with an M8 GO decision. Every final M7 smoke-test item passed.
-The gate is 570/570 tests and the Release build has 0 errors and 0 warnings.
+The current release is `0.1.0-beta.12.1`, a corrective pre-release published
+on 10 August 2026. The gate is 571/571 tests and the Release build has
+0 errors and 0 warnings.
 The beta.11.1 artifact passed its final live-telemetry smoke test on 23 July
 2026 and remains available as a historical release.
 
 New defects should be recorded with either the affected released version or
 the `local` status and a diagnostic report.
+
+## Fixed in beta.12.1
+
+- After a manual switch from rest to another activity, the engine immediately
+  clears stale provisional activity. The UI no longer keeps adding the previous
+  rest, for example showing 9:01 when canonical rest lasted 8:57.
 
 ## Fixed in beta.12
 

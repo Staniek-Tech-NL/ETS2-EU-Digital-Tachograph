@@ -13,12 +13,14 @@ kierowców i wylicza liczniki zgodnie z zaimplementowanym zakresem reguł.
 
 ## Aktualny stan
 
-- bieżące wydanie to [`0.1.0-beta.12`](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v0.1.0-beta.12),
-  opublikowane jako pre-release 5 sierpnia 2026 z decyzją **GO M8**;
+- bieżące wydanie to [`0.1.0-beta.12.1`](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v0.1.0-beta.12.1),
+  naprawcze pre-release z 10 sierpnia 2026;
+- hotfix usuwa pozostawienie tymczasowej aktywności „Odpoczynek” po ręcznym
+  przełączeniu na inną pracę, które mogło zawyżać licznik pauzy w UI;
 - końcowy smoke M7 był w całości zielony, bez otwartych P0/P1;
 - `0.1.0-beta.11.1` pozostaje zachowaną wersją historyczną;
-- gate M6: **570/570 testów**, build Release 0 błędów i 0 ostrzeżeń,
-  `FileVersion 0.1.12.0`;
+- gate hotfixu: **571/571 testów**, build Release 0 błędów i 0 ostrzeżeń,
+  `FileVersion 0.1.12.1`;
 - checkpoint poprawności i wydajności startu M5.2-P ma wynik **GO**.
 
 ## Podgląd

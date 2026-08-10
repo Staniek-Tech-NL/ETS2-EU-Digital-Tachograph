@@ -127,7 +127,7 @@ public sealed class TachographEngine : ITachographEngine
     public void SetManualActivity(DriverActivity activity)
     {
         _history.ManualActivity = activity;
-        RefreshModeState();
+        RefreshModeState(clearProvisionalActivity: true);
     }
 
     public void SetOutMode(bool enabled)
@@ -165,7 +165,7 @@ public sealed class TachographEngine : ITachographEngine
         RefreshModeState();
     }
 
-    private void RefreshModeState()
+    private void RefreshModeState(bool clearProvisionalActivity = false)
     {
         var regulationRecords = _history.RegulationRecords();
         var ruleTime = Current.Frame?.GameTime ??
@@ -184,6 +184,9 @@ public sealed class TachographEngine : ITachographEngine
         Current = Current with
         {
             ManualActivity = _history.ManualActivity,
+            ProvisionalActivity = clearProvisionalActivity
+                ? null
+                : Current.ProvisionalActivity,
             OutModeEnabled = _history.OutModeEnabled,
             FerryModeEnabled = _history.FerryModeEnabled,
             MultiManningEnabled = MultiManningEnabled,

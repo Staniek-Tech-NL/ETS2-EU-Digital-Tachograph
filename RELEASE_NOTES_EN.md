@@ -1,3 +1,31 @@
+# ETS2 EU Digital Tachograph 0.1.0-beta.12.1 — break-counter hotfix
+
+[Polski](RELEASE_NOTES.md) | [English](RELEASE_NOTES_EN.md)
+
+A narrow corrective release for beta.12. It does not change tachograph rules,
+XAML, telemetry protocol v3, or the plugin.
+
+## Fix
+
+- a manual activity change after reconstructed rest now immediately clears a
+  stale `ProvisionalActivity`;
+- the Dashboard, LCD, and overlay can no longer continue counting the previous
+  rest after switching to Other work;
+- the regression test reproduces the affected session: 8:57 of rest, a time
+  jump, and a switch to other work.
+
+## Verification
+
+- 571/571 automated tests;
+- Release build: 0 errors, 0 warnings;
+- `FileVersion 0.1.12.1`;
+- no SQLite schema or external-contract changes.
+
+Full technical report:
+`docs/internal-development-history/BUGFIX_REPORT_STALE_PROVISIONAL_REST_2026-08-10.md`.
+
+---
+
 # ETS2 EU Digital Tachograph 0.1.0-beta.12 — M8 GO release
 
 [Polski](RELEASE_NOTES.md) | [English](RELEASE_NOTES_EN.md)
