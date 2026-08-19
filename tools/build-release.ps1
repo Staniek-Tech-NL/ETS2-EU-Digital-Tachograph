@@ -44,6 +44,8 @@ if ($LASTEXITCODE -ne 0) {
     throw "dotnet publish failed with exit code $LASTEXITCODE"
 }
 
+Get-ChildItem -LiteralPath $appRoot -Filter '*.pdb' -File | Remove-Item -Force
+
 Copy-Item -LiteralPath $pluginSource -Destination (Join-Path $pluginRoot 'ETS2Tachograph.ScsPlugin.dll')
 
 $rootDocuments = @(
@@ -106,6 +108,13 @@ Public documentation: Polish and English
 This immutable artifact is a candidate for final smoke testing and stable publication.
 "@
 Set-Content -LiteralPath (Join-Path $packageRoot 'BUILD-INFO.txt') -Value $buildInfo -Encoding utf8
+
+$forbiddenFiles = @(Get-ChildItem -LiteralPath $packageRoot -Recurse -File | Where-Object {
+    $_.Extension -in @('.db', '.sqlite', '.pdb', '.trx') -or $_.Name -match 'testhost|xunit'
+})
+if ($forbiddenFiles.Count -ne 0) {
+    throw "Forbidden release files: $($forbiddenFiles.FullName -join ', ')"
+}
 
 Compress-Archive -Path (Join-Path $packageRoot '*') -DestinationPath $archivePath -CompressionLevel Optimal
 $archiveHash = (Get-FileHash -LiteralPath $archivePath -Algorithm SHA256).Hash
