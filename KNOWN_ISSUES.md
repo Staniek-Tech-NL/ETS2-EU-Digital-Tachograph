@@ -6,13 +6,19 @@
 > pluginu trzeba całkowicie uruchomić ETS2 ponownie; ponowne wczytanie zapisu nie
 > przeładuje biblioteki natywnej.
 
-Obowiązującym wydaniem jest `0.1.0-beta.12.1`, naprawcze pre-release z
-10 sierpnia 2026. Gate wynosi 571/571 testów, a build Release ma 0 błędów
-i 0 ostrzeżeń.
+Obowiązującym stabilnym wydaniem jest `1.0.0`. Bazuje ono na zweryfikowanym
+zakresie beta.12.1 i zawiera aktualizacje utrzymaniowe zależności. Gate wynosi
+571/571 testów, a build Release ma 0 błędów i 0 ostrzeżeń.
 Artefakt beta.11.1 przeszedł końcowy smoke z aktywną telemetrią 23 lipca 2026;
 wszystkie testy były zielone i pozostaje on zachowaną wersją historyczną.
 Nowe błędy z testów należy dopisywać razem ze statusem `lokalne` albo numerem
 wydanej paczki i raportem diagnostycznym.
+
+## Utrzymanie w 1.0.0
+
+- Zaktualizowano EF Core do 9.0.19, Microsoft.NET.Test.Sdk do 18.9.0 oraz
+  ujednolicono xUnit runner 4.0.0 we wszystkich projektach testowych.
+- Nie zmieniono protokołu telemetrii v3 ani schematu SQLite.
 
 ## Naprawione w beta.12.1
 

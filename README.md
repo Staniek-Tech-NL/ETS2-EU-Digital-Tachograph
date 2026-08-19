@@ -6,12 +6,12 @@
 
 <p align="center">
   <a href="https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/actions/workflows/ci.yml"><img alt="CI" src="https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/actions/workflows/ci.yml/badge.svg?branch=main"></a>
-  <a href="https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v0.1.0-beta.12.1"><img alt="Latest release" src="https://img.shields.io/github/v/release/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph?include_prereleases&label=release"></a>
+  <a href="https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v1.0.0"><img alt="Latest release" src="https://img.shields.io/github/v/release/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph?label=release"></a>
   <a href="LICENSE"><img alt="MIT license" src="https://img.shields.io/badge/license-MIT-2ea44f"></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v0.1.0-beta.12.1"><strong>Download</strong></a>
+  <a href="https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v1.0.0"><strong>Download</strong></a>
   · <a href="docs/DOCUMENTATION.md"><strong>Documentation</strong></a>
   · <a href="docs/ARCHITECTURE.md"><strong>Architecture</strong></a>
   · <a href="docs/ENGINEERING_CASE_STUDY.md"><strong>Engineering case study</strong></a>
@@ -25,9 +25,9 @@
 ![ETS2 EU Digital Tachograph portfolio preview](docs/images/social-preview.jpg)
 
 > [!NOTE]
-> Current pre-release: [`0.1.0-beta.12.1`](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v0.1.0-beta.12.1).
-> This hotfix clears stale provisional Rest after a manual switch to other work,
-> preventing the UI break counter from being overstated.
+> Current stable release: [`1.0.0`](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v1.0.0).
+> It promotes the verified beta.12.1 feature set to the first stable release and
+> includes the latest compatible EF Core and test-tooling maintenance updates.
 
 > [!IMPORTANT]
 > This project is an ETS2 simulator. It is not a certified tachograph and must
@@ -50,7 +50,7 @@ mixed C# and C++ system rather than a conventional CRUD application.
 - SQLite and EF Core persistence with migrations and pre-migration backups.
 - Layered retention model: minute-level recent history and compact older blocks.
 - PDF, CSV, `.tacho`, and VTC JSON reporting.
-- 571-test hotfix release gate covering domain, application, persistence,
+- 571-test stable release gate covering domain, application, persistence,
   telemetry, reporting, and UI-facing behaviour.
 - Windows GitHub Actions pipeline with Release build, tests, TRX results, and
   Cobertura coverage artifacts.
@@ -119,10 +119,10 @@ data flow, invariants, and failure handling.
 ## Download and installation
 
 The current public build is
-[`0.1.0-beta.12`](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v0.1.0-beta.12),
-published as a self-contained Windows x64 pre-release.
+[`1.0.0`](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v1.0.0),
+published as a self-contained Windows x64 stable release.
 
-1. Download the application package from [Releases](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v0.1.0-beta.12).
+1. Download the application package from [Releases](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v1.0.0).
 2. Copy `ETS2Tachograph.ScsPlugin.dll` to the ETS2 `bin\win_x64\plugins`
    directory.
 3. Run `ETS2Tachograph.Desktop.exe` from the application directory.

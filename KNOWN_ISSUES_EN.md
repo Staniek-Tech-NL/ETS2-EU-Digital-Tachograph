@@ -6,14 +6,20 @@
 > ETS2 completely after replacing the plugin; reloading a save does not reload
 > the native library.
 
-The current release is `0.1.0-beta.12.1`, a corrective pre-release published
-on 10 August 2026. The gate is 571/571 tests and the Release build has
-0 errors and 0 warnings.
+The current stable release is `1.0.0`. It promotes the verified beta.12.1
+feature set and includes dependency-maintenance updates. The gate is 571/571
+tests and the Release build has 0 errors and 0 warnings.
 The beta.11.1 artifact passed its final live-telemetry smoke test on 23 July
 2026 and remains available as a historical release.
 
 New defects should be recorded with either the affected released version or
 the `local` status and a diagnostic report.
+
+## Maintenance in 1.0.0
+
+- EF Core was updated to 9.0.19, Microsoft.NET.Test.Sdk to 18.9.0, and xUnit
+  runner 4.0.0 was applied consistently to every test project.
+- Telemetry protocol v3 and the SQLite schema are unchanged.
 
 ## Fixed in beta.12.1
 
