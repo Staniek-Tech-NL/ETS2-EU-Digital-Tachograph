@@ -5,11 +5,13 @@
 - [x] Czerwony test odtwarza sesję 8:57 odpoczynku po rekonstrukcji i zmianę
       na „Inna praca”.
 - [x] Po poprawce `ProvisionalActivity` jest natychmiast czyszczona.
-- [ ] Pełna regresja: 571/571 PASS na kandydacie `1.0.0`.
-- [ ] Build Release: 0 błędów, 0 ostrzeżeń.
-- [ ] Metadane binarne: `FileVersion 1.0.0.0`, `ProductVersion 1.0.0+<commit>`.
-- [ ] Self-contained ZIP `win-x64` zawiera aplikację, plugin v3 i dokumentację PL/EN.
-- [ ] SHA-256 ZIP-a i pluginu zapisane oraz ponownie zweryfikowane po rozpakowaniu.
+- [x] Pełna regresja: 571/571 PASS na kandydacie `1.0.0`.
+- [x] Build Release: 0 błędów, 0 ostrzeżeń.
+- [x] Metadane binarne: `FileVersion 1.0.0.0`, `ProductVersion 1.0.0+<commit>`.
+- [x] Self-contained ZIP `win-x64` zawiera aplikację, plugin v3 i dokumentację PL/EN.
+- [x] SHA-256 ZIP-a i pluginu zapisane oraz ponownie zweryfikowane po rozpakowaniu.
+- [x] Podstawowy smoke dokładnego artefaktu: start, wersja `v1.0.0`, istniejąca
+      baza, Dashboard i Historia.
 - [ ] Smoke dokładnego artefaktu: Dashboard, LCD i overlay nie doliczają
       odpoczynku po zmianie aktywności.
 - [ ] Kontrola restartu i zgodności PL/EN dokładnego artefaktu.
