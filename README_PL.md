@@ -13,14 +13,13 @@ kierowców i wylicza liczniki zgodnie z zaimplementowanym zakresem reguł.
 
 ## Aktualny stan
 
-- bieżące wydanie to [`0.1.0-beta.12.1`](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v0.1.0-beta.12.1),
-  naprawcze pre-release z 10 sierpnia 2026;
-- hotfix usuwa pozostawienie tymczasowej aktywności „Odpoczynek” po ręcznym
-  przełączeniu na inną pracę, które mogło zawyżać licznik pauzy w UI;
+- bieżące stabilne wydanie to [`1.0.0`](https://github.com/Staniek-Tech-NL/ETS2-EU-Digital-Tachograph/releases/tag/v1.0.0);
+- wydanie promuje zweryfikowany zakres beta.12.1 do pierwszej stabilnej wersji
+  i zawiera aktualizacje utrzymaniowe EF Core oraz narzędzi testowych;
 - końcowy smoke M7 był w całości zielony, bez otwartych P0/P1;
 - `0.1.0-beta.11.1` pozostaje zachowaną wersją historyczną;
-- gate hotfixu: **571/571 testów**, build Release 0 błędów i 0 ostrzeżeń,
-  `FileVersion 0.1.12.1`;
+- gate wydania: **571/571 testów**, build Release 0 błędów i 0 ostrzeżeń,
+  `FileVersion 1.0.0.0`;
 - checkpoint poprawności i wydajności startu M5.2-P ma wynik **GO**.
 
 ## Podgląd
@@ -56,7 +55,7 @@ kierowców i wylicza liczniki zgodnie z zaimplementowanym zakresem reguł.
   ciągłego bloku `BreakOrRest` zakwalifikowanego przez RuleEngine;
 - nakładki `S1` i `S2`, zapamiętujące osobne położenie;
 - trwała baza SQLite, import/eksport `.tacho`, surowy CSV, VTC JSON i raport PDF;
-- raport diagnostyczny ZIP do beta-testów;
+- raport diagnostyczny ZIP do zgłoszeń i analizy problemów;
 - automatyczny backup bazy przed każdą migracją;
 - blokada uruchomienia drugiej instancji aplikacji i monitora;
 - alarm przy niezgodnej wersji protokołu pluginu.

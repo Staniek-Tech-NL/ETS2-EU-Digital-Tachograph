@@ -1,3 +1,29 @@
+# ETS2 EU Digital Tachograph 1.0.0 — first stable release
+
+[Polski](RELEASE_NOTES.md) | [English](RELEASE_NOTES_EN.md)
+
+The project's first stable release. It promotes the complete, verified
+beta.12.1 feature set without adding new domain functionality between beta and
+stabilisation.
+
+## Scope
+
+- the complete WPF application and native SCS telemetry plugin for Windows x64;
+- two driver cards, canonical history, RuleEngine, Journey Planner, manual
+  entry, PDF/CSV/JSON reports, and Polish/English localisation;
+- EF Core 9.0.19, Microsoft.NET.Test.Sdk 18.9.0, and xUnit runner 4.0.0 applied
+  consistently to all test projects;
+- telemetry protocol remains v3, with no SQLite schema change.
+
+## Verification
+
+- 571/571 automated tests;
+- Release build: 0 errors, 0 warnings;
+- `FileVersion 1.0.0.0`;
+- self-contained `win-x64` distribution with application, plugin, and docs.
+
+---
+
 # ETS2 EU Digital Tachograph 0.1.0-beta.12.1 — break-counter hotfix
 
 [Polski](RELEASE_NOTES.md) | [English](RELEASE_NOTES_EN.md)

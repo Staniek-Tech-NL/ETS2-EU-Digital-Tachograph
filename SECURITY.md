@@ -3,10 +3,10 @@
 ## Supported version / Wspierana wersja
 
 Security reports are accepted for the latest published version. The current
-corrective version is `0.1.0-beta.12.1`.
+stable version is `1.0.0`.
 
 Zgłoszenia bezpieczeństwa są przyjmowane dla najnowszej opublikowanej wersji.
-Obowiązującą wersją naprawczą jest `0.1.0-beta.12.1`.
+Obowiązującą stabilną wersją jest `1.0.0`.
 
 ## Reporting a vulnerability / Zgłaszanie podatności
 
